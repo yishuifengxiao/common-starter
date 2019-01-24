@@ -6,7 +6,7 @@
 ```
  	<dependency>
 			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>common-spring-boot-starter</artifactId>
+			<artifactId>all-spring-boot-starter</artifactId>
 			<version>${common-spring-boot-starter.version}</version>
 	</dependency>
 ```
