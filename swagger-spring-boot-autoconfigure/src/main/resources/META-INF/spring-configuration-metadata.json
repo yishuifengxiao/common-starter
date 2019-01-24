@@ -1,0 +1,14 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.yishuifengxiao.common.autoconfigure.properties.CustomProperties",
+      "name": "yishuifengxiao.swagger",
+      "sourceMethod": "getSwagger()",
+      "type": "com.yishuifengxiao.common.autoconfigure.properties.SwaggerProperties"
+    }
+  ],
+  "properties": [
+   
+  ]
+}

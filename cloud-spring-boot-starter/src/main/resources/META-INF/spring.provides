@@ -1,0 +1,1 @@
+provides: spring-boot-starter-web,spring-boot-starter-actuator,spring-cloud-starter-config,spring-cloud-starter-netflix-eureka-client,spring-cloud-bus,spring-cloud-stream-binder-rabbit,spring-cloud-starter-sleuth,spring-cloud-starter-zipkin,spring-cloud-starter-openfeign,spring-cloud-starter-netflix-hystrix,spring-cloud-netflix-hystrix-stream
