@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 	</parent>
 	<artifactId>swagger-spring-boot-autoconfigure</artifactId>
 	<name>swagger-spring-boot-autoconfigure</name>

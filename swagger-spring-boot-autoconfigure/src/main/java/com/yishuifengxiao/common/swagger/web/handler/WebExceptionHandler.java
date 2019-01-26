@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.yishuifengxiao.common.tool.response.Response;
+import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
  * 全局异常处理类
