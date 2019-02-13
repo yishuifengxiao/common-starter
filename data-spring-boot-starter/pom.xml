@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>1.0.3-GA</version>
+		<version>1.0.4</version>
 	</parent>
 	<artifactId>data-spring-boot-starter</artifactId>
 	<name>data-spring-boot-starter</name>

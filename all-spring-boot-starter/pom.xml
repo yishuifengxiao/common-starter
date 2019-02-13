@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>1.0.3-GA</version>
+		<version>1.0.4</version>
 	</parent>
 	<artifactId>all-spring-boot-starter</artifactId>
 	<name>all-spring-boot-starter</name>
@@ -55,25 +56,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>data-spring-boot-starter</artifactId>
+			<artifactId>boot-spring-boot-starter</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>swagger-spring-boot-starter</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-starter-client</artifactId>
-			<version>${spring-admin.version}</version>
-			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>com.yishuifengxiao.common</groupId>
 			<artifactId>cloud-spring-boot-starter</artifactId>
 			<version>${project.version}</version>
-			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<profiles>
