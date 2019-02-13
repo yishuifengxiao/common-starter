@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,7 +32,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  * @version 0.0.1
  */
 @Configuration
-@EnableConfigurationProperties(SwaggerProperties.class)
 @ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = { "basePackage" })
 @EnableSwagger2
 @EnableSwaggerBootstrapUI

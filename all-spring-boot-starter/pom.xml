@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>1.0.3</version>
+		<version>1.0.3-GA</version>
 	</parent>
 	<artifactId>all-spring-boot-starter</artifactId>
 	<name>all-spring-boot-starter</name>
@@ -62,6 +62,18 @@
 			<groupId>com.yishuifengxiao.common</groupId>
 			<artifactId>swagger-spring-boot-starter</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+			<version>${spring-admin.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.yishuifengxiao.common</groupId>
+			<artifactId>cloud-spring-boot-starter</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
 		</dependency>
 	</dependencies>
 	<profiles>

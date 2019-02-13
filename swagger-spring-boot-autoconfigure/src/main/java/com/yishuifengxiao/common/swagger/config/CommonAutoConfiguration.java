@@ -7,10 +7,10 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import com.yishuifengxiao.common.swagger.properties.CorsProperties;
 import com.yishuifengxiao.common.swagger.properties.SwaggerProperties;
 
 /**
@@ -19,8 +19,7 @@ import com.yishuifengxiao.common.swagger.properties.SwaggerProperties;
  * @version 0.0.1
  */
 @Configuration
-@EnableConfigurationProperties(SwaggerProperties.class)
-@ConditionalOnProperty(prefix = "com.yishuifengxiao.swagger", name = { "basePackage" })
+@EnableConfigurationProperties({ SwaggerProperties.class, CorsProperties.class })
 public class CommonAutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(CommonAutoConfiguration.class);
 
