@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>com.yishuifengxiao.common</groupId>
 	<artifactId>common-starter</artifactId>
-	<version>1.1.0</version>
+	<version>1.2.0</version>
 	<packaging>pom</packaging>
 	<name>common-starter</name>
 	<description>swagger ui自定义启动器</description>
@@ -62,7 +62,7 @@
 		<pagehelper.version>1.2.10</pagehelper.version>
 		<tk.mybatis.version>2.1.5</tk.mybatis.version>
 		<druid.version>1.1.13</druid.version>
-		<yishuifengxiao.tool.version>1.2.2</yishuifengxiao.tool.version>
+		<yishuifengxiao.tool.version>1.2.4</yishuifengxiao.tool.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<spring-cloud.version>Finchley.SR2</spring-cloud.version>
 		<spring-admin.version>2.1.2</spring-admin.version>
