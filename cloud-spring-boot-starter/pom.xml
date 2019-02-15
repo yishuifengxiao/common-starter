@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>1.0.4</version>
+		<version>1.1.0</version>
 	</parent>
 	<artifactId>cloud-spring-boot-starter</artifactId>
 	<name>cloud-spring-boot-starter</name>

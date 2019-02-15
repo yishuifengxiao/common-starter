@@ -1,1 +1,1 @@
-provides: common-tool,jolokia-core,spring-boot-starter-actuator,swagger-spring-boot-autoconfigure
+provides: common-tool,jolokia-core,spring-boot-starter-actuator,swagger-spring-boot-autoconfigure,springfox-swagger2,springfox-swagger-ui,swagger-annotations,swagger-models,swagger-bootstrap-ui,spring-session-data-redis,spring-boot-starter-data-redis,spring-boot-starter-data-redis-reactive
