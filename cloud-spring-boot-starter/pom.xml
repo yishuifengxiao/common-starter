@@ -53,10 +53,16 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
+
+		<!-- 基础包 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+
+		<!-- 基础包 -->
+
+		<!-- 基础监控 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -65,6 +71,17 @@
 			<groupId>org.jolokia</groupId>
 			<artifactId>jolokia-core</artifactId>
 		</dependency>
+		<!-- spring admin 监控 -->
+		<dependency>
+			<groupId>de.codecentric</groupId>
+			<artifactId>spring-boot-admin-starter-client</artifactId>
+			<version>${spring-admin.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- spring admin 监控 -->
+		<!-- 基础监控 -->
+
+		<!-- 服务的注册与发现 -->
 
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
@@ -76,37 +93,55 @@
 			<artifactId>spring-cloud-starter-openfeign</artifactId>
 		</dependency>
 
+		<!-- 断路器 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix</artifactId>
 		</dependency>
-
+		<!-- 断路器 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
 			<optional>true</optional>
 		</dependency>
 
+		<!-- 服务的注册与发现 -->
+
+
+		<!-- 微服务监控 -->
+
+		<!-- 断路器监控 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-hystrix-dashboard</artifactId>
 		</dependency>
+		<!-- 断路器监控 -->
 
+		<!-- 断路器聚合监控 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-turbine</artifactId>
+		</dependency>
+		<!-- 断路器聚合监控 -->
+
+		<!-- 微服务监控 -->
+
+
+		<!-- 分布式配置 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
 		</dependency>
+		<!-- 分布式配置 -->
+		<!-- 消息总线 -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-bus-amqp</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<!-- 消息总线 -->
 
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-bus</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-stream-binder-rabbit</artifactId>
-			<optional>true</optional>
-		</dependency>
+		<!-- 微服务追踪 -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
@@ -117,19 +152,8 @@
 			<artifactId>spring-cloud-starter-zipkin</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- 微服务追踪 -->
 
-		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-netflix-hystrix-stream</artifactId>
-			<optional>true</optional>
-		</dependency>
-
-		<dependency>
-			<groupId>de.codecentric</groupId>
-			<artifactId>spring-boot-admin-starter-client</artifactId>
-			<version>${spring-admin.version}</version>
-			<optional>true</optional>
-		</dependency>
 
 	</dependencies>
 	<dependencyManagement>
