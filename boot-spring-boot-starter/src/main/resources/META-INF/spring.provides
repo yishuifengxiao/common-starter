@@ -1,1 +1,1 @@
-provides: data-spring-boot-starter,swagger-spring-boot-starter,spring-boot-admin-starter-client
+provides: data-spring-boot-starter,swagger-spring-boot-starter,spring-boot-admin-starter-client,jolokia-core,spring-boot-starter-actuator,spring-session-data-redis,spring-boot-starter-data-redis,spring-boot-starter-data-redis-reactive,spring-boot-starter-web,jstl
