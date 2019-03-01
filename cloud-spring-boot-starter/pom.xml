@@ -76,7 +76,6 @@
 			<groupId>de.codecentric</groupId>
 			<artifactId>spring-boot-admin-starter-client</artifactId>
 			<version>${spring-admin.version}</version>
-			<optional>true</optional>
 		</dependency>
 		<!-- spring admin 监控 -->
 		<!-- 基础监控 -->
@@ -102,7 +101,6 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
-			<optional>true</optional>
 		</dependency>
 
 		<!-- 服务的注册与发现 -->
