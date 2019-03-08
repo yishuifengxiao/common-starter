@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.service.AncestorService;
  * @Date 2019年3月8日
  * @version 1.0.0
  */
-public abstract class AbstractController {
+public abstract class BaseController {
 	/**
 	 * 收集系统中所有的service
 	 */
@@ -83,7 +83,7 @@ public abstract class AbstractController {
 	 * @return service实例
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends AbstractController> T service(String serviceName) {
+	protected <T extends AncestorService> T service(String serviceName) {
 		if (services == null) {
 			return null;
 		}
@@ -98,7 +98,7 @@ public abstract class AbstractController {
 	 *            service的名字
 	 * @return service实例
 	 */
-	protected <T extends AbstractController> T service(Class<T> clazz) {
+	protected <T extends AncestorService> T service(Class<T> clazz) {
 		return service(clazz.getSimpleName());
 	}
 
