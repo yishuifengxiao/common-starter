@@ -50,7 +50,7 @@ public abstract class AbstractService {
 	 * 收集系统中所有的dao类
 	 */
 	@Autowired(required = false)
-	protected Map<String, AncestorDao> daseDaos;
+	protected Map<String, AncestorDao> daos;
 
 	/**
 	 * 根据Repository的名字获取的Repository的实例化对象
@@ -72,6 +72,9 @@ public abstract class AbstractService {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends JpaRepositoryImplementation<?, ?>> T repository(String name) {
+		if (repositorys == null) {
+			return null;
+		}
 		// 获取到类名
 		JpaRepositoryImplementation<?, ?> repository = repositorys.getOrDefault(toLowerCaseFirstOne(name), null);
 		return repository != null ? (T) repository : null;
@@ -97,7 +100,10 @@ public abstract class AbstractService {
 	 */
 	@SuppressWarnings("unchecked")
 	protected <T extends AncestorDao> T dao(String name) {
-		AncestorDao dao = daseDaos.getOrDefault(toLowerCaseFirstOne(name), null);
+		if (daos == null) {
+			return null;
+		}
+		AncestorDao dao = daos.getOrDefault(toLowerCaseFirstOne(name), null);
 		return dao == null ? null : (T) dao;
 	}
 

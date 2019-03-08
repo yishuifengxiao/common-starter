@@ -98,6 +98,12 @@
 			<artifactId>swagger-spring-boot-autoconfigure</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.yishuifengxiao.common</groupId>
+			<artifactId>data-spring-boot-starter</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
 	</dependencies>
 	<profiles>
 		<profile>
