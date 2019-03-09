@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yishuifengxiao.common.service.AncestorService;
+import com.yishuifengxiao.common.service.AbstractService;
 
 /**
  * 公共抽象控制器
@@ -22,7 +22,7 @@ public abstract class BaseController {
 	 * 收集系统中所有的service
 	 */
 	@Autowired(required = false)
-	protected Map<String, AncestorService> services;
+	protected Map<String, AbstractService> services;
 
 	/**
 	 * 对传入的参数进行非空处理
@@ -83,11 +83,11 @@ public abstract class BaseController {
 	 * @return service实例
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends AncestorService> T service(String serviceName) {
+	protected <T extends AbstractService> T service(String serviceName) {
 		if (services == null) {
 			return null;
 		}
-		AncestorService service = services.getOrDefault(toLowerCaseFirstOne(serviceName), null);
+		AbstractService service = services.getOrDefault(toLowerCaseFirstOne(serviceName), null);
 		return service == null ? null : (T) service;
 	}
 
@@ -98,7 +98,7 @@ public abstract class BaseController {
 	 *            service的名字
 	 * @return service实例
 	 */
-	protected <T extends AncestorService> T service(Class<T> clazz) {
+	protected <T extends AbstractService> T service(Class<T> clazz) {
 		return service(clazz.getSimpleName());
 	}
 
