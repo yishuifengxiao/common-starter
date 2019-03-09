@@ -6,7 +6,6 @@ package com.yishuifengxiao.common.service;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
 import org.springframework.data.repository.Repository;
 
 import com.yishuifengxiao.common.dao.AncestorDao;
@@ -34,7 +33,7 @@ public abstract class AbstractService {
 	 * 将项目中所有的JpaRepository收集起来
 	 */
 	@Autowired(required = false)
-	protected Map<String, JpaRepositoryImplementation<?, ?>> repositorys;
+	protected Map<String, Repository<?, ?>> repositorys;
 	/**
 	 * 收集系统中所有的dao类
 	 */
@@ -68,7 +67,7 @@ public abstract class AbstractService {
 	 *            Repository的名字
 	 * @return Repository的实例化对象
 	 */
-	protected <T extends Repository<?, ?>> T repository(Class<?> clazz) {
+	protected <T extends Repository<?, ?>> T repository(Class<T> clazz) {
 		return repository(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
@@ -96,7 +95,7 @@ public abstract class AbstractService {
 	 *            dao实例Class类名
 	 * @return dao实例化对象
 	 */
-	protected <T extends AncestorDao> T dao(Class<?> clazz) {
+	protected <T extends AncestorDao> T dao(Class<T> clazz) {
 		return dao(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
@@ -139,7 +138,7 @@ public abstract class AbstractService {
 	 *            通用mapper的实例Class名字
 	 * @return 通用mapper的实例对象
 	 */
-	protected <T extends Mapper<?>> T mapper(Class<?> clazz) {
+	protected <T extends Mapper<?>> T mapper(Class<T> clazz) {
 		return mapper(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
