@@ -11,6 +11,8 @@ import org.springframework.data.repository.Repository;
 
 import com.yishuifengxiao.common.dao.AncestorDao;
 
+import tk.mybatis.mapper.common.Mapper;
+
 /**
  * 逻辑层抽象公有逻辑类
  * 
@@ -29,6 +31,23 @@ public abstract class AbstractService {
 	public final static int MIN_PAGE_NUM = 1;
 
 	/**
+	 * 将项目中所有的JpaRepository收集起来
+	 */
+	@Autowired(required = false)
+	protected Map<String, JpaRepositoryImplementation<?, ?>> repositorys;
+	/**
+	 * 收集系统中所有的dao类
+	 */
+	@Autowired(required = false)
+	protected Map<String, AncestorDao> daos;
+
+	/**
+	 * 收集tkmybatis中的通用mapper
+	 */
+	@Autowired(required = false)
+	protected Map<String, Mapper<?>> mappers;
+
+	/**
 	 * 对当前页进行减一转换
 	 * 
 	 * @param pageSize
@@ -43,25 +62,14 @@ public abstract class AbstractService {
 	}
 
 	/**
-	 * 将项目中所有的JpaRepository收集起来
-	 */
-	@Autowired(required = false)
-	protected Map<String, JpaRepositoryImplementation<?, ?>> repositorys;
-	/**
-	 * 收集系统中所有的dao类
-	 */
-	@Autowired(required = false)
-	protected Map<String, AncestorDao> daos;
-
-	/**
-	 * 根据Repository的名字获取的Repository的实例化对象
+	 * 根据Repository的Class名字获取的Repository的实例化对象
 	 * 
 	 * @param repositoryName
 	 *            Repository的名字
 	 * @return Repository的实例化对象
 	 */
-	protected <T extends Repository<?, ?>> T repository(Class<T> clazz) {
-		return repository(clazz.getSimpleName());
+	protected <T extends Repository<?, ?>> T repository(Class<?> clazz) {
+		return repository(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
 	/**
@@ -77,19 +85,19 @@ public abstract class AbstractService {
 			return null;
 		}
 		// 获取到类名
-		Repository<?, ?> repository = repositorys.getOrDefault(toLowerCaseFirstOne(name), null);
+		Repository<?, ?> repository = repositorys.getOrDefault(name, null);
 		return repository != null ? (T) repository : null;
 	}
 
 	/**
-	 * 根据dao实例的名字获取dao实例化对象
+	 * 根据dao实例的Class名字获取dao实例化对象
 	 * 
 	 * @param clazz
-	 *            dao实例类名
+	 *            dao实例Class类名
 	 * @return dao实例化对象
 	 */
-	protected <T extends AncestorDao> T dao(Class<T> clazz) {
-		return dao(clazz);
+	protected <T extends AncestorDao> T dao(Class<?> clazz) {
+		return dao(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
 	/**
@@ -104,8 +112,35 @@ public abstract class AbstractService {
 		if (daos == null) {
 			return null;
 		}
-		AncestorDao dao = daos.getOrDefault(toLowerCaseFirstOne(name), null);
+		AncestorDao dao = daos.getOrDefault(name, null);
 		return dao == null ? null : (T) dao;
+	}
+
+	/**
+	 * 根据通用mapper的实例名字获取其实例化对象
+	 * 
+	 * @param name
+	 *            通用mapper的实例名字
+	 * @return 通用mapper的实例对象
+	 */
+	@SuppressWarnings("unchecked")
+	protected <T extends Mapper<?>> T mapper(String name) {
+		if (mappers == null) {
+			return null;
+		}
+		Mapper<?> mapper = mappers.getOrDefault(name, null);
+		return mapper == null ? null : (T) mapper;
+	}
+
+	/**
+	 * 根据通用mapper的实例Class名字获取其实例化对象
+	 * 
+	 * @param name
+	 *            通用mapper的实例Class名字
+	 * @return 通用mapper的实例对象
+	 */
+	protected <T extends Mapper<?>> T mapper(Class<?> clazz) {
+		return mapper(toLowerCaseFirstOne(clazz.getSimpleName()));
 	}
 
 	/**
