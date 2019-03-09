@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
+import org.springframework.data.repository.Repository;
 
 import com.yishuifengxiao.common.dao.AncestorDao;
 
@@ -59,7 +60,7 @@ public abstract class AbstractService {
 	 *            Repository的名字
 	 * @return Repository的实例化对象
 	 */
-	protected <T extends JpaRepositoryImplementation<?, ?>> T repository(Class<T> clazz) {
+	protected <T extends Repository<?, ?>> T repository(Class<T> clazz) {
 		return repository(clazz.getSimpleName());
 	}
 
@@ -71,12 +72,12 @@ public abstract class AbstractService {
 	 * @return Repository的实例化对象
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends JpaRepositoryImplementation<?, ?>> T repository(String name) {
+	protected <T extends Repository<?, ?>> T repository(String name) {
 		if (repositorys == null) {
 			return null;
 		}
 		// 获取到类名
-		JpaRepositoryImplementation<?, ?> repository = repositorys.getOrDefault(toLowerCaseFirstOne(name), null);
+		Repository<?, ?> repository = repositorys.getOrDefault(toLowerCaseFirstOne(name), null);
 		return repository != null ? (T) repository : null;
 	}
 
