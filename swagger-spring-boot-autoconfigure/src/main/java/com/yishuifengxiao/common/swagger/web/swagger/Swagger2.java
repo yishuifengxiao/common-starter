@@ -3,6 +3,8 @@ package com.yishuifengxiao.common.swagger.web.swagger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import com.yishuifengxiao.common.swagger.properties.SwaggerProperties;
-import com.yishuifengxiao.common.tool.collections.EmptyUtil;
+import com.yishuifengxiao.common.swagger.properties.SwaggerProperties.AuthoriZationPar;
 
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
@@ -36,6 +38,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableSwaggerBootstrapUI
 public class Swagger2 {
+	private final static Logger log=LoggerFactory.getLogger(Swagger2.class);
 	@Autowired
 	private SwaggerProperties swaggerProperties;
 
@@ -43,8 +46,9 @@ public class Swagger2 {
 	public Docket createRestApi() {
 
 		List<Parameter> pars = new ArrayList<Parameter>();
-
-		if (EmptyUtil.notEmpty(swaggerProperties.getAuths())) {
+		List<AuthoriZationPar> auths = swaggerProperties.getAuths();
+		log.debug("================> 这里的 授权参数为 {}",auths);
+		if (auths != null && auths.size() != 0) {
 			swaggerProperties.getAuths().forEach(t -> {
 				ParameterBuilder authorizationPar = new ParameterBuilder();
 				authorizationPar.name(t.getName()).description(t.getDescription())

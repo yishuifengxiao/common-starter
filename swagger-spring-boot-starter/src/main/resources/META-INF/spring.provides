@@ -1,1 +1,1 @@
-provides: common-tool,springfox-swagger2,springfox-swagger-ui,swagger-annotations,swagger-models,swagger-bootstrap-ui,swagger-spring-boot-autoconfigure,data-spring-boot-starter
+provides: common-tool,springfox-swagger2,springfox-swagger-ui,swagger-annotations,swagger-models,swagger-bootstrap-ui,swagger-spring-boot-autoconfigure,data-spring-boot-starter,spring-boot-starter-web

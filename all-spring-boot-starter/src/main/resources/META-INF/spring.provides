@@ -1,1 +1,1 @@
-provides: data-spring-boot-starter,swagger-spring-boot-starter,spring-boot-admin-starter-client,cloud-spring-boot-starter
+provides: boot-spring-boot-starter,cloud-spring-boot-starter

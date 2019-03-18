@@ -50,11 +50,6 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>common-tool</artifactId>
-			<version>${yishuifengxiao.tool.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 		</dependency>
@@ -62,6 +57,27 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-autoconfigure</artifactId>
 		</dependency>
+
+
+		<!-- 可选依赖 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.yishuifengxiao.common</groupId>
+			<artifactId>common-tool</artifactId>
+			<version>${yishuifengxiao.tool.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.yishuifengxiao.common</groupId>
+			<artifactId>data-spring-boot-starter</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<!-- 可选依赖 -->
+		
 		<!-- swagger2 -->
 		<dependency>
 			<groupId>io.springfox</groupId>
@@ -90,12 +106,7 @@
 		</dependency>
 		<!-- swagger2 -->
 
-		<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>data-spring-boot-starter</artifactId>
-			<version>${project.version}</version>
-			<optional>true</optional>
-		</dependency>
+
 	</dependencies>
 	<profiles>
 		<profile>
