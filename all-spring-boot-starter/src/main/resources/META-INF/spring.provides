@@ -1,1 +1,1 @@
-provides: boot-spring-boot-starter,cloud-spring-boot-starter
+provides: boot-spring-boot-starter,cloud-spring-boot-starter,guava,javax.interceptor-api
