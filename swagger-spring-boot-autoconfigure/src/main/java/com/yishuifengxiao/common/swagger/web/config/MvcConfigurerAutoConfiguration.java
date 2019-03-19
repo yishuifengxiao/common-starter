@@ -15,7 +15,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @Version 0.0.1
  */
 @EnableAutoConfiguration
-public class MvcConfigurer implements WebMvcConfigurer {
+public class MvcConfigurerAutoConfiguration implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/META-INF/resources/");

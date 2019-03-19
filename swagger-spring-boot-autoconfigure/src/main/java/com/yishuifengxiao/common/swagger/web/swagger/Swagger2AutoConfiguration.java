@@ -37,8 +37,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = { "basePackage" })
 @EnableSwagger2
 @EnableSwaggerBootstrapUI
-public class Swagger2 {
-	private final static Logger log=LoggerFactory.getLogger(Swagger2.class);
+public class Swagger2AutoConfiguration {
+	private final static Logger log=LoggerFactory.getLogger(Swagger2AutoConfiguration.class);
 	@Autowired
 	private SwaggerProperties swaggerProperties;
 
