@@ -2,5 +2,4 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.yishuifengxiao.common.swagger.config.CommonAutoConfiguration,\
 com.yishuifengxiao.common.swagger.web.config.CorsAutoConfiguration,\
-com.yishuifengxiao.common.swagger.web.config.MvcConfigurerAutoConfiguration,\
 com.yishuifengxiao.common.swagger.web.swagger.Swagger2AutoConfiguration
