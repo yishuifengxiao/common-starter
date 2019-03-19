@@ -57,6 +57,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
+		
 		<!-- tk-mybatis -->
 		<dependency>
 			<groupId>com.github.pagehelper</groupId>
@@ -88,16 +89,22 @@
 		</dependency>
 		<!-- 支持java8的日期时间 -->
 		<!-- tk-mybatis -->
+		
+		
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>${mysql.version}</version><!--$NO-MVN-MAN-VER$ -->
 		</dependency>
+		
+		
 		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>druid-spring-boot-starter</artifactId>
 			<version>${druid.version}</version>
 		</dependency>
+		
+		
 		<!-- cache redis -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

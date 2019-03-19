@@ -49,10 +49,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<dependencies>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
+
+
+		<!-- 自定义启动器 -->
 		<dependency>
 			<groupId>com.yishuifengxiao.common</groupId>
 			<artifactId>data-spring-boot-starter</artifactId>
@@ -63,6 +67,9 @@
 			<artifactId>swagger-spring-boot-starter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!-- 自定义启动器 -->
+
+		<!-- 监控相关 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
@@ -76,6 +83,9 @@
 			<groupId>org.jolokia</groupId>
 			<artifactId>jolokia-core</artifactId>
 		</dependency>
+		<!-- 监控相关 -->
+
+		<!-- 缓存相关 -->
 		<!-- Spring session -->
 		<dependency>
 			<groupId>org.springframework.session</groupId>
@@ -90,6 +100,10 @@
 			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 		<!-- Spring session -->
+		<!-- 缓存相关 -->
+
+
+
 		<!-- spring web -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -100,6 +114,8 @@
 			<artifactId>jstl</artifactId>
 		</dependency>
 		<!-- spring web -->
+
+
 	</dependencies>
 	<profiles>
 		<profile>
