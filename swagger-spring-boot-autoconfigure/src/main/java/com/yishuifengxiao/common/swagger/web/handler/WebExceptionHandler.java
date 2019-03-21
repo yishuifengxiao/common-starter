@@ -1,7 +1,9 @@
 package com.yishuifengxiao.common.swagger.web.handler;
+
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
@@ -140,6 +143,25 @@ public class WebExceptionHandler {
 	public Response<String> handle(ConstraintViolationException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "非法参数");
 		logger.warn("请求{} 请求参数有误,失败的原因为 {}  ", response.getId(), e.getMessage());
+		return response;
+	}
+
+	/**
+	 * 数据库插入异常
+	 * 
+	 * @param e
+	 * @return
+	 */
+	@ExceptionHandler
+	@ResponseBody
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Response<String> handle(MySQLIntegrityConstraintViolationException e) {
+		String msg = "非法参数";
+		if (StringUtils.containsIgnoreCase(e.getMessage(), "Duplicate")) {
+			msg = "已经存在相似的数据,不能重复添加";
+		}
+		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), msg);
+		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
 
