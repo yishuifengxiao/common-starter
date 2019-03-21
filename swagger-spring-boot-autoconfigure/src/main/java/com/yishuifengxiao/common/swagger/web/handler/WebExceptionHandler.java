@@ -1,11 +1,13 @@
 package com.yishuifengxiao.common.swagger.web.handler;
 
+
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -90,7 +92,6 @@ public class WebExceptionHandler {
 		return response;
 	}
 
-
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public Response<String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
@@ -137,7 +138,6 @@ public class WebExceptionHandler {
 		return response;
 	}
 
-	
 	/**
 	 * 数据库插入重复数据异常
 	 * 
@@ -152,8 +152,7 @@ public class WebExceptionHandler {
 		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
-	
-	
+
 	/**
 	 * 数据库插入异常
 	 * 
@@ -172,7 +171,29 @@ public class WebExceptionHandler {
 		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
-	
+
+	/**
+	 * 数据保存异常
+	 * 
+	 * @param e
+	 * @return
+	 */
+	@ExceptionHandler
+	@ResponseBody
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public Response<String> handle(DataIntegrityViolationException e) {
+		String msg = "数据保存失败";
+		if (StringUtils.containsIgnoreCase(e.getMessage(), "Duplicate")) {
+			msg = "已经存在相似的数据,不能重复添加";
+		}
+		if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+			msg = "可能已经存在相似的数据,请检查输入数据";
+		}
+		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), msg);
+		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
+		return response;
+	}
+
 	/**
 	 * 500 - Internal Server Error
 	 */
@@ -180,9 +201,9 @@ public class WebExceptionHandler {
 	@ExceptionHandler(Exception.class)
 	public Response<String> handleException(Exception e) {
 		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败");
+		logger.warn("=================> 请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
-
 
 }
