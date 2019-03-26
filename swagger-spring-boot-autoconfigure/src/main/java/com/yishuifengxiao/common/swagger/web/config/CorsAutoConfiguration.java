@@ -33,9 +33,14 @@ public class CorsAutoConfiguration {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("*")
-						.allowedMethods("HEAD", "GET", "PUT", "POST", "PATCH", "DELETE").allowedHeaders("*")
-						.allowCredentials(true);
+				//@formatter:off  
+				registry
+					.addMapping("/**")
+					.allowedOrigins("*")
+					.allowedMethods("HEAD", "GET", "PUT", "POST", "PATCH", "DELETE")
+					.allowedHeaders("*")
+					.allowCredentials(true);//允许带认证信息的配置
+				//@formatter:on  
 			}
 		};
 	}
