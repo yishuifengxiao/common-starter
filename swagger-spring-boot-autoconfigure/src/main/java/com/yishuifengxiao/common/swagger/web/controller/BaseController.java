@@ -27,11 +27,21 @@ public abstract class BaseController {
 	/**
 	 * 对传入的参数进行非空处理
 	 * 
-	 * @param param
-	 * @return
+	 * @param param 传入的参数
+	 * @return 处理后的参数
 	 */
 	protected <T> T convert(T t) {
 		return t == null || "".equals(t) || "undefined".equals(t) ? null : t;
+	}
+
+	/**
+	 * 对字符串进行非空和空格处理
+	 * 
+	 * @param str 传入的参数
+	 * @return  处理后的参数
+	 */
+	protected String trim(String str) {
+		return StringUtils.isNotBlank(str) ? str.trim() : null;
 	}
 
 	/**

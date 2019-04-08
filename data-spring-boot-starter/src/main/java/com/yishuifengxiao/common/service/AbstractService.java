@@ -28,6 +28,10 @@ public abstract class AbstractService {
 	 * 默认的最小页的页码
 	 */
 	public final static int MIN_PAGE_NUM = 1;
+	/**
+	 * 默认的第一个元素的索引
+	 */
+	public final static int FIRST_ELEMENT_INDEX = 0;
 
 	/**
 	 * 将项目中所有的JpaRepository收集起来
