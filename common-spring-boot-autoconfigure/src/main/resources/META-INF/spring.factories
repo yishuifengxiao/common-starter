@@ -1,0 +1,4 @@
+# Auto Configure
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.yishuifengxiao.common.autoconfigure.Swagger2AutoConfiguration,\
+com.yishuifengxiao.common.autoconfigure.CorsAutoConfiguration

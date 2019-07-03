@@ -1,22 +1,25 @@
 <?xml version="1.0"?>
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
 		<version>3.0.0</version>
 	</parent>
-	<artifactId>all-spring-boot-starter</artifactId>
-	<name>all-spring-boot-starter</name>
+	<artifactId>common-spring-boot-starter</artifactId>
+	<name>common-spring-boot-starter</name>
 	<url>http://www.yishuifengxiao.com</url>
+
 	<licenses>
 		<license>
 			<name>The Apache License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
+
 	<developers>
 		<developer>
 			<name>yishuifengxiao</name>
@@ -25,16 +28,18 @@
 			<organizationUrl>http://www.yishuifengxiao.com</organizationUrl>
 		</developer>
 	</developers>
+
 	<scm>
 		<connection>
-         scm:git:https://gitee.com/zhiyubujian/common-depend.git
+         scm:git:https://gitee.com/zhiyubujian/common-starter.git
       </connection>
 		<developerConnection>
-         scm:git:https://gitee.com/zhiyubujian/common-depend.git
+         scm:git:https://gitee.com/zhiyubujian/common-starter.git
       </developerConnection>
-		<url>https://gitee.com/zhiyubujian/common-depend/tree/master</url>
+		<url>https://gitee.com/zhiyubujian/common-starter/tree/master</url>
 		<tag>v1.0.0</tag>
 	</scm>
+
 	<distributionManagement>
 		<snapshotRepository>
 			<id>ossrh</id>
@@ -53,33 +58,17 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
+		<!-- @ConfigurationProperties annotation processing (metadata for IDEs) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>common-spring-boot-starter</artifactId>
+			<artifactId>common-spring-boot-autoconfigure</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>cloud-spring-boot-starter</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<!-- 这里是需要统一设置版本的 jar -->
-
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>${guava.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.interceptor</groupId>
-			<artifactId>javax.interceptor-api</artifactId>
-			<version>${javax.interceptor-api.version}</version>
-		</dependency>
-		<!-- 这里是需要统一设置版本的 jar -->
-
-
 	</dependencies>
 	<profiles>
 		<profile>

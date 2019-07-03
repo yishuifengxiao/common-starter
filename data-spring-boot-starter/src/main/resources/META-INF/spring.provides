@@ -1,1 +1,0 @@
-provides: spring-boot-starter-data-jpa,pagehelper-spring-boot-starter,mapper-spring-boot-starter,mysql-connector-java,druid-spring-boot-starter,spring-boot-starter-cache,spring-boot-starter-data-redis,spring-boot-starter-data-redis-reactive
