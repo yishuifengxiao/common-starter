@@ -61,7 +61,7 @@ public class CorsAutoConfiguration {
 		corsConfiguration.addAllowedOrigin("*");
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.addAllowedMethod("*");
-		source.registerCorsConfiguration("/**", corsConfiguration); // 4
+		source.registerCorsConfiguration("/**", corsConfiguration); 
 		return new CorsFilter(source);
 	}
 

@@ -34,6 +34,11 @@ import com.yishuifengxiao.common.tool.entity.Response;
 @ResponseBody
 public class WebExceptionHandler {
 	private static Logger logger = LoggerFactory.getLogger(WebExceptionHandler.class);
+	
+	/**
+	 * 数据重复的标志
+	 */
+	private final static String DUPLICATE_FLAG="Duplicate"; 
 
 	/**
 	 * 400 - Bad Request
@@ -164,7 +169,7 @@ public class WebExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public Response<String> handle(MySQLIntegrityConstraintViolationException e) {
 		String msg = "非法参数";
-		if (StringUtils.containsIgnoreCase(e.getMessage(), "Duplicate")) {
+		if (StringUtils.containsIgnoreCase(e.getMessage(), DUPLICATE_FLAG)) {
 			msg = "已经存在相似的数据,不能重复添加";
 		}
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), msg);
@@ -183,7 +188,7 @@ public class WebExceptionHandler {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public Response<String> handle(DataIntegrityViolationException e) {
 		String msg = "数据保存失败";
-		if (StringUtils.containsIgnoreCase(e.getMessage(), "Duplicate")) {
+		if (StringUtils.containsIgnoreCase(e.getMessage(), DUPLICATE_FLAG)) {
 			msg = "已经存在相似的数据,不能重复添加";
 		}
 		if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
