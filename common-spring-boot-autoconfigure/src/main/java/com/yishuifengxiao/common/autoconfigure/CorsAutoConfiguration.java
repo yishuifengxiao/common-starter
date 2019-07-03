@@ -3,9 +3,7 @@
  */
 package com.yishuifengxiao.common.autoconfigure;
 
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
@@ -22,7 +20,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @version 0.0.1
  */
 @Configuration
-@AutoConfigureAfter(WebMvcAutoConfiguration.class)
 public class CorsAutoConfiguration {
 
 	/**
