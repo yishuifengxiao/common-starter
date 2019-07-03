@@ -17,6 +17,7 @@ import com.yishuifengxiao.common.service.AbstractService;
  * @Date 2019年3月8日
  * @version 1.0.0
  */
+@Deprecated
 public abstract class BaseController {
 	/**
 	 * 收集系统中所有的service

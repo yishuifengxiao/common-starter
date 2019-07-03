@@ -10,5 +10,6 @@ package com.yishuifengxiao.common.service;
  * @Date 2019年3月8日
  * @version 1.0.0
  */
+@Deprecated
 public interface AncestorService {
 }

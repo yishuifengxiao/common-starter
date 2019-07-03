@@ -19,6 +19,7 @@ import tk.mybatis.mapper.common.Mapper;
  * @Date 2019年3月8日
  * @version 1.0.0
  */
+@Deprecated
 public abstract class AbstractService {
 	/**
 	 * 默认的当前页的页码
