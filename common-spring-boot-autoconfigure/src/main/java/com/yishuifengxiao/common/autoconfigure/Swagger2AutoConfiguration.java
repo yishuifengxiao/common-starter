@@ -13,6 +13,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import com.yishuifengxiao.common.properties.SwaggerProperties;
@@ -47,6 +49,11 @@ public class Swagger2AutoConfiguration {
 	@Autowired
 	private SwaggerProperties swaggerProperties;
 
+	/**
+	 * swagger-ui配置
+	 * 
+	 * @return
+	 */
 	@Bean
 	@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = { "basePackage" })
 	public Docket createRestApi() {
@@ -75,6 +82,24 @@ public class Swagger2AutoConfiguration {
 				.contact(new Contact(swaggerProperties.getContact().getName(), swaggerProperties.getContact().getUrl(),
 						swaggerProperties.getContact().getEmail()))
 				.version(swaggerProperties.getVersion()).build();
+	}
+
+	/**
+	 * 增加swagger ui静态资源配置
+	 * 
+	 * @return
+	 */
+	@Bean
+	public WebMvcConfigurer swaggerWebMvcConfigurer() {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addResourceHandlers(ResourceHandlerRegistry registry) {
+				log.debug("================> 增加swagger ui静态资源配置");
+				registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/META-INF/resources/");
+				registry.addResourceHandler("/webjars/**")
+						.addResourceLocations("classpath*:/META-INF/resources/webjars/");
+			}
+		};
 	}
 
 	@PostConstruct
