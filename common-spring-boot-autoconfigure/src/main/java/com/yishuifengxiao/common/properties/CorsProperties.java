@@ -15,7 +15,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "yishuifengxiao.cors")
 public class CorsProperties {
 	/**
-	 * 是否开启跨域支持
+	 * 是否开启跨域支持,默认开启
 	 */
 	private Boolean enable = true;
 

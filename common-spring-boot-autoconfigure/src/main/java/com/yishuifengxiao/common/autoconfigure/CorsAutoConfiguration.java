@@ -3,6 +3,8 @@
  */
 package com.yishuifengxiao.common.autoconfigure;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class CorsAutoConfiguration {
+	private final static Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
 	/**
 	 * cors协议支持
@@ -33,6 +36,7 @@ public class CorsAutoConfiguration {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
+				log.debug("=================================================> 开启跨域了");
 				//@formatter:off  
 				registry
 					.addMapping("/**")
@@ -58,7 +62,7 @@ public class CorsAutoConfiguration {
 		corsConfiguration.addAllowedOrigin("*");
 		corsConfiguration.addAllowedHeader("*");
 		corsConfiguration.addAllowedMethod("*");
-		source.registerCorsConfiguration("/**", corsConfiguration); 
+		source.registerCorsConfiguration("/**", corsConfiguration);
 		return new CorsFilter(source);
 	}
 
