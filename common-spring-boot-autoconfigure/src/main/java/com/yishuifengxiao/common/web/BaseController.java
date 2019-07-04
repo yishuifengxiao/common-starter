@@ -11,7 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.yishuifengxiao.common.service.AbstractService;
 
 /**
- * 公共抽象控制器
+ * 公共抽象控制器<br/>
+ * <b>下一个大版本中会移除</b>
  * 
  * @author yishui
  * @Date 2019年3月8日
@@ -28,8 +29,7 @@ public abstract class BaseController {
 	/**
 	 * 对传入的参数进行非空处理
 	 * 
-	 * @param param
-	 *            传入的参数
+	 * @param param 传入的参数
 	 * @return 处理后的参数
 	 */
 	protected <T> T convert(T t) {
@@ -39,8 +39,7 @@ public abstract class BaseController {
 	/**
 	 * 对字符串进行非空和空格处理
 	 * 
-	 * @param str
-	 *            传入的参数
+	 * @param str 传入的参数
 	 * @return 处理后的参数
 	 */
 	protected String trim(String str) {
@@ -87,8 +86,7 @@ public abstract class BaseController {
 	/**
 	 * 将字符串的首字母变为小写的
 	 * 
-	 * @param s
-	 *            字符串
+	 * @param s 字符串
 	 * @return
 	 */
 	protected String toLowerCaseFirstOne(String s) {
@@ -102,8 +100,7 @@ public abstract class BaseController {
 	/**
 	 * 根据service的名字获取service实例
 	 * 
-	 * @param serviceName
-	 *            service的名字
+	 * @param serviceName service的名字
 	 * @return service实例
 	 */
 	@SuppressWarnings("unchecked")
@@ -118,8 +115,7 @@ public abstract class BaseController {
 	/**
 	 * 根据service的名字获取service实例
 	 * 
-	 * @param clazz
-	 *            service的名字
+	 * @param clazz service的名字
 	 * @return service实例
 	 */
 	protected <T extends AbstractService> T service(Class<T> clazz) {

@@ -13,8 +13,8 @@ import com.yishuifengxiao.common.dao.AncestorDao;
 import tk.mybatis.mapper.common.Mapper;
 
 /**
- * 逻辑层抽象公有逻辑类
- * 
+ * 逻辑层抽象公有逻辑类<br/>
+ * <b>下一个大版本中会移除</b>
  * @author yishui
  * @Date 2019年3月8日
  * @version 1.0.0
