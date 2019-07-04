@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.base;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.ApplicationContext;
@@ -140,6 +141,23 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 	}
 
 	/**
+	 * 将源对象里的属性赋值给目标对象
+	 * 
+	 * @param <S>    源对象
+	 * @param <T>    目标对象
+	 * @param source 源对象
+	 * @param target 目标对象
+	 * @return
+	 */
+	public <S, T> T copy(S source, T target) {
+		if (source == null || target == null) {
+			return null;
+		}
+		BeanUtils.copyProperties(source, target);
+		return target;
+	}
+
+	/**
 	 * 根据对象名字获取对象实例
 	 * 
 	 * @param <T>
@@ -161,6 +179,7 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 
 	@Override
 	public void destroy() throws Exception {
+		log.debug("======================> baseware 销毁");
 		if (this.applicationContext != null) {
 			this.applicationContext = null;
 		}
