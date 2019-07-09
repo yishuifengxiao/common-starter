@@ -1,6 +1,7 @@
-package com.yishuifengxiao.common.handler;
+package com.yishuifengxiao.common.autoconfigure;
 
 
+import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
@@ -32,8 +33,8 @@ import com.yishuifengxiao.common.tool.entity.Response;
  */
 @ControllerAdvice
 @ResponseBody
-public class WebExceptionHandler {
-	private static Logger logger = LoggerFactory.getLogger(WebExceptionHandler.class);
+public class WebExceptionAutoConfiguration {
+	private static Logger logger = LoggerFactory.getLogger(WebExceptionAutoConfiguration.class);
 	
 	/**
 	 * 数据重复的标志
@@ -209,6 +210,12 @@ public class WebExceptionHandler {
 		logger.warn("=================> 请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
+	}
+	
+	@PostConstruct
+	public void checkConfig() {
+
+		logger.debug("===================================> 开启全局异常拦截自定义配置为 {}");
 	}
 
 }
