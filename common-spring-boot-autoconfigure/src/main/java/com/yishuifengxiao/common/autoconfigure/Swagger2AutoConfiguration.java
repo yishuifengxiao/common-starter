@@ -8,13 +8,9 @@ import javax.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import com.yishuifengxiao.common.properties.SwaggerProperties;
@@ -41,7 +37,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-@AutoConfigureAfter(WebMvcAutoConfiguration.class)
+//@AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @EnableSwaggerBootstrapUI
 public class Swagger2AutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(Swagger2AutoConfiguration.class);
@@ -82,24 +78,6 @@ public class Swagger2AutoConfiguration {
 				.contact(new Contact(swaggerProperties.getContact().getName(), swaggerProperties.getContact().getUrl(),
 						swaggerProperties.getContact().getEmail()))
 				.version(swaggerProperties.getVersion()).build();
-	}
-
-	/**
-	 * 增加swagger ui静态资源配置
-	 * 
-	 * @return
-	 */
-	@Bean
-	public WebMvcConfigurer swaggerWebMvcConfigurer() {
-		return new WebMvcConfigurer() {
-			@Override
-			public void addResourceHandlers(ResourceHandlerRegistry registry) {
-				log.debug("================> 增加swagger ui静态资源配置");
-				registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/META-INF/resources/");
-				registry.addResourceHandler("/webjars/**")
-						.addResourceLocations("classpath*:/META-INF/resources/webjars/");
-			}
-		};
 	}
 
 	@PostConstruct

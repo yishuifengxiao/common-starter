@@ -35,7 +35,7 @@ public class CorsAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean
+	@Bean("corsConfigurer")
 	@ConditionalOnProperty(prefix = "yishuifengxiao.cors", name = { "enable" }, havingValue = "true")
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
@@ -59,7 +59,7 @@ public class CorsAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean
+	@Bean("corsFilter")
 	@ConditionalOnProperty(prefix = "yishuifengxiao.cors", name = { "enable" }, havingValue = "true")
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

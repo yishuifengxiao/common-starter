@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>2.4.0</version>
+		<version>2.4.1</version>
 	</parent>
 	<artifactId>common-spring-boot-starter</artifactId>
 	<name>common-spring-boot-starter</name>
@@ -107,7 +107,12 @@
 			<artifactId>jolokia-core</artifactId>
 		</dependency>
 		<!-- 监控相关 -->
-
+		
+		<dependency>
+			<groupId>javax.interceptor</groupId>
+			<artifactId>javax.interceptor-api</artifactId>
+			<version>${javax.interceptor-api.version}</version>
+		</dependency>
 
 	</dependencies>
 	<profiles>
