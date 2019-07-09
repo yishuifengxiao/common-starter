@@ -1,6 +1,5 @@
 package com.yishuifengxiao.common.autoconfigure;
 
-
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -35,11 +34,11 @@ import com.yishuifengxiao.common.tool.entity.Response;
 @ResponseBody
 public class WebExceptionAutoConfiguration {
 	private static Logger logger = LoggerFactory.getLogger(WebExceptionAutoConfiguration.class);
-	
+
 	/**
 	 * 数据重复的标志
 	 */
-	private final static String DUPLICATE_FLAG="Duplicate"; 
+	private final static String DUPLICATE_FLAG = "Duplicate";
 
 	/**
 	 * 400 - Bad Request
@@ -201,6 +200,17 @@ public class WebExceptionAutoConfiguration {
 	}
 
 	/**
+	 * 数组越界 - Internal Server Error
+	 */
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ExceptionHandler(IndexOutOfBoundsException.class)
+	public Response<String> handleIndexOutOfBoundsException(IndexOutOfBoundsException e) {
+		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "未查询到对应的数据");
+		logger.warn("请求{} 请求失败,出现数组越界,失败的原因为 {}  ", response.getId(), e.getMessage());
+		return response;
+	}
+
+	/**
 	 * 500 - Internal Server Error
 	 */
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -211,7 +221,7 @@ public class WebExceptionAutoConfiguration {
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
-	
+
 	@PostConstruct
 	public void checkConfig() {
 
