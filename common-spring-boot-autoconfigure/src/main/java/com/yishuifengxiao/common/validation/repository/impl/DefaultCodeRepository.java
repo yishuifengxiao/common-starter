@@ -15,7 +15,8 @@ import com.yishuifengxiao.common.validation.entity.ValidateCode;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 
 /**
- * 验证码存取的默认实现类
+ * 验证码内存管理器<br/>
+ * 验证码保存在内存中
  * 
  * @author yishui
  * @date 2019年1月23日
@@ -28,15 +29,15 @@ public class DefaultCodeRepository implements CodeRepository {
 
 	@Override
 	public void save(ServletWebRequest request, String key, ValidateCode code) {
-		log.debug("=====================> 验证码存取的默认实现类 保存的键为 {},值为 {}",key,code);
+		log.debug("=====================> 验证码存取的默认实现类 保存的键为 {},值为 {}", key, code);
 		map.put(key, code);
 
 	}
 
 	@Override
 	public ValidateCode get(ServletWebRequest request, String key) {
-		ValidateCode code=map.get(key);
-		log.debug("=====================> 验证码存取的默认实现类 获取的键为 {},值为 ",key);
+		ValidateCode code = map.get(key);
+		log.debug("=====================> 验证码存取的默认实现类 获取的键为 {},值为 ", key);
 		return code;
 	}
 

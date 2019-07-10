@@ -4,7 +4,9 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +21,7 @@ import com.yishuifengxiao.common.validation.holder.CodeProcessorHolder;
 import com.yishuifengxiao.common.validation.processor.CodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.DefaultCodeRepository;
+import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 import com.yishuifengxiao.common.validation.sender.impl.EmailCodeSender;
 import com.yishuifengxiao.common.validation.validation.email.EmailCodeGenerator;
@@ -41,7 +44,9 @@ public class ValidateCodeAutoConfiguration {
 	private CodeProperties codeProperties;
 
 	/**
-	 * 收集项目里所有验证码处理器，并将其注入到验证码管理器中
+	 * 创建一个验证码管理器 <br/>
+	 * 
+	 * 收集项目里所有验证码处理器，并将其注入
 	 * 
 	 * @param codeProcessors
 	 * @return
@@ -52,18 +57,53 @@ public class ValidateCodeAutoConfiguration {
 	}
 
 	/**
-	 * 注入一个默认的验证码存取管理器
+	 * 验证码内存管理器
 	 * 
 	 * @return
 	 */
-	@ConditionalOnMissingBean(name = "codeRepository")
+	@ConditionalOnMissingClass({ "org.springframework.data.redis.core.RedisTemplate" })
 	@Bean("codeRepository")
 	public CodeRepository codeRepository() {
 		return new DefaultCodeRepository();
 	}
 
 	/**
-	 * 注入同一个名为smsCodeGenerator的短信验证码生成器
+	 * 验证码redis管理器
+	 * 
+	 * @return
+	 */
+	@ConditionalOnClass(name = { "org.springframework.data.redis.core.RedisTemplate" })
+	@Bean("codeRepository")
+	public CodeRepository redisRepository() {
+		return new RedisCodeRepository();
+	}
+
+	/**
+	 * 图形验证码生成器
+	 * 
+	 * @return
+	 */
+	@ConditionalOnMissingBean(name = "imageCodeGenerator")
+	@Bean("imageCodeGenerator")
+	public CodeGenerator imageCodeGenerator() {
+		return new ImageCodeGenerator(codeProperties);
+	}
+
+	/**
+	 * 图形验证码处理器
+	 * 
+	 * @param codeGenerators
+	 * @param repository
+	 * @return
+	 */
+	@ConditionalOnMissingBean(name = "imageCodeProcessor")
+	@Bean("imageCodeProcessor")
+	public CodeProcessor imageCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository codeRepository) {
+		return new ImageCodeProcessor(codeGenerators, codeRepository, codeProperties);
+	}
+
+	/**
+	 * 短信验证码生成器
 	 * 
 	 * @return
 	 */
@@ -75,7 +115,7 @@ public class ValidateCodeAutoConfiguration {
 	}
 
 	/**
-	 * 注入一个名为 smsCodeProcessor 的短信验证码处理器
+	 * 短信验证码处理器
 	 * 
 	 * @param codeGenerators
 	 * @param repository
@@ -85,57 +125,33 @@ public class ValidateCodeAutoConfiguration {
 	@ConditionalOnMissingBean(name = "smsCodeProcessor")
 	@Bean("smsCodeProcessor")
 	@ConditionalOnBean(name = "smsCodeSender")
-	public CodeProcessor smsCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository repository,
-			CodeSender<SmsCode> codeSender) {
-		return new SmsCodeProcessor(codeGenerators, repository, codeProperties, codeSender);
+	public CodeProcessor smsCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository codeRepository,
+			CodeSender<SmsCode> smsCodeSender) {
+		return new SmsCodeProcessor(codeGenerators, codeRepository, codeProperties, smsCodeSender);
 	}
 
 	/**
-	 * 注入同一个名为imageCodeGenerator的图形验证码生成器
-	 * 
-	 * @return
-	 */
-	@ConditionalOnMissingBean(name = "imageCodeGenerator")
-	@Bean("imageCodeGenerator")
-	public CodeGenerator imageCodeGenerator() {
-		return new ImageCodeGenerator(codeProperties);
-	}
-
-	/**
-	 * 注入一个名为 imageCodeProcessor 的图形验证码处理器
-	 * 
-	 * @param codeGenerators
-	 * @param repository
-	 * @return
-	 */
-	@ConditionalOnMissingBean(name = "imageCodeProcessor")
-	@Bean("imageCodeProcessor")
-	public CodeProcessor imageCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository repository) {
-		return new ImageCodeProcessor(codeGenerators, repository, codeProperties);
-	}
-
-	/**
-	 * 注入一个名为emailCodeGenerator的邮箱验证码生成器
+	 * 邮箱验证码生成器
 	 * 
 	 * @return
 	 */
 	@ConditionalOnMissingBean(name = "emailCodeGenerator")
 	@Bean("emailCodeGenerator")
-	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
+	@ConditionalOnBean(name = "emailCodeSender")
 	public CodeGenerator emailCodeGenerator() {
 		return new EmailCodeGenerator(codeProperties);
 	}
 
 	/**
-	 * 注册一个名为emailCodeProcessor的邮箱验证码处理
+	 * 邮箱验证码处理
 	 * 
 	 * @param codeGenerators
 	 * @param repository
 	 * @return
 	 */
 	@ConditionalOnMissingBean(name = "emailCodeProcessor")
+	@ConditionalOnBean(name = "emailCodeSender")
 	@Bean("emailCodeProcessor")
-	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
 	public CodeProcessor emailCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository repository,
 			CodeSender<EmailCode> codeSender) {
 		return new EmailCodeProcessor(codeGenerators, repository, codeProperties, codeSender);
@@ -145,13 +161,13 @@ public class ValidateCodeAutoConfiguration {
 	private JavaMailSender javaMailSender;
 
 	/**
-	 * 注入一个邮箱发送器
+	 * 邮箱验证码发送器
 	 * 
 	 * @param javaMailSender
 	 * @return
 	 */
 	@Bean("emailCodeSender")
-	@ConditionalOnMissingBean(name = "emailCodeSender")
+	@ConditionalOnMissingBean(name = { "emailCodeSender", })
 	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
 	public EmailCodeSender emailCodeSender(Environment env) {
 		return new EmailCodeSender(javaMailSender, env.getProperty("spring.mail.username"), codeProperties);
