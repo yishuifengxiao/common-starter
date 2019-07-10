@@ -131,6 +131,9 @@ public class ValidateCodeAutoConfiguration {
 		return new SmsCodeProcessor(codeGenerators, codeRepository, codeProperties, smsCodeSender);
 	}
 
+	@Autowired(required = false)
+	private JavaMailSender javaMailSender;
+
 	/**
 	 * 邮箱验证码发送器
 	 * 
@@ -170,8 +173,5 @@ public class ValidateCodeAutoConfiguration {
 			CodeSender<EmailCode> emailCodeSender) {
 		return new EmailCodeProcessor(codeGenerators, repository, codeProperties, emailCodeSender);
 	}
-
-	@Autowired(required = false)
-	private JavaMailSender javaMailSender;
 
 }
