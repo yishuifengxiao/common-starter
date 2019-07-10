@@ -74,6 +74,7 @@ public class ValidateCodeAutoConfiguration {
 	 * @return
 	 */
 	@ConditionalOnClass(name = { "org.springframework.data.redis.core.RedisTemplate" })
+	@ConditionalOnBean(name = "redisTemplate")
 	@Bean("codeRepository")
 	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate) {
 		return new RedisCodeRepository(redisTemplate);
