@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.validation.config;
+package com.yishuifengxiao.common.autoconfigure;
 
 import java.util.Map;
 
@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -30,15 +29,14 @@ import com.yishuifengxiao.common.validation.validation.sms.SmsCodeGenerator;
 import com.yishuifengxiao.common.validation.validation.sms.SmsCodeProcessor;
 
 /**
- * 验证码注入配置(使验证码的配置生效)
+ * 验证码启动类
  * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ *
  */
-@Configuration("validationApplyConfig")
-@EnableConfigurationProperties(CodeProperties.class)
-public class ApplyConfig {
+@Configuration
+public class ValidateCodeAutoConfiguration {
+
 	@Autowired
 	private CodeProperties codeProperties;
 

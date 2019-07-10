@@ -5,6 +5,10 @@ package com.yishuifengxiao.common.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.yishuifengxiao.common.properties.code.EmailCodeProperties;
+import com.yishuifengxiao.common.properties.code.ImageCodeProperties;
+import com.yishuifengxiao.common.properties.code.SmsCodeProperties;
+
 /**
  * 验证码相关的属性配置
  * 

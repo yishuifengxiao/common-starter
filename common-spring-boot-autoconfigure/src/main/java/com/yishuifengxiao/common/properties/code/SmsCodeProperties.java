@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.properties;
+package com.yishuifengxiao.common.properties.code;
 
 import com.yishuifengxiao.common.constant.CodeConstant;
 

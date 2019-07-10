@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.properties;
+package com.yishuifengxiao.common.properties.code;
 
 public class EmailCodeProperties extends SmsCodeProperties {
 
