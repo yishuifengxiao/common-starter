@@ -15,7 +15,7 @@ public class SmsCodeProperties {
 	 */
 	private Integer length = CodeConstant.DEFAULT_CODE_LENGTH;
 	/**
-	 * 验证码的失效时间，单位秒，默认为60s
+	 * 验证码的失效时间，单位秒，默认为300s
 	 */
 	private Integer expireIn = CodeConstant.DEFAULT_EXPIREIN;
 	/**
@@ -55,7 +55,7 @@ public class SmsCodeProperties {
 	}
 
 	/**
-	 * 获取验证码的失效时间，默认为60s
+	 * 获取验证码的失效时间，默认为300s
 	 * 
 	 * @return
 	 */

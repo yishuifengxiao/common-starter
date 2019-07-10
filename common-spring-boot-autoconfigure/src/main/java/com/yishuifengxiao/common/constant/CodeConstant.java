@@ -46,7 +46,7 @@ public class CodeConstant {
 	/**
 	 * 默认的验证码的有效期，单位为秒
 	 */
-	public final static int DEFAULT_EXPIREIN = 60;
+	public final static int DEFAULT_EXPIREIN = 300;
 	/**
 	 * 验证码是否包含字母
 	 */

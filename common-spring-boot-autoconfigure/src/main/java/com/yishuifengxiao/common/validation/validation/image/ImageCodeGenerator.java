@@ -38,12 +38,14 @@ public class ImageCodeGenerator implements CodeGenerator {
 		Graphics g = image.getGraphics();
 
 		Random random = new Random();
-		// 生成干扰条纹
-		g.setColor(getRandColor(200, 250));
+
+		g.setColor(codeProperties.getImage().getFringe() ? getRandColor(200, 250) : Color.WHITE);
 		g.fillRect(0, 0, width, height);
+
 		g.setFont(new Font("Times New Roman", Font.ITALIC, 23));
-		g.setColor(getRandColor(160, 200));
+		// 生成干扰条纹
 		if (codeProperties.getImage().getFringe()) {
+			g.setColor(getRandColor(160, 200));
 			for (int i = 0; i < 155; i++) {
 				int x = random.nextInt(width);
 				int y = random.nextInt(height);
@@ -52,6 +54,7 @@ public class ImageCodeGenerator implements CodeGenerator {
 				g.drawLine(x, y, x + xl, y + yl);
 			}
 		}
+
 		// 生成四位的随机数
 		String sRand = "";
 		for (int i = 0; i < codeProperties.getImage().getLength(); i++) {
@@ -60,6 +63,7 @@ public class ImageCodeGenerator implements CodeGenerator {
 			// 防止生成为null
 			rand = StringUtils.isNotBlank(rand) ? rand : new Random().nextInt(10) + "";
 			sRand += rand;
+			// 字符的颜色随机
 			g.setColor(new Color(20 + random.nextInt(110), 20 + random.nextInt(110), 20 + random.nextInt(110)));
 			g.drawString(rand, 13 * i + 6, 22);
 		}

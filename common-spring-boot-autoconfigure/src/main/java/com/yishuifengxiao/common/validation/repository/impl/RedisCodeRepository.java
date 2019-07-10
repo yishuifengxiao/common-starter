@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.validation.repository.impl;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,15 +18,20 @@ import com.yishuifengxiao.common.validation.repository.CodeRepository;
  * @version 0.0.1
  */
 public class RedisCodeRepository implements CodeRepository {
+	/**
+	 * 默认的前缀
+	 */
+	private final static String PREFIX = "image_Code_";
 
 	private RedisTemplate<String, Object> redisTemplate;
 
 	@Override
 	public void save(ServletWebRequest request, String key, ValidateCode code) {
+
 		// 验证码剩余的有效期
-		int expireSecond = code.getExpireTime().getSecond() - LocalDateTime.now().getSecond();
+		long expireSecond = LocalDateTime.now().until(code.getExpireTime(), ChronoUnit.SECONDS);
 		if (expireSecond > 0) {
-			redisTemplate.opsForValue().set(key, code, expireSecond + 0L, TimeUnit.SECONDS);
+			redisTemplate.opsForValue().set(PREFIX + key, code, expireSecond, TimeUnit.SECONDS);
 		}
 
 	}
@@ -33,12 +39,12 @@ public class RedisCodeRepository implements CodeRepository {
 	@Override
 	public ValidateCode get(ServletWebRequest request, String key) {
 
-		return (ValidateCode) redisTemplate.opsForValue().get(key);
+		return (ValidateCode) redisTemplate.opsForValue().get(PREFIX + key);
 	}
 
 	@Override
 	public void remove(ServletWebRequest request, String key) {
-		redisTemplate.delete(key);
+		redisTemplate.delete(PREFIX + key);
 
 	}
 
