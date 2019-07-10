@@ -4,6 +4,7 @@
 package com.yishuifengxiao.common.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Import;
 
 import com.yishuifengxiao.common.properties.code.EmailCodeProperties;
 import com.yishuifengxiao.common.properties.code.ImageCodeProperties;
@@ -17,6 +18,7 @@ import com.yishuifengxiao.common.properties.code.SmsCodeProperties;
  * @version 0.0.1
  */
 @ConfigurationProperties(prefix = "yishuifengxiao.code")
+@Import({EmailCodeProperties.class,ImageCodeProperties.class,SmsCodeProperties.class})
 public class CodeProperties {
 	/**
 	 * 图形验证码相关的配置
