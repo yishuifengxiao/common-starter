@@ -11,8 +11,6 @@ import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
@@ -26,7 +24,6 @@ import com.yishuifengxiao.common.validation.generator.CodeGenerator;
  * @version 0.0.1
  */
 public class ImageCodeGenerator implements CodeGenerator {
-	private final static Logger log = LoggerFactory.getLogger(ImageCodeGenerator.class);
 	private CodeProperties codeProperties;
 
 	@Override
@@ -46,12 +43,14 @@ public class ImageCodeGenerator implements CodeGenerator {
 		g.fillRect(0, 0, width, height);
 		g.setFont(new Font("Times New Roman", Font.ITALIC, 23));
 		g.setColor(getRandColor(160, 200));
-		for (int i = 0; i < 155; i++) {
-			int x = random.nextInt(width);
-			int y = random.nextInt(height);
-			int xl = random.nextInt(12);
-			int yl = random.nextInt(12);
-			g.drawLine(x, y, x + xl, y + yl);
+		if (codeProperties.getImage().getFringe()) {
+			for (int i = 0; i < 155; i++) {
+				int x = random.nextInt(width);
+				int y = random.nextInt(height);
+				int xl = random.nextInt(12);
+				int yl = random.nextInt(12);
+				g.drawLine(x, y, x + xl, y + yl);
+			}
 		}
 		// 生成四位的随机数
 		String sRand = "";
@@ -62,12 +61,10 @@ public class ImageCodeGenerator implements CodeGenerator {
 			rand = StringUtils.isNotBlank(rand) ? rand : new Random().nextInt(10) + "";
 			sRand += rand;
 			g.setColor(new Color(20 + random.nextInt(110), 20 + random.nextInt(110), 20 + random.nextInt(110)));
-			log.debug("g是否为 null =={}  ======> 图形验证码中输入的文字为 {}",g==null, rand);
 			g.drawString(rand, 13 * i + 6, 22);
 		}
 
 		g.dispose();
-		log.debug("======> 图形验证码中所有的文字为 {}", sRand);
 		return new ImageCode(codeProperties.getImage().getExpireIn(), sRand, image);
 	}
 

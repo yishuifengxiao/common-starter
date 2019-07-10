@@ -36,6 +36,10 @@ public class CodeConstant {
 	 */
 	public final static int DEFAULT_IMAGE_CODE_HEIGHT = 28;
 	/**
+	 * 是否生成干扰条纹背景，默认为false
+	 */
+	public final static boolean IS_FRINGE=false;
+	/**
 	 * 默认的验证码的长度
 	 */
 	public final static int DEFAULT_CODE_LENGTH = 4;

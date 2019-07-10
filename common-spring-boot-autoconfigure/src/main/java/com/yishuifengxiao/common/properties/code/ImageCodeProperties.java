@@ -19,6 +19,11 @@ public class ImageCodeProperties extends SmsCodeProperties {
 	 */
 	private Integer height = CodeConstant.DEFAULT_IMAGE_CODE_HEIGHT;
 
+	/**
+	 * 是否生成干扰条纹背景，默认为false
+	 */
+	private Boolean fringe = CodeConstant.IS_FRINGE;
+
 	public ImageCodeProperties() {
 		// 设置验证码的标识符为 image
 		this.setCodeKey(CodeConstant.CODE_IMAGE_KEY);
@@ -50,6 +55,24 @@ public class ImageCodeProperties extends SmsCodeProperties {
 
 	public void setHeight(Integer height) {
 		this.height = height;
+	}
+
+	/**
+	 * 获取是否生成干扰条纹背景，默认为false
+	 * 
+	 * @return
+	 */
+	public Boolean getFringe() {
+		return fringe;
+	}
+
+	/**
+	 * 设置是否生成干扰条纹背景，默认为false
+	 * 
+	 * @param fringe
+	 */
+	public void setFringe(Boolean fringe) {
+		this.fringe = fringe;
 	}
 
 }
