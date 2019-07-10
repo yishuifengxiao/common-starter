@@ -16,7 +16,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 import com.yishuifengxiao.common.validation.entity.ImageCode;
-import com.yishuifengxiao.common.validation.entity.ValidateCode;
 import com.yishuifengxiao.common.validation.generator.CodeGenerator;
 import com.yishuifengxiao.common.validation.processor.AbstractCodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
@@ -47,7 +46,7 @@ public class ImageCodeProcessor extends AbstractCodeProcessor<ImageCode> {
 
 	@Override
 	protected String generateKey(ServletWebRequest request) throws ValidateException {
-		//获取到验证码对应的key值
+		// 获取到验证码对应的key值
 		String key = request.getParameter(this.codeProperties.getImage().getCodeKey());
 
 		if (StringUtils.isBlank(key)) {
@@ -68,7 +67,7 @@ public class ImageCodeProcessor extends AbstractCodeProcessor<ImageCode> {
 	}
 
 	@Override
-	protected void codeValidate(ServletWebRequest request, ValidateCode codeInSession) throws ValidateException {
+	protected String getCodeInRequest(ServletWebRequest request) throws ValidateException {
 
 		String codeInRequest = null;
 		try {
@@ -78,13 +77,7 @@ public class ImageCodeProcessor extends AbstractCodeProcessor<ImageCode> {
 			log.info("========================> 从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("从请求中获取验证码失败");
 		}
-
-		if (StringUtils.isBlank(codeInRequest)) {
-			throw new ValidateException("验证码的值不能为空");
-		}
-		if (!StringUtils.equalsIgnoreCase(((ImageCode) codeInSession).getCode(), codeInRequest)) {
-			throw new ValidateException("验证码不匹配");
-		}
+		return codeInRequest;
 
 	}
 

@@ -21,7 +21,7 @@ public class RedisCodeRepository implements CodeRepository {
 	/**
 	 * 默认的前缀
 	 */
-	private final static String PREFIX = "image_Code_";
+	private final static String PREFIX = "validate_code_";
 
 	private RedisTemplate<String, Object> redisTemplate;
 

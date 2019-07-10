@@ -129,20 +129,28 @@ public abstract class AbstractCodeProcessor<C extends ValidateCode> implements C
 			repository.remove(request, generateKey(request));
 			throw new ValidateException("验证码已过期");
 		}
-		codeValidate(request, codeInSession);
+		// 获取请求中的验证码
+		String codeInRequest = getCodeInRequest(request);
+
+		if (StringUtils.isBlank(codeInRequest)) {
+			throw new ValidateException("验证码的值不能为空");
+		}
+
+		if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest)) {
+			throw new ValidateException("验证码不匹配");
+		}
 		// 移除验证码
 		repository.remove(request, generateKey(request));
 	}
 
 	/**
-	 * 补充的验证码比较过程
+	 * 获取请求中携带的验证码
 	 * 
 	 * @param request
-	 * @param codeInSession
+	 * @return
 	 * @throws ValidateException
 	 */
-	protected abstract void codeValidate(ServletWebRequest request, ValidateCode codeInSession)
-			throws ValidateException;
+	protected abstract String getCodeInRequest(ServletWebRequest request) throws ValidateException;
 
 	public Map<String, CodeGenerator> getCodeGenerators() {
 		return codeGenerators;

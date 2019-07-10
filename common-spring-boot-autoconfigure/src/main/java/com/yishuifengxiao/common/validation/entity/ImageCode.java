@@ -11,7 +11,7 @@ import java.awt.image.BufferedImage;
  * @date 2019年1月22日
  * @version v1.0.0
  */
-public class ImageCode extends SmsCode {
+public class ImageCode extends ValidateCode {
 
 	/**
 	 * 

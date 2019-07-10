@@ -1,13 +1,15 @@
 package com.yishuifengxiao.common.validation.entity;
 
 import java.io.Serializable;
+
 /**
  * 邮件验证码
+ * 
  * @author yishui
  * @Date 2019年5月5日
  * @version 1.0.0
  */
-public class EmailCode extends SmsCode implements Serializable {
+public class EmailCode extends ValidateCode implements Serializable {
 
 	/**
 	 * 
@@ -16,6 +18,11 @@ public class EmailCode extends SmsCode implements Serializable {
 
 	public EmailCode(long expireTimeInSeconds, String code) {
 		super(expireTimeInSeconds, code);
+	}
+
+	@Override
+	public String toString() {
+		return "EmailCode [toString()=" + super.toString() + "]";
 	}
 
 }

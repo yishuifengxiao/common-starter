@@ -132,6 +132,19 @@ public class ValidateCodeAutoConfiguration {
 	}
 
 	/**
+	 * 邮箱验证码发送器
+	 * 
+	 * @param javaMailSender
+	 * @return
+	 */
+	@Bean("emailCodeSender")
+	@ConditionalOnMissingBean(name = { "emailCodeSender", })
+	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
+	public CodeSender<EmailCode> emailCodeSender(Environment env) {
+		return new EmailCodeSender(javaMailSender, env.getProperty("spring.mail.username"), codeProperties);
+	}
+
+	/**
 	 * 邮箱验证码生成器
 	 * 
 	 * @return
@@ -154,24 +167,11 @@ public class ValidateCodeAutoConfiguration {
 	@ConditionalOnBean(name = "emailCodeSender")
 	@Bean("emailCodeProcessor")
 	public CodeProcessor emailCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository repository,
-			CodeSender<EmailCode> codeSender) {
-		return new EmailCodeProcessor(codeGenerators, repository, codeProperties, codeSender);
+			CodeSender<EmailCode> emailCodeSender) {
+		return new EmailCodeProcessor(codeGenerators, repository, codeProperties, emailCodeSender);
 	}
 
 	@Autowired(required = false)
 	private JavaMailSender javaMailSender;
-
-	/**
-	 * 邮箱验证码发送器
-	 * 
-	 * @param javaMailSender
-	 * @return
-	 */
-	@Bean("emailCodeSender")
-	@ConditionalOnMissingBean(name = { "emailCodeSender", })
-	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
-	public EmailCodeSender emailCodeSender(Environment env) {
-		return new EmailCodeSender(javaMailSender, env.getProperty("spring.mail.username"), codeProperties);
-	}
 
 }

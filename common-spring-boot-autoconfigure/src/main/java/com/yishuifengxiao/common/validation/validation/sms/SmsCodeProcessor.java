@@ -2,7 +2,6 @@ package com.yishuifengxiao.common.validation.validation.sms;
 
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -12,7 +11,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 import com.yishuifengxiao.common.validation.entity.SmsCode;
-import com.yishuifengxiao.common.validation.entity.ValidateCode;
 import com.yishuifengxiao.common.validation.eunm.CodeType;
 import com.yishuifengxiao.common.validation.generator.CodeGenerator;
 import com.yishuifengxiao.common.validation.processor.AbstractCodeProcessor;
@@ -63,7 +61,7 @@ public class SmsCodeProcessor extends AbstractCodeProcessor<SmsCode> {
 	}
 
 	@Override
-	protected void codeValidate(ServletWebRequest request, ValidateCode codeInSession) throws ValidateException {
+	protected String getCodeInRequest(ServletWebRequest request) throws ValidateException {
 		String codeInRequest = null;
 		try {
 			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(),
@@ -73,12 +71,7 @@ public class SmsCodeProcessor extends AbstractCodeProcessor<SmsCode> {
 			throw new ValidateException("从请求中获取验证码失败");
 		}
 
-		if (StringUtils.isBlank(codeInRequest)) {
-			throw new ValidateException("验证码的值不能为空");
-		}
-		if (!StringUtils.equalsIgnoreCase(((SmsCode) codeInSession).getCode(), codeInRequest)) {
-			throw new ValidateException("验证码不匹配");
-		}
+		return codeInRequest;
 	}
 
 	public CodeSender<SmsCode> getSmsCodeSender() {
