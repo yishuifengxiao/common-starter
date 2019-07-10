@@ -3,8 +3,6 @@ package com.yishuifengxiao.common.autoconfigure;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +35,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-//@AutoConfigureAfter(WebMvcAutoConfiguration.class)
 @EnableSwaggerBootstrapUI
 public class Swagger2AutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(Swagger2AutoConfiguration.class);
@@ -78,12 +75,6 @@ public class Swagger2AutoConfiguration {
 				.contact(new Contact(swaggerProperties.getContact().getName(), swaggerProperties.getContact().getUrl(),
 						swaggerProperties.getContact().getEmail()))
 				.version(swaggerProperties.getVersion()).build();
-	}
-
-	@PostConstruct
-	public void checkConfigFileExists() {
-
-		log.debug("===================================> 自定义配置为 {}", swaggerProperties);
 	}
 
 }

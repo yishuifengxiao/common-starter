@@ -172,7 +172,6 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		log.debug("======================> baseware 初始化");
 		this.applicationContext = applicationContext;
 
 	}

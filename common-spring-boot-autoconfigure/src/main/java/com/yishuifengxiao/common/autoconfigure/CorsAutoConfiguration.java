@@ -15,6 +15,7 @@ import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.properties.CorsProperties;
 import com.yishuifengxiao.common.properties.SwaggerProperties;
 
@@ -26,7 +27,7 @@ import com.yishuifengxiao.common.properties.SwaggerProperties;
  * @version 0.0.1
  */
 @Configuration
-@EnableConfigurationProperties({ SwaggerProperties.class, CorsProperties.class })
+@EnableConfigurationProperties({ SwaggerProperties.class, CorsProperties.class,CodeProperties.class })
 public class CorsAutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
