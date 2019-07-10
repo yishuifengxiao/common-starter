@@ -38,7 +38,7 @@ public class CodeConstant {
 	/**
 	 * 默认的验证码的长度
 	 */
-	public final static int DEFAULT_CODE_LENGTH = 6;
+	public final static int DEFAULT_CODE_LENGTH = 4;
 	/**
 	 * 默认的验证码的有效期，单位为秒
 	 */
@@ -52,13 +52,31 @@ public class CodeConstant {
 	 */
 	public final static boolean IS_CONTAIN_NUMBERS = true;
 	/**
-	 * 验证码的key的值
+	 * 图形验证码的key的值
 	 */
-	public final static String CODE_KEY = "code_key";
+	public final static String CODE_IMAGE_KEY = "image";
 	
 	/**
-	 * 验证码的key的对应的值
+	 * 图形验证码的key的对应的值
 	 */
-	public final static String CODE_VALUE = "code";
+	public final static String CODE_IMAGE_VALUE = "image_code";
+	/**
+	 * 短信验证码的key的值
+	 */
+	public final static String CODE_SMS_KEY = "phone";
 	
+	/**
+	 * 短信验证码的key的对应的值
+	 */
+	public final static String CODE_SMS_VALUE = "phone_code";
+	
+	/**
+	 * 邮箱验证码的key的值
+	 */
+	public final static String CODE_EMAIL_KEY = "email";
+	
+	/**
+	 * 邮箱验证码的key的对应的值
+	 */
+	public final static String CODE_EMAIL_VALUE = "email_code";
 }

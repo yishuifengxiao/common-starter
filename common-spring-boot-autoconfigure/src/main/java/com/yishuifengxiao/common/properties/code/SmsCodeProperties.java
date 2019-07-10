@@ -11,35 +11,33 @@ import com.yishuifengxiao.common.constant.CodeConstant;
  */
 public class SmsCodeProperties {
 	/**
-	 * 验证码的长度
+	 * 验证码的长度,默认为4
 	 */
 	private Integer length = CodeConstant.DEFAULT_CODE_LENGTH;
 	/**
-	 * 验证码的失效时间，单位秒
+	 * 验证码的失效时间，单位秒，默认为60s
 	 */
 	private Integer expireIn = CodeConstant.DEFAULT_EXPIREIN;
 	/**
-	 * 验证码是否包含字母
+	 * 验证码是否包含字母,默认包含
 	 */
 	private Boolean isContainLetter = CodeConstant.IS_CONTAIN_LETTERS;
 	/**
-	 * 验证码是否包含数字
+	 * 验证码是否包含数字,默认包含
 	 */
 	private Boolean isContainNumber = CodeConstant.IS_CONTAIN_NUMBERS;
 
 	/**
 	 * 验证码的参数
 	 */
-	private String codeKey = CodeConstant.CODE_KEY;
+	private String codeKey = CodeConstant.CODE_SMS_KEY;
 	/**
 	 * 验证码对应的值的参数
 	 */
-	private String codeValue = CodeConstant.CODE_VALUE;
-
-
+	private String codeValue = CodeConstant.CODE_SMS_VALUE;
 
 	/**
-	 * 验证码的长度,默认为6
+	 * 获取验证码的长度,默认为4
 	 * 
 	 * @return
 	 */
@@ -47,12 +45,17 @@ public class SmsCodeProperties {
 		return length;
 	}
 
+	/**
+	 * 设置验证码的长度,默认为4
+	 * 
+	 * @param length
+	 */
 	public void setLength(Integer length) {
 		this.length = length;
 	}
 
 	/**
-	 * 验证码的失效时间，默认为60s
+	 * 获取验证码的失效时间，默认为60s
 	 * 
 	 * @return
 	 */
@@ -60,13 +63,17 @@ public class SmsCodeProperties {
 		return expireIn;
 	}
 
+	/**
+	 * 设置验证码的失效时间，默认为60s
+	 * 
+	 * @param expireIn
+	 */
 	public void setExpireIn(Integer expireIn) {
 		this.expireIn = expireIn;
 	}
 
-
 	/**
-	 * 验证码是否包含字母,默认为true
+	 * 获取验证码是否包含字母,默认为true
 	 * 
 	 * @return
 	 */
@@ -74,12 +81,17 @@ public class SmsCodeProperties {
 		return isContainLetter;
 	}
 
+	/**
+	 * 设置验证码是否包含字母,默认为true
+	 * 
+	 * @param isContainLetter
+	 */
 	public void setContainLetter(Boolean isContainLetter) {
 		this.isContainLetter = isContainLetter;
 	}
 
 	/**
-	 * 验证码是否包含数字,默认为true
+	 * 获取验证码是否包含数字,默认为true
 	 * 
 	 * @return
 	 */
@@ -87,12 +99,17 @@ public class SmsCodeProperties {
 		return isContainNumber;
 	}
 
+	/**
+	 * 设置验证码是否包含数字,默认为true
+	 * 
+	 * @param isContainNumber
+	 */
 	public void setContainNumber(Boolean isContainNumber) {
 		this.isContainNumber = isContainNumber;
 	}
 
 	/**
-	 * 验证码的参数，默认为code_key
+	 * 获取验证码的参数
 	 * 
 	 * @return
 	 */
@@ -100,19 +117,47 @@ public class SmsCodeProperties {
 		return codeKey;
 	}
 
+	/**
+	 * 设置验证码的参数
+	 * 
+	 * @param codeKey
+	 */
 	public void setCodeKey(String codeKey) {
 		this.codeKey = codeKey;
 	}
 
 	/**
-	 * 验证码对应的值的参数,默认为 code
+	 * 获取验证码对应的值的参数
 	 */
 	public String getCodeValue() {
 		return codeValue;
 	}
 
+	/**
+	 * 设置验证码对应的值的参数
+	 * 
+	 * @param codeValue
+	 */
 	public void setCodeValue(String codeValue) {
 		this.codeValue = codeValue;
 	}
 
+	public SmsCodeProperties() {
+
+	}
+
+	public SmsCodeProperties(String codeKey, String codeValue) {
+		this.codeKey = codeKey;
+		this.codeValue = codeValue;
+	}
+
+	public SmsCodeProperties(Integer length, Integer expireIn, Boolean isContainLetter, Boolean isContainNumber,
+			String codeKey, String codeValue) {
+		this.length = length;
+		this.expireIn = expireIn;
+		this.isContainLetter = isContainLetter;
+		this.isContainNumber = isContainNumber;
+		this.codeKey = codeKey;
+		this.codeValue = codeValue;
+	}
 }

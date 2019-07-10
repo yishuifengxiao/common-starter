@@ -1,83 +1,61 @@
 package com.yishuifengxiao.common.properties.code;
 
+import com.yishuifengxiao.common.constant.CodeConstant;
+
 public class EmailCodeProperties extends SmsCodeProperties {
 
 	/**
-	 * 默认邮箱验证码的key
+	 * 验证码邮箱的内容模板
 	 */
-	private final static String CODE_KEY = "email";
-	/**
-	 * 默认的邮箱验证码的值
-	 */
-	private final static String CODE_VALUE = "email_code";
+	private String contentTemplate = "您的验证码的内容为{0} ,验证码的有效时间为 {1} 秒";
 
 	/**
-	 * 验证码的失效时间，单位秒,默认为30分钟
-	 */
-	private Integer expireIn = 60 * 30;
-	/**
-	 * 验证码的内容
-	 */
-	private String contentTemplate = "您的验证码的内容为 %s ,验证码的有效时间为 " + expireIn + " 秒";
-
-	/**
-	 * 邮箱验证码的标题
+	 * 验证码邮箱的标题
 	 */
 	private String title = "帐号保护验证";
 
-	/**
-	 * 验证码的参数
-	 */
-	private String codeKey = CODE_KEY;
-	/**
-	 * 验证码对应的值的参数
-	 */
-	private String codeValue = CODE_VALUE;
-
-	public Integer getExpireIn() {
-		return expireIn;
+	public EmailCodeProperties() {
+		this.setExpireIn(60 * 30);
+		// 设置验证码的标识符为 email
+		this.setCodeKey(CodeConstant.CODE_EMAIL_KEY);
+		// 设置验证码对应的值的参数为 email_code
+		this.setCodeValue(CodeConstant.CODE_EMAIL_VALUE);
 	}
 
-	public void setExpireIn(Integer expireIn) {
-		this.expireIn = expireIn;
-	}
-
+	/**
+	 * 获取验证码邮箱的内容模板
+	 * 
+	 * @return
+	 */
 	public String getContentTemplate() {
 		return contentTemplate;
 	}
 
+	/**
+	 * 设置验证码邮箱的内容模板
+	 * 
+	 * @param contentTemplate
+	 */
 	public void setContentTemplate(String contentTemplate) {
 		this.contentTemplate = contentTemplate;
 	}
 
+	/**
+	 * 获取验证码邮箱的标题
+	 * 
+	 * @return
+	 */
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 * 设置验证码邮箱的标题
+	 * 
+	 * @param title
+	 */
 	public void setTitle(String title) {
 		this.title = title;
-	}
-
-	/**
-	 * 默认的值为 email
-	 */
-	public String getCodeKey() {
-		return codeKey;
-	}
-
-	public void setCodeKey(String codeKey) {
-		this.codeKey = codeKey;
-	}
-
-	/**
-	 * 默认的值为 email_code
-	 */
-	public String getCodeValue() {
-		return codeValue;
-	}
-
-	public void setCodeValue(String codeValue) {
-		this.codeValue = codeValue;
 	}
 
 }

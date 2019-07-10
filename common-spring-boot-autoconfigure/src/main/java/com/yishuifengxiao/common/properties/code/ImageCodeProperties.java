@@ -20,8 +20,10 @@ public class ImageCodeProperties extends SmsCodeProperties {
 	private Integer height = CodeConstant.DEFAULT_IMAGE_CODE_HEIGHT;
 
 	public ImageCodeProperties() {
-		// 默认的长度为4，覆盖掉父类的默认参数
-		this.setLength(4);
+		// 设置验证码的标识符为 image
+		this.setCodeKey(CodeConstant.CODE_IMAGE_KEY);
+		// 设置验证码对应的值的参数为 image_code
+		this.setCodeValue(CodeConstant.CODE_IMAGE_VALUE);
 	}
 
 	/**
