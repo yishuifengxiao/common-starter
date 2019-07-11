@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.security;
+package com.yishuifengxiao.common.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

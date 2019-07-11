@@ -2,8 +2,6 @@ package com.yishuifengxiao.common.security;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
-import com.yishuifengxiao.common.security.security.AbstractSecurityConfig;
-
 /**
  * 核心的spring security配置
  * <br/>
