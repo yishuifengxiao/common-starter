@@ -8,10 +8,8 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 
@@ -22,13 +20,11 @@ import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvi
  * @date 2019年1月8日
  * @version 0.0.1
  */
-@Component
 public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 	private final static Logger log = LoggerFactory.getLogger(DefaultAuthorizeConfigManager.class);
 	/**
 	 * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
 	 */
-	@Autowired
 	private List<AuthorizeConfigProvider> authorizeConfigProviders;
 
 	@Override
@@ -52,5 +48,24 @@ public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 
 		}
 	}
+
+	public List<AuthorizeConfigProvider> getAuthorizeConfigProviders() {
+		return authorizeConfigProviders;
+	}
+
+	public void setAuthorizeConfigProviders(List<AuthorizeConfigProvider> authorizeConfigProviders) {
+		this.authorizeConfigProviders = authorizeConfigProviders;
+	}
+
+	public DefaultAuthorizeConfigManager(List<AuthorizeConfigProvider> authorizeConfigProviders) {
+		this.authorizeConfigProviders = authorizeConfigProviders;
+	}
+
+	public DefaultAuthorizeConfigManager() {
+
+	}
+	
+	
+	
 
 }

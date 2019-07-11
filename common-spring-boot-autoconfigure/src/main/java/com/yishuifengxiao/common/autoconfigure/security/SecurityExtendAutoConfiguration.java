@@ -18,12 +18,12 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.endpoint.ExceptionAuthenticationEntryPoint;
-import com.yishuifengxiao.common.security.handle.CustomProcessor;
-import com.yishuifengxiao.common.security.handle.impl.CustomProcessorImpl;
 import com.yishuifengxiao.common.security.handler.CustomAccessDeniedHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationFailureHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHandler;
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
+import com.yishuifengxiao.common.security.processor.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.impl.CustomProcessorImpl;
 
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,

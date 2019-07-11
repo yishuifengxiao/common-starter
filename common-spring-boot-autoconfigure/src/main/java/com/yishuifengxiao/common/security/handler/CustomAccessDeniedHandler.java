@@ -14,7 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
-import com.yishuifengxiao.common.security.handle.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 import com.yishuifengxiao.common.utils.StringUtil;

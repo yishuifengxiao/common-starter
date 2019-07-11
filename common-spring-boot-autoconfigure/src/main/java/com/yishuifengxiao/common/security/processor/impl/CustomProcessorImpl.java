@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.handle.impl;
+package com.yishuifengxiao.common.security.processor.impl;
 
 import java.io.IOException;
 
@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
-import com.yishuifengxiao.common.security.handle.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 

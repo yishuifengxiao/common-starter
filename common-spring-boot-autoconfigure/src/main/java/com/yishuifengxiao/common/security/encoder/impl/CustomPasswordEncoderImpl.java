@@ -35,7 +35,7 @@ public class CustomPasswordEncoderImpl extends CustomPasswordEncoder {
 				&& StringUtils.equals(this.encode(rawPassword), encodedPassword)) {
 			result = true;
 		}
-		log.debug("【验证】自定义加密类中需要比较的两个密码分别为 ， 前端输入的原始密码= {},目标密码【可能是加密后的密码】为 ={} ,比较结果为{}", rawPassword, encodedPassword,
+		log.debug("【验证】自定义加密类中需要比较的两个密码分别为 ， 前端输入的原始密码= {},目标密码为 ={} ,比较结果为{}", rawPassword, encodedPassword,
 				result);
 		return result;
 	}

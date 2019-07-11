@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.autoconfigure;
 
+import java.util.List;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,6 +24,9 @@ import com.yishuifengxiao.common.autoconfigure.security.SecurityExtendAutoConfig
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.remerberme.CustomPersistentTokenRepository;
+import com.yishuifengxiao.common.security.security.manager.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.security.manager.DefaultAuthorizeConfigManager;
+import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 
@@ -95,7 +100,7 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
-	 * 记住密码
+	 * 记住密码策略
 	 * 
 	 * @return
 	 */
@@ -106,7 +111,7 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
-	 * session 失效
+	 * session 失效策略
 	 * 
 	 * @return
 	 */
@@ -114,6 +119,20 @@ public class SecurityAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SessionInformationExpiredStrategy sessionInformationExpiredStrategy() {
 		return new SessionInformationExpiredStrategyImpl();
+	}
+
+	/**
+	 * 授权管理器
+	 * 
+	 * @param authorizeProviders 系统中所有的授权提供器
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthorizeConfigManager authorizeConfigManager(List<AuthorizeConfigProvider> authorizeProviders) {
+		DefaultAuthorizeConfigManager authorizeConfigManager = new DefaultAuthorizeConfigManager();
+		authorizeConfigManager.setAuthorizeConfigProviders(authorizeProviders);
+		return authorizeConfigManager;
 	}
 
 }
