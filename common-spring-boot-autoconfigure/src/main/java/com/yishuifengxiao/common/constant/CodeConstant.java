@@ -10,7 +10,7 @@ package com.yishuifengxiao.common.constant;
  * @date 2019年1月22日
  * @version v1.0.0
  */
-public class CodeConstant {
+public final class CodeConstant {
 	/**
 	 * 短信验证码标志
 	 */
