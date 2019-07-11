@@ -3,4 +3,5 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.yishuifengxiao.common.autoconfigure.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.CorsAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.WebExceptionAutoConfiguration,\
-com.yishuifengxiao.common.autoconfigure.ValidateCodeAutoConfiguration
+com.yishuifengxiao.common.autoconfigure.ValidateCodeAutoConfiguration,\
+com.yishuifengxiao.common.autoconfigure.SecurityAutoConfiguration
