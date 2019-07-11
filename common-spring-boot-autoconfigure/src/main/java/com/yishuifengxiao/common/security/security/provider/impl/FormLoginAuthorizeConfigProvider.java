@@ -3,14 +3,10 @@
  */
 package com.yishuifengxiao.common.security.security.provider.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
@@ -21,26 +17,19 @@ import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvi
  * @date 2019年1月9日
  * @version 0.0.1 
  */
-@Component
-@ConditionalOnMissingBean(name = "formLoginProvider")
 public class FormLoginAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	/**
 	 * 自定义属性配置
 	 */
-	@Autowired
 	protected SecurityProperties securityProperties;
 	
 	/**
 	 * 自定义认证成功处理器
 	 */
-	@Autowired
-	@Qualifier("formAuthenticationSuccessHandler")
 	protected AuthenticationSuccessHandler formAuthenticationSuccessHandler;
 	/**
 	 * 自定义认证失败处理器
 	 */
-	@Autowired
-	@Qualifier("formAuthenticationFailureHandler")
 	protected AuthenticationFailureHandler formAuthenticationFailureHandler;
 
 	@Override
@@ -64,4 +53,42 @@ public class FormLoginAuthorizeConfigProvider implements AuthorizeConfigProvider
 		return 100;
 	}
 
+	public SecurityProperties getSecurityProperties() {
+		return securityProperties;
+	}
+
+	public void setSecurityProperties(SecurityProperties securityProperties) {
+		this.securityProperties = securityProperties;
+	}
+
+	public AuthenticationSuccessHandler getFormAuthenticationSuccessHandler() {
+		return formAuthenticationSuccessHandler;
+	}
+
+	public void setFormAuthenticationSuccessHandler(AuthenticationSuccessHandler formAuthenticationSuccessHandler) {
+		this.formAuthenticationSuccessHandler = formAuthenticationSuccessHandler;
+	}
+
+	public AuthenticationFailureHandler getFormAuthenticationFailureHandler() {
+		return formAuthenticationFailureHandler;
+	}
+
+	public void setFormAuthenticationFailureHandler(AuthenticationFailureHandler formAuthenticationFailureHandler) {
+		this.formAuthenticationFailureHandler = formAuthenticationFailureHandler;
+	}
+
+	public FormLoginAuthorizeConfigProvider(SecurityProperties securityProperties,
+			AuthenticationSuccessHandler formAuthenticationSuccessHandler,
+			AuthenticationFailureHandler formAuthenticationFailureHandler) {
+		this.securityProperties = securityProperties;
+		this.formAuthenticationSuccessHandler = formAuthenticationSuccessHandler;
+		this.formAuthenticationFailureHandler = formAuthenticationFailureHandler;
+	}
+
+	public FormLoginAuthorizeConfigProvider() {
+
+	}
+
+	
+	
 }

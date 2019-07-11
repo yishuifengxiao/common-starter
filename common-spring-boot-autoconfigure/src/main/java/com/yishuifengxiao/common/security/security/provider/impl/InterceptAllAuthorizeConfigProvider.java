@@ -5,7 +5,6 @@ package com.yishuifengxiao.common.security.security.provider.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 
@@ -17,7 +16,6 @@ import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvi
  * @date 2019年1月22日
  * @version 0.0.1
  */
-@Component
 public class InterceptAllAuthorizeConfigProvider implements AuthorizeConfigProvider {
 
 	@Override

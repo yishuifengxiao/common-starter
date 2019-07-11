@@ -3,41 +3,34 @@
  */
 package com.yishuifengxiao.common.security.security.provider.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 
 /**
  * spring security记住我功能而定相关配置
+ * 
  * @author yishui
  * @date 2019年1月9日
- * @version 0.0.1 
+ * @version 0.0.1
  */
-@Component
-@ConditionalOnMissingBean(name = "remeberMeProvider")
 public class RemeberMeAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	/**
 	 * 自定义属性配置
 	 */
-	@Autowired
 	protected SecurityProperties securityProperties;
 	/**
 	 * 记住我功能的实现
 	 */
-	@Autowired
 	protected PersistentTokenRepository persistentTokenRepository;
-	
+
 	/**
 	 * 自定义UserDetailsService实现类，查找用户
 	 */
-	@Autowired
 	protected UserDetailsService userDetailsService;
 
 	@Override
@@ -56,6 +49,41 @@ public class RemeberMeAuthorizeConfigProvider implements AuthorizeConfigProvider
 	@Override
 	public int getOrder() {
 		return 300;
+	}
+
+	public SecurityProperties getSecurityProperties() {
+		return securityProperties;
+	}
+
+	public void setSecurityProperties(SecurityProperties securityProperties) {
+		this.securityProperties = securityProperties;
+	}
+
+	public PersistentTokenRepository getPersistentTokenRepository() {
+		return persistentTokenRepository;
+	}
+
+	public void setPersistentTokenRepository(PersistentTokenRepository persistentTokenRepository) {
+		this.persistentTokenRepository = persistentTokenRepository;
+	}
+
+	public UserDetailsService getUserDetailsService() {
+		return userDetailsService;
+	}
+
+	public void setUserDetailsService(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
+
+	public RemeberMeAuthorizeConfigProvider(SecurityProperties securityProperties,
+			PersistentTokenRepository persistentTokenRepository, UserDetailsService userDetailsService) {
+		this.securityProperties = securityProperties;
+		this.persistentTokenRepository = persistentTokenRepository;
+		this.userDetailsService = userDetailsService;
+	}
+
+	public RemeberMeAuthorizeConfigProvider() {
+
 	}
 
 }

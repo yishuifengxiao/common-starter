@@ -1,14 +1,13 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.security.provider;
+package com.yishuifengxiao.common.security.security.provider.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 
 /**
  * AuthorizeConfigProvider的默认配置
@@ -17,12 +16,10 @@ import com.yishuifengxiao.common.properties.SecurityProperties;
  * @date 2019年1月8日
  * @version 0.0.1
  */
-@Component
-public class DefaultAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class PermitAllAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	/**
 	 * 自定义属性配置
 	 */
-	@Autowired
 	protected SecurityProperties securityProperties;
 	
 
@@ -44,5 +41,23 @@ public class DefaultAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	public int getOrder() {
 		return 500;
 	}
+
+	public PermitAllAuthorizeConfigProvider(SecurityProperties securityProperties) {
+		this.securityProperties = securityProperties;
+	}
+
+	public PermitAllAuthorizeConfigProvider() {
+
+	}
+
+	public SecurityProperties getSecurityProperties() {
+		return securityProperties;
+	}
+
+	public void setSecurityProperties(SecurityProperties securityProperties) {
+		this.securityProperties = securityProperties;
+	}
+	
+	
 
 }

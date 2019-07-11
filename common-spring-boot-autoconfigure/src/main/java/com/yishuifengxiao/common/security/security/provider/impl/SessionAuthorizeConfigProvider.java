@@ -3,43 +3,36 @@
  */
 package com.yishuifengxiao.common.security.security.provider.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
-import org.springframework.stereotype.Component;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 
 /**
  * spring security并发登录相关的配置
+ * 
  * @author yishui
  * @date 2019年1月9日
- * @version 0.0.1 
+ * @version 0.0.1
  */
-@Component
-@ConditionalOnMissingBean(name = "sessionProvider")
 public class SessionAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	/**
 	 * 自定义属性配置
 	 */
-	@Autowired
 	protected SecurityProperties securityProperties;
-	
+
 	/**
 	 * 自定义认证失败处理器
 	 */
-	@Autowired
 	protected AuthenticationFailureHandler customAuthenticationFailureHandler;
 	/**
 	 * session失效后的处理策略
 	 */
-	@Autowired
 	private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
-	
+
 	@Override
 	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
 			throws Exception {
@@ -59,6 +52,43 @@ public class SessionAuthorizeConfigProvider implements AuthorizeConfigProvider {
 	@Override
 	public int getOrder() {
 		return 400;
+	}
+
+	public SessionAuthorizeConfigProvider(SecurityProperties securityProperties,
+			AuthenticationFailureHandler customAuthenticationFailureHandler,
+			SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
+		this.securityProperties = securityProperties;
+		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
+		this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategy;
+	}
+
+	public SessionAuthorizeConfigProvider() {
+
+	}
+
+	public SecurityProperties getSecurityProperties() {
+		return securityProperties;
+	}
+
+	public void setSecurityProperties(SecurityProperties securityProperties) {
+		this.securityProperties = securityProperties;
+	}
+
+	public AuthenticationFailureHandler getCustomAuthenticationFailureHandler() {
+		return customAuthenticationFailureHandler;
+	}
+
+	public void setCustomAuthenticationFailureHandler(AuthenticationFailureHandler customAuthenticationFailureHandler) {
+		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
+	}
+
+	public SessionInformationExpiredStrategy getSessionInformationExpiredStrategy() {
+		return sessionInformationExpiredStrategy;
+	}
+
+	public void setSessionInformationExpiredStrategy(
+			SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
+		this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategy;
 	}
 
 }
