@@ -23,10 +23,10 @@ import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeAutoCon
 import com.yishuifengxiao.common.autoconfigure.security.SecurityExtendAutoConfiguration;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
+import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
+import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
 import com.yishuifengxiao.common.security.remerberme.CustomPersistentTokenRepository;
-import com.yishuifengxiao.common.security.security.manager.AuthorizeConfigManager;
-import com.yishuifengxiao.common.security.security.manager.DefaultAuthorizeConfigManager;
-import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 

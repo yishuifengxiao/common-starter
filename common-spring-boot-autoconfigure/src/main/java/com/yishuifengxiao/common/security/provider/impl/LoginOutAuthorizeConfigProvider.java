@@ -1,14 +1,14 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.security.provider.impl;
+package com.yishuifengxiao.common.security.provider.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
 
 /**
  * 用户登出相关的配置

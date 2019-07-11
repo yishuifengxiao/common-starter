@@ -15,7 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.security.manager.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 
 /**
  * 安全服务器配置

@@ -16,13 +16,13 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.FormLoginAuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.InterceptAllAuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.LoginOutAuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.PermitAllAuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.RemeberMeAuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.security.provider.impl.SessionAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.FormLoginAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.InterceptAllAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.LoginOutAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.PermitAllAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.RemeberMeAuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.impl.SessionAuthorizeConfigProvider;
 
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,

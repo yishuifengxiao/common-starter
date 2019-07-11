@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.security.provider;
+package com.yishuifengxiao.common.security.provider;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;

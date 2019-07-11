@@ -6,4 +6,4 @@
  * @author yishui
  *
  */
-package com.yishuifengxiao.common.security.security.provider.impl;
+package com.yishuifengxiao.common.security.provider.impl;

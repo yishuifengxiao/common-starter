@@ -1,12 +1,12 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.security.provider.impl;
+package com.yishuifengxiao.common.security.provider.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
 
 /**
  * 拦截所有的资源<br/>

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.security.provider.impl;
+package com.yishuifengxiao.common.security.provider.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
@@ -9,7 +9,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
 
 /**
  * spring security并发登录相关的配置
