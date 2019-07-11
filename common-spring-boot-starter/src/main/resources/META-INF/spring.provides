@@ -1,1 +1,1 @@
-provides: common-spring-boot-autoconfigure,mapper-spring-boot-autoconfigure,mybatis-spring-boot-autoconfigure,pagehelper-spring-boot-autoconfigure,spring-boot-actuator-autoconfigure
+provides: common-spring-boot-autoconfigure,common-tool,springfox-swagger2,springfox-swagger-ui,swagger-bootstrap-ui,spring-boot-starter-web,jstl
