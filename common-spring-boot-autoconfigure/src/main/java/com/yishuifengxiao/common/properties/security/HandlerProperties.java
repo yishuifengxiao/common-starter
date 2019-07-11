@@ -1,9 +1,14 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.properties.security.handler;
+package com.yishuifengxiao.common.properties.security;
 
 import com.yishuifengxiao.common.constant.SecurityConstant;
+import com.yishuifengxiao.common.properties.security.handler.AccessDenieProperties;
+import com.yishuifengxiao.common.properties.security.handler.ExceptionProperties;
+import com.yishuifengxiao.common.properties.security.handler.LoginFailProperties;
+import com.yishuifengxiao.common.properties.security.handler.LoginOutProperties;
+import com.yishuifengxiao.common.properties.security.handler.LoginSucProperties;
 
 /**
  * 自定义handler的配置文件

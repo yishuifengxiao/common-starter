@@ -108,5 +108,13 @@ public final class SecurityConstant {
 	 * 资源默认名字
 	 */
 	public static final String REAL_NAME = "yishuifengxiao";
+	/**
+	 * 记住我产生的token
+	 */
+	public static final String REMEMBER_ME_AUTHENTICATION_KEY="yishuifengxiao";
+	/**
+	 * 登陆时开启记住我的参数
+	 */
+	public static final String REMEMBER_ME_PARAMTER="rememberMe";
 
 }

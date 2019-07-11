@@ -7,9 +7,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.yishuifengxiao.common.constant.SecurityConstant;
 import com.yishuifengxiao.common.properties.security.CoreProperties;
+import com.yishuifengxiao.common.properties.security.HandlerProperties;
 import com.yishuifengxiao.common.properties.security.IgnoreProperties;
+import com.yishuifengxiao.common.properties.security.RemeberMeProperties;
 import com.yishuifengxiao.common.properties.security.SessionProperties;
-import com.yishuifengxiao.common.properties.security.handler.HandlerProperties;
 
 /**
  * 安全相关的配置
@@ -37,6 +38,10 @@ public class SecurityProperties {
 	 * spring security 忽视目录配置
 	 */
 	private IgnoreProperties ignore = new IgnoreProperties();
+	/**
+	 * 记住我相关的属性
+	 */
+	private RemeberMeProperties remeberMe=new RemeberMeProperties();
 
 	/**
 	 * 加解密中需要使用的密钥
@@ -157,5 +162,19 @@ public class SecurityProperties {
 	public void setCloseCors(Boolean closeCors) {
 		this.closeCors = closeCors;
 	}
+    
+	/**
+	 * 记住我相关的属性
+	 * @return
+	 */
+	public RemeberMeProperties getRemeberMe() {
+		return remeberMe;
+	}
+
+	public void setRemeberMe(RemeberMeProperties remeberMe) {
+		this.remeberMe = remeberMe;
+	}
+	
+	
 
 }

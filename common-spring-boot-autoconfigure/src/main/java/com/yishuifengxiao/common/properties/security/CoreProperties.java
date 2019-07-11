@@ -31,10 +31,7 @@ public class CoreProperties {
 	 */
 	private String formActionUrl = SecurityConstant.DEFAULT_FORM_ACTION_URL;
 
-	/**
-	 * 默认过期时间为60分钟
-	 */
-	private Integer rememberMeSeconds = 60 * 60;
+
 	/**
 	 * 默认的处理登出请求的URL的路径【即请求次URL即为退出操作】，默认为/loginOut
 	 */
@@ -71,17 +68,6 @@ public class CoreProperties {
 
 	public void setFormActionUrl(String formActionUrl) {
 		this.formActionUrl = formActionUrl;
-	}
-
-	/**
-	 * 默认过期时间为60分钟
-	 */
-	public Integer getRememberMeSeconds() {
-		return rememberMeSeconds;
-	}
-
-	public void setRememberMeSeconds(Integer rememberMeSeconds) {
-		this.rememberMeSeconds = rememberMeSeconds;
 	}
 
 	/**

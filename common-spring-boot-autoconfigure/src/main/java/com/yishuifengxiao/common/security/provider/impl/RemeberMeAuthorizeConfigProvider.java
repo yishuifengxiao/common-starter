@@ -40,8 +40,11 @@ public class RemeberMeAuthorizeConfigProvider implements AuthorizeConfigProvider
 		config
 		.and()
 		.rememberMe()//记住我的功能
+		.useSecureCookie(securityProperties.getRemeberMe().getUseSecureCookie())//是否使用安全cookie
+		.key(securityProperties.getRemeberMe().getKey())//记住我产生的token的key
+		.rememberMeParameter(securityProperties.getRemeberMe().getRememberMeParameter())
 		.tokenRepository(persistentTokenRepository)//记住我的实现
-		.tokenValiditySeconds(securityProperties.getCore().getRememberMeSeconds())//记住我的时间
+		.tokenValiditySeconds(securityProperties.getRemeberMe().getRememberMeSeconds())//记住我的时间
 		.userDetailsService(userDetailsService);//记住我的验证逻辑
 		//@formatter:on  
 	}

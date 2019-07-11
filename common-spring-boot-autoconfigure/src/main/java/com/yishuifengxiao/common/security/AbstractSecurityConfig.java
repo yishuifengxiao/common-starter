@@ -111,6 +111,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 				.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 		}	
 		
+		
 		//.anonymous().disable()//禁止匿名访问要放在后面
 		//@formatter:on  
 
