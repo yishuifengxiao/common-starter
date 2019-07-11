@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuc
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.event.LogoutSuccessEvent;
-import com.yishuifengxiao.common.security.handle.CustomHandle;
+import com.yishuifengxiao.common.security.handle.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 
@@ -36,7 +36,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 	/**
 	 * 协助处理器
 	 */
-	private CustomHandle customHandle;
+	private CustomProcessor customProcessor;
 	
 	private ApplicationContext context;
 
@@ -56,7 +56,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 			return;
 		}
 
-		customHandle.handle(request, response, securityProperties.getHandler().getExit().getReturnType(),
+		customProcessor.handle(request, response, securityProperties.getHandler().getExit().getReturnType(),
 				securityProperties.getHandler().getExit().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_OK, Response.Const.MSG_OK, authentication));
 
@@ -70,17 +70,17 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandle getCustomHandle() {
-		return customHandle;
+	public CustomProcessor getCustomHandle() {
+		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomHandle customHandle) {
-		this.customHandle = customHandle;
+	public void setCustomHandle(CustomProcessor customProcessor) {
+		this.customProcessor = customProcessor;
 	}
 
-	public CustomLogoutSuccessHandler(SecurityProperties securityProperties, CustomHandle customHandle) {
+	public CustomLogoutSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 	}
 
 	public CustomLogoutSuccessHandler() {
@@ -95,11 +95,11 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 		this.context = context;
 	}
 
-	public CustomLogoutSuccessHandler(SecurityProperties securityProperties, CustomHandle customHandle,
+	public CustomLogoutSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor,
 			ApplicationContext context) {
 
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 		this.context = context;
 	}
 

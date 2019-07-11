@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
-import com.yishuifengxiao.common.security.handle.CustomHandle;
+import com.yishuifengxiao.common.security.handle.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 
@@ -27,8 +27,8 @@ import com.yishuifengxiao.common.utils.HeaderUtil;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public class CustomHandleImpl implements CustomHandle {
-	private final static Logger log = LoggerFactory.getLogger(CustomHandleImpl.class);
+public class CustomProcessorImpl implements CustomProcessor {
+	private final static Logger log = LoggerFactory.getLogger(CustomProcessorImpl.class);
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private ObjectMapper objectMapper;
@@ -130,13 +130,13 @@ public class CustomHandleImpl implements CustomHandle {
 		redirectStrategy.sendRedirect(request, response, url);
 	}
 
-	public CustomHandleImpl(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+	public CustomProcessorImpl(ObjectMapper objectMapper, SecurityProperties securityProperties) {
 
 		this.objectMapper = objectMapper;
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandleImpl() {
+	public CustomProcessorImpl() {
 
 	}
 

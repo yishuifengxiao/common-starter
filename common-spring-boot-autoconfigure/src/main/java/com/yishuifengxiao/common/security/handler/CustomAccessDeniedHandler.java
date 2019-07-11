@@ -14,7 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
-import com.yishuifengxiao.common.security.handle.CustomHandle;
+import com.yishuifengxiao.common.security.handle.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 import com.yishuifengxiao.common.utils.StringUtil;
@@ -37,7 +37,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	/**
 	 * 协助处理器
 	 */
-	private CustomHandle customHandle;
+	private CustomProcessor customProcessor;
 	
 	private ApplicationContext context;
 
@@ -61,7 +61,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 			msg = accessDeniedException.getMessage();
 		}
 
-		customHandle.handle(request, response, securityProperties.getHandler().getDenie().getReturnType(),
+		customProcessor.handle(request, response, securityProperties.getHandler().getDenie().getReturnType(),
 				securityProperties.getHandler().getDenie().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_FORBIDDEN, msg, accessDeniedException));
 
@@ -75,17 +75,17 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandle getCustomHandle() {
-		return customHandle;
+	public CustomProcessor getCustomHandle() {
+		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomHandle customHandle) {
-		this.customHandle = customHandle;
+	public void setCustomHandle(CustomProcessor customProcessor) {
+		this.customProcessor = customProcessor;
 	}
 
-	public CustomAccessDeniedHandler(SecurityProperties securityProperties, CustomHandle customHandle) {
+	public CustomAccessDeniedHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 	}
 
 	public CustomAccessDeniedHandler() {

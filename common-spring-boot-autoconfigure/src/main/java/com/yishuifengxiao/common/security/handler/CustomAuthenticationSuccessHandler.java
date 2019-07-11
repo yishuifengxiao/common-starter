@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.event.AuthenticationSuccessEvent;
-import com.yishuifengxiao.common.security.handle.CustomHandle;
+import com.yishuifengxiao.common.security.handle.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 
@@ -35,7 +35,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	/**
 	 * 协助处理器
 	 */
-	private CustomHandle customHandle;
+	private CustomProcessor customProcessor;
 
 	private ApplicationContext context;
 	
@@ -55,7 +55,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 			return;
 		}
 
-		customHandle.handle(request, response, securityProperties.getHandler().getSuc().getReturnType(),
+		customProcessor.handle(request, response, securityProperties.getHandler().getSuc().getReturnType(),
 				securityProperties.getHandler().getSuc().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_OK, Response.Const.MSG_OK, authentication));
 	}
@@ -68,17 +68,17 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandle getCustomHandle() {
-		return customHandle;
+	public CustomProcessor getCustomHandle() {
+		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomHandle customHandle) {
-		this.customHandle = customHandle;
+	public void setCustomHandle(CustomProcessor customProcessor) {
+		this.customProcessor = customProcessor;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomHandle customHandle) {
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 	}
 
 	public CustomAuthenticationSuccessHandler() {
@@ -93,10 +93,10 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.context = context;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomHandle customHandle,
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor,
 			ApplicationContext context) {
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 		this.context = context;
 	}
 

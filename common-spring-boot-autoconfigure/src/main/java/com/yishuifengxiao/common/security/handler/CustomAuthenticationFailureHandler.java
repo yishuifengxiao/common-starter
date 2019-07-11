@@ -14,7 +14,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.event.AuthenticationFailureEvent;
-import com.yishuifengxiao.common.security.handle.CustomHandle;
+import com.yishuifengxiao.common.security.handle.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HeaderUtil;
 import com.yishuifengxiao.common.utils.StringUtil;
@@ -37,7 +37,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	/**
 	 * 协助处理器
 	 */
-	private CustomHandle customHandle;
+	private CustomProcessor customProcessor;
 	
 	
 	private ApplicationContext context;
@@ -63,7 +63,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			msg = exception.getMessage();
 		}
 
-		customHandle.handle(request, response, securityProperties.getHandler().getFail().getReturnType(),
+		customProcessor.handle(request, response, securityProperties.getHandler().getFail().getReturnType(),
 				securityProperties.getHandler().getFail().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_INTERNAL_SERVER_ERROR, msg, exception));
 
@@ -77,18 +77,18 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandle getCustomHandle() {
-		return customHandle;
+	public CustomProcessor getCustomHandle() {
+		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomHandle customHandle) {
-		this.customHandle = customHandle;
+	public void setCustomHandle(CustomProcessor customProcessor) {
+		this.customProcessor = customProcessor;
 	}
 
-	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, CustomHandle customHandle) {
+	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
 
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 	}
 
 	public CustomAuthenticationFailureHandler() {
@@ -103,10 +103,10 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		this.context = context;
 	}
 
-	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, CustomHandle customHandle,
+	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, CustomProcessor customProcessor,
 			ApplicationContext context) {
 		this.securityProperties = securityProperties;
-		this.customHandle = customHandle;
+		this.customProcessor = customProcessor;
 		this.context = context;
 	}
 
