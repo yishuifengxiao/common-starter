@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -24,7 +25,8 @@ import com.yishuifengxiao.common.security.security.provider.impl.RemeberMeAuthor
 import com.yishuifengxiao.common.security.security.provider.impl.SessionAuthorizeConfigProvider;
 
 @Configuration
-@ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class })
+@ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
+	WebSecurityConfigurerAdapter.class })
 public class SecurityAuthorizeAutoConfiguration {
 
 	/**
@@ -42,11 +44,11 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public AuthorizeConfigProvider formLoginProvider(AuthenticationSuccessHandler formAuthenticationSuccessHandler,
-			AuthenticationFailureHandler formAuthenticationFailureHandler) {
+	public AuthorizeConfigProvider formLoginProvider(AuthenticationSuccessHandler authenticationSuccessHandler,
+			AuthenticationFailureHandler authenticationFailureHandler) {
 		FormLoginAuthorizeConfigProvider formLoginProvider = new FormLoginAuthorizeConfigProvider();
-		formLoginProvider.setFormAuthenticationFailureHandler(formAuthenticationFailureHandler);
-		formLoginProvider.setFormAuthenticationSuccessHandler(formAuthenticationSuccessHandler);
+		formLoginProvider.setFormAuthenticationFailureHandler(authenticationFailureHandler);
+		formLoginProvider.setFormAuthenticationSuccessHandler(authenticationSuccessHandler);
 		formLoginProvider.setSecurityProperties(securityProperties);
 		return formLoginProvider;
 	}

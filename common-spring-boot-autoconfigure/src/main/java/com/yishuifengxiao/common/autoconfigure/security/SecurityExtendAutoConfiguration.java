@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
@@ -25,7 +26,8 @@ import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHan
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
 
 @Configuration
-@ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class })
+@ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
+	WebSecurityConfigurerAdapter.class })
 public class SecurityExtendAutoConfiguration {
 
 	/**
@@ -40,8 +42,8 @@ public class SecurityExtendAutoConfiguration {
 	 * @param objectMapper
 	 * @return
 	 */
-	@Bean("customProcessor")
-	@ConditionalOnMissingBean(name = "customProcessor")
+	@Bean
+	@ConditionalOnMissingBean
 	public CustomProcessor customProcessor(ObjectMapper objectMapper) {
 		CustomProcessorImpl customHandle = new CustomProcessorImpl();
 		customHandle.setObjectMapper(objectMapper);
@@ -54,9 +56,9 @@ public class SecurityExtendAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean("formAuthenticationFailureHandler")
-	@ConditionalOnMissingBean(name = "formAuthenticationFailureHandler")
-	public AuthenticationFailureHandler formAuthenticationFailureHandler(CustomProcessor customHandle,
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthenticationFailureHandler authenticationFailureHandler(CustomProcessor customHandle,
 			ApplicationContext context) {
 		CustomAuthenticationFailureHandler hanler = new CustomAuthenticationFailureHandler();
 		hanler.setSecurityProperties(securityProperties);
@@ -70,9 +72,9 @@ public class SecurityExtendAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean("formAuthenticationSuccessHandler")
-	@ConditionalOnMissingBean(name = "formAuthenticationSuccessHandler")
-	public AuthenticationSuccessHandler formAuthenticationSuccessHandler(CustomProcessor customHandle,
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthenticationSuccessHandler authenticationSuccessHandler(CustomProcessor customHandle,
 			ApplicationContext context) {
 		CustomAuthenticationSuccessHandler hanler = new CustomAuthenticationSuccessHandler();
 		hanler.setSecurityProperties(securityProperties);
@@ -117,9 +119,9 @@ public class SecurityExtendAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean("customAccessDeniedHandler")
-	@ConditionalOnMissingBean(name = "customAccessDeniedHandler")
-	public AccessDeniedHandler customAccessDeniedHandler(CustomProcessor customHandle, ApplicationContext context) {
+	@Bean("accessDeniedHandler")
+	@ConditionalOnMissingBean(name = "accessDeniedHandler")
+	public AccessDeniedHandler accessDeniedHandler(CustomProcessor customHandle, ApplicationContext context) {
 		CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
 		handler.setSecurityProperties(securityProperties);
 		handler.setCustomHandle(customHandle);
