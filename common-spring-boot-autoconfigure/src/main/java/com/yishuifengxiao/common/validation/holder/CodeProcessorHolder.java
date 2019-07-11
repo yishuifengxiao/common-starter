@@ -5,6 +5,9 @@ package com.yishuifengxiao.common.validation.holder;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 import com.yishuifengxiao.common.validation.eunm.CodeType;
 import com.yishuifengxiao.common.validation.processor.CodeProcessor;
@@ -17,6 +20,8 @@ import com.yishuifengxiao.common.validation.processor.CodeProcessor;
  * @version 0.0.1
  */
 public class CodeProcessorHolder {
+
+	private final static Logger log = LoggerFactory.getLogger(CodeProcessorHolder.class);
 
 	private Map<String, CodeProcessor> codeProcessors;
 
@@ -42,7 +47,8 @@ public class CodeProcessorHolder {
 		String codeProcessorName = type + "CodeProcessor";
 		CodeProcessor processor = codeProcessors.get(codeProcessorName);
 		if (processor == null) {
-			throw new ValidateException("验证码处理器" + codeProcessorName + "不存在");
+			log.info("验证码处理器{}不存在", codeProcessorName);
+			throw new ValidateException("验证码处理器不存在");
 		}
 		return processor;
 	}

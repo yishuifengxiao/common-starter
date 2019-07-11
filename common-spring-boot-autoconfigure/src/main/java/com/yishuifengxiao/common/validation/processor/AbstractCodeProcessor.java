@@ -76,7 +76,6 @@ public abstract class AbstractCodeProcessor<C extends ValidateCode> implements C
 	protected CodeType getValidateCodeType(ServletWebRequest request) {
 		String type = StringUtils.substringBefore(getClass().getSimpleName(), "CodeProcessor");
 		CodeType codeType = CodeType.parse(type.toLowerCase());
-		log.debug("======================> 获取到验证码类型为{}", type);
 		return codeType;
 	}
 
