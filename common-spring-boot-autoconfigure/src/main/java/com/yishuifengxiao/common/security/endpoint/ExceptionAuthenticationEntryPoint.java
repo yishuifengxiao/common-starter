@@ -54,7 +54,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(), handleEnum);
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统配置的处理方式为 {} ,实际的处理方式为 {}", handleEnum, type);
 		
 		if (type == HandleEnum.DEFAULT) {

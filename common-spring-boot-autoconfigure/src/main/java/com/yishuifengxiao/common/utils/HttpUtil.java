@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 
+import com.yishuifengxiao.common.properties.security.HandlerProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 
 /**
@@ -56,23 +56,22 @@ public class HttpUtil {
 	/**
 	 * 从请求中获取处理方式
 	 * 
-	 * @param request HttpServletRequest
-	 * @param value   请求获取参数
+	 * @param request           HttpServletRequest
+	 * @param handlerProperties 请求获取参数
 	 */
-	public static HandleEnum handleType(HttpServletRequest request, String name) {
-		Assert.notNull(name, "请求头参数不能为空");
+	public static HandleEnum handleType(HttpServletRequest request, HandlerProperties handlerProperties) {
 		// 打印请求头
 		stack(request);
 		HandleEnum handleType = null;
 		// 获取对应的请求头参数的值
-		handleType = HandleEnum.parse(request.getHeader(name));
+		handleType = HandleEnum.parse(request.getHeader(handlerProperties.getHeaderName()));
 		// 从ACCEPT参数中获取
 		if (handleType == null && StringUtils.containsIgnoreCase(request.getHeader(ACCEPT), JSON_TYPE_KEY)) {
 			handleType = HandleEnum.JSON;
 		}
 		// 在特定的请求头未获取到参数
 		if (handleType == null) {
-			handleType = HandleEnum.parse(request.getParameter(name));
+			handleType = HandleEnum.parse(request.getParameter(handlerProperties.getParamName()));
 		}
 
 		return handleType;
@@ -81,17 +80,18 @@ public class HttpUtil {
 	/**
 	 * 获取请求处理方式
 	 * 
-	 * @param request    HttpServletRequest
-	 * @param name       请求参数头的名字
-	 * @param handleEnum 系统配置的处理方式
+	 * @param request           HttpServletRequest
+	 * @param handlerProperties 请求参数头的名字
+	 * @param handleEnum        系统配置的处理方式
 	 * @return
 	 */
-	public static HandleEnum handleType(HttpServletRequest request, String name, HandleEnum handleEnum) {
+	public static HandleEnum handleType(HttpServletRequest request, HandlerProperties handlerProperties,
+			HandleEnum handleEnum) {
 		if (handleEnum != HandleEnum.AUTO) {
 			return handleEnum;
 		}
 		// 获取请求中的处理方式
-		handleEnum = handleType(request, name);
+		handleEnum = handleType(request, handlerProperties);
 		return handleEnum == null ? HandleEnum.REDIRECT : handleEnum;
 
 	}

@@ -43,6 +43,10 @@ public class HandlerProperties {
 	 * 默认的header名称 type
 	 */
 	private String headerName = SecurityConstant.DEFAULT_HEADER_NAME;
+	/**
+	 * 默认的从请求参数获取处理方法的参数的名称 yishuifengxiao
+	 */
+	private String paramName = SecurityConstant.DEFAULT_PARAM_NAME;
 
 	/**
 	 * 登陆成功后的处理方式
@@ -108,6 +112,19 @@ public class HandlerProperties {
 
 	public void setDenie(AccessDenieProperties denie) {
 		this.denie = denie;
+	}
+
+	/**
+	 * 默认的从请求参数获取处理方法的参数的名称 yishuifengxiao
+	 * 
+	 * @return
+	 */
+	public String getParamName() {
+		return paramName;
+	}
+
+	public void setParamName(String paramName) {
+		this.paramName = paramName;
 	}
 
 }

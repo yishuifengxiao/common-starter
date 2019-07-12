@@ -87,6 +87,10 @@ public final class SecurityConstant {
 	 */
 	public static final String DEFAULT_HEADER_NAME = "type";
 	/**
+	 * 默认的从请求参数获取处理方法的参数的名称 yishuifengxiao
+	 */
+	public static final String  DEFAULT_PARAM_NAME="yishuifengxiao";
+	/**
 	 * 默认的主页地址 /
 	 */
 	public static final String DEFAULT_HOME_URL = "/";

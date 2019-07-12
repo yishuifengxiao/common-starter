@@ -52,7 +52,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getFail().getReturnType();
 
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(), handleEnum);
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
 		log.debug("====================> 【认证服务】登录失败，系统配置的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
 		// 判断是否使用系统的默认处理方法

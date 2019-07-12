@@ -50,14 +50,10 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getExit().getReturnType();
-		
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
-				handleEnum);
 
-		log.debug("====================> 【认证服务】退出成功，系统配置的的处理方式为 {},最终的处理方式为 {}",handleEnum,
-				type);
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-
+		log.debug("====================> 【认证服务】退出成功，系统配置的的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
 
 		// 判断是否使用系统的默认处理方法
 		if (type == HandleEnum.DEFAULT) {
