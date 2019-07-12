@@ -13,10 +13,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.LogoutSuccessEvent;
 import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HeaderUtil;
+import com.yishuifengxiao.common.utils.HttpUtil;
 
 /**
  * 自定义登陆退出处理
@@ -37,26 +38,30 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 	 * 协助处理器
 	 */
 	private CustomProcessor customProcessor;
-	
+
 	private ApplicationContext context;
 
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
-		
-		//发布事件
+
+		// 发布事件
 		context.publishEvent(new LogoutSuccessEvent(authentication, request));
-		
-		log.debug("====================> 【认证服务】退出成功，此用户的信息为 {}",authentication);
-		log.debug("====================> 【认证服务】退出成功，系统希望的处理方式为 {}",securityProperties.getHandler().getExit().getReturnType());
+
+		log.debug("====================> 【认证服务】退出成功，此用户的信息为 {}", authentication);
+		log.debug("====================> 【认证服务】退出成功，系统希望的处理方式为 {}",
+				securityProperties.getHandler().getExit().getReturnType());
+
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
+				securityProperties.getHandler().getExit().getReturnType());
 
 		// 判断是否使用系统的默认处理方法
-		if (HeaderUtil.useDefault(request, securityProperties.getHandler().getExit().getReturnType())) {
+		if (type == HandleEnum.DEFAULT) {
 			super.onLogoutSuccess(request, response, authentication);
 			return;
 		}
 
-		customProcessor.handle(request, response, securityProperties.getHandler().getExit().getReturnType(),
+		customProcessor.handle(request, response, type == HandleEnum.REDIRECT,
 				securityProperties.getHandler().getExit().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_OK, Response.Const.MSG_OK, authentication));
 

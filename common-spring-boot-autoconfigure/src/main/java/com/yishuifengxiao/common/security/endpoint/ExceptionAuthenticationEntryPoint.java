@@ -16,10 +16,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.ExceptionAuthenticationEntryPointEvent;
 import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HeaderUtil;
+import com.yishuifengxiao.common.utils.HttpUtil;
 
 /**
  * 当参数中不存在token时的提示信息 处理器<br/>
@@ -39,26 +40,27 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	 * 协助处理器
 	 */
 	private CustomProcessor customHandle;
-	
+
 	private ApplicationContext context;
 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		//发布信息
+		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
-		
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，失败的原因为 {}",authException.getMessage());
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统希望的处理方式为 {}",securityProperties.getHandler().getException().getReturnType());
 
+		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，失败的原因为 {}", authException.getMessage());
+		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统希望的处理方式为 {}",
+				securityProperties.getHandler().getException().getReturnType());
 
-		// 判断是否使用系统的默认处理方法
-		if (HeaderUtil.useDefault(request, securityProperties.getHandler().getException().getReturnType())) {
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
+				securityProperties.getHandler().getException().getReturnType());
+		if (type == HandleEnum.DEFAULT) {
 			super.commence(request, response, authException);
 			return;
 		}
 
-		customHandle.handle(request, response, securityProperties.getHandler().getException().getReturnType(),
+		customHandle.handle(request, response, type == HandleEnum.REDIRECT,
 				securityProperties.getHandler().getException().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_UNAUTHORIZED, Response.Const.MSG_UNAUTHORIZED, authException));
 
@@ -104,7 +106,5 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		this.customHandle = customHandle;
 		this.context = context;
 	}
-	
-	
 
 }

@@ -13,10 +13,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AuthenticationFailureEvent;
 import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HeaderUtil;
+import com.yishuifengxiao.common.utils.HttpUtil;
 import com.yishuifengxiao.common.utils.StringUtil;
 
 /**
@@ -38,23 +39,24 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	 * 协助处理器
 	 */
 	private CustomProcessor customProcessor;
-	
-	
+
 	private ApplicationContext context;
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		
-		//发布事件
+
+		// 发布事件
 		context.publishEvent(new AuthenticationFailureEvent(exception, request));
-		
+
 		log.debug("====================> 【认证服务】登录失败，失败的原因为 {}", exception.getMessage());
 		log.debug("====================> 【认证服务】登录失败，系统希望的处理方式为 {}",
 				securityProperties.getHandler().getFail().getReturnType());
 
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
+				securityProperties.getHandler().getFail().getReturnType());
 		// 判断是否使用系统的默认处理方法
-		if (HeaderUtil.useDefault(request, securityProperties.getHandler().getFail().getReturnType())) {
+		if (type == HandleEnum.DEFAULT) {
 			super.onAuthenticationFailure(request, response, exception);
 			return;
 		}
@@ -63,7 +65,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			msg = exception.getMessage();
 		}
 
-		customProcessor.handle(request, response, securityProperties.getHandler().getFail().getReturnType(),
+		customProcessor.handle(request, response, type == HandleEnum.REDIRECT,
 				securityProperties.getHandler().getFail().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_INTERNAL_SERVER_ERROR, msg, exception));
 

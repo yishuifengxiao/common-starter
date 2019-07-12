@@ -13,10 +13,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
 import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HeaderUtil;
+import com.yishuifengxiao.common.utils.HttpUtil;
 import com.yishuifengxiao.common.utils.StringUtil;
 
 /**
@@ -38,21 +39,22 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	 * 协助处理器
 	 */
 	private CustomProcessor customProcessor;
-	
+
 	private ApplicationContext context;
 
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
-		//发布事件
+		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
-		
+
 		log.debug("====================> 【资源服务】资源请求失败，失败的原因为 {}", accessDeniedException.getMessage());
 		log.debug("====================> 【资源服务】资源请求失败，系统希望的处理方式为 {}",
 				securityProperties.getHandler().getDenie().getReturnType());
 
-		// 判断是否使用系统的默认处理方法
-		if (HeaderUtil.useDefault(request, securityProperties.getHandler().getDenie().getReturnType())) {
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
+				securityProperties.getHandler().getDenie().getReturnType());
+		if (type == HandleEnum.DEFAULT) {
 			super.handle(request, response, accessDeniedException);
 			return;
 		}
@@ -61,7 +63,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 			msg = accessDeniedException.getMessage();
 		}
 
-		customProcessor.handle(request, response, securityProperties.getHandler().getDenie().getReturnType(),
+		customProcessor.handle(request, response, type == HandleEnum.REDIRECT,
 				securityProperties.getHandler().getDenie().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_FORBIDDEN, msg, accessDeniedException));
 
@@ -100,7 +102,4 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 		this.context = context;
 	}
 
-
-	
-	
 }

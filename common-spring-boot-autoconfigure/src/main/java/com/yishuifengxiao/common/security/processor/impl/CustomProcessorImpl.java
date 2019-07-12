@@ -15,10 +15,8 @@ import org.springframework.security.web.RedirectStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.processor.CustomProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HeaderUtil;
 
 /**
  * handler协助处理器的默认实现
@@ -37,57 +35,14 @@ public class CustomProcessorImpl implements CustomProcessor {
 
 	@SuppressWarnings("rawtypes")
 	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response, HandleEnum type, String url,
+	public void handle(HttpServletRequest request, HttpServletResponse response, Boolean isRedict, String url,
 			Response result) throws IOException, ServletException {
-
-		switch (type) {
-		case REDIRECT:
-			redirect(request, response, url, result);
-			break;
-		case AUTO:
-			autoHandle(request, response, result, url);
-			break;
-		case DEFAULT:// 另一种情况已经排除
-			send(request, response, result);
-			break;
-		case JSON:
-			send(request, response, result);
-			break;
-		default:
-			send(request, response, result);
-			break;
-		}
-
-	}
-
-	/**
-	 * 内容协商处理
-	 * 
-	 * @param request
-	 * @param response
-	 * @param exception
-	 * @param type
-	 *            用户希望得到的数据类型
-	 * @throws IOException
-	 * @throws JsonProcessingException
-	 * @throws ServletException
-	 */
-	@SuppressWarnings("rawtypes")
-	private void autoHandle(HttpServletRequest request, HttpServletResponse response, Response result, String url)
-			throws JsonProcessingException, IOException, ServletException {
-
-		String headerName = securityProperties.getHandler().getHeaderName();
-
-		// 用户希望返回的数据的类型
-		HandleEnum type = HeaderUtil.getType(request, headerName);
-
-		if (type == HandleEnum.JSON) {
-			send(request, response, result);
-		} else {
+		if (isRedict) {
 			// 默认处理
 			redirect(request, response, url, result);
+		} else {
+			send(request, response, result);
 		}
-
 	}
 
 	/**
