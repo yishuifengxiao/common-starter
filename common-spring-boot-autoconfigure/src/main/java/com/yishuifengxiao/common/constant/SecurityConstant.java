@@ -120,5 +120,9 @@ public final class SecurityConstant {
 	 * 登陆时开启记住我的参数
 	 */
 	public static final String REMEMBER_ME_PARAMTER="rememberMe";
+	/**
+	 * 短信登录参数
+	 */
+	public static final String SMS_LOGIN_PARAM="mobile";
 
 }

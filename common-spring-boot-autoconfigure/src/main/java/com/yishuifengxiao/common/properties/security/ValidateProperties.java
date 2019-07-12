@@ -3,6 +3,8 @@ package com.yishuifengxiao.common.properties.security;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.yishuifengxiao.common.constant.SecurityConstant;
+
 /**
  * 自定义属性配置文件
  * 
@@ -12,13 +14,17 @@ import java.util.Map;
  */
 public class ValidateProperties {
 	/**
-	 * 是否开启自定义过滤器
+	 * 是否开启自定义过滤器，默认为false
 	 */
 	private Boolean enable = false;
 	/**
 	 * 是否过滤GET方法，默认为false
 	 */
 	private Boolean isFilterGet = false;
+	/**
+	 * 短信登陆参数,默认为 mobile
+	 */
+	private String smsLoginParam = SecurityConstant.SMS_LOGIN_PARAM;
 	/**
 	 * 短信验证码登录地址
 	 */
@@ -38,6 +44,11 @@ public class ValidateProperties {
 		this.filter = filter;
 	}
 
+	/**
+	 * 是否开启自定义过滤器，默认为false
+	 * 
+	 * @return
+	 */
 	public Boolean getEnable() {
 		return enable;
 	}
@@ -46,6 +57,11 @@ public class ValidateProperties {
 		this.enable = enable;
 	}
 
+	/**
+	 * 短信验证码登录地址
+	 * 
+	 * @return
+	 */
 	public String getSmsLoginUrl() {
 		return smsLoginUrl;
 	}
@@ -65,6 +81,19 @@ public class ValidateProperties {
 
 	public void setIsFilterGet(Boolean isFilterGet) {
 		this.isFilterGet = isFilterGet;
+	}
+
+	/**
+	 * 短信登陆参数,默认为 mobile
+	 * 
+	 * @return
+	 */
+	public String getSmsLoginParam() {
+		return smsLoginParam;
+	}
+
+	public void setSmsLoginParam(String smsLoginParam) {
+		this.smsLoginParam = smsLoginParam;
 	}
 
 }
