@@ -12,6 +12,7 @@ import com.yishuifengxiao.common.properties.security.IgnoreProperties;
 import com.yishuifengxiao.common.properties.security.RemeberMeProperties;
 import com.yishuifengxiao.common.properties.security.SessionProperties;
 import com.yishuifengxiao.common.properties.security.ValidateProperties;
+import com.yishuifengxiao.common.properties.security.social.QQProperties;
 
 /**
  * 安全相关的配置
@@ -47,6 +48,10 @@ public class SecurityProperties {
 	 * 验证码及短信登陆相关配置
 	 */
 	private ValidateProperties code = new ValidateProperties();
+	/**
+	 * QQ登陆相关的参数配置
+	 */
+	private QQProperties qq = new QQProperties();
 
 	/**
 	 * 加解密中需要使用的密钥
@@ -192,6 +197,19 @@ public class SecurityProperties {
 
 	public void setCode(ValidateProperties code) {
 		this.code = code;
+	}
+
+	/**
+	 * QQ登陆相关的参数配置
+	 * 
+	 * @return
+	 */
+	public QQProperties getQq() {
+		return qq;
+	}
+
+	public void setQq(QQProperties qq) {
+		this.qq = qq;
 	}
 
 }
