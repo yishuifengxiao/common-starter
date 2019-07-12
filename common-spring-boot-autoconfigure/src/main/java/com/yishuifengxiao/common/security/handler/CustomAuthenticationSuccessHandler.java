@@ -43,16 +43,16 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-
+		log.debug("====================> 【认证服务】登录成功，此用户的信息为 {}", authentication);
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
 
-		log.debug("====================> 【认证服务】登录成功，此用户的信息为 {}", authentication);
-		log.debug("====================> 【认证服务】登录成功，系统希望的处理方式为 {}",
-				securityProperties.getHandler().getSuc().getReturnType());
+		// 获取系统的处理方式
+		HandleEnum handleEnum = securityProperties.getHandler().getSuc().getReturnType();
 
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
-				securityProperties.getHandler().getSuc().getReturnType());
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(), handleEnum);
+
+		log.debug("====================> 【认证服务】登录成功，系统配置的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
 
 		// 判断是否使用系统的默认处理方法
 		if (type == HandleEnum.DEFAULT) {

@@ -45,15 +45,16 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+		log.debug("====================> 【资源服务】资源请求失败，失败的原因为 {}", accessDeniedException.getMessage());
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
 
-		log.debug("====================> 【资源服务】资源请求失败，失败的原因为 {}", accessDeniedException.getMessage());
-		log.debug("====================> 【资源服务】资源请求失败，系统希望的处理方式为 {}",
-				securityProperties.getHandler().getDenie().getReturnType());
+		// 获取系统的处理方式
+		HandleEnum handleEnum = securityProperties.getHandler().getDenie().getReturnType();
 
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
-				securityProperties.getHandler().getDenie().getReturnType());
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(), handleEnum);
+
+		log.debug("====================> 【资源服务】资源请求失败，系统配置的处理方式为 {} , 最终的处理方式为 {}", handleEnum, type);
 		if (type == HandleEnum.DEFAULT) {
 			super.handle(request, response, accessDeniedException);
 			return;

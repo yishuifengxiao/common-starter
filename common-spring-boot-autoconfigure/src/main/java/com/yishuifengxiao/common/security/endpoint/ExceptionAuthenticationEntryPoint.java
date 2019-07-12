@@ -46,15 +46,17 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
+
+		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，失败的原因为 {}", authException.getMessage());
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，失败的原因为 {}", authException.getMessage());
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统希望的处理方式为 {}",
-				securityProperties.getHandler().getException().getReturnType());
+		// 获取系统的处理方式
+		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
-		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(),
-				securityProperties.getHandler().getException().getReturnType());
+		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler().getHeaderName(), handleEnum);
+		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统配置的处理方式为 {} ,实际的处理方式为 {}", handleEnum, type);
+		
 		if (type == HandleEnum.DEFAULT) {
 			super.commence(request, response, authException);
 			return;
