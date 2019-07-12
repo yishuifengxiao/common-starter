@@ -11,6 +11,7 @@ import com.yishuifengxiao.common.properties.security.HandlerProperties;
 import com.yishuifengxiao.common.properties.security.IgnoreProperties;
 import com.yishuifengxiao.common.properties.security.RemeberMeProperties;
 import com.yishuifengxiao.common.properties.security.SessionProperties;
+import com.yishuifengxiao.common.properties.security.ValidateProperties;
 
 /**
  * 安全相关的配置
@@ -41,7 +42,11 @@ public class SecurityProperties {
 	/**
 	 * 记住我相关的属性
 	 */
-	private RemeberMeProperties remeberMe=new RemeberMeProperties();
+	private RemeberMeProperties remeberMe = new RemeberMeProperties();
+	/**
+	 * 验证码及短信登陆相关配置
+	 */
+	private ValidateProperties code = new ValidateProperties();
 
 	/**
 	 * 加解密中需要使用的密钥
@@ -162,9 +167,10 @@ public class SecurityProperties {
 	public void setCloseCors(Boolean closeCors) {
 		this.closeCors = closeCors;
 	}
-    
+
 	/**
 	 * 记住我相关的属性
+	 * 
 	 * @return
 	 */
 	public RemeberMeProperties getRemeberMe() {
@@ -174,7 +180,18 @@ public class SecurityProperties {
 	public void setRemeberMe(RemeberMeProperties remeberMe) {
 		this.remeberMe = remeberMe;
 	}
-	
-	
+
+	/**
+	 * 验证码及短信登陆相关配置
+	 * 
+	 * @return
+	 */
+	public ValidateProperties getCode() {
+		return code;
+	}
+
+	public void setCode(ValidateProperties code) {
+		this.code = code;
+	}
 
 }

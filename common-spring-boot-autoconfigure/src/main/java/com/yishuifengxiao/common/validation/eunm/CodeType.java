@@ -43,6 +43,12 @@ public enum CodeType {
 		this.name = name;
 	}
 
+	/**
+	 * 根据参数解析验证码类型
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public static CodeType parse(String name) {
 		Assert.notNull(name, "参数不能为空");
 		CodeType type = null;
