@@ -34,6 +34,13 @@ import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 
+/**
+ * spring security应用配置
+ * 
+ * @author yishui
+ * @date 2018年6月15日
+ * @version 0.0.1
+ */
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
@@ -124,7 +131,7 @@ public class SecurityAutoConfiguration {
 	 * @return
 	 */
 	@ConditionalOnMissingClass({ "org.springframework.data.redis.core.RedisTemplate" })
-	@ConditionalOnMissingBean(name="persistentTokenRepository")
+	@ConditionalOnMissingBean(name = "persistentTokenRepository")
 	@Bean("persistentTokenRepository")
 	public PersistentTokenRepository inMemoryTokenRepositoryImpl() {
 		return new InMemoryTokenRepositoryImpl();

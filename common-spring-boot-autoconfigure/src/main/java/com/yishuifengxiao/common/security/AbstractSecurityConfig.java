@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.security;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 
 /**
@@ -61,6 +64,12 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	@Autowired
 	protected AccessDeniedHandler customAccessDeniedHandler;
 
+	/**
+	 * 系统中所有的权限适配器
+	 */
+	@Autowired
+	protected List<SecurityAdapter> securityAdapters;
+
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 
@@ -74,7 +83,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	}
 
 	/**
-	 * 默认的spring security配置
+	 * 默认的spring security配置【需要在子类中调用此方法】
 	 * 
 	 * @param http
 	 * @throws Exception
@@ -111,6 +120,12 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 				.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 		}	
 		
+		//注入所有的授权适配器
+		if(securityAdapters!=null) {
+			for(SecurityAdapter securityAdapter:securityAdapters) {
+				http.apply(securityAdapter);
+			}
+		}
 		
 		//.anonymous().disable()//禁止匿名访问要放在后面
 		//@formatter:on  

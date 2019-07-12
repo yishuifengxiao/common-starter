@@ -9,7 +9,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 
 /**
  * security 自定义适配器，自定义过滤器需要继承的基类<br/>
- * 参见 com.yishuifengxiao.common.security.code.adater.CodeConfigAdapter
+ * 参见 com.yishuifengxiao.common.security.adapter.impl.CodeConfigAdapter
  * 
  * @author yishui
  * @date 2019年1月23日
