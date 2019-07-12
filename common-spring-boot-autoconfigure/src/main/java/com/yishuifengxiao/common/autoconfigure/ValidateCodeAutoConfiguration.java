@@ -97,7 +97,7 @@ public class ValidateCodeAutoConfiguration {
 	 * 图形验证码处理器
 	 * 
 	 * @param codeGenerators
-	 * @param repository
+	 * @param codeRepository
 	 * @return
 	 */
 	@ConditionalOnMissingBean(name = "imageCodeProcessor")
@@ -122,7 +122,7 @@ public class ValidateCodeAutoConfiguration {
 	 * 短信验证码处理器
 	 * 
 	 * @param codeGenerators
-	 * @param repository
+	 * @param codeRepository
 	 * @param smsCodeSender
 	 * @return
 	 */
@@ -140,7 +140,7 @@ public class ValidateCodeAutoConfiguration {
 	/**
 	 * 邮箱验证码发送器
 	 * 
-	 * @param javaMailSender
+	 * @param env
 	 * @return
 	 */
 	@Bean("emailCodeSender")

@@ -38,8 +38,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	/**
 	 * 表单登陆授权管理
 	 * 
-	 * @param formAuthenticationSuccessHandler
-	 * @param formAuthenticationFailureHandler
+	 * @param authenticationSuccessHandler
+	 * @param authenticationFailureHandler
 	 * @return
 	 */
 	@Bean

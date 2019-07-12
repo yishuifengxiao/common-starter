@@ -42,8 +42,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	 * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
 	 * authentication token.
 	 *
-	 * @param principal
-	 * @param credentials
+	 * @param mobile
 	 * @param authorities
 	 */
 	public SmsAuthenticationToken(String mobile, 

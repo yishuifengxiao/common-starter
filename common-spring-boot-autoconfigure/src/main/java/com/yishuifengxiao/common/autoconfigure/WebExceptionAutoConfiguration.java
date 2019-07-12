@@ -116,7 +116,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 参数验证异常
 	 * 
-	 * @param exception
+	 * @param e
 	 * @return
 	 */
 	@ExceptionHandler

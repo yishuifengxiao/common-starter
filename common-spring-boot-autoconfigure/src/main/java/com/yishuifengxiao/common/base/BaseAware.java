@@ -38,7 +38,7 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 	/**
 	 * 对传入的参数进行非空处理
 	 * 
-	 * @param param 传入的参数
+	 * @param t 传入的参数
 	 * @return 处理后的参数
 	 */
 	protected <T> T convert(T t) {

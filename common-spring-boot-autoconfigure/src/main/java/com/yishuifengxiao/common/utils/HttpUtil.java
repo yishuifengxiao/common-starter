@@ -39,7 +39,6 @@ public class HttpUtil {
 	/**
 	 * 
 	 * @param request    HttpServletRequest
-	 * @param headerName 请求头参数的名字
 	 * @return 用户希望返回的数据类型
 	 */
 	public static void stack(HttpServletRequest request) {

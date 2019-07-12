@@ -51,7 +51,6 @@ public class CustomProcessorImpl implements CustomProcessor {
 	 * @param request
 	 * @param response
 	 * @param result
-	 * @param objectMapper
 	 * @throws JsonProcessingException
 	 * @throws IOException
 	 */
