@@ -66,11 +66,13 @@ public class CodeAutoConfiguration {
 	 */
 	@Bean("smsAuthenticationSecurityConfig")
 	@ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "smsLoginUrl")
+	@ConditionalOnMissingBean(name = "smsAuthenticationSecurityConfig")
 	public SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig(
 			AuthenticationSuccessHandler customAuthenticationFailureHandler,
-			AuthenticationFailureHandler customAuthenticationSuccessHandler, UserDetailsService userDetailsService,
+			AuthenticationFailureHandler customAuthenticationSuccessHandler, UserDetailsService smsUserDetailsService,
 			SecurityProperties securityProperties) {
 		return new SmsAuthenticationSecurityConfig(customAuthenticationFailureHandler,
-				customAuthenticationSuccessHandler, userDetailsService, securityProperties.getCode().getSmsLoginUrl());
+				customAuthenticationSuccessHandler, smsUserDetailsService,
+				securityProperties.getCode().getSmsLoginUrl());
 	}
 }
