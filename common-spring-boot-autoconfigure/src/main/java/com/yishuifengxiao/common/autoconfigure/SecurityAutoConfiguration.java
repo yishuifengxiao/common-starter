@@ -2,19 +2,23 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
@@ -26,7 +30,7 @@ import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
 import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
-import com.yishuifengxiao.common.security.remerberme.CustomPersistentTokenRepository;
+import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 
@@ -100,14 +104,30 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
-	 * 记住密码策略
+	 * 记住密码策略【存储在redis数据库中】
 	 * 
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public PersistentTokenRepository persistentTokenRepository() {
-		return new CustomPersistentTokenRepository();
+	@Bean("persistentTokenRepository")
+	@ConditionalOnMissingBean(PersistentTokenRepository.class)
+	@ConditionalOnClass(name = { "org.springframework.data.redis.core.RedisTemplate" })
+	@ConditionalOnBean(name = "redisTemplate")
+	public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
+		RedisTokenRepository redisTokenRepository = new RedisTokenRepository();
+		redisTokenRepository.setRedisTemplate(redisTemplate);
+		return new RedisTokenRepository();
+	}
+
+	/**
+	 * 记住密码策略【存储内存中在redis数据库中】
+	 * 
+	 * @return
+	 */
+	@ConditionalOnMissingClass({ "org.springframework.data.redis.core.RedisTemplate" })
+	@ConditionalOnMissingBean(name="persistentTokenRepository")
+	@Bean("persistentTokenRepository")
+	public PersistentTokenRepository inMemoryTokenRepositoryImpl() {
+		return new InMemoryTokenRepositoryImpl();
 	}
 
 	/**
