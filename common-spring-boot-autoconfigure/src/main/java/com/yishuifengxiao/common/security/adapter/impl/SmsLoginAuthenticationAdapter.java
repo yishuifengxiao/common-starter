@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.authentcation;
+package com.yishuifengxiao.common.security.adapter.impl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -7,6 +7,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
+import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationFilter;
+import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationProvider;
 
 /**
  * 将短信验证码的几个配置参数串联起来 将自定义的短信处理方式配置进spring security
@@ -15,7 +17,7 @@ import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
  *
  */
 
-public class SmsAuthenticationSecurityConfig extends SecurityAdapter {
+public class SmsLoginAuthenticationAdapter extends SecurityAdapter {
 
 	private AuthenticationSuccessHandler customAuthenticationFailureHandler;
 
@@ -43,7 +45,7 @@ public class SmsAuthenticationSecurityConfig extends SecurityAdapter {
 
 	}
 
-	public SmsAuthenticationSecurityConfig(AuthenticationSuccessHandler customAuthenticationFailureHandler,
+	public SmsLoginAuthenticationAdapter(AuthenticationSuccessHandler customAuthenticationFailureHandler,
 			AuthenticationFailureHandler customAuthenticationSuccessHandler, UserDetailsService userDetailsService,
 			String url) {
 		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
@@ -52,7 +54,7 @@ public class SmsAuthenticationSecurityConfig extends SecurityAdapter {
 		this.url = url;
 	}
 
-	public SmsAuthenticationSecurityConfig() {
+	public SmsLoginAuthenticationAdapter() {
 
 	}
 

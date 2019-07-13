@@ -20,7 +20,7 @@ public class SmsAuthenticationFilter extends
 	// ~ Static fields/initializers
 	// =====================================================================================
 
-	public static final String MOBILE_KEY = "mobile";
+	public static final String MOBILE_KEY = "phone";
 
 	private String moblileParameter = MOBILE_KEY;
 	/**

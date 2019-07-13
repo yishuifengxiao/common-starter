@@ -17,7 +17,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
 import com.yishuifengxiao.common.security.adapter.impl.CodeConfigAdapter;
-import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationSecurityConfig;
+import com.yishuifengxiao.common.security.adapter.impl.SmsLoginAuthenticationAdapter;
 import com.yishuifengxiao.common.security.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 
@@ -69,11 +69,11 @@ public class SecurityCodeAutoConfiguration {
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "smsLoginUrl")
     @ConditionalOnMissingBean(name = "smsAuthenticationSecurityConfig")
     @ConditionalOnBean(name = "smsUserDetailsService")
-    public SmsAuthenticationSecurityConfig smsAuthenticationSecurityConfig(
+    public SmsLoginAuthenticationAdapter smsAuthenticationSecurityConfig(
             AuthenticationSuccessHandler authenticationFailureHandler,
             AuthenticationFailureHandler authenticationSuccessHandler, @Qualifier("smsUserDetailsService") UserDetailsService smsUserDetailsService,
             SecurityProperties securityProperties) {
-        return new SmsAuthenticationSecurityConfig(authenticationFailureHandler,
+        return new SmsLoginAuthenticationAdapter(authenticationFailureHandler,
                 authenticationSuccessHandler, smsUserDetailsService,
                 securityProperties.getCode().getSmsLoginUrl());
     }
