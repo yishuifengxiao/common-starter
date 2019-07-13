@@ -16,7 +16,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
  * @date 2019年1月22日
  * @version 0.0.1
  */
-public class InterceptAllAuthorizeConfigProvider implements AuthorizeProvider {
+public class InterceptAllAuthorizeProvider implements AuthorizeProvider {
 
 	@Override
 	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)

@@ -25,8 +25,8 @@ import com.yishuifengxiao.common.tool.entity.Response;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public class CustomProcessorImpl implements HandlerProcessor {
-	private final static Logger log = LoggerFactory.getLogger(CustomProcessorImpl.class);
+public class CustomHandlerProcessor implements HandlerProcessor {
+	private final static Logger log = LoggerFactory.getLogger(CustomHandlerProcessor.class);
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private ObjectMapper objectMapper;
@@ -84,13 +84,13 @@ public class CustomProcessorImpl implements HandlerProcessor {
 		redirectStrategy.sendRedirect(request, response, url);
 	}
 
-	public CustomProcessorImpl(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+	public CustomHandlerProcessor(ObjectMapper objectMapper, SecurityProperties securityProperties) {
 
 		this.objectMapper = objectMapper;
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomProcessorImpl() {
+	public CustomHandlerProcessor() {
 
 	}
 

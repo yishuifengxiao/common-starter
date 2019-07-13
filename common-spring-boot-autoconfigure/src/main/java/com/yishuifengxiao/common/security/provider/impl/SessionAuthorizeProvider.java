@@ -18,7 +18,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
  * @date 2019年1月9日
  * @version 0.0.1
  */
-public class SessionAuthorizeConfigProvider implements AuthorizeProvider {
+public class SessionAuthorizeProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */
@@ -54,7 +54,7 @@ public class SessionAuthorizeConfigProvider implements AuthorizeProvider {
 		return 400;
 	}
 
-	public SessionAuthorizeConfigProvider(SecurityProperties securityProperties,
+	public SessionAuthorizeProvider(SecurityProperties securityProperties,
 			AuthenticationFailureHandler customAuthenticationFailureHandler,
 			SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
 		this.securityProperties = securityProperties;
@@ -62,7 +62,7 @@ public class SessionAuthorizeConfigProvider implements AuthorizeProvider {
 		this.sessionInformationExpiredStrategy = sessionInformationExpiredStrategy;
 	}
 
-	public SessionAuthorizeConfigProvider() {
+	public SessionAuthorizeProvider() {
 
 	}
 

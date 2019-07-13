@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
  * @date 2019年1月9日
  * @version 0.0.1
  */
-public class LoginOutAuthorizeConfigProvider implements AuthorizeProvider {
+public class LoginOutAuthorizeProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */
@@ -60,13 +60,13 @@ public class LoginOutAuthorizeConfigProvider implements AuthorizeProvider {
 		this.customLogoutSuccessHandler = customLogoutSuccessHandler;
 	}
 
-	public LoginOutAuthorizeConfigProvider(SecurityProperties securityProperties,
+	public LoginOutAuthorizeProvider(SecurityProperties securityProperties,
 			LogoutSuccessHandler customLogoutSuccessHandler) {
 		this.securityProperties = securityProperties;
 		this.customLogoutSuccessHandler = customLogoutSuccessHandler;
 	}
 
-	public LoginOutAuthorizeConfigProvider() {
+	public LoginOutAuthorizeProvider() {
 
 	}
 	

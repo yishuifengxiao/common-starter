@@ -16,7 +16,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
  * @date 2019年1月8日
  * @version 0.0.1
  */
-public class PermitAllAuthorizeConfigProvider implements AuthorizeProvider {
+public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */
@@ -46,11 +46,11 @@ public class PermitAllAuthorizeConfigProvider implements AuthorizeProvider {
 		return 500;
 	}
 
-	public PermitAllAuthorizeConfigProvider(SecurityProperties securityProperties) {
+	public PermitAllAuthorizeProvider(SecurityProperties securityProperties) {
 		this.securityProperties = securityProperties;
 	}
 
-	public PermitAllAuthorizeConfigProvider() {
+	public PermitAllAuthorizeProvider() {
 
 	}
 

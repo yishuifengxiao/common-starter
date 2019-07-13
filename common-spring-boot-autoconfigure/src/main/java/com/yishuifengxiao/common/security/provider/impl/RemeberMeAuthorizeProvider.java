@@ -18,7 +18,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
  * @date 2019年1月9日
  * @version 0.0.1
  */
-public class RemeberMeAuthorizeConfigProvider implements AuthorizeProvider {
+public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */
@@ -78,14 +78,14 @@ public class RemeberMeAuthorizeConfigProvider implements AuthorizeProvider {
 		this.userDetailsService = userDetailsService;
 	}
 
-	public RemeberMeAuthorizeConfigProvider(SecurityProperties securityProperties,
+	public RemeberMeAuthorizeProvider(SecurityProperties securityProperties,
 			PersistentTokenRepository persistentTokenRepository, UserDetailsService userDetailsService) {
 		this.securityProperties = securityProperties;
 		this.persistentTokenRepository = persistentTokenRepository;
 		this.userDetailsService = userDetailsService;
 	}
 
-	public RemeberMeAuthorizeConfigProvider() {
+	public RemeberMeAuthorizeProvider() {
 
 	}
 
