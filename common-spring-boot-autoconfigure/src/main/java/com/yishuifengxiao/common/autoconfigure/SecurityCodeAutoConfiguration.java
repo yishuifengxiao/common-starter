@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
 import com.yishuifengxiao.common.security.adapter.impl.CodeConfigAdapter;
 import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationSecurityConfig;
 import com.yishuifengxiao.common.security.filter.ValidateCodeFilter;
-import com.yishuifengxiao.common.validation.holder.CodeProcessorHolder;
+import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 
 /**
  * spring security验证码拦截应用配置

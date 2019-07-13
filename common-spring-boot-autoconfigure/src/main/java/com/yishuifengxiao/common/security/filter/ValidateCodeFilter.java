@@ -22,8 +22,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
+import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 import com.yishuifengxiao.common.validation.eunm.CodeType;
-import com.yishuifengxiao.common.validation.holder.CodeProcessorHolder;
 import com.yishuifengxiao.common.validation.processor.CodeProcessor;
 
 /**

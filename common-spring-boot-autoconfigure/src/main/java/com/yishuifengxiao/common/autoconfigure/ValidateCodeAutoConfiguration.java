@@ -16,22 +16,22 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
 
 import com.yishuifengxiao.common.properties.CodeProperties;
+import com.yishuifengxiao.common.validation.CodeProcessorHolder;
+import com.yishuifengxiao.common.validation.code.email.EmailCodeGenerator;
+import com.yishuifengxiao.common.validation.code.email.EmailCodeProcessor;
+import com.yishuifengxiao.common.validation.code.image.ImageCodeGenerator;
+import com.yishuifengxiao.common.validation.code.image.ImageCodeProcessor;
+import com.yishuifengxiao.common.validation.code.sms.SmsCodeGenerator;
+import com.yishuifengxiao.common.validation.code.sms.SmsCodeProcessor;
 import com.yishuifengxiao.common.validation.entity.EmailCode;
 import com.yishuifengxiao.common.validation.entity.SmsCode;
 import com.yishuifengxiao.common.validation.generator.CodeGenerator;
-import com.yishuifengxiao.common.validation.holder.CodeProcessorHolder;
 import com.yishuifengxiao.common.validation.processor.CodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.DefaultCodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 import com.yishuifengxiao.common.validation.sender.impl.EmailCodeSender;
-import com.yishuifengxiao.common.validation.validation.email.EmailCodeGenerator;
-import com.yishuifengxiao.common.validation.validation.email.EmailCodeProcessor;
-import com.yishuifengxiao.common.validation.validation.image.ImageCodeGenerator;
-import com.yishuifengxiao.common.validation.validation.image.ImageCodeProcessor;
-import com.yishuifengxiao.common.validation.validation.sms.SmsCodeGenerator;
-import com.yishuifengxiao.common.validation.validation.sms.SmsCodeProcessor;
 
 /**
  * 验证码启动类

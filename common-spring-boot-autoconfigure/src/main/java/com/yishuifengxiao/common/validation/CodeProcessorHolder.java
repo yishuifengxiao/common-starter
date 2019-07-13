@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.validation.holder;
+package com.yishuifengxiao.common.validation;
 
 import java.util.Map;
 

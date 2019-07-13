@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.validation.validation.email;
+package com.yishuifengxiao.common.validation.code.email;
 
 import java.util.Map;
 

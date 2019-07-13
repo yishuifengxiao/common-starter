@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.validation.validation.image;
+package com.yishuifengxiao.common.validation.code.image;
 
 import java.awt.Color;
 import java.awt.Font;

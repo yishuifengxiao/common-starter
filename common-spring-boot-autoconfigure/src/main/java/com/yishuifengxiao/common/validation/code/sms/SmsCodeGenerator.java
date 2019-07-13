@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.validation.validation.sms;
+package com.yishuifengxiao.common.validation.code.sms;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.context.request.ServletWebRequest;

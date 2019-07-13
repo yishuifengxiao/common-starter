@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.validation.validation.email;
+package com.yishuifengxiao.common.validation.code.email;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.context.request.ServletWebRequest;

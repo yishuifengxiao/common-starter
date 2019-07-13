@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.validation.validation.sms;
+package com.yishuifengxiao.common.validation.code.sms;
 
 import java.util.Map;
 
