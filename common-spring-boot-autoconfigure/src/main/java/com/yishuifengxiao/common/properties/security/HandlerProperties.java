@@ -47,6 +47,7 @@ public class HandlerProperties {
 	 * 默认的从请求参数获取处理方法的参数的名称 yishuifengxiao
 	 */
 	private String paramName = SecurityConstant.DEFAULT_PARAM_NAME;
+	
 
 	/**
 	 * 登陆成功后的处理方式
