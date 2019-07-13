@@ -32,7 +32,7 @@ import com.yishuifengxiao.common.validation.holder.CodeProcessorHolder;
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
         WebSecurityConfigurerAdapter.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "enable", havingValue = "true")
-public class CodeAutoConfiguration {
+public class SecurityCodeAutoConfiguration {
 
     /**
      * 注入一个验证码过滤器
