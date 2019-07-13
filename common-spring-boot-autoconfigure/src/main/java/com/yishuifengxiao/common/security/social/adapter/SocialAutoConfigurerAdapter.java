@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.qq.adapter;
+package com.yishuifengxiao.common.security.social.adapter;
 
 import org.springframework.core.env.Environment;
 import org.springframework.social.config.annotation.ConnectionFactoryConfigurer;

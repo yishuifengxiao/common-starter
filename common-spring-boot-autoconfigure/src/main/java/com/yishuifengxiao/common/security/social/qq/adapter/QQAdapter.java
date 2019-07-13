@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.qq.connect.adapter;
+package com.yishuifengxiao.common.security.social.qq.adapter;
 
 import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.ConnectionValues;
