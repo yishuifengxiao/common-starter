@@ -24,7 +24,7 @@ import org.springframework.security.web.session.SessionInformationExpiredStrateg
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeAutoConfiguration;
-import com.yishuifengxiao.common.autoconfigure.security.SecurityExtendAutoConfiguration;
+import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
@@ -45,7 +45,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
 @EnableConfigurationProperties(SecurityProperties.class)
-@Import({ SecurityExtendAutoConfiguration.class, SecurityAuthorizeAutoConfiguration.class })
+@Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeAutoConfiguration.class })
 public class SecurityAutoConfiguration {
 
 	/**

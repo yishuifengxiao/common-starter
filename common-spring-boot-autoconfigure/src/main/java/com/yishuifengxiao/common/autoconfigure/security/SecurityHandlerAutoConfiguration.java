@@ -28,7 +28,7 @@ import com.yishuifengxiao.common.security.processor.impl.CustomProcessorImpl;
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 	WebSecurityConfigurerAdapter.class })
-public class SecurityExtendAutoConfiguration {
+public class SecurityHandlerAutoConfiguration {
 
 	/**
 	 * 自定义属性配置
