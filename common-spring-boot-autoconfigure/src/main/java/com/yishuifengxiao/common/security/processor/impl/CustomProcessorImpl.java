@@ -15,7 +15,7 @@ import org.springframework.security.web.RedirectStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.processor.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
@@ -25,7 +25,7 @@ import com.yishuifengxiao.common.tool.entity.Response;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public class CustomProcessorImpl implements CustomProcessor {
+public class CustomProcessorImpl implements HandlerProcessor {
 	private final static Logger log = LoggerFactory.getLogger(CustomProcessorImpl.class);
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 

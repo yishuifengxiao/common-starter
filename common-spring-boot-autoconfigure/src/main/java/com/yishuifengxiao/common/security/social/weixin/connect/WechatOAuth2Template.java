@@ -66,7 +66,8 @@ public class WechatOAuth2Template extends OAuth2Template {
         return getAccessToken(refreshTokenUrl);
     }
 
-    private AccessGrant getAccessToken(StringBuilder accessTokenRequestUrl) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private AccessGrant getAccessToken(StringBuilder accessTokenRequestUrl) {
 
         logger.info("获取access_token, 请求URL: " + accessTokenRequestUrl.toString());
 

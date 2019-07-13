@@ -4,7 +4,11 @@ import org.springframework.social.oauth2.AccessGrant;
 
 public class WechatAccessGrant extends AccessGrant {
 
-    private String openId;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4525222786816799215L;
+	private String openId;
 
     public WechatAccessGrant() {
         super("");

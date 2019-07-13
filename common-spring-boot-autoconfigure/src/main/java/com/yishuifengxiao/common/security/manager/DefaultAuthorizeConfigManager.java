@@ -34,10 +34,13 @@ public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 
 			authorizeConfigProviders = authorizeConfigProviders.parallelStream().filter(t -> t != null)
 					.sorted(Comparator.comparing(AuthorizeConfigProvider::getOrder)).collect(Collectors.toList());
-			for (AuthorizeConfigProvider authorizeConfigProvider : authorizeConfigProviders) {
 
-				log.debug("==============================================> 当前装配的 授权配置的顺序为 {}, 具体信息为 {}",
+			log.debug("==============================================> 系统中所有的授权提供器为 {}", authorizeConfigProviders);
+
+			for (AuthorizeConfigProvider authorizeConfigProvider : authorizeConfigProviders) {
+				log.debug("==============================================> 系统中当前加载的授权提供器序号为 {} , 实例为 {}",
 						authorizeConfigProvider.getOrder(), authorizeConfigProvider);
+
 				try {
 					authorizeConfigProvider.config(config);
 				} catch (Exception e) {

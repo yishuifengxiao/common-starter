@@ -67,7 +67,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	/**
 	 * 系统中所有的权限适配器
 	 */
-	@Autowired
+	@Autowired(required = false)
 	protected List<SecurityAdapter> securityAdapters;
 
 	@Autowired

@@ -15,7 +15,7 @@ import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
-import com.yishuifengxiao.common.security.processor.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
 import com.yishuifengxiao.common.utils.StringUtil;
@@ -38,7 +38,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	/**
 	 * 协助处理器
 	 */
-	private CustomProcessor customProcessor;
+	private HandlerProcessor customProcessor;
 
 	private ApplicationContext context;
 
@@ -78,15 +78,15 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomProcessor getCustomHandle() {
+	public HandlerProcessor getCustomHandle() {
 		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomProcessor customProcessor) {
+	public void setCustomHandle(HandlerProcessor customProcessor) {
 		this.customProcessor = customProcessor;
 	}
 
-	public CustomAccessDeniedHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
+	public CustomAccessDeniedHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;
 	}

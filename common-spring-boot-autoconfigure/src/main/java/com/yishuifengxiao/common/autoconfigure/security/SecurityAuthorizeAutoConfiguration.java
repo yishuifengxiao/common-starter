@@ -42,8 +42,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * @param authenticationFailureHandler
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("formLoginProvider")
+	@ConditionalOnMissingBean(name="formLoginProvider")
 	public AuthorizeConfigProvider formLoginProvider(AuthenticationSuccessHandler authenticationSuccessHandler,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		FormLoginAuthorizeConfigProvider formLoginProvider = new FormLoginAuthorizeConfigProvider();
@@ -58,8 +58,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("interceptAllProvider")
+	@ConditionalOnMissingBean(name="interceptAllProvider")
 	public AuthorizeConfigProvider interceptAllProvider() {
 		return new InterceptAllAuthorizeConfigProvider();
 	}
@@ -70,8 +70,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * @param logoutSuccessHandler 退出成功管理
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("loginOutProvider")
+	@ConditionalOnMissingBean(name="loginOutProvider")
 	public AuthorizeConfigProvider loginOutProvider(LogoutSuccessHandler logoutSuccessHandler) {
 		LoginOutAuthorizeConfigProvider loginOutProvider = new LoginOutAuthorizeConfigProvider();
 		loginOutProvider.setCustomLogoutSuccessHandler(logoutSuccessHandler);
@@ -86,8 +86,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * @param userDetailsService        用户认证处理器
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("remeberMeProvider")
+	@ConditionalOnMissingBean(name="remeberMeProvider")
 	public AuthorizeConfigProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository,
 			UserDetailsService userDetailsService) {
 		RemeberMeAuthorizeConfigProvider remeberMeProvider = new RemeberMeAuthorizeConfigProvider();
@@ -104,8 +104,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * @param authenticationFailureHandler      认证失败处理器
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("sessionProvider")
+	@ConditionalOnMissingBean(name="sessionProvider")
 	public AuthorizeConfigProvider sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		SessionAuthorizeConfigProvider sessionProvider = new SessionAuthorizeConfigProvider();
@@ -120,8 +120,8 @@ public class SecurityAuthorizeAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
+	@Bean("permitAllConfigProvider")
+	@ConditionalOnMissingBean(name="permitAllConfigProvider")
 	public AuthorizeConfigProvider permitAllConfigProvider() {
 		PermitAllAuthorizeConfigProvider permitAllConfigProvider = new PermitAllAuthorizeConfigProvider();
 		permitAllConfigProvider.setSecurityProperties(securityProperties);

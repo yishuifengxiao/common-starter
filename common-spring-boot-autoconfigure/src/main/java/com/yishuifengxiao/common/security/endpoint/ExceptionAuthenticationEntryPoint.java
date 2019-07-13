@@ -18,7 +18,7 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.ExceptionAuthenticationEntryPointEvent;
-import com.yishuifengxiao.common.security.processor.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
 
@@ -39,7 +39,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	/**
 	 * 协助处理器
 	 */
-	private CustomProcessor customHandle;
+	private HandlerProcessor customHandle;
 
 	private ApplicationContext context;
 
@@ -76,15 +76,15 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomProcessor getCustomHandle() {
+	public HandlerProcessor getCustomHandle() {
 		return customHandle;
 	}
 
-	public void setCustomHandle(CustomProcessor customHandle) {
+	public void setCustomHandle(HandlerProcessor customHandle) {
 		this.customHandle = customHandle;
 	}
 
-	public ExceptionAuthenticationEntryPoint(SecurityProperties securityProperties, CustomProcessor customHandle) {
+	public ExceptionAuthenticationEntryPoint(SecurityProperties securityProperties, HandlerProcessor customHandle) {
 		this.securityProperties = securityProperties;
 		this.customHandle = customHandle;
 	}
@@ -101,7 +101,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		this.context = context;
 	}
 
-	public ExceptionAuthenticationEntryPoint(SecurityProperties securityProperties, CustomProcessor customHandle,
+	public ExceptionAuthenticationEntryPoint(SecurityProperties securityProperties, HandlerProcessor customHandle,
 			ApplicationContext context) {
 
 		this.securityProperties = securityProperties;

@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AuthenticationSuccessEvent;
-import com.yishuifengxiao.common.security.processor.CustomProcessor;
+import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
 
@@ -36,7 +36,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	/**
 	 * 协助处理器
 	 */
-	private CustomProcessor customProcessor;
+	private HandlerProcessor customProcessor;
 
 	private ApplicationContext context;
 
@@ -73,15 +73,15 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomProcessor getCustomHandle() {
+	public HandlerProcessor getCustomHandle() {
 		return customProcessor;
 	}
 
-	public void setCustomHandle(CustomProcessor customProcessor) {
+	public void setCustomHandle(HandlerProcessor customProcessor) {
 		this.customProcessor = customProcessor;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor) {
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;
 	}
@@ -98,7 +98,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.context = context;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, CustomProcessor customProcessor,
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor,
 			ApplicationContext context) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;

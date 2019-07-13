@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.tool.entity.Response;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public interface CustomProcessor {
+public interface HandlerProcessor {
 
 	/**
 	 * 对系统中的各种handler进行协助处理
