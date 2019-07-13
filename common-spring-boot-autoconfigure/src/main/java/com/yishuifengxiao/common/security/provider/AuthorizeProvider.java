@@ -13,7 +13,7 @@ import org.springframework.security.config.annotation.web.configurers.Expression
  * @date 2019年1月8日
  * @version 0.0.1
  */
-public interface AuthorizeConfigProvider {
+public interface AuthorizeProvider {
 	/**
 	 * 授权配置
 	 * 

@@ -7,7 +7,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * AuthorizeConfigProvider的默认配置
@@ -16,7 +16,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
  * @date 2019年1月8日
  * @version 0.0.1
  */
-public class PermitAllAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class PermitAllAuthorizeConfigProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */

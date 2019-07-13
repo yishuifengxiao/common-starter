@@ -9,7 +9,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * spring security表单登录相关的配置
@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
  * @date 2019年1月9日
  * @version 0.0.1 
  */
-public class FormLoginAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class FormLoginAuthorizeConfigProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */

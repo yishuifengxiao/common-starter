@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * 收集系统中的所有授权配置默认实现
@@ -26,18 +26,18 @@ public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 	/**
 	 * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
 	 */
-	private List<AuthorizeConfigProvider> authorizeConfigProviders;
+	private List<AuthorizeProvider> authorizeConfigProviders;
 
 	@Override
 	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config) {
 		if (authorizeConfigProviders != null) {
 
 			authorizeConfigProviders = authorizeConfigProviders.parallelStream().filter(t -> t != null)
-					.sorted(Comparator.comparing(AuthorizeConfigProvider::getOrder)).collect(Collectors.toList());
+					.sorted(Comparator.comparing(AuthorizeProvider::getOrder)).collect(Collectors.toList());
 
 			log.debug("==============================================> 系统中所有的授权提供器为 {}", authorizeConfigProviders);
 
-			for (AuthorizeConfigProvider authorizeConfigProvider : authorizeConfigProviders) {
+			for (AuthorizeProvider authorizeConfigProvider : authorizeConfigProviders) {
 				log.debug("==============================================> 系统中当前加载的授权提供器序号为 {} , 实例为 {}",
 						authorizeConfigProvider.getOrder(), authorizeConfigProvider);
 
@@ -55,15 +55,15 @@ public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 		}
 	}
 
-	public List<AuthorizeConfigProvider> getAuthorizeConfigProviders() {
+	public List<AuthorizeProvider> getAuthorizeConfigProviders() {
 		return authorizeConfigProviders;
 	}
 
-	public void setAuthorizeConfigProviders(List<AuthorizeConfigProvider> authorizeConfigProviders) {
+	public void setAuthorizeConfigProviders(List<AuthorizeProvider> authorizeConfigProviders) {
 		this.authorizeConfigProviders = authorizeConfigProviders;
 	}
 
-	public DefaultAuthorizeConfigManager(List<AuthorizeConfigProvider> authorizeConfigProviders) {
+	public DefaultAuthorizeConfigManager(List<AuthorizeProvider> authorizeConfigProviders) {
 		this.authorizeConfigProviders = authorizeConfigProviders;
 	}
 

@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * spring security记住我功能而定相关配置
@@ -18,7 +18,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
  * @date 2019年1月9日
  * @version 0.0.1
  */
-public class RemeberMeAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class RemeberMeAuthorizeConfigProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */

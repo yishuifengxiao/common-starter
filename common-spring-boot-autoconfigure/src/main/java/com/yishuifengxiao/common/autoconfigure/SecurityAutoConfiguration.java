@@ -23,13 +23,13 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeAutoConfiguration;
+import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeProviderAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
@@ -45,7 +45,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
 @EnableConfigurationProperties(SecurityProperties.class)
-@Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeAutoConfiguration.class })
+@Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class })
 public class SecurityAutoConfiguration {
 
 	/**
@@ -156,7 +156,7 @@ public class SecurityAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public AuthorizeConfigManager authorizeConfigManager(List<AuthorizeConfigProvider> authorizeProviders) {
+	public AuthorizeConfigManager authorizeConfigManager(List<AuthorizeProvider> authorizeProviders) {
 		DefaultAuthorizeConfigManager authorizeConfigManager = new DefaultAuthorizeConfigManager();
 		authorizeConfigManager.setAuthorizeConfigProviders(authorizeProviders);
 		return authorizeConfigManager;

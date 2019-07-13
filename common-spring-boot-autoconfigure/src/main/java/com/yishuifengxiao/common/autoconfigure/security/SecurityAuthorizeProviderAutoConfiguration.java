@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.FormLoginAuthorizeConfigProvider;
 import com.yishuifengxiao.common.security.provider.impl.InterceptAllAuthorizeConfigProvider;
 import com.yishuifengxiao.common.security.provider.impl.LoginOutAuthorizeConfigProvider;
@@ -27,7 +27,7 @@ import com.yishuifengxiao.common.security.provider.impl.SessionAuthorizeConfigPr
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 	WebSecurityConfigurerAdapter.class })
-public class SecurityAuthorizeAutoConfiguration {
+public class SecurityAuthorizeProviderAutoConfiguration {
 
 	/**
 	 * 自定义属性配置
@@ -44,7 +44,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("formLoginProvider")
 	@ConditionalOnMissingBean(name="formLoginProvider")
-	public AuthorizeConfigProvider formLoginProvider(AuthenticationSuccessHandler authenticationSuccessHandler,
+	public AuthorizeProvider formLoginProvider(AuthenticationSuccessHandler authenticationSuccessHandler,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		FormLoginAuthorizeConfigProvider formLoginProvider = new FormLoginAuthorizeConfigProvider();
 		formLoginProvider.setFormAuthenticationFailureHandler(authenticationFailureHandler);
@@ -60,7 +60,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("interceptAllProvider")
 	@ConditionalOnMissingBean(name="interceptAllProvider")
-	public AuthorizeConfigProvider interceptAllProvider() {
+	public AuthorizeProvider interceptAllProvider() {
 		return new InterceptAllAuthorizeConfigProvider();
 	}
 
@@ -72,7 +72,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("loginOutProvider")
 	@ConditionalOnMissingBean(name="loginOutProvider")
-	public AuthorizeConfigProvider loginOutProvider(LogoutSuccessHandler logoutSuccessHandler) {
+	public AuthorizeProvider loginOutProvider(LogoutSuccessHandler logoutSuccessHandler) {
 		LoginOutAuthorizeConfigProvider loginOutProvider = new LoginOutAuthorizeConfigProvider();
 		loginOutProvider.setCustomLogoutSuccessHandler(logoutSuccessHandler);
 		loginOutProvider.setSecurityProperties(securityProperties);
@@ -88,7 +88,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("remeberMeProvider")
 	@ConditionalOnMissingBean(name="remeberMeProvider")
-	public AuthorizeConfigProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository,
+	public AuthorizeProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository,
 			UserDetailsService userDetailsService) {
 		RemeberMeAuthorizeConfigProvider remeberMeProvider = new RemeberMeAuthorizeConfigProvider();
 		remeberMeProvider.setPersistentTokenRepository(persistentTokenRepository);
@@ -106,7 +106,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("sessionProvider")
 	@ConditionalOnMissingBean(name="sessionProvider")
-	public AuthorizeConfigProvider sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
+	public AuthorizeProvider sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		SessionAuthorizeConfigProvider sessionProvider = new SessionAuthorizeConfigProvider();
 		sessionProvider.setCustomAuthenticationFailureHandler(authenticationFailureHandler);
@@ -122,7 +122,7 @@ public class SecurityAuthorizeAutoConfiguration {
 	 */
 	@Bean("permitAllConfigProvider")
 	@ConditionalOnMissingBean(name="permitAllConfigProvider")
-	public AuthorizeConfigProvider permitAllConfigProvider() {
+	public AuthorizeProvider permitAllConfigProvider() {
 		PermitAllAuthorizeConfigProvider permitAllConfigProvider = new PermitAllAuthorizeConfigProvider();
 		permitAllConfigProvider.setSecurityProperties(securityProperties);
 		return permitAllConfigProvider;

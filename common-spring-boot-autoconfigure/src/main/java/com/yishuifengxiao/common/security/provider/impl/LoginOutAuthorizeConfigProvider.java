@@ -8,7 +8,7 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * 用户登出相关的配置
@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
  * @date 2019年1月9日
  * @version 0.0.1
  */
-public class LoginOutAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class LoginOutAuthorizeConfigProvider implements AuthorizeProvider {
 	/**
 	 * 自定义属性配置
 	 */

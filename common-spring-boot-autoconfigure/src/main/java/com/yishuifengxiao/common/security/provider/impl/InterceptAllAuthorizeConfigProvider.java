@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.security.provider.impl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
+import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
  * 拦截所有的资源<br/>
@@ -16,7 +16,7 @@ import com.yishuifengxiao.common.security.provider.AuthorizeConfigProvider;
  * @date 2019年1月22日
  * @version 0.0.1
  */
-public class InterceptAllAuthorizeConfigProvider implements AuthorizeConfigProvider {
+public class InterceptAllAuthorizeConfigProvider implements AuthorizeProvider {
 
 	@Override
 	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
