@@ -6,6 +6,13 @@ import com.yishuifengxiao.common.security.social.qq.api.QQ;
 import com.yishuifengxiao.common.security.social.qq.api.impl.QQImpl;
 import com.yishuifengxiao.common.security.social.qq.connect.QQOAuth2Template;
 
+/**
+ * 构建 QQServiceProvider 以提供给 factory 生成 connection
+ * 
+ * @author yishui
+ * @date 2019年7月14日
+ * @version 1.0.0
+ */
 public class QQServiceProvider extends AbstractOAuth2ServiceProvider<QQ> {// 获取code
 	private static final String QQ_URL_AUTHORIZE = "https://graph.qq.com/oauth2.0/authorize";
 

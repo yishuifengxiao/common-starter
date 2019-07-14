@@ -12,8 +12,15 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * 根据 clientId，clientSecret，authorizeUrl，accessTokenUrl 构造OAuth2Template <br/>
- * 生成的对象 供给 AbstractOAuth2ServiceProvider 使用
+ * 传入的参数为 ：clientId，clientSecret，authorizeUrl，accessTokenUrl
+ * 输出的响应为 ：accessToken ，expiresIn ，refreshToken
+ * 
+ * 根据 【clientId】，【clientSecret】，【authorizeUrl】，【accessTokenUrl】 构造OAuth2Template
+ * <br/>
+ * 生成的对象 供给 AbstractOAuth2ServiceProvider 使用 <br/>
+ * 
+ * 根据传入的参数 生成 accessToken，expiresIn，refreshToken
+ * 
  * @author yishui
  * @date 2019年7月14日
  * @version 1.0.0

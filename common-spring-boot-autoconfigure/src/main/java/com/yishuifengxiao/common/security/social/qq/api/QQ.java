@@ -4,8 +4,8 @@ import com.yishuifengxiao.common.security.social.qq.entity.QQUserInfo;
 
 /**
  * 【传入参数为 】：accessToken 和 accessToken
- * 
- * 根据accessToken 和 appId 获取用户信息<br/>
+ * 【输出的响应为】： 用户信息
+ * 根据【accessToken】 和 【appId】 获取用户信息<br/>
  * 
  * 1. 使用https://graph.qq.com/oauth2.0/me 接口通过accessToken 获取到client_id 和 openid
  * () <br/>
