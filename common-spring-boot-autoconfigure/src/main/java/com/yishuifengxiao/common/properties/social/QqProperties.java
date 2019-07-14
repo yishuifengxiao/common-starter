@@ -12,6 +12,10 @@ public class QqProperties {
 	
 	private String appSecuret;
 	
+	 private String filterProcessesUrl;
+	 
+	 private String registerUrl;
+	
 	/**
 	 * 服务提供商id，默认为qq
 	 */
@@ -42,6 +46,22 @@ public class QqProperties {
 
 	public void setProviderId(String providerId) {
 		this.providerId = providerId;
+	}
+
+	public String getFilterProcessesUrl() {
+		return filterProcessesUrl;
+	}
+
+	public void setFilterProcessesUrl(String filterProcessesUrl) {
+		this.filterProcessesUrl = filterProcessesUrl;
+	}
+
+	public String getRegisterUrl() {
+		return registerUrl;
+	}
+
+	public void setRegisterUrl(String registerUrl) {
+		this.registerUrl = registerUrl;
 	}
 	
 	

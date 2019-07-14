@@ -1,7 +1,9 @@
-package com.yishuifengxiao.common.security.social;
+package com.yishuifengxiao.common.security.social.processor.impl;
 
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.social.security.SocialAuthenticationFilter;
+
+import com.yishuifengxiao.common.security.social.processor.SocialAuthenticationFilterPostProcessor;
 
 public class SsoSocialAuthenticationFilterPostProcessor implements SocialAuthenticationFilterPostProcessor {
    
@@ -19,6 +21,16 @@ public class SsoSocialAuthenticationFilterPostProcessor implements SocialAuthent
 	public void setJsAuthenticationSuccessHandler(AuthenticationSuccessHandler jsAuthenticationSuccessHandler) {
 		this.jsAuthenticationSuccessHandler = jsAuthenticationSuccessHandler;
 	}
+
+	public SsoSocialAuthenticationFilterPostProcessor(AuthenticationSuccessHandler jsAuthenticationSuccessHandler) {
+		this.jsAuthenticationSuccessHandler = jsAuthenticationSuccessHandler;
+	}
+
+	public SsoSocialAuthenticationFilterPostProcessor() {
+
+	}
+	
+	
     
     
 }

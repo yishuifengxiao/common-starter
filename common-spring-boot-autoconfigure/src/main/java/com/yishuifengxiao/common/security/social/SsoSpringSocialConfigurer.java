@@ -3,40 +3,43 @@ package com.yishuifengxiao.common.security.social;
 import org.springframework.social.security.SocialAuthenticationFilter;
 import org.springframework.social.security.SpringSocialConfigurer;
 
+import com.yishuifengxiao.common.security.social.processor.SocialAuthenticationFilterPostProcessor;
+
 public class SsoSpringSocialConfigurer extends SpringSocialConfigurer {
 
-    private SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor;
+	private SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor;
 
-    // 设置自定义url
-    private String filterProcessesUrl;
+	// 设置自定义url
+	private String filterProcessesUrl;
 
-    public SsoSpringSocialConfigurer(String filterProcessesUrl) {
-        this.filterProcessesUrl = filterProcessesUrl;
-    }
+	public SsoSpringSocialConfigurer(String filterProcessesUrl) {
+		this.filterProcessesUrl = filterProcessesUrl;
+	}
 
-    /**
-     * 重写qq登录url
-     *
-     * @param object
-     * @param <T>
-     * @return
-     */
-    @SuppressWarnings("unchecked")
+	/**
+	 * 重写qq登录url
+	 *
+	 * @param object
+	 * @param <T>
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
 	@Override
-    protected <T> T postProcess(T object) {
-        SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
-        filter.setFilterProcessesUrl(filterProcessesUrl);
-        if (socialAuthenticationFilterPostProcessor != null) {
-            socialAuthenticationFilterPostProcessor.process(filter);
-        }
-        return (T) filter;
-    }
+	protected <T> T postProcess(T object) {
+		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
+		filter.setFilterProcessesUrl(filterProcessesUrl);
+		if (socialAuthenticationFilterPostProcessor != null) {
+			socialAuthenticationFilterPostProcessor.process(filter);
+		}
+		return (T) filter;
+	}
 
-    public SocialAuthenticationFilterPostProcessor getSocialAuthenticationFilterPostProcessor() {
-        return socialAuthenticationFilterPostProcessor;
-    }
+	public SocialAuthenticationFilterPostProcessor getSocialAuthenticationFilterPostProcessor() {
+		return socialAuthenticationFilterPostProcessor;
+	}
 
-    public void setSocialAuthenticationFilterPostProcessor(SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor) {
-        this.socialAuthenticationFilterPostProcessor = socialAuthenticationFilterPostProcessor;
-    }
+	public void setSocialAuthenticationFilterPostProcessor(
+			SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor) {
+		this.socialAuthenticationFilterPostProcessor = socialAuthenticationFilterPostProcessor;
+	}
 }
