@@ -41,7 +41,7 @@ public class QQImpl extends AbstractOAuth2ApiBinding implements QQ {
 	 * 构造方法获取openId
 	 */
 	public QQImpl(String accessToken, String appId) {
-		// access_token作为查询参数来携带
+		// 会自动access_token作为查询参数来携带，所以无需显式手动处理access_token
 		super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
 
 		this.appId = appId;

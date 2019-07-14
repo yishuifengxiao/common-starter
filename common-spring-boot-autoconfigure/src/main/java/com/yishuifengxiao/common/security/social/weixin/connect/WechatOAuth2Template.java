@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.weixin;
+package com.yishuifengxiao.common.security.social.weixin.connect;
 
 
 import java.nio.charset.Charset;

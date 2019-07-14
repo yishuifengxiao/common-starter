@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.social.qq.factory;
+package com.yishuifengxiao.common.security.social.qq.connect.factory;
 
 import org.springframework.social.connect.support.OAuth2ConnectionFactory;
 
 import com.yishuifengxiao.common.security.social.qq.adapter.QQAdapter;
 import com.yishuifengxiao.common.security.social.qq.api.QQ;
-import com.yishuifengxiao.common.security.social.qq.provider.QQServiceProvider;
+import com.yishuifengxiao.common.security.social.qq.connect.provider.QQServiceProvider;
 
 public class QQConnectionFactory extends OAuth2ConnectionFactory<QQ> {
 

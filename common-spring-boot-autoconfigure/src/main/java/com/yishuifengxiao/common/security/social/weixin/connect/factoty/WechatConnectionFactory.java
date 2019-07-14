@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.weixin.factoty;
+package com.yishuifengxiao.common.security.social.weixin.connect.factoty;
 
 import org.springframework.social.connect.ApiAdapter;
 import org.springframework.social.connect.Connection;
@@ -10,8 +10,8 @@ import org.springframework.social.oauth2.OAuth2ServiceProvider;
 
 import com.yishuifengxiao.common.security.social.weixin.adapter.WechatAdapter;
 import com.yishuifengxiao.common.security.social.weixin.api.Wechat;
+import com.yishuifengxiao.common.security.social.weixin.connect.provider.WechatServiceProvider;
 import com.yishuifengxiao.common.security.social.weixin.entity.WechatAccessGrant;
-import com.yishuifengxiao.common.security.social.weixin.provider.WechatServiceProvider;
 
 public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
 

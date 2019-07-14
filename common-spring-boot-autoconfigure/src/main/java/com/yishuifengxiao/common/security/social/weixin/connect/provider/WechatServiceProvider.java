@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.social.weixin.provider;
+package com.yishuifengxiao.common.security.social.weixin.connect.provider;
 
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
 
-import com.yishuifengxiao.common.security.social.weixin.WechatOAuth2Template;
 import com.yishuifengxiao.common.security.social.weixin.api.Wechat;
 import com.yishuifengxiao.common.security.social.weixin.api.impl.WechatImpl;
+import com.yishuifengxiao.common.security.social.weixin.connect.WechatOAuth2Template;
 
 public class WechatServiceProvider extends AbstractOAuth2ServiceProvider<Wechat> {
 
