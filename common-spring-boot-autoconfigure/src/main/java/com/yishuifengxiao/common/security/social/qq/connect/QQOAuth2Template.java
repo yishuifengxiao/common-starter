@@ -19,7 +19,9 @@ import org.springframework.web.client.RestTemplate;
  * <br/>
  * 生成的对象 供给 AbstractOAuth2ServiceProvider 使用 <br/>
  * 
- * 根据传入的参数 生成 accessToken，expiresIn，refreshToken
+ * 根据传入的参数 生成 accessToken，expiresIn，refreshToken <br/>
+ * 
+ * 文档API参见 https://wiki.connect.qq.com/%E5%BC%80%E5%8F%91%E6%94%BB%E7%95%A5_server-side
  * 
  * @author yishui
  * @date 2019年7月14日

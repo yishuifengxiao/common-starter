@@ -8,6 +8,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.social.security.SocialUser;
+import org.springframework.social.security.SocialUserDetails;
+import org.springframework.social.security.SocialUserDetailsService;
 
 /**
  * 自定义UserDetailsService实现类，查找用户
@@ -16,8 +19,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author yishui
  * @date 2018年6月23日
  */
-public class CustomeUserDetailsServiceImpl implements UserDetailsService {
-	private final static Logger LOG = LoggerFactory.getLogger(CustomeUserDetailsServiceImpl.class);
+public class CustomeUserDetailsServiceImpl implements UserDetailsService ,SocialUserDetailsService {
+	private final static Logger log = LoggerFactory.getLogger(CustomeUserDetailsServiceImpl.class);
 
 	private PasswordEncoder passwordEncoder;
 
@@ -25,7 +28,7 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// 不应该在这里加密，数据库里就应该存的是的加密后的密文
 		String encodePassword = passwordEncoder.encode("12345678");
-		LOG.info("自定义UserDetailsService实现类中获取到的用户名为 {} ,得到的数据库密码(已加密的密码)为 {}", username, encodePassword);
+		log.info("自定义UserDetailsService实现类中获取到的用户名为 {} ,得到的数据库密码(已加密的密码)为 {}", username, encodePassword);
 
 		// 这里不比较密码的正确性，在返回后由spring security比较密码正确性
 		return new User(username, encodePassword, true, true, true, true,
@@ -42,5 +45,15 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService {
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	/**
+	 * spring social中的方法
+	 */
+	@Override
+	public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
+		log.debug("============================> spring social 得到的用户id为 {}",userId);
+		return new SocialUser("yishuifengxiao", passwordEncoder.encode("12345678"), true, true, true, true,
+				AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER"));
 	}
 }
