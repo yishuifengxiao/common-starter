@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.weixin.connect;
+package com.yishuifengxiao.common.security.social.weixin;
 
 
 import java.nio.charset.Charset;
@@ -16,6 +16,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yishuifengxiao.common.security.social.weixin.entity.WechatAccessGrant;
 
 public class WechatOAuth2Template extends OAuth2Template {
 

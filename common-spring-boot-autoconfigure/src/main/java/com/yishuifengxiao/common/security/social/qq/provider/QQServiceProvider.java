@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.social.qq.connect.provider;
+package com.yishuifengxiao.common.security.social.qq.provider;
 
 import org.springframework.social.oauth2.AbstractOAuth2ServiceProvider;
 
+import com.yishuifengxiao.common.security.social.qq.QQOAuth2Template;
 import com.yishuifengxiao.common.security.social.qq.api.QQ;
 import com.yishuifengxiao.common.security.social.qq.api.impl.QQImpl;
-import com.yishuifengxiao.common.security.social.qq.connect.QQOAuth2Template;
 
 public class QQServiceProvider extends AbstractOAuth2ServiceProvider<QQ> {// 获取code
 	private static final String QQ_URL_AUTHORIZE = "https://graph.qq.com/oauth2.0/authorize";

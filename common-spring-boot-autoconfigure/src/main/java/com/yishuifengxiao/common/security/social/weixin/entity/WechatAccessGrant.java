@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.weixin.connect;
+package com.yishuifengxiao.common.security.social.weixin.entity;
 
 import org.springframework.social.oauth2.AccessGrant;
 

@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.social.qq.connect;
+package com.yishuifengxiao.common.security.social.qq;
 import java.nio.charset.Charset;
 
 import org.apache.commons.lang3.StringUtils;
