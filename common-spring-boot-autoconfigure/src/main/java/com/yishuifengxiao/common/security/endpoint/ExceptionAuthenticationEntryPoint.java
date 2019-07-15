@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -34,6 +36,11 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 
 	private final static Logger log = LoggerFactory.getLogger(ExceptionAuthenticationEntryPoint.class);
 
+	/**
+	 * 声明了缓存与恢复操作
+	 */
+	private RequestCache cache = new HttpSessionRequestCache();
+
 	private SecurityProperties securityProperties;
 
 	/**
@@ -46,8 +53,10 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
+		// 引起跳转的url
+		String url = cache.getRequest(request, response).getRedirectUrl();
 
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，失败的原因为 {}", authException.getMessage());
+		log.debug("====================> 【资源服务】获取资源 {} 失败(可能是缺少token)，失败的原因为 {}",url, authException.getMessage());
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 
@@ -56,7 +65,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统配置的处理方式为 {} ,实际的处理方式为 {}", handleEnum, type);
-		
+
 		if (type == HandleEnum.DEFAULT) {
 			super.commence(request, response, authException);
 			return;
