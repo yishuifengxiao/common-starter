@@ -5,6 +5,13 @@ import org.springframework.social.connect.ConnectionFactory;
 import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.qq.connect.factory.QQConnectionFactory;
 
+/**
+ * 构建QQ登陆连接工厂
+ * 
+ * @author yishui
+ * @date 2019年7月15日
+ * @version 1.0.0
+ */
 public class QQSocialAutoConfigurerAdapter extends SocialAutoConfigurerAdapter {
 
 	private String qqAppId;
@@ -51,6 +58,5 @@ public class QQSocialAutoConfigurerAdapter extends SocialAutoConfigurerAdapter {
 	public QQSocialAutoConfigurerAdapter() {
 
 	}
-	
-	
+
 }

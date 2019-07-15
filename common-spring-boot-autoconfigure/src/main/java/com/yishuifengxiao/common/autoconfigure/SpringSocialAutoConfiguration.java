@@ -13,6 +13,7 @@ import org.springframework.social.config.annotation.SocialConfigurerAdapter;
 import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
+import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
 import org.springframework.social.security.SpringSocialConfigurer;
 
@@ -30,16 +31,6 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	@Autowired
 	private DataSource dataSource;
 
-	@Bean
-	public SocialAutoConfigurerAdapter qQSocialAutoConfigurerAdapter(SocialProperties socialProperties) {
-
-		QQSocialAutoConfigurerAdapter qQSocialAutoConfigurerAdapter = new QQSocialAutoConfigurerAdapter();
-		qQSocialAutoConfigurerAdapter.setQqAppId(socialProperties.getQq().getAppId());
-		qQSocialAutoConfigurerAdapter.setQqAppSecret(socialProperties.getQq().getAppSecret());
-		qQSocialAutoConfigurerAdapter.setQqProviderId(socialProperties.getQq().getProviderId());
-		return qQSocialAutoConfigurerAdapter;
-	}
-
 	@Override
 	public UsersConnectionRepository getUsersConnectionRepository(ConnectionFactoryLocator connectionFactoryLocator) {
 		JdbcUsersConnectionRepository usersConnectionRepository = new JdbcUsersConnectionRepository(dataSource,
@@ -53,7 +44,40 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	public UserIdSource getUserIdSource() {
 		return new AuthenticationNameUserIdSource();
 	}
+    
+	/**
+	 * QQ登陆连接工厂
+	 * @param socialProperties
+	 * @return
+	 */
+	@Bean
+	public SocialAutoConfigurerAdapter qQSocialAutoConfigurerAdapter(SocialProperties socialProperties) {
 
+		QQSocialAutoConfigurerAdapter qQSocialAutoConfigurerAdapter = new QQSocialAutoConfigurerAdapter();
+		qQSocialAutoConfigurerAdapter.setQqAppId(socialProperties.getQq().getAppId());
+		qQSocialAutoConfigurerAdapter.setQqAppSecret(socialProperties.getQq().getAppSecret());
+		qQSocialAutoConfigurerAdapter.setQqProviderId(socialProperties.getQq().getProviderId());
+		return qQSocialAutoConfigurerAdapter;
+	}
+
+	/**
+	 * 用于在回调时获取到信息
+	 * 
+	 * @param connectionFactoryLocator
+	 * @return
+	 */
+	@Bean
+	public ProviderSignInUtils providerSignInUtils(ConnectionFactoryLocator connectionFactoryLocator) {
+		return new ProviderSignInUtils(connectionFactoryLocator,
+				getUsersConnectionRepository(connectionFactoryLocator));
+	}
+
+	/**
+	 * spring social QQ处理器
+	 * 
+	 * @param jsAuthenticationSuccessHandler
+	 * @return
+	 */
 	@Bean
 	public SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor(
 			AuthenticationSuccessHandler jsAuthenticationSuccessHandler) {
@@ -63,17 +87,17 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	}
 
 	/**
-	 * 自定义qq登录路径和注册路径
+	 * 自定义qq登录路径和注册路径【此服务需要注册spring security过滤器链中】
 	 *
 	 * @return
 	 */
 	@Bean
 	@Autowired
-	public SpringSocialConfigurer ssbSocialSecurityConfig(
+	public SpringSocialConfigurer ssoSocialSecurityConfig(
 			SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor,
 			SocialProperties socialProperties) {
-		SsoSpringSocialConfigurer configurer = new SsoSpringSocialConfigurer(
-				socialProperties.getQq().getFilterProcessesUrl());
+		// spring social 默认的拦截前缀
+		SsoSpringSocialConfigurer configurer = new SsoSpringSocialConfigurer(socialProperties.getFilterProcessesUrl());
 		// 1、认证失败跳转注册页面
 		// 跳转到signUp controller，从session中获取用户信息并通过生成的uuid保存到redis里面，然后跳转bind页面
 		// 前端绑定后发送用户信息到后台bind controller，1）保存到自己系统用户；2）保存一份userconnection表数据，Spring

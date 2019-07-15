@@ -10,6 +10,7 @@ public class SsoSocialAuthenticationFilterPostProcessor implements SocialAuthent
     private AuthenticationSuccessHandler jsAuthenticationSuccessHandler;
 
     // 后处理器
+    @Override
     public void process(SocialAuthenticationFilter socialAuthenticationFilter) {
         socialAuthenticationFilter.setAuthenticationSuccessHandler(jsAuthenticationSuccessHandler);
     }

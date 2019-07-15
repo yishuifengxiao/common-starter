@@ -15,6 +15,11 @@ import com.yishuifengxiao.common.properties.social.QqProperties;
 public class SocialProperties {
 
 	/**
+	 * spring social中拦截的url的前缀 ，默认为 /auth
+	 */
+	private String filterProcessesUrl = "/auth";
+
+	/**
 	 * QQ登陆相关的属性配置
 	 */
 	private QqProperties qq = new QqProperties();
@@ -35,6 +40,14 @@ public class SocialProperties {
 	 */
 	public void setQq(QqProperties qq) {
 		this.qq = qq;
+	}
+
+	public String getFilterProcessesUrl() {
+		return filterProcessesUrl;
+	}
+
+	public void setFilterProcessesUrl(String filterProcessesUrl) {
+		this.filterProcessesUrl = filterProcessesUrl;
 	}
 
 }

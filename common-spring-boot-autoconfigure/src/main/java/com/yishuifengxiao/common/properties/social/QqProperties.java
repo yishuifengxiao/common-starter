@@ -12,7 +12,7 @@ public class QqProperties {
 	
 	private String appSecret;
 	
-	 private String filterProcessesUrl;
+
 	 
 	 private String registerUrl;
 	
@@ -50,13 +50,7 @@ public class QqProperties {
 		this.providerId = providerId;
 	}
 
-	public String getFilterProcessesUrl() {
-		return filterProcessesUrl;
-	}
 
-	public void setFilterProcessesUrl(String filterProcessesUrl) {
-		this.filterProcessesUrl = filterProcessesUrl;
-	}
 
 	public String getRegisterUrl() {
 		return registerUrl;
