@@ -10,7 +10,7 @@ public class QqProperties {
 	
 	private String appId;
 	
-	private String appSecuret;
+	private String appSecret;
 	
 	 private String filterProcessesUrl;
 	 
@@ -29,12 +29,14 @@ public class QqProperties {
 		this.appId = appId;
 	}
 
-	public String getAppSecuret() {
-		return appSecuret;
+
+
+	public String getAppSecret() {
+		return appSecret;
 	}
 
-	public void setAppSecuret(String appSecuret) {
-		this.appSecuret = appSecuret;
+	public void setAppSecret(String appSecret) {
+		this.appSecret = appSecret;
 	}
 
 	/**

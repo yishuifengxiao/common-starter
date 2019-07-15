@@ -35,7 +35,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 
 		QQSocialAutoConfigurerAdapter qQSocialAutoConfigurerAdapter = new QQSocialAutoConfigurerAdapter();
 		qQSocialAutoConfigurerAdapter.setQqAppId(socialProperties.getQq().getAppId());
-		qQSocialAutoConfigurerAdapter.setQqAppSecret(socialProperties.getQq().getAppSecuret());
+		qQSocialAutoConfigurerAdapter.setQqAppSecret(socialProperties.getQq().getAppSecret());
 		qQSocialAutoConfigurerAdapter.setQqProviderId(socialProperties.getQq().getProviderId());
 		return qQSocialAutoConfigurerAdapter;
 	}
