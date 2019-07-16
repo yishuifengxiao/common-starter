@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.properties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.yishuifengxiao.common.properties.social.QqProperties;
+import com.yishuifengxiao.common.properties.social.WeixinProperties;
 
 /**
  * spring social登陆相关的配置
@@ -23,6 +24,11 @@ public class SocialProperties {
 	 * QQ登陆相关的属性配置
 	 */
 	private QqProperties qq = new QqProperties();
+
+	/**
+	 * 微信登陆相关的配置
+	 */
+	private WeixinProperties weixin = new WeixinProperties();
 
 	/**
 	 * QQ登陆相关的属性配置
@@ -48,6 +54,19 @@ public class SocialProperties {
 
 	public void setFilterProcessesUrl(String filterProcessesUrl) {
 		this.filterProcessesUrl = filterProcessesUrl;
+	}
+
+	/**
+	 * 微信登陆相关的配置
+	 * 
+	 * @return
+	 */
+	public WeixinProperties getWeixin() {
+		return weixin;
+	}
+
+	public void setWeixin(WeixinProperties weixin) {
+		this.weixin = weixin;
 	}
 
 }

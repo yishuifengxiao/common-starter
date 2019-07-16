@@ -16,8 +16,14 @@ public class SsoSpringSocialConfigurer extends SpringSocialConfigurer {
 
 	private SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor;
 
-	// 设置自定义url
+	/**
+	 * spring social 登陆时 需要拦截的url
+	 */
 	private String filterProcessesUrl;
+	/**
+	 * spring social 登陆成功后的跳转url
+	 */
+	private String singupUrl;
 
 	public SsoSpringSocialConfigurer(String filterProcessesUrl) {
 		this.filterProcessesUrl = filterProcessesUrl;
@@ -37,7 +43,8 @@ public class SsoSpringSocialConfigurer extends SpringSocialConfigurer {
 		// spring social 登陆过程中一个重要的 过滤器
 		SocialAuthenticationFilter filter = (SocialAuthenticationFilter) super.postProcess(object);
 		filter.setFilterProcessesUrl(filterProcessesUrl);
-
+		filter.setSignupUrl(singupUrl);
+		
 		// 给 SocialAuthenticationFilter 添加一个成功处理器
 		if (socialAuthenticationFilterPostProcessor != null) {
 			socialAuthenticationFilterPostProcessor.process(filter);
@@ -55,4 +62,34 @@ public class SsoSpringSocialConfigurer extends SpringSocialConfigurer {
 			SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor) {
 		this.socialAuthenticationFilterPostProcessor = socialAuthenticationFilterPostProcessor;
 	}
+
+	public String getFilterProcessesUrl() {
+		return filterProcessesUrl;
+	}
+
+	public void setFilterProcessesUrl(String filterProcessesUrl) {
+		this.filterProcessesUrl = filterProcessesUrl;
+	}
+
+	public String getSingupUrl() {
+		return singupUrl;
+	}
+
+	public void setSingupUrl(String singupUrl) {
+		this.singupUrl = singupUrl;
+	}
+
+	public SsoSpringSocialConfigurer(SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor,
+			String filterProcessesUrl, String singupUrl) {
+		this.socialAuthenticationFilterPostProcessor = socialAuthenticationFilterPostProcessor;
+		this.filterProcessesUrl = filterProcessesUrl;
+		this.singupUrl = singupUrl;
+	}
+
+	public SsoSpringSocialConfigurer() {
+
+	}
+	
+	
+	
 }

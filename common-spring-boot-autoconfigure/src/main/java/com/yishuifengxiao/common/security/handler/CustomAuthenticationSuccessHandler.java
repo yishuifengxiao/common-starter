@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -28,6 +31,11 @@ import com.yishuifengxiao.common.utils.HttpUtil;
  */
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 	private final static Logger log = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
+
+	/**
+	 * 声明了缓存与恢复操作
+	 */
+	private RequestCache cache = new HttpSessionRequestCache();
 	/**
 	 * 自定义属性配置
 	 */
@@ -43,7 +51,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		log.debug("====================> 【认证服务】登录成功，此用户的信息为 {}", authentication);
+		SavedRequest savedRequest = cache.getRequest(request, response);
+		String url = savedRequest != null ? savedRequest.getRedirectUrl() : "未知";
+
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
 
@@ -52,7 +62,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-		log.debug("====================> 【认证服务】登录成功，系统配置的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
+		log.debug("====================> 【认证服务】登录成功,引起跳转的url为 {}，此登陆用户的信息为 {} ,系统配置的处理方式为 {},最终的处理方式为 {}", url,
+				authentication, handleEnum, type);
 
 		// 判断是否使用系统的默认处理方法
 		if (type == HandleEnum.DEFAULT) {
