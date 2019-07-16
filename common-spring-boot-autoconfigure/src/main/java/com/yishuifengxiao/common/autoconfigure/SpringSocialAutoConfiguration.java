@@ -29,6 +29,7 @@ import com.yishuifengxiao.common.security.social.weixin.WechatAutoConfigurerAdap
 
 @Configuration
 @EnableConfigurationProperties(SocialProperties.class)
+@ConditionalOnProperty(prefix = "yishuifengxiao.social", name = "enable", havingValue = "true")
 public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 
 	@Autowired(required = false)

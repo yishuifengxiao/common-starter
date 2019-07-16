@@ -29,6 +29,11 @@ public class SocialProperties {
 	 * 微信登陆相关的配置
 	 */
 	private WeixinProperties weixin = new WeixinProperties();
+	
+	/**
+	 * 是否开启 spring social功能，默认为 false
+	 */
+	private Boolean enable=false;
 
 	/**
 	 * QQ登陆相关的属性配置
@@ -68,5 +73,19 @@ public class SocialProperties {
 	public void setWeixin(WeixinProperties weixin) {
 		this.weixin = weixin;
 	}
+
+	/**
+	 * 是否开启 spring social功能，默认为 false
+	 * @return
+	 */
+	public Boolean getEnable() {
+		return enable;
+	}
+
+	public void setEnable(Boolean enable) {
+		this.enable = enable;
+	}
+	
+	
 
 }
