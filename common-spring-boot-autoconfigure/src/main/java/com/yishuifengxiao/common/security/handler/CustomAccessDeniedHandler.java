@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -31,6 +33,11 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	private final static Logger log = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
 
 	/**
+	 * 声明了缓存与恢复操作
+	 */
+	private RequestCache cache = new HttpSessionRequestCache();
+
+	/**
 	 * 自定义属性配置
 	 */
 	private SecurityProperties securityProperties;
@@ -45,7 +52,8 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
-		log.debug("====================> 【资源服务】资源请求失败，失败的原因为 {}", accessDeniedException.getMessage());
+		// 引起跳转的url
+		String url = cache.getRequest(request, response).getRedirectUrl();
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
 
@@ -54,7 +62,8 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-		log.debug("====================> 【资源服务】资源请求失败，系统配置的处理方式为 {} , 最终的处理方式为 {}", handleEnum, type);
+		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", url, accessDeniedException.getMessage(),
+				handleEnum, type);
 		if (type == HandleEnum.DEFAULT) {
 			super.handle(request, response, accessDeniedException);
 			return;

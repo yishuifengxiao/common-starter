@@ -55,8 +55,6 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 			AuthenticationException authException) throws IOException, ServletException {
 		// 引起跳转的url
 		String url = cache.getRequest(request, response).getRedirectUrl();
-
-		log.debug("====================> 【资源服务】获取资源 {} 失败(可能是缺少token)，失败的原因为 {}",url, authException.getMessage());
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 
@@ -64,7 +62,8 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-		log.debug("====================> 【资源服务】获取资源失败(可能是缺少token)，系统配置的处理方式为 {} ,实际的处理方式为 {}", handleEnum, type);
+		log.debug("【资源服务】获取资源 {} 失败(可能是缺少token) , 失败的原因为 {} , 系统配置的处理方式为 {} ,实际的处理方式为 {}", url,
+				authException.getMessage(), handleEnum, type);
 
 		if (type == HandleEnum.DEFAULT) {
 			super.commence(request, response, authException);
