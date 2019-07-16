@@ -48,11 +48,12 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 	private ApplicationContext context;
 
+
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
 		SavedRequest savedRequest = cache.getRequest(request, response);
-		String url = savedRequest != null ? savedRequest.getRedirectUrl() : "未知";
+		String url = savedRequest != null ? savedRequest.getRedirectUrl() : "未知"; 
 
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
@@ -75,6 +76,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 				securityProperties.getHandler().getSuc().getRedirectUrl(),
 				new Response<>(Response.Const.CODE_OK, Response.Const.MSG_OK, authentication));
 	}
+
 
 	public SecurityProperties getSecurityProperties() {
 		return securityProperties;
