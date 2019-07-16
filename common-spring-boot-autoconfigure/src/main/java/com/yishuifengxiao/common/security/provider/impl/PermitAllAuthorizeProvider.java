@@ -31,7 +31,8 @@ public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
 				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-				securityProperties.getCore().getLoginOutUrl()//退出页面
+				securityProperties.getCore().getLoginOutUrl(),//退出页面
+				securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
 				)
 				.permitAll()// 登出页面的地址
 				// .antMatchers("/js/**","/css/**","/images/**","/fonts/**","/**/**.png","/**/**.jpg","/**/**.html","/**/**.jsp","/**/**.js","/**/**.css").permitAll()

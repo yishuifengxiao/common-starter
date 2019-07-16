@@ -47,7 +47,7 @@ public class SecurityCodeAutoConfiguration {
     }
 
     /**
-     * 注入一个验证码适配器
+     * 在spring security过滤器链中加入一个过滤器，用来进行验证码校验
      *
      * @param validateCodeFilter
      * @return

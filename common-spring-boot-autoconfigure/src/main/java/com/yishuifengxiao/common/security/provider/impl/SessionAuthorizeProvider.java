@@ -40,10 +40,14 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
 		config
 		.and()
 		.sessionManagement()
-		.sessionAuthenticationFailureHandler(customAuthenticationFailureHandler)//???session认证处理类？
-		//.invalidSessionUrl(customProperties.getSecurity().getSession().getSessionInvalidUrl())//session过期后的跳转
+		//定义AuthenticationFailureHandler，它将在SessionAuthenticationStrategy引发异常时使用。
+		//如果未设置，将向客户端返回未经授权的（402）错误代码。
+		//请注意，如果在基于表单的登录期间发生错误，则此属性不会发生，其中URL身份验证失败将优先
+		.sessionAuthenticationFailureHandler(customAuthenticationFailureHandler)
+		.invalidSessionUrl(securityProperties.getSession().getSessionInvalidUrl()) //session过期时的跳转的url
 		.maximumSessions(securityProperties.getSession().getMaximumSessions())//同一个用户最大的session数量
 		.maxSessionsPreventsLogin(securityProperties.getSession().isMaxSessionsPreventsLogin())//session数量达到最大时，是否阻止第二个用户登陆
+		//.invalidSessionUrl(customProperties.getSecurity().getSession().getSessionInvalidUrl())//session过期后的跳转
 		.expiredSessionStrategy(sessionInformationExpiredStrategy)//session过期时的处理策略
 		;
 		//@formatter:on  

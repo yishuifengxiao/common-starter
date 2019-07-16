@@ -138,7 +138,7 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
-	 * session 失效策略
+	 * session 失效策略，可以在此方法中记录谁把谁的登陆状态挤掉
 	 * 
 	 * @return
 	 */

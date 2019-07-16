@@ -9,7 +9,7 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 /**
- * 处理session超时的时间
+ * 可以在此方法中记录谁把谁的登陆状态挤掉
  * @version 0.0.1
  * @author yishui
  * @date 2018年4月14日
