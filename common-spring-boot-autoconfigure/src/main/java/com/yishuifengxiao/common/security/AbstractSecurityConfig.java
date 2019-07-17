@@ -17,7 +17,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
+import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 
 /**
@@ -68,7 +68,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 * 系统中所有的权限适配器
 	 */
 	@Autowired(required = false)
-	protected List<SecurityAdapter> securityAdapters;
+	protected List<AbstractSecurityAdapter> securityAdapters;
 
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -122,7 +122,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		
 		//注入所有的授权适配器
 		if(securityAdapters!=null) {
-			for(SecurityAdapter securityAdapter:securityAdapters) {
+			for(AbstractSecurityAdapter securityAdapter:securityAdapters) {
 				http.apply(securityAdapter);
 			}
 		}

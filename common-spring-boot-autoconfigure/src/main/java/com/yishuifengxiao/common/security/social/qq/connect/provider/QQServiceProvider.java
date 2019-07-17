@@ -26,6 +26,7 @@ public class QQServiceProvider extends AbstractOAuth2ServiceProvider<QQ> {// 获
 		this.appId = appId;
 	}
 
+	@Override
 	public QQ getApi(String accessToken) {
 		// 保证多例，不能单例
 		return new QQImpl(accessToken, appId);

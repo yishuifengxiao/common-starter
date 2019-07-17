@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @date 2019年1月22日
  * @version v1.0.0
  */
-public abstract class ValidateCode implements Serializable {
+public  class ValidateCode implements Serializable {
 
 	/**
 	 * 

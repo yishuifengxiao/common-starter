@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
+import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 import com.yishuifengxiao.common.security.adapter.impl.CodeConfigAdapter;
 import com.yishuifengxiao.common.security.adapter.impl.SmsLoginAuthenticationAdapter;
 import com.yishuifengxiao.common.security.filter.ValidateCodeFilter;
@@ -55,7 +55,7 @@ public class SecurityCodeAutoConfiguration {
     @Bean("codeConfigAdapter")
     @ConditionalOnBean(name = "validateCodeFilter")
     @ConditionalOnMissingBean(name = "codeConfigAdapter")
-    public SecurityAdapter codeConfigAdapter(ValidateCodeFilter validateCodeFilter) {
+    public AbstractSecurityAdapter codeConfigAdapter(ValidateCodeFilter validateCodeFilter) {
         return new CodeConfigAdapter(validateCodeFilter);
 
     }

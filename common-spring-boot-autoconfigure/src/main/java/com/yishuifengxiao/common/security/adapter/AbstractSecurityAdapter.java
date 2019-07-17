@@ -15,7 +15,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
  * @date 2019年1月23日
  * @version v1.0.0
  */
-public abstract class SecurityAdapter
+public abstract class AbstractSecurityAdapter
 		extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
 
 }

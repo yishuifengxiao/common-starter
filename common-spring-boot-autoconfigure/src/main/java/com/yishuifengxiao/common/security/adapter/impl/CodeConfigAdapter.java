@@ -5,7 +5,7 @@ import javax.servlet.Filter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 
-import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
+import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 
 /**
  * 自定义验证码过滤器
@@ -14,7 +14,7 @@ import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
  * @date 2019年1月23日
  * @version v1.0.0
  */
-public class CodeConfigAdapter extends SecurityAdapter {
+public class CodeConfigAdapter extends AbstractSecurityAdapter {
 
 	private Filter validateCodeFilter;
 

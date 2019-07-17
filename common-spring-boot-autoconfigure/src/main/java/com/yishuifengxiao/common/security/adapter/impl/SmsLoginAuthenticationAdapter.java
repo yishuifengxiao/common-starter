@@ -6,7 +6,7 @@ import org.springframework.security.web.authentication.AuthenticationFailureHand
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.yishuifengxiao.common.security.adapter.SecurityAdapter;
+import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationFilter;
 import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationProvider;
 
@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationProvide
  *
  */
 
-public class SmsLoginAuthenticationAdapter extends SecurityAdapter {
+public class SmsLoginAuthenticationAdapter extends AbstractSecurityAdapter {
 
 	private AuthenticationSuccessHandler customAuthenticationFailureHandler;
 
