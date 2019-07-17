@@ -2,16 +2,13 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,7 +27,6 @@ import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
-import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 
@@ -110,30 +106,15 @@ public class SecurityAutoConfiguration {
 		return new AcceptHeaderLocaleResolver();
 	}
 
-	/**
-	 * 记住密码策略【存储在redis数据库中】
-	 * 
-	 * @return
-	 */
-	@Bean("persistentTokenRepository")
-	@ConditionalOnMissingBean(PersistentTokenRepository.class)
-	@ConditionalOnClass(name = { "org.springframework.data.redis.core.RedisTemplate" })
-	@ConditionalOnBean(name = "redisTemplate")
-	public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
-		RedisTokenRepository redisTokenRepository = new RedisTokenRepository();
-		redisTokenRepository.setRedisTemplate(redisTemplate);
-		return new RedisTokenRepository();
-	}
 
 	/**
 	 * 记住密码策略【存储内存中在redis数据库中】
 	 * 
 	 * @return
 	 */
-	@ConditionalOnMissingClass({ "org.springframework.data.redis.core.RedisTemplate" })
-	@ConditionalOnMissingBean(name = "persistentTokenRepository")
 	@Bean("persistentTokenRepository")
-	public PersistentTokenRepository inMemoryTokenRepositoryImpl() {
+	@ConditionalOnMissingBean(name = "redisTemplate")
+	public PersistentTokenRepository inMemoryTokenRepository() {
 		return new InMemoryTokenRepositoryImpl();
 	}
 
