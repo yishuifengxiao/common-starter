@@ -2,7 +2,6 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import java.util.List;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,7 +27,6 @@ import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
-import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 
@@ -59,6 +56,18 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
+	 * 注入用户查找配置类</br>
+	 * 在系统没有注入UserDetailsService时，注册一个默认的UserDetailsService实例
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+		return new CustomeUserDetailsServiceImpl(passwordEncoder);
+	}
+
+	/**
 	 * 将密码加密类注入到spring security中
 	 * 
 	 * @return
@@ -70,18 +79,6 @@ public class SecurityAutoConfiguration {
 		authenticationProvider.setUserDetailsService(userDetailsService);
 		authenticationProvider.setPasswordEncoder(passwordEncoder);
 		return authenticationProvider;
-	}
-
-	/**
-	 * 注入用户查找配置类</br>
-	 * 在系统没有注入UserDetailsService时，注册一个默认的UserDetailsService实例
-	 * 
-	 * @return
-	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-		return new CustomeUserDetailsServiceImpl(passwordEncoder);
 	}
 
 	/**
@@ -107,19 +104,6 @@ public class SecurityAutoConfiguration {
 	@Bean
 	public AcceptHeaderLocaleResolver acceptHeaderLocaleResolver() {
 		return new AcceptHeaderLocaleResolver();
-	}
-
-	/**
-	 * 记住密码策略【存储在redis数据库中】
-	 * 
-	 * @return
-	 */
-	@Bean("persistentTokenRepository")
-	@ConditionalOnBean(name = "redisTemplate")
-	public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
-		RedisTokenRepository redisTokenRepository = new RedisTokenRepository();
-		redisTokenRepository.setRedisTemplate(redisTemplate);
-		return new RedisTokenRepository();
 	}
 
 	/**

@@ -9,7 +9,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
 
 import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.validation.CodeProcessorHolder;
@@ -25,7 +24,6 @@ import com.yishuifengxiao.common.validation.generator.CodeGenerator;
 import com.yishuifengxiao.common.validation.processor.CodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.DefaultCodeRepository;
-import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 
 /**
@@ -52,18 +50,6 @@ public class ValidateCodeAutoConfiguration {
 	@Bean
 	public CodeProcessorHolder codeProcessorHolder(Map<String, CodeProcessor> codeProcessors) {
 		return new CodeProcessorHolder(codeProcessors);
-	}
-
-	/**
-<<<<<<< HEAD
-	 * 验证码redis管理器
-	 * 
-	 * @return
-	 */
-	@ConditionalOnBean(name = "redisTemplate")
-	@Bean("codeRepository")
-	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate) {
-		return new RedisCodeRepository(redisTemplate);
 	}
 
 	/**
@@ -128,7 +114,6 @@ public class ValidateCodeAutoConfiguration {
 			CodeSender<SmsCode> smsCodeSender) {
 		return new SmsCodeProcessor(codeGenerators, codeRepository, codeProperties, smsCodeSender);
 	}
-
 
 	/**
 	 * 邮箱验证码生成器
