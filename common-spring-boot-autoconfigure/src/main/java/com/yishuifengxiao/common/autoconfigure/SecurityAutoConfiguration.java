@@ -127,9 +127,9 @@ public class SecurityAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@ConditionalOnMissingBean(name = "persistentTokenRepository")
 	@Bean("persistentTokenRepository")
-	public PersistentTokenRepository inMemoryTokenRepositoryImpl() {
+	@ConditionalOnMissingBean(name = { "redisTemplate", "persistentTokenRepository" })
+	public PersistentTokenRepository inMemoryTokenRepository() {
 		return new InMemoryTokenRepositoryImpl();
 	}
 

@@ -5,13 +5,11 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+//gitee.com/zhiyubujian/common-starter.git
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.mail.javamail.JavaMailSender;
 
 import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.validation.CodeProcessorHolder;
@@ -29,7 +27,6 @@ import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.DefaultCodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
-import com.yishuifengxiao.common.validation.sender.impl.EmailCodeSender;
 
 /**
  * 验证码启动类
@@ -58,6 +55,7 @@ public class ValidateCodeAutoConfiguration {
 	}
 
 	/**
+<<<<<<< HEAD
 	 * 验证码redis管理器
 	 * 
 	 * @return
@@ -73,8 +71,8 @@ public class ValidateCodeAutoConfiguration {
 	 * 
 	 * @return
 	 */
+	@ConditionalOnMissingBean(name = "redisTemplate")
 	@Bean("codeRepository")
-	@ConditionalOnMissingBean(name = "codeRepository")
 	public CodeRepository codeRepository() {
 		return new DefaultCodeRepository();
 	}
@@ -131,21 +129,6 @@ public class ValidateCodeAutoConfiguration {
 		return new SmsCodeProcessor(codeGenerators, codeRepository, codeProperties, smsCodeSender);
 	}
 
-	@Autowired(required = false)
-	private JavaMailSender javaMailSender;
-
-	/**
-	 * 邮箱验证码发送器
-	 * 
-	 * @param env
-	 * @return
-	 */
-	@Bean("emailCodeSender")
-	@ConditionalOnMissingBean(name = { "emailCodeSender", })
-	@ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username" })
-	public CodeSender<EmailCode> emailCodeSender(Environment env) {
-		return new EmailCodeSender(javaMailSender, env.getProperty("spring.mail.username"), codeProperties);
-	}
 
 	/**
 	 * 邮箱验证码生成器
