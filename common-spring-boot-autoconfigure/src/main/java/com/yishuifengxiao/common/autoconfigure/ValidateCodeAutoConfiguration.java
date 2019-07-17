@@ -4,9 +4,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -60,26 +58,25 @@ public class ValidateCodeAutoConfiguration {
 	}
 
 	/**
-	 * 验证码内存管理器
-	 * 
-	 * @return
-	 */
-	@ConditionalOnMissingClass({ "org.springframework.data.redis.core.RedisTemplate" })
-	@Bean("codeRepository")
-	public CodeRepository codeRepository() {
-		return new DefaultCodeRepository();
-	}
-
-	/**
 	 * 验证码redis管理器
 	 * 
 	 * @return
 	 */
-	@ConditionalOnClass(name = { "org.springframework.data.redis.core.RedisTemplate" })
 	@ConditionalOnBean(name = "redisTemplate")
 	@Bean("codeRepository")
 	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate) {
 		return new RedisCodeRepository(redisTemplate);
+	}
+
+	/**
+	 * 验证码内存管理器
+	 * 
+	 * @return
+	 */
+	@Bean("codeRepository")
+	@ConditionalOnMissingBean(name = "codeRepository")
+	public CodeRepository codeRepository() {
+		return new DefaultCodeRepository();
 	}
 
 	/**
