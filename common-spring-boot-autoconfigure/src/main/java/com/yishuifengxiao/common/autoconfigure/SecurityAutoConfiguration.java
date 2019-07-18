@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
+import com.yishuifengxiao.common.autoconfigure.security.PersistentTokenAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeProviderAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
 import com.yishuifengxiao.common.properties.SecurityProperties;
@@ -41,7 +42,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
 @EnableConfigurationProperties(SecurityProperties.class)
-@Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class })
+@Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,PersistentTokenAutoConfiguration.class })
 public class SecurityAutoConfiguration {
 
 	/**
