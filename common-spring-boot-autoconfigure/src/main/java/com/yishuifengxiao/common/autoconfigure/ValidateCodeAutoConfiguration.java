@@ -9,7 +9,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
+import com.yishuifengxiao.common.autoconfigure.mail.MailExtendAutoConfiguration;
 import com.yishuifengxiao.common.properties.CodeProperties;
 import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 import com.yishuifengxiao.common.validation.code.email.EmailCodeGenerator;
@@ -25,7 +27,6 @@ import com.yishuifengxiao.common.validation.processor.CodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.DefaultCodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
-
 /**
  * 验证码启动类
  * 
@@ -34,6 +35,7 @@ import com.yishuifengxiao.common.validation.sender.CodeSender;
  */
 @Configuration
 @EnableConfigurationProperties({ CodeProperties.class })
+@Import(MailExtendAutoConfiguration.class)
 public class ValidateCodeAutoConfiguration {
 
 	@Autowired
@@ -114,6 +116,7 @@ public class ValidateCodeAutoConfiguration {
 			CodeSender<SmsCode> smsCodeSender) {
 		return new SmsCodeProcessor(codeGenerators, codeRepository, codeProperties, smsCodeSender);
 	}
+
 
 	/**
 	 * 邮箱验证码生成器
