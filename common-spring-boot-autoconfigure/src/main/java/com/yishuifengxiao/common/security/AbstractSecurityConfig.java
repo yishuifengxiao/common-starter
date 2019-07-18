@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
@@ -70,16 +71,17 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	@Autowired(required = false)
 	protected List<AbstractSecurityAdapter> securityAdapters;
 
+	@Autowired(required = false)
+	private SpringSocialConfigurer socialSecurityConfig;
+
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 
-		//@formatter:off 
+		// @formatter:off
 		// auth.inMemoryAuthentication().withUser("yishui").password(passwordEncoder.encode("12345678")).roles("ADMIN").and()
 		// .withUser("bob").password("abc123").roles("USER");
-		auth
-			.userDetailsService(userDetailsService)
-			.passwordEncoder(passwordEncoder);
-		//@formatter:on  
+		auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+		// @formatter:on
 	}
 
 	/**
@@ -90,45 +92,43 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 */
 	protected void applyAuthenticationConfig(HttpSecurity http) throws Exception {
 
-		//@formatter:off 
-   
-		//开启http baisc认证
-		if(securityProperties.getHttpBasic()){
-			http
-			.httpBasic() //开启basic认证
-			.realmName(securityProperties.getRealmName());
+		// @formatter:off
+
+		// 开启http baisc认证
+		if (securityProperties.getHttpBasic()) {
+			http.httpBasic() // 开启basic认证
+					.realmName(securityProperties.getRealmName());
 		}
-		
-		//关闭csrf防护
-		if(securityProperties.getCloseCsrf()){
-			http
-				.csrf()
-				.disable();
+
+		// 关闭csrf防护
+		if (securityProperties.getCloseCsrf()) {
+			http.csrf().disable();
 		}
-		//关闭cors保护
-		if(securityProperties.getCloseCors()){
-			http
-				.cors()
-				.disable();
+		// 关闭cors保护
+		if (securityProperties.getCloseCors()) {
+			http.cors().disable();
 		}
-		
-		//添加全局异常处理
-		if(exceptionAuthenticationEntryPoint!=null){
-			http
-				.exceptionHandling()
-				.accessDeniedHandler(customAccessDeniedHandler)
-				.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
-		}	
-		
-		//注入所有的授权适配器
-		if(securityAdapters!=null) {
-			for(AbstractSecurityAdapter securityAdapter:securityAdapters) {
+
+		// 添加全局异常处理
+		if (exceptionAuthenticationEntryPoint != null) {
+			http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler)
+					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
+		}
+
+		// 注入所有的授权适配器
+		if (securityAdapters != null) {
+			for (AbstractSecurityAdapter securityAdapter : securityAdapters) {
 				http.apply(securityAdapter);
 			}
 		}
-		
-		//.anonymous().disable()//禁止匿名访问要放在后面
-		//@formatter:on  
+
+		// 加载spring social相关的配置
+		if (socialSecurityConfig != null) {
+			http.apply(socialSecurityConfig);
+		}
+
+		// .anonymous().disable()//禁止匿名访问要放在后面
+		// @formatter:on
 
 	}
 
@@ -143,19 +143,18 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		//@formatter:off  
-		web
-		.ignoring()
-		.antMatchers(HttpMethod.OPTIONS, "/**")
-		.mvcMatchers(securityProperties.getIgnore().getIgnore())
-		.antMatchers(securityProperties.getIgnore().getIgnore())//设置忽视目录
+		// @formatter:off
+		web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**").mvcMatchers(securityProperties.getIgnore().getIgnore())
+				.antMatchers(securityProperties.getIgnore().getIgnore())// 设置忽视目录
 		;
-		//.antMatchers("/**/**.js", "/lang/*.json", "/**/**.css", "/**/**.js", "/**/**.map", "/**/**.html","/**/**.jsp",
-	   //         "/**/**.png")
-		//.antMatchers("/zui/**","/js/**","/images/**")
-	//	.antMatchers("/uuac/zui/**","/uuac/js/**","/uuac/images/**")
-		//.antMatchers("/webjars/**", "/images/**", "/swagger-ui.html","/swagger-resources/**","/v2/api-docs","/configuration/ui","/configuration/security","/actuator/**");
-		//@formatter:on  
+		// .antMatchers("/**/**.js", "/lang/*.json", "/**/**.css", "/**/**.js",
+		// "/**/**.map", "/**/**.html","/**/**.jsp",
+		// "/**/**.png")
+		// .antMatchers("/zui/**","/js/**","/images/**")
+		// .antMatchers("/uuac/zui/**","/uuac/js/**","/uuac/images/**")
+		// .antMatchers("/webjars/**", "/images/**",
+		// "/swagger-ui.html","/swagger-resources/**","/v2/api-docs","/configuration/ui","/configuration/security","/actuator/**");
+		// @formatter:on
 	}
 
 	public SecurityProperties getSecurityProperties() {

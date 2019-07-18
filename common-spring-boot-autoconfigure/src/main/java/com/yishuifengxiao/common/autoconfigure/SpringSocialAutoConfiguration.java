@@ -3,6 +3,8 @@ package com.yishuifengxiao.common.autoconfigure;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +17,7 @@ import org.springframework.social.connect.ConnectionFactoryLocator;
 import org.springframework.social.connect.ConnectionSignUp;
 import org.springframework.social.connect.UsersConnectionRepository;
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
+import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
 import org.springframework.social.security.SpringSocialConfigurer;
@@ -29,7 +32,8 @@ import com.yishuifengxiao.common.security.social.weixin.WechatAutoConfigurerAdap
 
 @Configuration
 @EnableConfigurationProperties(SocialProperties.class)
-@ConditionalOnProperty(prefix = "yishuifengxiao.social", name = "enable", havingValue = "true")
+@ConditionalOnClass({ ConnectController.class, SocialConfigurerAdapter.class })
+@ConditionalOnBean({ ConnectionFactoryLocator.class, UsersConnectionRepository.class })
 public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 
 	@Autowired(required = false)
@@ -120,7 +124,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	 */
 	@Bean
 	@Autowired
-	public SpringSocialConfigurer ssoSocialSecurityConfig(
+	public SpringSocialConfigurer socialSecurityConfig(
 			SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor,
 			SocialProperties socialProperties) {
 		// spring social 默认的拦截前缀
