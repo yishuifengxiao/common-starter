@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
@@ -37,6 +38,7 @@ public class RedisExtendAutoConfiguration {
 	 */
 	@Bean("persistentTokenRepository")
 	@ConditionalOnBean(name = "redisTemplate")
+	@ConditionalOnClass(DefaultAuthenticationEventPublisher.class)
 	public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
 		RedisTokenRepository redisTokenRepository = new RedisTokenRepository();
 		redisTokenRepository.setRedisTemplate(redisTemplate);
