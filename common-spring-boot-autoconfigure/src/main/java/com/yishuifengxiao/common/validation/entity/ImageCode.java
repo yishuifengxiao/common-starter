@@ -5,6 +5,8 @@ package com.yishuifengxiao.common.validation.entity;
 
 import java.awt.image.BufferedImage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * 图形验证码
  * @author yishui
@@ -21,6 +23,7 @@ public class ImageCode extends ValidateCode {
 	/**
 	 * 验证码图片
 	 */
+	@JsonIgnore
 	private transient BufferedImage image;
 	
 	private ImageCode(long expireTimeInSeconds, String code) {
@@ -37,10 +40,12 @@ public class ImageCode extends ValidateCode {
 		this.image = image;
 	}
 
+	@JsonIgnore
 	public BufferedImage getImage() {
 		return image;
 	}
-
+	
+	@JsonIgnore
 	public void setImage(BufferedImage image) {
 		this.image = image;
 	}
