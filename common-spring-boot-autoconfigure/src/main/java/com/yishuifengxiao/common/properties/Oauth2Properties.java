@@ -30,7 +30,7 @@ public class Oauth2Properties {
 	 * Realm name for client authentication. If an unauthenticated request comes in to the
 	 * token endpoint, it will respond with a challenge including this name.
 	 */
-	private String realm;
+	private String realm="yishuifengxiao";
 
 	public String getCheckTokenAccess() {
 		return this.checkTokenAccess;

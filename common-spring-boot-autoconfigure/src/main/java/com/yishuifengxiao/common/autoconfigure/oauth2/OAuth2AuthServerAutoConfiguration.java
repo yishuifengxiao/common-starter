@@ -3,7 +3,6 @@ package com.yishuifengxiao.common.autoconfigure.oauth2;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurer;
@@ -17,7 +16,6 @@ import org.springframework.security.oauth2.provider.request.DefaultOAuth2Request
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 
@@ -41,20 +39,6 @@ public class OAuth2AuthServerAutoConfiguration {
 	@ConditionalOnMissingBean(name = "customeTokenEnhancer")
 	public TokenEnhancer tokenEnhancer() {
 		return new CustomeTokenEnhancer();
-	}
-
-	/**
-	 * 必须加入，不然自定义权限表达式不生效
-	 * 
-	 * @param applicationContext
-	 * @return
-	 */
-	@Bean
-	public DefaultWebSecurityExpressionHandler expressionHandler(ApplicationContext applicationContext) {
-		DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-		expressionHandler.setApplicationContext(applicationContext);
-		return expressionHandler;
-
 	}
 
 	/**

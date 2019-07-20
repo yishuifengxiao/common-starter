@@ -16,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -53,8 +54,9 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
+		SavedRequest savedRequest = cache.getRequest(request, response);
 		// 引起跳转的url
-		String url = cache.getRequest(request, response).getRedirectUrl();
+		String url = savedRequest != null ? savedRequest.getRedirectUrl() : request.getRequestURI();
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 
