@@ -7,4 +7,6 @@ com.yishuifengxiao.common.autoconfigure.ValidateCodeAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.SecurityAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.SecurityCodeAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.SpringSocialAutoConfiguration,\
-com.yishuifengxiao.common.autoconfigure.RedisExtendAutoConfiguration
+com.yishuifengxiao.common.autoconfigure.RedisExtendAutoConfiguration,\
+com.yishuifengxiao.common.autoconfigure.Oauth2ServerAutoConfiguration,\
+com.yishuifengxiao.common.autoconfigure.Oauth2ResourceAutoConfiguration
