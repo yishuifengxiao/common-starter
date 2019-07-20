@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
@@ -71,8 +70,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	@Autowired(required = false)
 	protected List<AbstractSecurityAdapter> securityAdapters;
 
-	@Autowired(required = false)
-	private SpringSocialConfigurer socialSecurityConfig;
 
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -120,11 +117,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 			for (AbstractSecurityAdapter securityAdapter : securityAdapters) {
 				http.apply(securityAdapter);
 			}
-		}
-
-		// 加载spring social相关的配置
-		if (socialSecurityConfig != null) {
-			http.apply(socialSecurityConfig);
 		}
 
 		// .anonymous().disable()//禁止匿名访问要放在后面

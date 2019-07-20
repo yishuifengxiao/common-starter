@@ -8,9 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.social.security.SocialUser;
-import org.springframework.social.security.SocialUserDetails;
-import org.springframework.social.security.SocialUserDetailsService;
 
 /**
  * 自定义UserDetailsService实现类，查找用户
@@ -19,7 +16,7 @@ import org.springframework.social.security.SocialUserDetailsService;
  * @author yishui
  * @date 2018年6月23日
  */
-public class CustomeUserDetailsServiceImpl implements UserDetailsService ,SocialUserDetailsService {
+public class CustomeUserDetailsServiceImpl implements UserDetailsService {
 	private final static Logger log = LoggerFactory.getLogger(CustomeUserDetailsServiceImpl.class);
 
 	private PasswordEncoder passwordEncoder;
@@ -47,13 +44,5 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService ,Social
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	/**
-	 * spring social中的方法
-	 */
-	@Override
-	public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
-		log.debug("============================> spring social 得到的用户id为 {}",userId);
-		return new SocialUser("yishuifengxiao", passwordEncoder.encode("12345678"), true, true, true, true,
-				AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER"));
-	}
+
 }

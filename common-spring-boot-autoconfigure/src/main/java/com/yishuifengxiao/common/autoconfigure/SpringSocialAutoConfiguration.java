@@ -5,11 +5,13 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.encrypt.Encryptors;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.social.UserIdSource;
 import org.springframework.social.config.annotation.SocialConfigurerAdapter;
@@ -20,9 +22,11 @@ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository;
 import org.springframework.social.connect.web.ConnectController;
 import org.springframework.social.connect.web.ProviderSignInUtils;
 import org.springframework.social.security.AuthenticationNameUserIdSource;
+import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.yishuifengxiao.common.properties.SocialProperties;
+import com.yishuifengxiao.common.security.service.CustomeSocialUserDetailsService;
 import com.yishuifengxiao.common.security.social.SsoSpringSocialConfigurer;
 import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.processor.SocialAuthenticationFilterPostProcessor;
@@ -100,6 +104,20 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	public ProviderSignInUtils providerSignInUtils(ConnectionFactoryLocator connectionFactoryLocator) {
 		return new ProviderSignInUtils(connectionFactoryLocator,
 				getUsersConnectionRepository(connectionFactoryLocator));
+	}
+
+	/**
+	 * 注入一个缺省的SocialUserDetailsService
+	 * 
+	 * @param passwordEncoder
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public SocialUserDetailsService socialUserDetailsService(PasswordEncoder passwordEncoder) {
+		CustomeSocialUserDetailsService customeSocialUserDetailsService = new CustomeSocialUserDetailsService();
+		customeSocialUserDetailsService.setPasswordEncoder(passwordEncoder);
+		return customeSocialUserDetailsService;
 	}
 
 	/**
