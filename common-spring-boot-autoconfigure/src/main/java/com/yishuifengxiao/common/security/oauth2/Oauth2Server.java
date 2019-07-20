@@ -1,27 +1,28 @@
-package com.yishuifengxiao.common.autoconfigure;
+package com.yishuifengxiao.common.security.oauth2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
-import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.approval.ApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
-import com.yishuifengxiao.common.autoconfigure.oauth2.OAuth2AuthServerAutoConfiguration;
 import com.yishuifengxiao.common.properties.Oauth2Properties;
+import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 
 /**
  * Configuration for a Spring Security OAuth2 authorization server. Back off if
@@ -32,15 +33,67 @@ import com.yishuifengxiao.common.properties.Oauth2Properties;
  * @author Dave Syer
  * @since 1.3.0
  */
-@Configuration
-@ConditionalOnClass(EnableAuthorizationServer.class)
-@ConditionalOnMissingBean(AuthorizationServerConfigurer.class)
-@ConditionalOnBean(AuthorizationServerEndpointsConfiguration.class)
-@EnableConfigurationProperties(Oauth2Properties.class)
-@Import(OAuth2AuthServerAutoConfiguration.class)
-public class Oauth2ServerAutoConfiguration extends AuthorizationServerConfigurerAdapter {
+public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
+	
+	
+	@ConditionalOnMissingBean(name = { "tokenStore" })
+	@Bean("tokenStore")
+	public TokenStore tokenStore() {
+		return new InMemoryTokenStore();
+	}
+
+	/**
+	 * 生成自定义token
+	 * 
+	 * @return
+	 */
+	@Bean("customeTokenEnhancer")
+	@ConditionalOnMissingBean(name = "customeTokenEnhancer")
+	public TokenEnhancer tokenEnhancer() {
+		return new CustomeTokenEnhancer();
+	}
+
+	/**
+	 * Basic interface for determining whether a given client authentication request
+	 * has been approved by the current user. 【认证服务器中需要显示使用到】
+	 * 
+	 * @param tokenStore
+	 * @return
+	 */
+	@Bean
+	public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore,
+			ClientDetailsService clientDetailsService) {
+		TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
+		handler.setTokenStore(tokenStore);
+		handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+		handler.setClientDetailsService(clientDetailsService);
+		return handler;
+	}
+
+	/**
+	 * Interface for saving, retrieving and revoking user approvals (per client, per
+	 * scope).
+	 * 
+	 * @param tokenStore
+	 * @return
+	 * @throws Exception
+	 */
+	@Bean
+	public ApprovalStore approvalStore(TokenStore tokenStore) throws Exception {
+		TokenApprovalStore store = new TokenApprovalStore();
+		store.setTokenStore(tokenStore);
+		return store;
+	}
+
+	@Bean("customClientDetailsService")
+	public ClientDetailsService customClientDetailsService(PasswordEncoder passwordEncoder){
+		ClientDetailsServiceImpl  customClientDetailsService=new	ClientDetailsServiceImpl();
+		customClientDetailsService.setPasswordEncoder(passwordEncoder);
+		return  customClientDetailsService;
+	}
 
 	@Autowired
+	@Qualifier("tokenStore")
 	private TokenStore tokenStore;
 
 	@Autowired

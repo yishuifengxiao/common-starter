@@ -1,21 +1,11 @@
-package com.yishuifengxiao.common.autoconfigure;
+package com.yishuifengxiao.common.security.oauth2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity.RequestMatcherConfigurer;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfiguration;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
@@ -27,17 +17,10 @@ import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 
-@Configuration
-@ConditionalOnClass({ EnableResourceServer.class })
-@ConditionalOnWebApplication
-@ConditionalOnBean(ResourceServerConfiguration.class)
-@AutoConfigureAfter({ SecurityAutoConfiguration.class, SecurityAutoConfiguration.class })
-@EnableConfigurationProperties(Oauth2Properties.class)
-public class Oauth2ResourceAutoConfiguration extends ResourceServerConfigurerAdapter {
+public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
 	@Autowired
 	private Oauth2Properties oauth2Properties;
-
 
 	/**
 	 * 定义在security-core包中
@@ -51,12 +34,10 @@ public class Oauth2ResourceAutoConfiguration extends ResourceServerConfigurerAda
 	@Autowired
 	@Qualifier("exceptionAuthenticationEntryPoint")
 	private AuthenticationEntryPoint exceptionAuthenticationEntryPoint;
-	
+
 	@Autowired
 	private SecurityProperties securityProperties;
-	
 
-	
 	/**
 	 * 必须加入，不然自定义权限表达式不生效
 	 * 
@@ -70,7 +51,7 @@ public class Oauth2ResourceAutoConfiguration extends ResourceServerConfigurerAda
 		return expressionHandler;
 
 	}
-	
+
 	@Autowired
 	private DefaultWebSecurityExpressionHandler expressionHandler;
 
@@ -91,15 +72,17 @@ public class Oauth2ResourceAutoConfiguration extends ResourceServerConfigurerAda
 		
 		
 		// 注入所有的授权适配器
-	   
-		//需要需要经过授权管理的资源的路径,所有的资源都要经过授权管理
-		RequestMatcherConfigurer requestMatcherConfigurer=http.requestMatchers();
-		requestMatcherConfigurer.antMatchers("/**");
+
+
+		//所有的路径都要经过授权
+		http.
+			requestMatchers()
+			.anyRequest();
 		
-		//具体的授权规则
-		
-		//下面是直接放过通行的路径
+        //具体的授权表达式
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry=http.authorizeRequests();
+		
+		//直接放行的路径
 		expressionInterceptUrlRegistry.antMatchers(
 						"/oauth/token", 
 						securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
@@ -107,11 +90,33 @@ public class Oauth2ResourceAutoConfiguration extends ResourceServerConfigurerAda
 						securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
 						securityProperties.getCore().getLoginOutUrl(),//退出页面
 						securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
-						).permitAll();
+						)
+					.permitAll()
+		            .mvcMatchers(
+						"/oauth/token", 
+						securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
+						securityProperties.getCore().getLoginPage(), // 登陆页面的URL
+						securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
+						securityProperties.getCore().getLoginOutUrl(),//退出页面
+						securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
+						)
+		            .permitAll();
 		
+		//自定义授权表达式的路径
+		if(securityProperties.getCustom().getAll()!=null) {
+			for(String path:securityProperties.getCustom().getAll()) {
+				expressionInterceptUrlRegistry
+					.antMatchers(path)
+					.access("@customAuthority.hasPermission(request, authentication)")
+					.antMatchers(path)
+					.access("@customAuthority.hasPermission(request, authentication)");
+			}
+			
+			}
 		
-		//其余的路径都需要经过认证才能访问
-		expressionInterceptUrlRegistry.anyRequest().authenticated();
+		//其余的路径登录后才能访问
+		expressionInterceptUrlRegistry.anyRequest()
+		            .authenticated();
 		http
 			.exceptionHandling()
 			.authenticationEntryPoint(exceptionAuthenticationEntryPoint)// 定义的不存在access_token时候响应

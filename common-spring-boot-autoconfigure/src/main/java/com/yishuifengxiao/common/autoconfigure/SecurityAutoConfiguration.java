@@ -23,6 +23,7 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import com.yishuifengxiao.common.autoconfigure.security.PersistentTokenAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeProviderAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
+import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
@@ -41,7 +42,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
-@EnableConfigurationProperties(SecurityProperties.class)
+@EnableConfigurationProperties({SecurityProperties.class,Oauth2Properties.class})
 @Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,PersistentTokenAutoConfiguration.class })
 public class SecurityAutoConfiguration {
 
