@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.autoconfigure.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,10 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.authority.CustomAuthority;
+import com.yishuifengxiao.common.security.authority.impl.CustomAuthorityImpl;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.provider.impl.CustomAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.FormLoginAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.InterceptAllAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.LoginOutAuthorizeProvider;
@@ -26,7 +30,7 @@ import com.yishuifengxiao.common.security.provider.impl.SessionAuthorizeProvider
 
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-	WebSecurityConfigurerAdapter.class })
+		WebSecurityConfigurerAdapter.class })
 public class SecurityAuthorizeProviderAutoConfiguration {
 
 	/**
@@ -43,7 +47,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * @return
 	 */
 	@Bean("formLoginProvider")
-	@ConditionalOnMissingBean(name="formLoginProvider")
+	@ConditionalOnMissingBean(name = "formLoginProvider")
 	public AuthorizeProvider formLoginProvider(AuthenticationSuccessHandler authenticationSuccessHandler,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		FormLoginAuthorizeProvider formLoginProvider = new FormLoginAuthorizeProvider();
@@ -59,7 +63,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * @return
 	 */
 	@Bean("interceptAllProvider")
-	@ConditionalOnMissingBean(name="interceptAllProvider")
+	@ConditionalOnMissingBean(name = "interceptAllProvider")
 	public AuthorizeProvider interceptAllProvider() {
 		return new InterceptAllAuthorizeProvider();
 	}
@@ -71,7 +75,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * @return
 	 */
 	@Bean("loginOutProvider")
-	@ConditionalOnMissingBean(name="loginOutProvider")
+	@ConditionalOnMissingBean(name = "loginOutProvider")
 	public AuthorizeProvider loginOutProvider(LogoutSuccessHandler logoutSuccessHandler) {
 		LoginOutAuthorizeProvider loginOutProvider = new LoginOutAuthorizeProvider();
 		loginOutProvider.setCustomLogoutSuccessHandler(logoutSuccessHandler);
@@ -87,7 +91,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * @return
 	 */
 	@Bean("remeberMeProvider")
-	@ConditionalOnMissingBean(name="remeberMeProvider")
+	@ConditionalOnMissingBean(name = "remeberMeProvider")
 	public AuthorizeProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository,
 			UserDetailsService userDetailsService) {
 		RemeberMeAuthorizeProvider remeberMeProvider = new RemeberMeAuthorizeProvider();
@@ -105,7 +109,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * @return
 	 */
 	@Bean("sessionProvider")
-	@ConditionalOnMissingBean(name="sessionProvider")
+	@ConditionalOnMissingBean(name = "sessionProvider")
 	public AuthorizeProvider sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy,
 			AuthenticationFailureHandler authenticationFailureHandler) {
 		SessionAuthorizeProvider sessionProvider = new SessionAuthorizeProvider();
@@ -120,12 +124,39 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@Bean("permitAllConfigProvider")
-	@ConditionalOnMissingBean(name="permitAllConfigProvider")
+	@Bean("permitAllProvider")
+	@ConditionalOnMissingBean(name = "permitAllProvider")
 	public AuthorizeProvider permitAllConfigProvider() {
 		PermitAllAuthorizeProvider permitAllConfigProvider = new PermitAllAuthorizeProvider();
 		permitAllConfigProvider.setSecurityProperties(securityProperties);
 		return permitAllConfigProvider;
+	}
+
+	/**
+	 * 注入一个名为 customAuthority 授权行为实体
+	 * 
+	 * @return
+	 */
+	@Bean("customAuthority")
+	@ConditionalOnMissingBean(name = "customAuthority")
+	public CustomAuthority customAuthority() {
+		CustomAuthorityImpl customAuthority = new CustomAuthorityImpl();
+		return customAuthority;
+	}
+
+	/**
+	 * 自定义授权提供其
+	 * 
+	 * @param customAuthority
+	 * @return
+	 */
+	@Bean("customAuthorizeProvider")
+	@ConditionalOnMissingBean(name = "customAuthorizeProvider")
+	public AuthorizeProvider customAuthorizeProvider(@Qualifier("customAuthority") CustomAuthority customAuthority) {
+		CustomAuthorizeProvider customAuthorizeProvider = new CustomAuthorizeProvider();
+		customAuthorizeProvider.setCustomAuthority(customAuthority);
+		customAuthorizeProvider.setSecurityProperties(securityProperties);
+		return customAuthorizeProvider;
 	}
 
 }

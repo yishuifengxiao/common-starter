@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import com.yishuifengxiao.common.constant.SecurityConstant;
 import com.yishuifengxiao.common.properties.security.CoreProperties;
+import com.yishuifengxiao.common.properties.security.CustomAuthProperties;
 import com.yishuifengxiao.common.properties.security.HandlerProperties;
 import com.yishuifengxiao.common.properties.security.IgnoreProperties;
 import com.yishuifengxiao.common.properties.security.RemeberMeProperties;
@@ -36,6 +37,12 @@ public class SecurityProperties {
 	 * spring security session相关的配置
 	 */
 	private SessionProperties session = new SessionProperties();
+
+	/**
+	 * 需要自定义权限的路径
+	 */
+	private CustomAuthProperties custom = new CustomAuthProperties();
+
 	/**
 	 * spring security 忽视目录配置
 	 */
@@ -105,6 +112,17 @@ public class SecurityProperties {
 
 	public void setSession(SessionProperties session) {
 		this.session = session;
+	}
+
+	/**
+	 * 需要自定义权限的路径
+	 */
+	public CustomAuthProperties getCustom() {
+		return custom;
+	}
+
+	public void setCustom(CustomAuthProperties custom) {
+		this.custom = custom;
 	}
 
 	/**

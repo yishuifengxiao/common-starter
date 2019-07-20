@@ -44,7 +44,7 @@ public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 
 	@Override
 	public int getOrder() {
-		return 500;
+		return 600;
 	}
 
 	public PermitAllAuthorizeProvider(SecurityProperties securityProperties) {
