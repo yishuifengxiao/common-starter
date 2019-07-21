@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.security.authentcation.SmsAuthenticationProvide
  *
  */
 
-public class SmsLoginAuthenticationAdapter extends AbstractSecurityAdapter {
+public class SmsLoginAdapter extends AbstractSecurityAdapter {
 
 	private AuthenticationSuccessHandler customAuthenticationFailureHandler;
 
@@ -45,7 +45,7 @@ public class SmsLoginAuthenticationAdapter extends AbstractSecurityAdapter {
 
 	}
 
-	public SmsLoginAuthenticationAdapter(AuthenticationSuccessHandler customAuthenticationFailureHandler,
+	public SmsLoginAdapter(AuthenticationSuccessHandler customAuthenticationFailureHandler,
 			AuthenticationFailureHandler customAuthenticationSuccessHandler, UserDetailsService userDetailsService,
 			String url) {
 		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
@@ -54,7 +54,7 @@ public class SmsLoginAuthenticationAdapter extends AbstractSecurityAdapter {
 		this.url = url;
 	}
 
-	public SmsLoginAuthenticationAdapter() {
+	public SmsLoginAdapter() {
 
 	}
 

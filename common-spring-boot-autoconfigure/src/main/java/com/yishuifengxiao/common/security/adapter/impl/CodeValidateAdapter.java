@@ -14,7 +14,7 @@ import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
  * @date 2019年1月23日
  * @version v1.0.0
  */
-public class CodeConfigAdapter extends AbstractSecurityAdapter {
+public class CodeValidateAdapter extends AbstractSecurityAdapter {
 
 	private Filter validateCodeFilter;
 
@@ -31,11 +31,11 @@ public class CodeConfigAdapter extends AbstractSecurityAdapter {
 		this.validateCodeFilter = validateCodeFilter;
 	}
 
-	public CodeConfigAdapter(Filter validateCodeFilter) {
+	public CodeValidateAdapter(Filter validateCodeFilter) {
 		this.validateCodeFilter = validateCodeFilter;
 	}
 
-	public CodeConfigAdapter() {
+	public CodeValidateAdapter() {
 
 	}
 

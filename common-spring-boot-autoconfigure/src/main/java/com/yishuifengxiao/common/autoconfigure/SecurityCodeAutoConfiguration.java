@@ -16,8 +16,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
-import com.yishuifengxiao.common.security.adapter.impl.CodeConfigAdapter;
-import com.yishuifengxiao.common.security.adapter.impl.SmsLoginAuthenticationAdapter;
+import com.yishuifengxiao.common.security.adapter.impl.CodeValidateAdapter;
+import com.yishuifengxiao.common.security.adapter.impl.SmsLoginAdapter;
 import com.yishuifengxiao.common.security.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 
@@ -29,52 +29,52 @@ import com.yishuifengxiao.common.validation.CodeProcessorHolder;
  * @date 2018年6月15日
  */
 @Configuration
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-        WebSecurityConfigurerAdapter.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "enable", havingValue = "true")
+@ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
+		WebSecurityConfigurerAdapter.class })
+@ConditionalOnProperty(prefix = "yishuifengxiao.security.code.filter")
 public class SecurityCodeAutoConfiguration {
 
-    /**
-     * 注入一个验证码过滤器
-     *
-     * @return
-     */
-    @Bean("validateCodeFilter")
-    @ConditionalOnMissingBean(name = "validateCodeFilter")
-    public ValidateCodeFilter validateCodeFilter(AuthenticationFailureHandler authenticationFailureHandler,
-                                                 CodeProcessorHolder codeProcessorHolder, SecurityProperties securityProperties) {
-        return new ValidateCodeFilter(authenticationFailureHandler, codeProcessorHolder, securityProperties);
-    }
+	/**
+	 * 注入一个验证码过滤器
+	 *
+	 * @return
+	 */
+	@Bean("validateCodeFilter")
+	@ConditionalOnMissingBean(name = "validateCodeFilter")
+	public ValidateCodeFilter validateCodeFilter(AuthenticationFailureHandler authenticationFailureHandler,
+			CodeProcessorHolder codeProcessorHolder, SecurityProperties securityProperties) {
+		return new ValidateCodeFilter(authenticationFailureHandler, codeProcessorHolder, securityProperties);
+	}
 
-    /**
-     * 在spring security过滤器链中加入一个过滤器，用来进行验证码校验
-     *
-     * @param validateCodeFilter
-     * @return
-     */
-    @Bean("codeConfigAdapter")
-    @ConditionalOnBean(name = "validateCodeFilter")
-    @ConditionalOnMissingBean(name = "codeConfigAdapter")
-    public AbstractSecurityAdapter codeConfigAdapter(ValidateCodeFilter validateCodeFilter) {
-        return new CodeConfigAdapter(validateCodeFilter);
+	/**
+	 * 在spring security过滤器链中加入一个过滤器，用来进行验证码校验
+	 *
+	 * @param validateCodeFilter
+	 * @return
+	 */
+	@Bean("codeValidateAdapter")
+	@ConditionalOnBean(name = "validateCodeFilter")
+	@ConditionalOnMissingBean(name = "codeValidateAdapter")
+	public AbstractSecurityAdapter codeConfigAdapter(ValidateCodeFilter validateCodeFilter) {
+		return new CodeValidateAdapter(validateCodeFilter);
 
-    }
+	}
 
-    /**
-     * 条件注入短信登录配置
-     *
-     * @return
-     */
-    @Bean("smsAuthenticationSecurityConfig")
-    @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "smsLoginUrl")
-    @ConditionalOnMissingBean(name = "smsAuthenticationSecurityConfig")
-    @ConditionalOnBean(name = "smsUserDetailsService")
-    public SmsLoginAuthenticationAdapter smsAuthenticationSecurityConfig(
-            AuthenticationSuccessHandler authenticationFailureHandler,
-            AuthenticationFailureHandler authenticationSuccessHandler, @Qualifier("smsUserDetailsService") UserDetailsService smsUserDetailsService,
-            SecurityProperties securityProperties) {
-        return new SmsLoginAuthenticationAdapter(authenticationFailureHandler,
-                authenticationSuccessHandler, smsUserDetailsService,
-                securityProperties.getCode().getSmsLoginUrl());
-    }
+	/**
+	 * 条件注入短信登录配置
+	 *
+	 * @return
+	 */
+	@Bean("smsLoginAdapter")
+	@ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "smsLoginUrl")
+	@ConditionalOnMissingBean(name = "smsLoginAdapter")
+	@ConditionalOnBean(name = "smsUserDetailsService")
+	public SmsLoginAdapter smsAuthenticationSecurityConfig(AuthenticationSuccessHandler authenticationFailureHandler,
+			AuthenticationFailureHandler authenticationSuccessHandler,
+			@Qualifier("smsUserDetailsService") UserDetailsService smsUserDetailsService,
+			SecurityProperties securityProperties) {
+
+		return new SmsLoginAdapter(authenticationFailureHandler, authenticationSuccessHandler, smsUserDetailsService,
+				securityProperties.getCode().getSmsLoginUrl());
+	}
 }

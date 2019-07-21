@@ -13,10 +13,7 @@ import com.yishuifengxiao.common.constant.SecurityConstant;
  * @version 0.0.1
  */
 public class ValidateProperties {
-	/**
-	 * 是否开启自定义过滤器，默认为false
-	 */
-	private Boolean enable = false;
+
 	/**
 	 * 是否过滤GET方法，默认为false
 	 */
@@ -42,19 +39,6 @@ public class ValidateProperties {
 
 	public void setFilter(Map<String, String> filter) {
 		this.filter = filter;
-	}
-
-	/**
-	 * 是否开启自定义过滤器，默认为false
-	 * 
-	 * @return
-	 */
-	public Boolean getEnable() {
-		return enable;
-	}
-
-	public void setEnable(Boolean enable) {
-		this.enable = enable;
 	}
 
 	/**
