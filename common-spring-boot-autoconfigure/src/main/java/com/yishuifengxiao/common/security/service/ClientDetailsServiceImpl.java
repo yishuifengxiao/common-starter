@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.oauth2;
+package com.yishuifengxiao.common.security.service;
 
 import java.util.Arrays;
 import java.util.HashSet;

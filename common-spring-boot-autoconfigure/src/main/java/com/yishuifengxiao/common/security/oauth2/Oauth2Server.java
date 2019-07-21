@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
+import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
 
 /**
  * Configuration for a Spring Security OAuth2 authorization server. Back off if
