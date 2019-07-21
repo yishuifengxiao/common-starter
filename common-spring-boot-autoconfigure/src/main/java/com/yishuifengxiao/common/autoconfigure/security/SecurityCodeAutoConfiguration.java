@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.autoconfigure;
+package com.yishuifengxiao.common.autoconfigure.security;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -31,7 +31,6 @@ import com.yishuifengxiao.common.validation.CodeProcessorHolder;
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
-@ConditionalOnProperty(prefix = "yishuifengxiao.security.code.filter")
 public class SecurityCodeAutoConfiguration {
 
 	/**
