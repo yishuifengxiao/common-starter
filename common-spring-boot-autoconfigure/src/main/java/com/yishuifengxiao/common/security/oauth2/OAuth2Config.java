@@ -24,6 +24,8 @@ public class OAuth2Config {
 	public TokenStore tokenStore() {
 		return new InMemoryTokenStore();
 	}
+	
+	
 
 	/**
 	 * 生成自定义token

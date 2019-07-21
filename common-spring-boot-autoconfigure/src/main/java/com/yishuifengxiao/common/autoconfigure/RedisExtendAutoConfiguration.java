@@ -29,14 +29,13 @@ import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 @ConditionalOnClass(RedisOperations.class)
 public class RedisExtendAutoConfiguration {
 
-	
 	/**
 	 * 定义一个redisValueSerializer
 	 * 
 	 * @return
 	 */
 	@Bean("redisValueSerializer")
-	@ConditionalOnMissingBean(name="redisValueSerializer")
+	@ConditionalOnMissingBean(name = "redisValueSerializer")
 	public RedisSerializer<Object> redisValueSerializer() {
 
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(
@@ -48,11 +47,10 @@ public class RedisExtendAutoConfiguration {
 		jackson2JsonRedisSerializer.setObjectMapper(om);
 		return jackson2JsonRedisSerializer;
 	}
-	
+
 	@Autowired
 	private RedisSerializer<Object> redisValueSerializer;
 
-	
 	@Bean
 	@ConditionalOnMissingBean(name = "redisTemplate")
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory)
@@ -82,7 +80,6 @@ public class RedisExtendAutoConfiguration {
 		return new JdkSerializationRedisSerializer();
 
 	}
-
 
 	/**
 	 * 配置序列化（解决乱码的问题）
@@ -114,4 +111,5 @@ public class RedisExtendAutoConfiguration {
 	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate) {
 		return new RedisCodeRepository(redisTemplate);
 	}
+
 }

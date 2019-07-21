@@ -24,6 +24,7 @@ import com.yishuifengxiao.common.autoconfigure.security.PersistentTokenAutoConfi
 import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeProviderAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityCodeAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
+import com.yishuifengxiao.common.autoconfigure.security.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
@@ -45,7 +46,8 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 		WebSecurityConfigurerAdapter.class })
 @EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class })
 @Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,
-		PersistentTokenAutoConfiguration.class, SecurityCodeAutoConfiguration.class })
+		PersistentTokenAutoConfiguration.class, SecurityCodeAutoConfiguration.class,
+		SecurityRedisAutoConfiguration.class })
 public class SecurityAutoConfiguration {
 
 	/**
