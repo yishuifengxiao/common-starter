@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
@@ -58,8 +59,10 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 	 * @return
 	 */
 	private String getNewToken(OAuth2Authentication authentication) {
+		// 获取到认证信息
+		Authentication auth = authentication.getUserAuthentication();
 		// 用户名
-		String username = authentication.getUserAuthentication().getName();
+		String username = auth != null ? auth.getName() : "";
 
 		// 获取到所有的角色
 		Collection<GrantedAuthority> list = authentication.getAuthorities();
