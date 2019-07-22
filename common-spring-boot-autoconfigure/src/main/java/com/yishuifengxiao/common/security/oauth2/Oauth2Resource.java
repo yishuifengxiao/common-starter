@@ -1,5 +1,9 @@
 package com.yishuifengxiao.common.security.oauth2;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
@@ -15,6 +19,8 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.properties.SocialProperties;
+import com.yishuifengxiao.common.security.matcher.ExcludeRequestMatcher;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 
 public class Oauth2Resource extends ResourceServerConfigurerAdapter {
@@ -37,6 +43,9 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
 	@Autowired
 	private SecurityProperties securityProperties;
+
+	@Autowired
+	private SocialProperties socialProperties;
 
 	/**
 	 * 必须加入，不然自定义权限表达式不生效
@@ -75,9 +84,13 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
 
 		//所有的路径都要经过授权
-		http.
-			requestMatchers()
-			.anyRequest();
+		http.requestMatcher(new ExcludeRequestMatcher(getExcludeUrls()));
+		
+//		RequestMatcherConfigurer  requestMatcherConfigurer=http.requestMatchers();
+//
+//		http.requestMatcher(requestMatcher)
+	//	requestMatcherConfigurer.anyRequest()
+			//.anyRequest();
 		
         //具体的授权表达式
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry=http.authorizeRequests();
@@ -123,6 +136,23 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 			.accessDeniedHandler(customAccessDeniedHandler)//自定义权限拒绝处理器
 			;
 		//@formatter:on  
+	}
+    /**
+     * 获取所有不经过oauth2管理的路径
+     * @return
+     */
+	private List<String> getExcludeUrls() {
+		List<String> excludeUrls = Arrays.asList("/oauth/**",
+				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
+				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
+				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
+				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
+				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
+				securityProperties.getCore().getLoginOutUrl(), // 退出页面
+				securityProperties.getSession().getSessionInvalidUrl() // session失效时跳转的页面
+		);
+		excludeUrls.addAll(oauth2Properties.getExcludeUrls());
+		return excludeUrls.stream().distinct().collect(Collectors.toList());
 	}
 
 }
