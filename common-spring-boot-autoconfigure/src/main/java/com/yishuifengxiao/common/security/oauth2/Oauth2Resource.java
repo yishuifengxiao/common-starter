@@ -97,23 +97,10 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		
 		//直接放行的路径
 		expressionInterceptUrlRegistry.antMatchers(
-						"/oauth/token", 
-						securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
-						securityProperties.getCore().getLoginPage(), // 登陆页面的URL
-						securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-						securityProperties.getCore().getLoginOutUrl(),//退出页面
-						securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
+						securityProperties.getSession().getSessionInvalidUrl(),//session失效时的url
+						securityProperties.getCore().getRedirectUrl() // 权限拦截时默认的跳转地址
 						)
-					.permitAll()
-		            .mvcMatchers(
-						"/oauth/token", 
-						securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
-						securityProperties.getCore().getLoginPage(), // 登陆页面的URL
-						securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-						securityProperties.getCore().getLoginOutUrl(),//退出页面
-						securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
-						)
-		            .permitAll();
+					.permitAll();
 		
 		//自定义授权表达式的路径
 		if(securityProperties.getCustom().getAll()!=null) {
@@ -124,7 +111,6 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 					.antMatchers(path)
 					.access("@customAuthority.hasPermission(request, authentication)");
 			}
-			
 			}
 		
 		//其余的路径登录后才能访问
@@ -145,11 +131,9 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		List<String> excludeUrls = Arrays.asList("/oauth/**",
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
-				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
 				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-				securityProperties.getCore().getLoginOutUrl(), // 退出页面
-				securityProperties.getSession().getSessionInvalidUrl() // session失效时跳转的页面
+				securityProperties.getCore().getLoginOutUrl() // 退出页面
 		);
 		excludeUrls.addAll(oauth2Properties.getExcludeUrls());
 		return excludeUrls.stream().distinct().collect(Collectors.toList());
