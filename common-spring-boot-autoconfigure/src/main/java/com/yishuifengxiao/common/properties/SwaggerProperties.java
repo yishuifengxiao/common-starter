@@ -9,8 +9,6 @@ import java.util.List;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import springfox.documentation.service.Contact;
-
 /**
  * swagger属性配置文件路径
  * 
@@ -113,9 +111,6 @@ public class SwaggerProperties {
 		this.version = version;
 	}
 
-	public Contact getContact() {
-		return new Contact(this.contactUser, this.contactUrl, this.contactEmail);
-	}
 
 	public List<AuthoriZationPar> getAuths() {
 		return auths;

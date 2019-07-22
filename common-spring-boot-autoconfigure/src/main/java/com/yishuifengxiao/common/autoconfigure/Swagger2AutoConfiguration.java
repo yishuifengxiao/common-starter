@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
 import com.yishuifengxiao.common.properties.SwaggerProperties;
@@ -39,6 +40,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwaggerBootstrapUI
 @EnableConfigurationProperties(SwaggerProperties.class)
 @ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = "basePackage")
+@Import(MvcConfigurer.class)
 public class Swagger2AutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(Swagger2AutoConfiguration.class);
 
@@ -75,8 +77,8 @@ public class Swagger2AutoConfiguration {
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder().title(swaggerProperties.getTitle()).description(swaggerProperties.getDescription())
 				.termsOfServiceUrl(swaggerProperties.getTermsOfServiceUrl())
-				.contact(new Contact(swaggerProperties.getContact().getName(), swaggerProperties.getContact().getUrl(),
-						swaggerProperties.getContact().getEmail()))
+				.contact(new Contact(swaggerProperties.getContactUser(), swaggerProperties.getContactUrl(),
+						swaggerProperties.getContactEmail()))
 				.version(swaggerProperties.getVersion()).build();
 	}
 
