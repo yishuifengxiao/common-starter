@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
@@ -144,7 +143,7 @@ public class WebExceptionAutoConfiguration {
 	}
 
 	/**
-	 * 数据库插入重复数据异常
+	 * 当尝试插入或更新数据导致违反主键或唯一约束时引发异常。请注意，这不一定是纯关系概念；大多数数据库类型都需要唯一主键。
 	 * 
 	 * @param e
 	 * @return
@@ -159,26 +158,7 @@ public class WebExceptionAutoConfiguration {
 	}
 
 	/**
-	 * 数据库插入异常
-	 * 
-	 * @param e
-	 * @return
-	 */
-	@ExceptionHandler
-	@ResponseBody
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public Response<String> handle(MySQLIntegrityConstraintViolationException e) {
-		String msg = "非法参数";
-		if (StringUtils.containsIgnoreCase(e.getMessage(), DUPLICATE_FLAG)) {
-			msg = "已经存在相似的数据,不能重复添加";
-		}
-		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), msg);
-		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
-		return response;
-	}
-
-	/**
-	 * 数据保存异常
+	 * 尝试插入或更新数据导致违反完整性约束时引发异常。注意，这不仅仅是一个关系概念；大多数数据库类型都需要唯一的主键
 	 * 
 	 * @param e
 	 * @return
