@@ -44,10 +44,7 @@ public class SwaggerProperties {
 	 * 版本号
 	 */
 	private String version = "1.0";
-	/**
-	 * 是否开启swagger-ui，默认为true
-	 */
-	private Boolean enable=true;
+
 	/**
 	 * 联系人
 	 */
@@ -177,18 +174,5 @@ public class SwaggerProperties {
 				+ ", termsOfServiceUrl=" + termsOfServiceUrl + ", groupNmae=" + groupNmae + ", version=" + version
 				+ ", contact=" + contact + ", auths=" + auths + "]";
 	}
-    /**
-     * 是否开启swagger-ui，默认为true
-     * @return
-     */
-	public Boolean getEnable() {
-		return enable;
-	}
-
-	public void setEnable(Boolean enable) {
-		this.enable = enable;
-	}
-	
-	
 
 }

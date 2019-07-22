@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>com.yishuifengxiao.common</groupId>
 		<artifactId>common-starter</artifactId>
-		<version>2.4.5</version>
+		<version>3.0.0</version>
 	</parent>
 
 	<artifactId>common-spring-boot-autoconfigure</artifactId>
