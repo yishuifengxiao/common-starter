@@ -31,7 +31,7 @@ public class SwaggerProperties {
 	/**
 	 * swagger 文档的描述
 	 */
-	private String description = " RESTful APIs";
+	private String description = " 易水风萧 接口说明文档";
 	/**
 	 * swagger 文档的中组织的链接
 	 */
@@ -46,9 +46,20 @@ public class SwaggerProperties {
 	private String version = "1.0";
 
 	/**
-	 * 联系人
+	 * 项目联系人
+	 * 
 	 */
-	private Contact contact = new Contact("yishui", "http://www.yishuifengxiao.com/", "zhiyubujian@163.com");
+	private String contactUser = "yishuifengxiao";
+
+	/**
+	 * 项目的url
+	 */
+	private String contactUrl = "http://www.yishuifengxiao.com/";
+
+	/**
+	 * 项目联系邮箱
+	 */
+	private String contactEmail = "zhiyubujian@163.com";
 	/**
 	 * 附加信息
 	 */
@@ -103,11 +114,7 @@ public class SwaggerProperties {
 	}
 
 	public Contact getContact() {
-		return contact;
-	}
-
-	public void setContact(Contact contact) {
-		this.contact = contact;
+		return new Contact(this.contactUser, this.contactUrl, this.contactEmail);
 	}
 
 	public List<AuthoriZationPar> getAuths() {
@@ -116,6 +123,30 @@ public class SwaggerProperties {
 
 	public void setAuths(List<AuthoriZationPar> auths) {
 		this.auths = auths;
+	}
+
+	public String getContactUser() {
+		return contactUser;
+	}
+
+	public void setContactUser(String contactUser) {
+		this.contactUser = contactUser;
+	}
+
+	public String getContactUrl() {
+		return contactUrl;
+	}
+
+	public void setContactUrl(String contactUrl) {
+		this.contactUrl = contactUrl;
+	}
+
+	public String getContactEmail() {
+		return contactEmail;
+	}
+
+	public void setContactEmail(String contactEmail) {
+		this.contactEmail = contactEmail;
 	}
 
 	public static class AuthoriZationPar implements Serializable {
@@ -172,7 +203,9 @@ public class SwaggerProperties {
 	public String toString() {
 		return "SwaggerProperties [basePackage=" + basePackage + ", title=" + title + ", description=" + description
 				+ ", termsOfServiceUrl=" + termsOfServiceUrl + ", groupNmae=" + groupNmae + ", version=" + version
-				+ ", contact=" + contact + ", auths=" + auths + "]";
+				+ ", contactUser=" + contactUser + ", contactUrl=" + contactUrl + ", contactEmail=" + contactEmail
+				+ ", auths=" + auths + "]";
 	}
+
 
 }
