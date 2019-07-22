@@ -70,7 +70,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	@Autowired(required = false)
 	protected List<AbstractSecurityAdapter> securityAdapters;
 
-
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
 

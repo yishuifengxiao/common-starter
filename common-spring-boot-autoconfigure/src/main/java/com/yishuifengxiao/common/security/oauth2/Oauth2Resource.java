@@ -92,8 +92,12 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	//	requestMatcherConfigurer.anyRequest()
 			//.anyRequest();
 		
+
+		
         //具体的授权表达式
 		ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry=http.authorizeRequests();
+		
+
 		
 		//直接放行的路径
 		expressionInterceptUrlRegistry.antMatchers(
@@ -101,17 +105,18 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 						securityProperties.getCore().getRedirectUrl() // 权限拦截时默认的跳转地址
 						)
 					.permitAll();
+
+
 		
 		//自定义授权表达式的路径
 		if(securityProperties.getCustom().getAll()!=null) {
 			for(String path:securityProperties.getCustom().getAll()) {
 				expressionInterceptUrlRegistry
 					.antMatchers(path)
-					.access("@customAuthority.hasPermission(request, authentication)")
-					.antMatchers(path)
 					.access("@customAuthority.hasPermission(request, authentication)");
 			}
 			}
+		
 		
 		//其余的路径登录后才能访问
 		expressionInterceptUrlRegistry.anyRequest()
@@ -123,10 +128,12 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 			;
 		//@formatter:on  
 	}
-    /**
-     * 获取所有不经过oauth2管理的路径
-     * @return
-     */
+
+	/**
+	 * 获取所有不经过oauth2管理的路径
+	 * 
+	 * @return
+	 */
 	private List<String> getExcludeUrls() {
 		List<String> excludeUrls = Arrays.asList("/oauth/**",
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
