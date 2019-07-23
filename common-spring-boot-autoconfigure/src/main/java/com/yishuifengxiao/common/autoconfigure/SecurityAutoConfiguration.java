@@ -27,6 +27,7 @@ import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfi
 import com.yishuifengxiao.common.autoconfigure.security.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.properties.SocialProperties;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
@@ -44,7 +45,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
-@EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class })
+@EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class ,SocialProperties.class})
 @Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,
 		PersistentTokenAutoConfiguration.class, SecurityCodeAutoConfiguration.class,
 		SecurityRedisAutoConfiguration.class })
