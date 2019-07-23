@@ -19,7 +19,7 @@ public class LoginFailProperties {
 	 */
 	private HandleEnum returnType = HandleEnum.AUTO;
 	/**
-	 * 默认的重定向URL，若该值为空，则跳转到权限拦截的页面 /default
+	 * 默认的重定向URL，若该值为空，则跳转到权限拦截的页面 /index
 	 */
 	private String redirectUrl=SecurityConstant.DEFAULT_REDIRECT_LOGIN_URL;
 
@@ -36,7 +36,7 @@ public class LoginFailProperties {
 	
 	
 	/**
-	 * 默认的重定向URL，若该值为空，则跳转到权限拦截的页面 /default
+	 * 默认的重定向URL，若该值为空，则跳转到权限拦截的页面 /index
 	 */
 	public String getRedirectUrl() {
 		return redirectUrl;

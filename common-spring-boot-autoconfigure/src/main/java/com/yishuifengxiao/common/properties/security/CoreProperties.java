@@ -23,7 +23,7 @@ public class CoreProperties {
 	 */
 	private String loginPage = SecurityConstant.DEFAULT_LOGIN_URL;
 	/**
-	 * 权限拦截时默认的跳转地址，默认为 /default
+	 * 权限拦截时默认的跳转地址，默认为 /index
 	 */
 	private String redirectUrl = SecurityConstant.DEFAULT_REDIRECT_LOGIN_URL;
 	/**
@@ -49,7 +49,7 @@ public class CoreProperties {
 	}
 
 	/**
-	 * 权限拦截时默认的跳转地址，默认为/default
+	 * 权限拦截时默认的跳转地址，默认为/index
 	 */
 	public String getRedirectUrl() {
 		return redirectUrl;

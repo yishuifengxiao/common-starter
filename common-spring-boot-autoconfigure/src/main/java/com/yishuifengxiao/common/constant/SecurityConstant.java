@@ -24,9 +24,9 @@ public final class SecurityConstant {
 	 */
 	public final static String DEFAULT_LOGIN_URL = "/login";
 	/**
-	 * 权限拦截时默认的跳转地址，默认为/default
+	 * 权限拦截时默认的跳转地址，默认为/index
 	 */
-	public final static String DEFAULT_REDIRECT_LOGIN_URL = "/default";
+	public final static String DEFAULT_REDIRECT_LOGIN_URL = "/index";
 	/**
 	 * 表单登陆的地址
 	 */
