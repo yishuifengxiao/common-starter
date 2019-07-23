@@ -37,7 +37,7 @@ public class SwaggerProperties {
 	/**
 	 * swagger 文档的分组名
 	 */
-	private String groupNmae = "default";
+	private String groupName = "default";
 	/**
 	 * 版本号
 	 */
@@ -95,12 +95,12 @@ public class SwaggerProperties {
 		this.termsOfServiceUrl = termsOfServiceUrl;
 	}
 
-	public String getGroupNmae() {
-		return groupNmae;
+	public String getGroupName() {
+		return groupName;
 	}
 
-	public void setGroupNmae(String groupNmae) {
-		this.groupNmae = groupNmae;
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
 	}
 
 	public String getVersion() {
@@ -110,7 +110,6 @@ public class SwaggerProperties {
 	public void setVersion(String version) {
 		this.version = version;
 	}
-
 
 	public List<AuthoriZationPar> getAuths() {
 		return auths;
@@ -197,10 +196,9 @@ public class SwaggerProperties {
 	@Override
 	public String toString() {
 		return "SwaggerProperties [basePackage=" + basePackage + ", title=" + title + ", description=" + description
-				+ ", termsOfServiceUrl=" + termsOfServiceUrl + ", groupNmae=" + groupNmae + ", version=" + version
+				+ ", termsOfServiceUrl=" + termsOfServiceUrl + ", groupName=" + groupName + ", version=" + version
 				+ ", contactUser=" + contactUser + ", contactUrl=" + contactUrl + ", contactEmail=" + contactEmail
 				+ ", auths=" + auths + "]";
 	}
-
 
 }

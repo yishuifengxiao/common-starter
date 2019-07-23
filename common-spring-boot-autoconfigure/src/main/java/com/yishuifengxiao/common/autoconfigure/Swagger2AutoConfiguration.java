@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -38,7 +39,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableSwaggerBootstrapUI
 @EnableConfigurationProperties(SwaggerProperties.class)
-@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = "basePackage")
+@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"base-package"})
 public class Swagger2AutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(Swagger2AutoConfiguration.class);
 
@@ -51,12 +52,12 @@ public class Swagger2AutoConfiguration {
 	 * @return
 	 */
 	@Bean
-	@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = { "basePackage" })
+	@ConditionalOnMissingClass
 	public Docket createRestApi() {
 
 		List<Parameter> pars = new ArrayList<Parameter>();
 		List<AuthoriZationPar> auths = swaggerProperties.getAuths();
-		log.debug("================> 这里的 授权参数为 {}", auths);
+		log.debug("【swagger-ui】 授权参数为 {}", auths);
 		if (auths != null && auths.size() != 0) {
 			swaggerProperties.getAuths().forEach(t -> {
 				ParameterBuilder authorizationPar = new ParameterBuilder();
@@ -66,7 +67,7 @@ public class Swagger2AutoConfiguration {
 			});
 		}
 
-		return new Docket(DocumentationType.SWAGGER_2).groupName(swaggerProperties.getGroupNmae()).apiInfo(apiInfo())
+		return new Docket(DocumentationType.SWAGGER_2).groupName(swaggerProperties.getGroupName()).apiInfo(apiInfo())
 				.select().apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()))
 				.paths(PathSelectors.any()).build().globalOperationParameters(pars);
 

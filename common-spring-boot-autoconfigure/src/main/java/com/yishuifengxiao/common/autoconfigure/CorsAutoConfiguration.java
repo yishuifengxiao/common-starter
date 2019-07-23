@@ -26,6 +26,7 @@ import com.yishuifengxiao.common.properties.CorsProperties;
  */
 @Configuration
 @EnableConfigurationProperties({ CorsProperties.class })
+@ConditionalOnProperty(prefix = "yishuifengxiao.cors", name = { "enable" }, havingValue = "true")
 public class CorsAutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
@@ -35,7 +36,6 @@ public class CorsAutoConfiguration {
 	 * @return
 	 */
 	@Bean("corsConfigurer")
-	@ConditionalOnProperty(prefix = "yishuifengxiao.cors", name = { "enable" }, havingValue = "true")
 	public WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
@@ -59,7 +59,6 @@ public class CorsAutoConfiguration {
 	 * @return
 	 */
 	@Bean("corsFilter")
-	@ConditionalOnProperty(prefix = "yishuifengxiao.cors", name = { "enable" }, havingValue = "true")
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
