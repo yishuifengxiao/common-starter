@@ -33,7 +33,7 @@ public class CoreProperties {
 
 
 	/**
-	 * 默认的处理登出请求的URL的路径【即请求次URL即为退出操作】，默认为/loginOut
+	 * 默认的处理登出请求的URL的路径【即请求此URL即为退出操作】，默认为/loginOut
 	 */
 	private String loginOutUrl = SecurityConstant.DEFAULT_LOGINOUT_URL;
 
