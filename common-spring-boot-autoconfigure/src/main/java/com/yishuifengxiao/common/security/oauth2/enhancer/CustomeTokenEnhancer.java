@@ -46,7 +46,7 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 				token.setRefreshToken(new DefaultOAuth2RefreshToken(UID.uuid()));
 			}
 			Map<String, Object> additionalInformation = new HashMap<String, Object>();
-			additionalInformation.put("client_id", authentication.getOAuth2Request().getClientId());
+			additionalInformation.put("developer", "yishuifengxiao");
 			token.setAdditionalInformation(additionalInformation);
 			return token;
 		}

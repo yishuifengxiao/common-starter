@@ -136,6 +136,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	 */
 	private List<String> getExcludeUrls() {
 		List<String> excludeUrls = Arrays.asList("/oauth/**",
+				securityProperties.getHandler().getSuc().getRedirectUrl(),//登录成功后跳转的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
