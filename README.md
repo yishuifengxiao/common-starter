@@ -1,166 +1,117 @@
-&#160;&#160;&#160;&#160;封装本工具的主要目的是将日常springboot项目开发过程中经常使用到一些重复配置集合起来，减少每次项目过程中的代码搬运工作。
+在日常开发过程中，发现有一个重要的组件会被经常使用到，但是又没有一个比较好用的功能集合，在开发项目是需要反复配置，造成了大量不必要的重复性简单劳动，因此对日常使用到功能进行了一个通用封装，形成了【易水风萧通用组件】，方便后期项目开发。
+易水风萧通用组件主要包含以下一些常用功能：
+- swagger-ui文档
+- 全局跨域支持
+- 全局异常捕获
+- 通用辅助工具
+- 验证码功能
+- spring security
+- oauth2
+- spring social (QQ登录 、微信登录)
 
-本项目的maven坐标为:
-
-       
-```
- 	<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>all-spring-boot-starter</artifactId>
-			<version>${common-spring-boot-starter.version}</version>
-	</dependency>
-```
-
-**包含的功能**
-
-1. springMVC 全局异常捕获
-1. swagger-ui自动化配置
-1. 数据库使用的相关依赖
-
-**参数配置说明:**
-
-开启swagger-ui :
-```
-yishuifengxiao.swagger.basePackage=swagger-ui 扫描路径
-```
-其他参数说明:
-
-```
-yishuifengxiao.swagger.title=swagger 文档的标题
-yishuifengxiao.swagger.description=文档的描述
-yishuifengxiao.swagger.termsOfServiceUrl=swagger 文档的中组织的链接
-yishuifengxiao.swagger.groupNmae= swagger 文档的分组名
-yishuifengxiao.swagger.version=版本号
-yishuifengxiao.swagger.contact.name=作者名字
-yishuifengxiao.swagger.contact.url=作者的介绍连接
-yishuifengxiao.swagger.contact.email=作者的邮箱
-```
-高级配置
-
-```
-yishuifengxiao.swagger.contact.auths[0].name=Authorization
-yishuifengxiao.swagger.contact.auths[0].description=自定义必填请求头
-yishuifengxiao.swagger.contact.auths[0].modelRef=string
-yishuifengxiao.swagger.contact.auths[0].parameterType=header
-yishuifengxiao.swagger.contact.auths[0].required=false
-```
-
-此配置参见swagger ui的ParameterBuilder用法配置
-
-
-<br/><br/><br/>
-
-&#160;&#160;&#160;&#160; 本自定义启动封装的插件有
-
-- pagehelper分页插件
-
+在使用 易水风萧通用组件 之前，需要先在项目的pom依赖里加入以下配置：
 
 
 ```
-        <dependency>
-			<groupId>com.github.pagehelper</groupId>
-			<artifactId>pagehelper-spring-boot-starter</artifactId>
-			<version>1.2.10</version>
-		</dependency>
+<dependency>
+    <groupId>com.yishuifengxiao.common</groupId>
+    <artifactId>common-spring-boot-starter</artifactId>
+    <version>3.0.0</version>
+</dependency>
 ```
 
+注意：在使用时请参考 [https://mvnrepository.com/artifact/com.yishuifengxiao.common/common-spring-boot-starter](hhttps://mvnrepository.com/artifact/com.yishuifengxiao.common/common-spring-boot-starter) 将版本号替换为最新版本。
 
-该插件的使用说明参见
-
-    [github使用说明](https://github.com/pagehelper/Mybatis-PageHelper/blob/master/wikis/zh/HowToUse.md)
-    
-    [github源码](https://github.com/pagehelper/pagehelper-spring-boot/blob/master/README.md)
+> **本文档针对于3.0.0及后续版本，由于3.0.0版本更新内容较多，对于历史版本本说明文档可能会有较大出入**。
 
 
-- tk.myabtis
+## 一 swagger-ui文档
 
+### 1.1 快速启动
 
-```
-   <dependency>
-        <groupId>tk.mybatis</groupId>
-        <artifactId>mapper-spring-boot-starter</artifactId>
-        <version>1.2.4</version>
-    </dependency>
-```
-该插件的使用说明参见
-
-    [github源码](https://github.com/abel533/mapper-boot-starter)
-    
-    [码云使用文档](https://gitee.com/free/Mapper/wikis/Home)
-    
-    [git使用文档](https://github.com/abel533/Mapper/wiki)
-        
-        
-- druid连接池
+在配置文件中加入以下配置即可快速开启swagger-ui功能。
 
 
 ```
-	<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>druid-spring-boot-starter</artifactId>
-			<version>${druid.version}</version>
-	</dependency>
+yishuifengxiao.swagger.base-package= 需要扫描的控制器代码的路径
+```
+
+加入上述配置后，即可通过  
+
+http://ip:port/doc.html
+
+或者 
+
+http://ip:port/swagger-ui.html
+
+查看自己的swagger-ui文档了。
+
+此外，也可以通过http://ip:port/v2/api-docs查看元数据
+
+> 这里只是简化了swagger-ui的扫描注解，对于软件开发过程中必须swagger-ui其他API注解任然不可省略。
+
+下面是一个简单的swagger-ui配置文档示例
+
+
+```
+@Api(value = "【测试接口】测试接口", tags = {"测试接口"})
+@Valid
+@Controller
+@RequestMapping
+@Slf4j
+public class WebConftroller  {
+
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "username", value = "登录的用户名"),
+            @ApiImplicitParam(name = "loginIp", value = "登录ip"),
+            @ApiImplicitParam(name = "pass", value = "登录结果,true表示成功，false失败"),
+            @ApiImplicitParam(name = "pageSize", value = "分页大小,分页的大小不能小于1,默认值为20"),
+            @ApiImplicitParam(name = "pageNum", value = "当前页的页码,页码的大小不能小于1，默认值为1")})
+    @ApiOperation(value = "分页查询登录记录", notes = "分页查询登录记录")
+    @GetMapping("/demo")
+    @ResponseBody
+    public Response<String> findPage(
+        HttpServletRequest request, HttpServletResponse response,
+        @RequestParam(value = "username", required = false) String username,
+        @RequestParam(value = "loginIp", required = false) String loginIp,
+        @RequestParam(value = "pass", required = false) Boolean pass,
+        @RequestParam(name = "pageSize", defaultValue = "20", required = false) Integer pageSize,
+        @RequestParam(name = "pageNum", defaultValue = "1", required = false) Integer pageNum) {
+
+
+        return Response.suc();
+
+    }
+
+}
 ```
 
 
-该插件的使用说明参见
-    
-    [github源码](https://github.com/drtrang/druid-spring-boot)
-    
-    [常见问题] (https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
 
-
-- 易水通用工具包
-
+**特别鸣谢**： 此项功能中的doc.html界面中功能使用到了刀哥的 swagger-bootstrap-ui 中的功能 ，在此特别感谢 刀哥 的大力支持，关于swagger-bootstrap-ui的详细说明请参见刀哥的 [swagger-bootstrap-ui文档](https://doc.xiaominfo.com/guide/)
+### 1.2 常规配置
 
 
 ```
-	<dependency>
-			<groupId>com.yishuifengxiao.common</groupId>
-			<artifactId>common-tool</artifactId>
-			<version>${yishuifengxiao.tool.version}</version>
-	</dependency>
+# swagger-ui文档的标题
+yishuifengxiao.swagger.title=API接口文档
+# swagger-ui文档描述
+yishuifengxiao.swagger.description=易水风萧 接口说明文档
+#swagger-ui 项目服务的url
+yishuifengxiao.swagger.terms-of-service-url=http://www.yishuifengxiao.com/
+# swagger-ui 文档分组的名字
+yishuifengxiao.swagger.group-name=default
+# swagger-ui 文档版本
+yishuifengxiao.swagger.version=1.0.0
+# 项目联系人名字
+yishuifengxiao.swagger.contact-user=yishuifengxiao
+# 项目联系的url
+yishuifengxiao.swagger.contact-url=http://www.yishuifengxiao.com/
+# 项目联系邮箱
+yishuifengxiao.swagger.contact-email=zhiyubujian@163.com
 ```
 
-该插件的使用说明参见
-    
-    [码云源码](https://gitee.com/zhiyubujian/tool)
+以上常规配置都有缺省默认值，用户在使用 易水风萧通用组件 时，如果没有特别需要，使用默认配置即可。
 
 
-此外，本启动依赖的其他插件还有
-
-```
-	    <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jolokia</groupId>
-			<artifactId>jolokia-core</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-		
-		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-		</dependency>
-```
-
-
-## 参与贡献
-1. Fork 本项目
-1. 新建 Feat_xxx 分支
-1. 提交代码
-1. 新建 Pull Request
-
-##有问题反馈
-在使用中有任何问题，欢迎反馈给我，可以用以下联系方式跟我交流
-
-* 邮件(zhiyubujian#163.com, 把#换成@)
-* QQ: 979653327
-* 开源中国: [@止于不见](https://gitee.com/zhiyubujian)
+更详细的说明文档请参见[易水通用组件说明文档](http://www.yishuifengxiao.com/2019/07/24/%E6%98%93%E6%B0%B4%E9%80%9A%E7%94%A8%E7%BB%84%E4%BB%B6/)
