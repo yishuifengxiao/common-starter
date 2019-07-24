@@ -139,6 +139,8 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 				securityProperties.getHandler().getSuc().getRedirectUrl(),//登录成功后跳转的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
+				socialProperties.getQq().getRegisterUrl(),//qq登陆成功后跳转的地址
+				socialProperties.getWeixin().getRegisterUrl(),//微信登陆成功后跳转的地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
 				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
 				securityProperties.getCore().getLoginOutUrl() // 退出页面
