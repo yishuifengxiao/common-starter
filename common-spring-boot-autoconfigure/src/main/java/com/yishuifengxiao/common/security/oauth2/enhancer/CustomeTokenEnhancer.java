@@ -1,6 +1,8 @@
 package com.yishuifengxiao.common.security.oauth2.enhancer;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,6 +35,15 @@ import com.yishuifengxiao.common.tool.random.UID;
 public class CustomeTokenEnhancer implements TokenEnhancer {
 
 	private final static Logger log = LoggerFactory.getLogger(CustomeTokenEnhancer.class);
+
+	/**
+	 * 时间格式化的形式
+	 */
+	private final static String PATTERN = "yyyy-MM-dd HH:mm:ss";
+	/**
+	 * 时区
+	 */
+	private final static String ZONE_ID = "Asia/Shanghai";
 
 	private ObjectMapper om = new ObjectMapper();
 
@@ -71,9 +82,11 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 		String clientId = authentication.getOAuth2Request().getClientId();
 		// 授权模式
 		String grantType = authentication.getOAuth2Request().getGrantType();
+		// 生成token的时间
+		String time = LocalDateTime.now(ZoneId.of(ZONE_ID)).format(DateTimeFormatter.ofPattern(PATTERN));
 
 		CustomToken customToken = new CustomToken(username, clientId,
-				list.stream().map(t -> t.getAuthority()).collect(Collectors.toList()), grantType, LocalDateTime.now(),
+				list.stream().map(t -> t.getAuthority()).collect(Collectors.toList()), grantType, time,
 				accessToken.getExpiresIn());
 		String token = customToken.toString();
 		try {

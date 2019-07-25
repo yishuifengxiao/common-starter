@@ -1,7 +1,6 @@
 package com.yishuifengxiao.common.security.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -40,7 +39,7 @@ public class CustomToken implements Serializable {
 	/**
 	 * token的生成时间
 	 */
-	private LocalDateTime date;
+	private String date;
 	/**
 	 * token的过期时间
 	 */
@@ -123,7 +122,7 @@ public class CustomToken implements Serializable {
 	 * 
 	 * @return
 	 */
-	public LocalDateTime getDate() {
+	public String getDate() {
 		return date;
 	}
 
@@ -132,7 +131,7 @@ public class CustomToken implements Serializable {
 	 * 
 	 * @param date
 	 */
-	public void setDate(LocalDateTime date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
@@ -161,7 +160,7 @@ public class CustomToken implements Serializable {
 		this.grantType = grantType;
 	}
 
-	public CustomToken(String username, String clientId, List<String> roles, String grantType, LocalDateTime date,
+	public CustomToken(String username, String clientId, List<String> roles, String grantType, String date,
 			Integer expiresIn) {
 		this.username = username;
 		this.clientId = clientId;
