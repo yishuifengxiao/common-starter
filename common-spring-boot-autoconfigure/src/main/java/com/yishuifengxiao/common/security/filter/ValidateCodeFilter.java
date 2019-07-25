@@ -86,7 +86,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 			throws ServletException, IOException {
 		CodeType validateCodeType = getValidateCodeType(request);
 		if (validateCodeType != null) {
-
+			log.debug("=================> 获取校验码类型时的URL为 {}，请求类型为 {}", request.getRequestURI(), request.getMethod());
 			try {
 				CodeProcessor validateCodeProcessor = codeProcessorHolder.findValidateCodeProcessor(validateCodeType);
 				log.info("---------------------------------- 请求校验{}中的验证码的的类型是 {} ,校验器类型为 {}", request.getRequestURI(),
@@ -111,7 +111,7 @@ public class ValidateCodeFilter extends OncePerRequestFilter implements Initiali
 	 */
 	private CodeType getValidateCodeType(HttpServletRequest request) {
 		CodeType result = null;
-		log.debug("=================> 获取校验码类型时的URL为 {}，请求类型为 {}", request.getRequestURI(), request.getMethod());
+
 		if (!securityProperties.getCode().getIsFilterGet()
 				&& StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
 			return null;
