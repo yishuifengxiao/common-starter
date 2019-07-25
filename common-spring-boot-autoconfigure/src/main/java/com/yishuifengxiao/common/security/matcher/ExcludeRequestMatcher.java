@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -48,6 +49,9 @@ public class ExcludeRequestMatcher implements RequestMatcher {
 		boolean matche = true;
 
 		for (String pattern : this.patterns) {
+			if (StringUtils.isBlank(pattern)) {
+				continue;
+			}
 			if (new AntPathRequestMatcher(pattern, this.httpMethod, this.caseSensitive).matches(request)) {
 				matche = false;
 				break;

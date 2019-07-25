@@ -28,6 +28,7 @@ public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 		// @formatter:off
 		config.antMatchers(
 				"/oauth/token", 
+				"/oauth/check_token",
 				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
 				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
