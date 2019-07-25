@@ -112,23 +112,12 @@
 		</dependency>
 
 
-     <!-- 辅助依赖 -->
+		<!-- 辅助依赖 -->
 
 
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
+		<!-- 辅助依赖 -->
 
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-		</dependency>
-		
-		 <!-- 辅助依赖 -->
-		
 		<!-- 可选依赖 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

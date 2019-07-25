@@ -4,10 +4,8 @@ import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.utils.ExceptionUtil;
 
 /**
  * 全局异常处理类
@@ -33,11 +32,6 @@ import com.yishuifengxiao.common.tool.entity.Response;
 @ResponseBody
 public class WebExceptionAutoConfiguration {
 	private static Logger logger = LoggerFactory.getLogger(WebExceptionAutoConfiguration.class);
-
-	/**
-	 * 数据重复的标志
-	 */
-	private final static String DUPLICATE_FLAG = "Duplicate";
 
 	/**
 	 * 400 - Bad Request
@@ -158,28 +152,6 @@ public class WebExceptionAutoConfiguration {
 	}
 
 	/**
-	 * 尝试插入或更新数据导致违反完整性约束时引发异常。注意，这不仅仅是一个关系概念；大多数数据库类型都需要唯一的主键
-	 * 
-	 * @param e
-	 * @return
-	 */
-	@ExceptionHandler
-	@ResponseBody
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
-	public Response<String> handle(DataIntegrityViolationException e) {
-		String msg = "数据保存失败";
-		if (StringUtils.containsIgnoreCase(e.getMessage(), DUPLICATE_FLAG)) {
-			msg = "已经存在相似的数据,不能重复添加";
-		}
-		if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
-			msg = "可能已经存在相似的数据,请检查输入数据";
-		}
-		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), msg);
-		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
-		return response;
-	}
-
-	/**
 	 * 数组越界 - Internal Server Error
 	 */
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -196,7 +168,7 @@ public class WebExceptionAutoConfiguration {
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	@ExceptionHandler(Exception.class)
 	public Response<String> handleException(Exception e) {
-		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败");
+		Response<String> response = ExceptionUtil.extract(e);
 		logger.warn("=================> 请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
