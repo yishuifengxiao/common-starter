@@ -49,6 +49,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		// 发布事件
 		context.publishEvent(new AuthenticationFailureEvent(exception, request));
 
+		//存储消息到session中
+		request.getSession().setAttribute("yishuifengxiao.msg.fail", exception);
+		
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getFail().getReturnType();
 

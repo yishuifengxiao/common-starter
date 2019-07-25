@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.security.oauth2.enhancer;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 		log.debug("自定义token生成器中得到的初始化token为 {} ,初始化认证信息为 {}", accessToken, authentication);
 		if (accessToken instanceof DefaultOAuth2AccessToken) {
 			DefaultOAuth2AccessToken token = ((DefaultOAuth2AccessToken) accessToken);
-			token.setValue(getNewToken(authentication));
+			token.setValue(getNewToken(accessToken, authentication));
 			OAuth2RefreshToken refreshToken = token.getRefreshToken();
 			if (refreshToken instanceof DefaultOAuth2RefreshToken) {
 				token.setRefreshToken(new DefaultOAuth2RefreshToken(UID.uuid()));
@@ -58,7 +59,7 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 	 * 
 	 * @return
 	 */
-	private String getNewToken(OAuth2Authentication authentication) {
+	private String getNewToken(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
 		// 获取到认证信息
 		Authentication auth = authentication.getUserAuthentication();
 		// 用户名
@@ -72,7 +73,8 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 		String grantType = authentication.getOAuth2Request().getGrantType();
 
 		CustomToken customToken = new CustomToken(username, clientId,
-				list.stream().map(t -> t.getAuthority()).collect(Collectors.toList()), grantType);
+				list.stream().map(t -> t.getAuthority()).collect(Collectors.toList()), grantType, LocalDateTime.now(),
+				accessToken.getExpiresIn());
 		String token = customToken.toString();
 		try {
 			token = om.writeValueAsString(customToken);

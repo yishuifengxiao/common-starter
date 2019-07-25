@@ -57,6 +57,9 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
+		
+		//存储消息到session中
+		request.getSession().setAttribute("yishuifengxiao.msg.suc", authentication);
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getSuc().getReturnType();

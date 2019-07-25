@@ -47,6 +47,10 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 		log.debug("====================> 【认证服务】退出成功，此用户的信息为 {}", authentication);
 		// 发布事件
 		context.publishEvent(new LogoutSuccessEvent(authentication, request));
+		
+
+		//存储消息到session中
+		request.getSession().setAttribute("yishuifengxiao.msg.exit", authentication);
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getExit().getReturnType();

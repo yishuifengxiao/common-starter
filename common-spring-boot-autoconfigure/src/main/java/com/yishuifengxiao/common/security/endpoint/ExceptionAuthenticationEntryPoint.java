@@ -59,6 +59,10 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		String url = savedRequest != null ? savedRequest.getRedirectUrl() : request.getRequestURI();
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
+		
+
+		//存储消息到session中
+		request.getSession().setAttribute("yishuifengxiao.msg.exception", authException);
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();

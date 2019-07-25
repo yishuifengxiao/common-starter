@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.security.entity;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -36,6 +37,14 @@ public class CustomToken implements Serializable {
 	 * 当前token的授权模式
 	 */
 	private String grantType;
+	/**
+	 * token的生成时间
+	 */
+	private LocalDateTime date;
+	/**
+	 * token的过期时间
+	 */
+	private Integer expiresIn;
 
 	/**
 	 * 获取登录用户的用户名
@@ -109,11 +118,57 @@ public class CustomToken implements Serializable {
 		this.grantType = grantType;
 	}
 
+	/**
+	 * 获取token的生成时间
+	 * 
+	 * @return
+	 */
+	public LocalDateTime getDate() {
+		return date;
+	}
+
+	/**
+	 * 设置token的生成时间
+	 * 
+	 * @param date
+	 */
+	public void setDate(LocalDateTime date) {
+		this.date = date;
+	}
+
+	/**
+	 * 获取token的过期时间
+	 * 
+	 * @return
+	 */
+	public Integer getExpiresIn() {
+		return expiresIn;
+	}
+
+	/**
+	 * 设置token的过期时间
+	 * 
+	 * @param expiresIn
+	 */
+	public void setExpiresIn(Integer expiresIn) {
+		this.expiresIn = expiresIn;
+	}
+
 	public CustomToken(String username, String clientId, List<String> roles, String grantType) {
 		this.username = username;
 		this.clientId = clientId;
 		this.roles = roles;
 		this.grantType = grantType;
+	}
+
+	public CustomToken(String username, String clientId, List<String> roles, String grantType, LocalDateTime date,
+			Integer expiresIn) {
+		this.username = username;
+		this.clientId = clientId;
+		this.roles = roles;
+		this.grantType = grantType;
+		this.date = date;
+		this.expiresIn = expiresIn;
 	}
 
 	public CustomToken() {
@@ -123,7 +178,8 @@ public class CustomToken implements Serializable {
 	@Override
 	public String toString() {
 		return new StringBuffer("{\"username\":\"").append(username).append("\",\"clientId\":\"").append(clientId)
-				.append("\",\"grantType\":\"").append(grantType).append("\"}").toString();
+				.append("\",\"grantType\":\"").append(grantType).append("\",\"date\":\"").append(date)
+				.append("\",\"expiresIn\":\"").append(expiresIn).append("\"}").toString();
 	}
 
 }

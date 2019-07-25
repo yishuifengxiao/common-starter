@@ -56,6 +56,8 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 		String url = cache.getRequest(request, response).getRedirectUrl();
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
+		//存储消息到session中
+		request.getSession().setAttribute("yishuifengxiao.msg.denie", accessDeniedException);
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getDenie().getReturnType();

@@ -33,8 +33,33 @@ public class TokenService {
 
 	private AuthorizationServerTokenServices authorizationServerTokenServices;
 
+	/**
+	 * 根据认证信息生成token 【请求头中必须包含basic信息】
+	 * 
+	 * @param request
+	 * @param response
+	 * @param authentication
+	 * @return
+	 * @throws IOException
+	 */
 	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException {
+
+		return this.token(request, response, authentication, null);
+	}
+
+	/**
+	 * 根据认证信息生成token 【请求头中必须包含basic信息】
+	 * 
+	 * @param request
+	 * @param response
+	 * @param authentication spring security登陆成功后的认证信息
+	 * @param grantType      授权类型
+	 * @return
+	 * @throws IOException
+	 */
+	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication, String grantType) throws IOException {
 		String header = request.getHeader("Authorization");
 
 		if (header == null || !header.toLowerCase().startsWith("basic ")) {
@@ -46,6 +71,37 @@ public class TokenService {
 
 		String clientId = tokens[0];
 		String clientSecret = tokens[1];
+		return this.token(request, response, authentication, clientId, clientSecret, grantType);
+	}
+
+	/**
+	 * 根据认证信息和客户端信息生成token
+	 * 
+	 * @param request
+	 * @param response
+	 * @param authentication spring security登陆成功后的认证信息
+	 * @param clientId       clientId
+	 * @param clientSecret   clientSecret
+	 * @return OAuth2AccessToken
+	 */
+	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication, String clientId, String clientSecret) {
+		return this.token(request, response, authentication, clientId, clientSecret, null);
+	}
+
+	/**
+	 * 根据认证信息和客户端信息生成token
+	 * 
+	 * @param request
+	 * @param response
+	 * @param authentication spring security登陆成功后的认证信息
+	 * @param clientId       clientId
+	 * @param clientSecret   clientSecret
+	 * @param grantType      授权类型
+	 * @return OAuth2AccessToken
+	 */
+	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+			Authentication authentication, String clientId, String clientSecret, String grantType) {
 		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
 		if (clientDetails == null) {
 			throw new UnapprovedClientAuthenticationException(
@@ -56,7 +112,7 @@ public class TokenService {
 		}
 
 		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
-				"custome");
+				StringUtils.isBlank(grantType) ? "custome" : grantType);
 
 		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
 
@@ -65,7 +121,6 @@ public class TokenService {
 		OAuth2AccessToken oAuth2AccessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
 
 		return oAuth2AccessToken;
-
 	}
 
 	/**
