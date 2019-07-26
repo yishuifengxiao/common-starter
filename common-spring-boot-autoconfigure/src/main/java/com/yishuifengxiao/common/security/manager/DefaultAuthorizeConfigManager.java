@@ -35,16 +35,16 @@ public class DefaultAuthorizeConfigManager implements AuthorizeConfigManager {
 			authorizeConfigProviders = authorizeConfigProviders.parallelStream().filter(t -> t != null)
 					.sorted(Comparator.comparing(AuthorizeProvider::getOrder)).collect(Collectors.toList());
 
-			log.debug("==============================================> 系统中所有的授权提供器为 {}", authorizeConfigProviders);
+			log.debug("【授权管理器】 系统中所有的授权提供器为 {}", authorizeConfigProviders);
 
 			for (AuthorizeProvider authorizeConfigProvider : authorizeConfigProviders) {
-				log.debug("==============================================> 系统中当前加载的授权提供器序号为 {} , 实例为 {}",
+				log.debug("【授权管理器】 系统中当前加载的授权提供器序号为 {} , 实例为 {}",
 						authorizeConfigProvider.getOrder(), authorizeConfigProvider);
 
 				try {
 					authorizeConfigProvider.config(config);
 				} catch (Exception e) {
-					log.error("===========================> 装载授权配置{}时出现问题，出现问题的原因为 {}",
+					log.error("【授权管理器】 装载授权配置{}时出现问题，出现问题的原因为 {}",
 							authorizeConfigProvider.getOrder(), e.getMessage());
 				}
 

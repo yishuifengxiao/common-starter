@@ -44,7 +44,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
-		log.debug("====================> 【认证服务】退出成功，此用户的信息为 {}", authentication);
+		log.debug("【认证服务】退出成功，此用户的信息为 {}", authentication);
 		// 发布事件
 		context.publishEvent(new LogoutSuccessEvent(authentication, request));
 		
@@ -57,7 +57,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-		log.debug("====================> 【认证服务】退出成功，系统配置的的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
+		log.debug("【认证服务】退出成功，系统配置的的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
 
 		// 判断是否使用系统的默认处理方法
 		if (type == HandleEnum.DEFAULT) {

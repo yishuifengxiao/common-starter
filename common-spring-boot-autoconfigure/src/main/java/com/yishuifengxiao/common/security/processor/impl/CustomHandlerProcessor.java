@@ -57,7 +57,7 @@ public class CustomHandlerProcessor implements HandlerProcessor {
 	@SuppressWarnings("rawtypes")
 	private void send(HttpServletRequest request, HttpServletResponse response, Response result)
 			throws JsonProcessingException, IOException {
-		log.debug("================================> 最终处理方式为 JSON ,发送的数据为{}", result);
+		log.debug("【协助处理器】 最终处理方式为 JSON ,发送的数据为{}", result);
 		response.setStatus(HttpStatus.OK.value());
 		response.setHeader("Access-Control-Allow-Origin", "*");// 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");// 允许使用的请求方法，以逗号隔开
@@ -79,7 +79,7 @@ public class CustomHandlerProcessor implements HandlerProcessor {
 	@SuppressWarnings("rawtypes")
 	private void redirect(HttpServletRequest request, HttpServletResponse response, String url, Response result)
 			throws IOException {
-		log.debug("================================> 最终处理方式为 Redirect ,目标url为{}", url);
+		log.debug("【协助处理器】最终处理方式为 Redirect ,目标url为{}", url);
 		request.getSession().setAttribute("info", result);
 		redirectStrategy.sendRedirect(request, response, url);
 	}

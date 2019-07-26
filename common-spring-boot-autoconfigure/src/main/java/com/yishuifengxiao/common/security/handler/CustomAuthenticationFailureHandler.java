@@ -45,7 +45,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		log.debug("====================> 【认证服务】登录失败，失败的原因为 {}", exception.getMessage());
+		log.debug("【认证服务】登录失败，失败的原因为 {}", exception.getMessage());
 		// 发布事件
 		context.publishEvent(new AuthenticationFailureEvent(exception, request));
 
@@ -57,7 +57,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-		log.debug("====================> 【认证服务】登录失败，系统配置的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
+		log.debug("【认证服务】登录失败，系统配置的处理方式为 {},最终的处理方式为 {}", handleEnum, type);
 		// 判断是否使用系统的默认处理方法
 		if (type == HandleEnum.DEFAULT) {
 			super.onAuthenticationFailure(request, response, exception);

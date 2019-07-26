@@ -40,7 +40,7 @@ public class CorsAutoConfiguration {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				log.debug("=================================================> 开启跨域了");
+				log.debug("【跨域设置】 开启跨域了");
 				//@formatter:off  
 				registry
 					.addMapping("/**")

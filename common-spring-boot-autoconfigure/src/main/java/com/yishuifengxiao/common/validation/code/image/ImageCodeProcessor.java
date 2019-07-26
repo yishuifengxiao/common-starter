@@ -62,7 +62,7 @@ public class ImageCodeProcessor extends AbstractCodeProcessor<ImageCode> {
 			key = StringUtils.isNotBlank(key) ? key : request.getSessionId();
 		}
 
-		log.debug("========================> 图形验证码生成中生成的key 为{}", key);
+		log.debug("图形验证码生成中生成的key 为{}", key);
 		return key;
 	}
 
@@ -74,7 +74,7 @@ public class ImageCodeProcessor extends AbstractCodeProcessor<ImageCode> {
 			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(),
 					this.codeProperties.getImage().getCodeValue());
 		} catch (ServletRequestBindingException e) {
-			log.info("========================> 从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
+			log.info("从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("从请求中获取验证码失败");
 		}
 		return codeInRequest;

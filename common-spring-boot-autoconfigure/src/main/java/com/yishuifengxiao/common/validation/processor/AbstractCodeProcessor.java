@@ -119,7 +119,7 @@ public abstract class AbstractCodeProcessor<C extends ValidateCode> implements C
 		 * 获取到验证码的类型
 		 */
 		CodeType validateCodeType = getValidateCodeType(request);
-		log.info("============================> 从session中获取到验证码为 {}, 验证码类型为 {}", codeInSession, validateCodeType);
+		log.info("从session中获取到验证码为 {}, 验证码类型为 {}", codeInSession, validateCodeType);
 		if (codeInSession == null) {
 			throw new ValidateException("验证码不存在");
 		}

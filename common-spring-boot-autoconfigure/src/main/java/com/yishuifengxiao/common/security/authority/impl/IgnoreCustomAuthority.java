@@ -42,7 +42,7 @@ public class IgnoreCustomAuthority implements CustomAuthority {
 	public boolean hasPermission(HttpServletRequest request, Authentication auth) {
 		boolean isMatch = false;
 		matcher.setCaseSensitive(false);
-		log.debug("=======================================> 所有需要忽视的目录为 {}", urls);
+		log.debug("【授权管理】所有需要忽视的目录为 {}", urls);
 		// 获取到请求的uri
 		String path = request.getRequestURI();
 
@@ -61,7 +61,7 @@ public class IgnoreCustomAuthority implements CustomAuthority {
 		} else {
 			isMatch = true;
 		}
-		log.debug("=======================================> 当前请求的URI为 {},匹配结果为{}", path, isMatch);
+		log.debug("【授权管理】当前请求的URI为 {},匹配结果为{}", path, isMatch);
 		return isMatch;
 	}
 

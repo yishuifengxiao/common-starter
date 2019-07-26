@@ -49,7 +49,7 @@ public class EmailCodeProcessor extends AbstractCodeProcessor<EmailCode> {
 			// 获取到邮箱
 			email = ServletRequestUtils.getRequiredStringParameter(request.getRequest(), paramName);
 		} catch (ServletRequestBindingException e) {
-			log.info("========================> 获取邮箱失败，失败的原因为 {}", e.getMessage());
+			log.info("获取邮箱失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("获取邮箱失败");
 		}
 		return email;
@@ -63,7 +63,7 @@ public class EmailCodeProcessor extends AbstractCodeProcessor<EmailCode> {
 			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(),
 					this.codeProperties.getEmail().getCodeValue());
 		} catch (ServletRequestBindingException e) {
-			log.info("========================> 从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
+			log.info("从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("从请求中获取验证码失败");
 		}
 

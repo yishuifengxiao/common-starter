@@ -27,7 +27,7 @@ public class CustomeSocialUserDetailsService implements SocialUserDetailsService
 	 */
 	@Override
 	public SocialUserDetails loadUserByUserId(String userId) throws UsernameNotFoundException {
-		log.debug("============================> spring social 得到的用户id为 {}",userId);
+		log.debug("【默认实现】 spring social 得到的用户id为 {}",userId);
 		return new SocialUser("yishuifengxiao", passwordEncoder.encode("12345678"), true, true, true, true,
 				AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER"));
 	}

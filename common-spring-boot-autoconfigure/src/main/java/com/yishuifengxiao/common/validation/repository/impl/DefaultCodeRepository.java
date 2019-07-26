@@ -29,7 +29,7 @@ public class DefaultCodeRepository implements CodeRepository {
 
 	@Override
 	public void save(ServletWebRequest request, String key, ValidateCode code) {
-		log.debug("=====================> 验证码存取的默认实现类 保存的键为 {},值为 {}", key, code);
+		log.debug("验证码存取的默认实现类 保存的键为 {},值为 {}", key, code);
 		map.put(key, code);
 
 	}
@@ -37,7 +37,7 @@ public class DefaultCodeRepository implements CodeRepository {
 	@Override
 	public ValidateCode get(ServletWebRequest request, String key) {
 		ValidateCode code = map.get(key);
-		log.debug("=====================> 验证码存取的默认实现类 获取的键为 {},值为 ", key);
+		log.debug("验证码存取的默认实现类 获取的键为 {},值为 ", key);
 		return code;
 	}
 

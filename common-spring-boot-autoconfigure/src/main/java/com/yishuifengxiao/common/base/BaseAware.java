@@ -178,7 +178,7 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 
 	@Override
 	public void destroy() throws Exception {
-		log.debug("======================> baseware 销毁");
+		log.debug("baseware 销毁");
 		if (this.applicationContext != null) {
 			this.applicationContext = null;
 		}

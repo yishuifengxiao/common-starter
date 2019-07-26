@@ -48,7 +48,7 @@ public class EmailCodeSender implements CodeSender<EmailCode> {
 			helper.setText(content, true);
 			javaMailSender.send(mimeMessage);
 		} catch (Exception e) {
-			log.info("============> 发送邮件验证码失败，失败的原因为 {}", e.getMessage());
+			log.info("发送邮件验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("验证码发送失败");
 		}
 

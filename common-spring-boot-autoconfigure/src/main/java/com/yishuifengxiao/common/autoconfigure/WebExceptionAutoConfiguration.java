@@ -169,7 +169,7 @@ public class WebExceptionAutoConfiguration {
 	@ExceptionHandler(Exception.class)
 	public Response<String> handleException(Exception e) {
 		Response<String> response = ExceptionUtil.extract(e);
-		logger.warn("=================> 请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
+		logger.warn("【全局异常拦截】请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;
 	}
@@ -177,7 +177,7 @@ public class WebExceptionAutoConfiguration {
 	@PostConstruct
 	public void checkConfig() {
 
-		logger.debug("===================================> 开启全局异常拦截自定义配置为 {}");
+		logger.debug("【全局异常拦截】 开启全局异常拦截自定义配置为 {}");
 	}
 
 }

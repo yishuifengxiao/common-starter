@@ -54,7 +54,7 @@ public class SmsCodeProcessor extends AbstractCodeProcessor<SmsCode> {
 			// 获取到手机号
 			mobile = ServletRequestUtils.getRequiredStringParameter(request.getRequest(), paramName);
 		} catch (ServletRequestBindingException e) {
-			log.info("========================> 获取手机号码失败，失败的原因为 {}", e.getMessage());
+			log.info("获取手机号码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("获取手机号码失败");
 		}
 		return mobile;
@@ -67,7 +67,7 @@ public class SmsCodeProcessor extends AbstractCodeProcessor<SmsCode> {
 			codeInRequest = ServletRequestUtils.getStringParameter(request.getRequest(),
 					this.codeProperties.getSms().getCodeValue());
 		} catch (ServletRequestBindingException e) {
-			log.info("========================> 从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
+			log.info("从请求中获取验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException("从请求中获取验证码失败");
 		}
 

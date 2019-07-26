@@ -66,7 +66,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
 
-		log.debug("====================> 【认证服务】登录成功,引起跳转的url为 {}，此登陆用户的信息为 {} ,系统配置的处理方式为 {},最终的处理方式为 {}", url,
+		log.debug("【认证服务】登录成功,引起跳转的url为 {}，此登陆用户的信息为 {} ,系统配置的处理方式为 {},最终的处理方式为 {}", url,
 				authentication, handleEnum, type);
 
 		// 判断是否使用系统的默认处理方法
