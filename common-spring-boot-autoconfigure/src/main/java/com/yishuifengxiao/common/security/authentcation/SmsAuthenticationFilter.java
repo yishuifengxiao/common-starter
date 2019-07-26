@@ -18,7 +18,7 @@ import org.springframework.util.Assert;
 public class SmsAuthenticationFilter extends
 		AbstractAuthenticationProcessingFilter {
 	// ~ Static fields/initializers
-	// =====================================================================================
+
 
 	public static final String MOBILE_KEY = "phone";
 
@@ -29,14 +29,12 @@ public class SmsAuthenticationFilter extends
 	private boolean postOnly = true;
 
 	// ~ Constructors
-	// ===================================================================================================
 
 	public SmsAuthenticationFilter(String url) {
 		super(new AntPathRequestMatcher(url, "POST"));
 	}
 
 	// ~ Methods
-	// ========================================================================================================
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request,
 			HttpServletResponse response) throws AuthenticationException {

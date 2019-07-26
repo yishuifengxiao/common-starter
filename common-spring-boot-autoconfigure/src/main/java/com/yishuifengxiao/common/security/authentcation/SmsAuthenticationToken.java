@@ -12,7 +12,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 
 
 	// ~ Instance fields
-	// ================================================================================================
+
 
 	/**
 	 * 
@@ -22,7 +22,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	
 
 	// ~ Constructors
-	// ===================================================================================================
+
 
 	/**
 	 * This constructor can be safely used by any code that wishes to create a
@@ -53,7 +53,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	}
 
 	// ~ Methods
-	// ========================================================================================================
+
     @Override
 	public Object getCredentials() {
 		return this.mobile;
