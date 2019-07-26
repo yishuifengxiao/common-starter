@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.random.UID;
 
 /**
  * 异常提示信息转换类转换成异常信息
@@ -37,8 +38,9 @@ public final class ExceptionUtil {
 	public final static Response<String> extract(Exception e) {
 
 		String causeName = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "";
-		Response<String> response = map.getOrDefault(causeName,
-				new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败"));
+		Response<String> response = map
+				.getOrDefault(causeName, new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败"))
+				.setId(UID.uuid());
 		return response;
 
 	}
