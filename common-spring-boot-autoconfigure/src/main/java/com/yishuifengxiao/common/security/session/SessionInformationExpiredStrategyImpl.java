@@ -19,9 +19,9 @@ public class SessionInformationExpiredStrategyImpl implements SessionInformation
 
 	@Override
 	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
-		LOG.info("---------------- 并发登陆");
+		LOG.info("【session失效】并发登陆");
 		event.getResponse().setContentType("application/json;charset=UTF-8");
-		event.getResponse().getWriter().write("---------------- 并发登陆");
+		event.getResponse().getWriter().write("并发登陆");
 
 	}
 

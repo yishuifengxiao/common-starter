@@ -52,7 +52,7 @@ public class WechatOAuth2Template extends OAuth2Template {
         accessTokenRequestUrl.append("&code=" + authorizationCode);
         accessTokenRequestUrl.append("&grant_type=authorization_code");
         accessTokenRequestUrl.append("&redirect_uri=" + redirectUri);
-        logger.info("----------- accessTokenRequestUrl = {} ------------",accessTokenRequestUrl);
+        logger.info("accessTokenRequestUrl = {} ",accessTokenRequestUrl);
         return getAccessToken(accessTokenRequestUrl);
     }
 
