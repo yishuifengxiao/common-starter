@@ -85,6 +85,22 @@
 			<version>${swagger2.version}</version>
 		</dependency>
 
+
+		<!-- 修复 springfox-swagger2 中自带 版本的bug -->
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>${swagger.v3.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.swagger</groupId>
+			<artifactId>swagger-models</artifactId>
+			<version>${swagger.v3.version}</version>
+		</dependency>
+		<!-- 修复 springfox-swagger2 中自带 版本的bug -->
+
+
 		<dependency>
 			<groupId>com.github.xiaoymin</groupId>
 			<artifactId>swagger-bootstrap-ui</artifactId>
