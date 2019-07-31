@@ -22,6 +22,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
 
@@ -41,10 +44,16 @@ public class RedisExtendAutoConfiguration {
 		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(
 				Object.class);
 		// 解决查询缓存转换异常的问题
-		ObjectMapper om = new ObjectMapper();
-		om.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
-		om.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
-		jackson2JsonRedisSerializer.setObjectMapper(om);
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
+		mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL);
+		// 支持java8的日期时间
+		mapper.registerModule(new JavaTimeModule()).registerModule(new ParameterNamesModule())
+				.registerModule(new Jdk8Module());
+		mapper.findAndRegisterModules();
+
+		jackson2JsonRedisSerializer.setObjectMapper(mapper);
+
 		return jackson2JsonRedisSerializer;
 	}
 
