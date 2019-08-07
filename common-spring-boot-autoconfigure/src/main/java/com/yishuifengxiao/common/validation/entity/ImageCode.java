@@ -26,10 +26,22 @@ public class ImageCode extends ValidateCode {
 	@JsonIgnore
 	private transient BufferedImage image;
 	
-	private ImageCode(long expireTimeInSeconds, String code) {
+	public ImageCode(long expireTimeInSeconds, String code) {
 		super(expireTimeInSeconds, code);
 	}
-    /**
+	
+	
+    public ImageCode(long expireTimeInSeconds) {
+		super(expireTimeInSeconds);
+	}
+
+
+	public ImageCode() {
+
+	}
+
+
+	/**
      * 
      * @param expireTimeInSeconds 验证码的失效日期
      * @param code 验证码的内容

@@ -21,6 +21,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -51,7 +52,8 @@ public class RedisExtendAutoConfiguration {
 		mapper.registerModule(new JavaTimeModule()).registerModule(new ParameterNamesModule())
 				.registerModule(new Jdk8Module());
 		mapper.findAndRegisterModules();
-
+		//反序列化时去掉多余的字段
+		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		jackson2JsonRedisSerializer.setObjectMapper(mapper);
 
 		return jackson2JsonRedisSerializer;

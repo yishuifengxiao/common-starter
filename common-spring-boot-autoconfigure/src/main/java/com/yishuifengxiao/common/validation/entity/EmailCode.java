@@ -20,6 +20,10 @@ public class EmailCode extends ValidateCode implements Serializable {
 		super(expireTimeInSeconds, code);
 	}
 
+	public EmailCode() {
+
+	}
+
 	@Override
 	public String toString() {
 		return "EmailCode [toString()=" + super.toString() + "]";

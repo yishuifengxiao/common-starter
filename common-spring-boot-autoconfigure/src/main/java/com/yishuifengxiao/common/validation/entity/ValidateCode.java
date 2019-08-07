@@ -100,6 +100,10 @@ public  class ValidateCode implements Serializable {
 		return "ValidateCode [expireTime=" + expireTime + ", code=" + code + "]";
 	}
 
+	public ValidateCode() {
+
+	}
+
 	
 	
 }

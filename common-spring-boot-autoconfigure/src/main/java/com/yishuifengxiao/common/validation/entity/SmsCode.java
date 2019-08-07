@@ -17,8 +17,12 @@ public class SmsCode extends ValidateCode {
 	 */
 	private static final long serialVersionUID = -2551649951684072174L;
 
-	private SmsCode(long expireTimeInSeconds) {
+	public SmsCode(long expireTimeInSeconds) {
 		super(expireTimeInSeconds);
+	}
+
+	public SmsCode() {
+
 	}
 
 	/**
