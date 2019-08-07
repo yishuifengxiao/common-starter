@@ -13,7 +13,7 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.RedisSerializer;
@@ -42,8 +42,10 @@ public class RedisExtendAutoConfiguration {
 	@ConditionalOnMissingBean(name = "redisValueSerializer")
 	public RedisSerializer<Object> redisValueSerializer() {
 
-		Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(
-				Object.class);
+		// Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new
+		// Jackson2JsonRedisSerializer<>(
+		// Object.class);
+
 		// 解决查询缓存转换异常的问题
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setVisibility(PropertyAccessor.ALL, Visibility.ANY);
@@ -52,11 +54,11 @@ public class RedisExtendAutoConfiguration {
 		mapper.registerModule(new JavaTimeModule()).registerModule(new ParameterNamesModule())
 				.registerModule(new Jdk8Module());
 		mapper.findAndRegisterModules();
-		//反序列化时去掉多余的字段
+		// 反序列化时去掉多余的字段
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		jackson2JsonRedisSerializer.setObjectMapper(mapper);
+		// jackson2JsonRedisSerializer.setObjectMapper(mapper);
 
-		return jackson2JsonRedisSerializer;
+		return new GenericJackson2JsonRedisSerializer(mapper);
 	}
 
 	@Autowired

@@ -59,7 +59,7 @@ public class ValidateCodeAutoConfiguration {
 	 * 
 	 * @return
 	 */
-	@ConditionalOnMissingBean(name = "redisTemplate")
+	@ConditionalOnMissingBean(name = {"redisTemplate","codeRepository"})
 	@Bean("codeRepository")
 	public CodeRepository codeRepository() {
 		return new DefaultCodeRepository();
