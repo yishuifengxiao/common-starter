@@ -10,7 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -19,6 +22,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
 /**
  * 在oauth2的情况下，根据spring security的认证信息生成token
@@ -32,6 +36,52 @@ public class TokenService {
 	private ClientDetailsService clientDetailsService;
 
 	private AuthorizationServerTokenServices authorizationServerTokenServices;
+
+	private UserDetailsService userDetailsService;
+
+	/**
+	 * 根据认证信息生成token【密码包含在请求中】
+	 * 
+	 * @param request
+	 * @param username 登陆名
+	 * @param clientId 
+	 * @param clientSecret
+	 * @param grantType 授权类型，默认为 custome
+	 * @return
+	 */
+	public OAuth2AccessToken token(HttpServletRequest request, String username, String clientId,
+			String clientSecret, String grantType) {
+		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		if (userDetails == null) {
+			throw new UnapprovedClientAuthenticationException(
+					MessageFormat.format("username ({0}) 对应的信息不存在", clientId));
+		}
+		// 生成通过认证
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+				userDetails.getAuthorities());
+
+		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+		if (clientDetails == null) {
+			throw new UnapprovedClientAuthenticationException(
+					MessageFormat.format("clientId ({0}) 对应的信息不存在", clientId));
+		}
+		if (StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
+			throw new UnapprovedClientAuthenticationException("clientSecret不匹配");
+		}
+
+		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
+				StringUtils.isBlank(grantType) ? "custome" : grantType);
+
+		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
+
+		OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
+
+		OAuth2AccessToken oAuth2AccessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
+
+		return oAuth2AccessToken;
+	}
 
 	/**
 	 * 根据认证信息生成token 【请求头中必须包含basic信息】
@@ -163,6 +213,14 @@ public class TokenService {
 
 	public void setAuthorizationServerTokenServices(AuthorizationServerTokenServices authorizationServerTokenServices) {
 		this.authorizationServerTokenServices = authorizationServerTokenServices;
+	}
+
+	public UserDetailsService getUserDetailsService() {
+		return userDetailsService;
+	}
+
+	public void setUserDetailsService(UserDetailsService userDetailsService) {
+		this.userDetailsService = userDetailsService;
 	}
 
 }

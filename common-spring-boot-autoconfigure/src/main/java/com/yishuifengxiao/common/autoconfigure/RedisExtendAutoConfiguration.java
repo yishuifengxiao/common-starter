@@ -3,7 +3,6 @@ package com.yishuifengxiao.common.autoconfigure;
 import java.net.UnknownHostException;
 import java.time.Duration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -61,13 +60,10 @@ public class RedisExtendAutoConfiguration {
 		return new GenericJackson2JsonRedisSerializer(mapper);
 	}
 
-	@Autowired
-	private RedisSerializer<Object> redisValueSerializer;
-
 	@Bean
 	@ConditionalOnMissingBean(name = "redisTemplate")
-	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory)
-			throws UnknownHostException {
+	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
+			RedisSerializer<Object> redisValueSerializer) throws UnknownHostException {
 		RedisSerializer<String> stringRedisSerializer = new StringRedisSerializer();
 
 		RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();
@@ -101,7 +97,7 @@ public class RedisExtendAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public RedisCacheConfiguration redisCacheConfiguration() {
+	public RedisCacheConfiguration redisCacheConfiguration(RedisSerializer<Object> redisValueSerializer) {
 		//@formatter:off  
 		// 配置序列化（解决乱码的问题）
 		RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig();

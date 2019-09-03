@@ -3,18 +3,21 @@ package com.yishuifengxiao.common.security.oauth2;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
+import com.yishuifengxiao.common.security.service.TokenService;
 
 public class OAuth2Config {
 
@@ -36,6 +39,16 @@ public class OAuth2Config {
 	@ConditionalOnMissingBean(name = "customeTokenEnhancer")
 	public TokenEnhancer tokenEnhancer() {
 		return new CustomeTokenEnhancer();
+	}
+	
+	@Bean
+	@ConditionalOnMissingBean
+	public TokenService tokenService(ClientDetailsService clientDetailsService,AuthorizationServerTokenServices authorizationServerTokenServices,UserDetailsService userDetailsService) {
+		TokenService tokenService=new TokenService();
+		tokenService.setClientDetailsService(clientDetailsService);
+		tokenService.setUserDetailsService(userDetailsService);
+		tokenService.setAuthorizationServerTokenServices(authorizationServerTokenServices);
+		return tokenService;
 	}
 
 	/**
