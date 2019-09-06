@@ -17,7 +17,7 @@ import org.springframework.security.oauth2.provider.token.store.InMemoryTokenSto
 
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
-import com.yishuifengxiao.common.security.service.TokenService;
+import com.yishuifengxiao.common.security.utils.TokenUtils;
 
 public class OAuth2Config {
 
@@ -43,12 +43,12 @@ public class OAuth2Config {
 	
 	@Bean
 	@ConditionalOnMissingBean
-	public TokenService tokenService(ClientDetailsService clientDetailsService,AuthorizationServerTokenServices authorizationServerTokenServices,UserDetailsService userDetailsService) {
-		TokenService tokenService=new TokenService();
-		tokenService.setClientDetailsService(clientDetailsService);
-		tokenService.setUserDetailsService(userDetailsService);
-		tokenService.setAuthorizationServerTokenServices(authorizationServerTokenServices);
-		return tokenService;
+	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,AuthorizationServerTokenServices authorizationServerTokenServices,UserDetailsService userDetailsService) {
+		TokenUtils tokenUtils=new TokenUtils();
+		tokenUtils.setClientDetailsService(clientDetailsService);
+		tokenUtils.setUserDetailsService(userDetailsService);
+		tokenUtils.setAuthorizationServerTokenServices(authorizationServerTokenServices);
+		return tokenUtils;
 	}
 
 	/**

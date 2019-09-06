@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.service;
+package com.yishuifengxiao.common.security.utils;
 
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -31,7 +31,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
  * @date 2019年7月16日
  * @version 1.0.0
  */
-public class TokenService {
+public class TokenUtils {
 
 	private ClientDetailsService clientDetailsService;
 
@@ -43,13 +43,13 @@ public class TokenService {
 	 * 根据认证信息生成token【密码包含在请求中】
 	 * 
 	 * @param request
-	 * @param username 登陆名
-	 * @param clientId 
+	 * @param username     登陆名
+	 * @param clientId
 	 * @param clientSecret
-	 * @param grantType 授权类型，默认为 custome
+	 * @param grantType    授权类型，默认为 custome
 	 * @return
 	 */
-	public OAuth2AccessToken token(HttpServletRequest request, String username, String clientId,
+	public OAuth2AccessToken createToken(HttpServletRequest request, String username, String clientId,
 			String clientSecret, String grantType) {
 		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 		if (userDetails == null) {
@@ -92,10 +92,10 @@ public class TokenService {
 	 * @return
 	 * @throws IOException
 	 */
-	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException {
 
-		return this.token(request, response, authentication, null);
+		return this.createToken(request, response, authentication, null);
 	}
 
 	/**
@@ -108,7 +108,7 @@ public class TokenService {
 	 * @return
 	 * @throws IOException
 	 */
-	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication, String grantType) throws IOException {
 		String header = request.getHeader("Authorization");
 
@@ -121,7 +121,7 @@ public class TokenService {
 
 		String clientId = tokens[0];
 		String clientSecret = tokens[1];
-		return this.token(request, response, authentication, clientId, clientSecret, grantType);
+		return this.createToken(request, response, authentication, clientId, clientSecret, grantType);
 	}
 
 	/**
@@ -134,9 +134,9 @@ public class TokenService {
 	 * @param clientSecret   clientSecret
 	 * @return OAuth2AccessToken
 	 */
-	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication, String clientId, String clientSecret) {
-		return this.token(request, response, authentication, clientId, clientSecret, null);
+		return this.createToken(request, response, authentication, clientId, clientSecret, null);
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class TokenService {
 	 * @param grantType      授权类型
 	 * @return OAuth2AccessToken
 	 */
-	public OAuth2AccessToken token(HttpServletRequest request, HttpServletResponse response,
+	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication, String clientId, String clientSecret, String grantType) {
 		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
 		if (clientDetails == null) {
