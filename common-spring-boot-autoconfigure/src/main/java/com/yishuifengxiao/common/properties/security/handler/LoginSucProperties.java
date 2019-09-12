@@ -17,7 +17,7 @@ public class LoginSucProperties {
 	/**
 	 * 默认为重定向
 	 */
-	private HandleEnum returnType = HandleEnum.DEFAULT;
+	private HandleEnum returnType = HandleEnum.AUTO;
 	/**
 	 * 默认的重定向URL，默认为主页地址 /
 	 */
