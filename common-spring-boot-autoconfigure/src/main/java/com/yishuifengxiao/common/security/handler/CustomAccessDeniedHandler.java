@@ -53,20 +53,20 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		// 引起跳转的url
-		String url = cache.getRequest(request, response).getRedirectUrl();
+		String uri = cache.getRequest(request, response).getRedirectUrl();
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
 		// 存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.denie", accessDeniedException);
 		// 将被拦截的url存放到session中
-		request.getSession().setAttribute("yishuifengxiao.denie.url", url);
+		request.getSession().setAttribute("yishuifengxiao.denie.url", uri);
 
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getDenie().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-
-		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", url, accessDeniedException.getMessage(),
+		log.debug("【资源服务】资源请求,该资源的url为 {}",request.getRequestURL().toString());
+		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", uri, accessDeniedException.getMessage(),
 				handleEnum, type);
 		if (type == HandleEnum.DEFAULT) {
 			super.handle(request, response, accessDeniedException);

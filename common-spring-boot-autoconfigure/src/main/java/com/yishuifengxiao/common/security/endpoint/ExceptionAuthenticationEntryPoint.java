@@ -14,9 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -37,10 +34,6 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 
 	private final static Logger log = LoggerFactory.getLogger(ExceptionAuthenticationEntryPoint.class);
 
-	/**
-	 * 声明了缓存与恢复操作
-	 */
-	private RequestCache cache = new HttpSessionRequestCache();
 
 	private SecurityProperties securityProperties;
 
@@ -54,22 +47,21 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		SavedRequest savedRequest = cache.getRequest(request, response);
 		// 引起跳转的url
-		String url = savedRequest != null ? savedRequest.getRedirectUrl() : request.getRequestURI();
+		String uri = request.getRequestURI();
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 		
-
 		//存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.exception", authException);
 	    //将被拦截的url存放到session中
-		request.getSession().setAttribute("yishuifengxiao.exception.url", url);
+		request.getSession().setAttribute("yishuifengxiao.exception.url", uri);
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-		log.debug("【资源服务】获取资源 {} 失败(可能是缺少token) , 失败的原因为 {} , 系统配置的处理方式为 {} ,实际的处理方式为 {}", url,
+		log.debug("【资源服务】获取资源 失败(可能是缺少token),该资源的url为 {}",request.getRequestURL().toString());
+		log.debug("【资源服务】获取资源 {} 失败(可能是缺少token) , 失败的原因为 {} , 系统配置的处理方式为 {} ,实际的处理方式为 {}", uri,
 				authException.getMessage(), handleEnum, type);
 
 		if (type == HandleEnum.DEFAULT) {

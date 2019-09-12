@@ -11,9 +11,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
@@ -33,10 +30,6 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	private final static Logger log = LoggerFactory.getLogger(CustomAuthenticationSuccessHandler.class);
 
 	/**
-	 * 声明了缓存与恢复操作
-	 */
-	private RequestCache cache = new HttpSessionRequestCache();
-	/**
 	 * 自定义属性配置
 	 */
 	private SecurityProperties securityProperties;
@@ -52,8 +45,8 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		SavedRequest savedRequest = cache.getRequest(request, response);
-		String url = savedRequest != null ? savedRequest.getRedirectUrl() : "未知"; 
+		// 引起跳转的url
+		String url = request.getRequestURI();
 
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
