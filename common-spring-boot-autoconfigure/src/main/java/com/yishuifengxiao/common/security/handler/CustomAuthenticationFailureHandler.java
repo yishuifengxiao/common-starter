@@ -63,7 +63,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			super.onAuthenticationFailure(request, response, exception);
 			return;
 		}
-		String msg = Response.Const.MSG_INTERNAL_SERVER_ERROR;
+		String msg = "用户名或密码不正确";
 		if (StringUtil.containChinese(exception.getMessage())) {
 			msg = exception.getMessage();
 		}
