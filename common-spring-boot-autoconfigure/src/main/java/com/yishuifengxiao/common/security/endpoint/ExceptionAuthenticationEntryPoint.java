@@ -63,7 +63,8 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 
 		//存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.exception", authException);
-
+	    //将被拦截的url存放到session中
+		request.getSession().setAttribute("yishuifengxiao.exception.url", url);
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
