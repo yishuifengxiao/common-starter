@@ -36,7 +36,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 400 - Bad Request
 	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public Response<String> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "参数解析失败");
@@ -47,7 +47,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 400 - Bad Request
 	 */
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(IllegalArgumentException.class)
 	public Response<String> handleIllegalArgumentException(IllegalArgumentException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "参数不符合要求");
@@ -81,7 +81,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 500 - Internal Server Error
 	 */
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(NullPointerException.class)
 	public Response<String> handleNullPointerException(NullPointerException e) {
 		e.printStackTrace();
@@ -90,7 +90,7 @@ public class WebExceptionAutoConfiguration {
 		return response;
 	}
 
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(MissingServletRequestParameterException.class)
 	public Response<String> handleMissingServletRequestParameterException(MissingServletRequestParameterException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "请求参数有误");
@@ -98,7 +98,7 @@ public class WebExceptionAutoConfiguration {
 		return response;
 	}
 
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
 	public Response<String> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "请求参数有误");
@@ -114,7 +114,7 @@ public class WebExceptionAutoConfiguration {
 	 */
 	@ExceptionHandler
 	@ResponseBody
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	public Response<String> handle(ValidationException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "非法参数");
 		logger.warn("请求{} 请求参数有误,失败的原因为 {}  ", response.getId(), e.getMessage());
@@ -129,7 +129,7 @@ public class WebExceptionAutoConfiguration {
 	 */
 	@ExceptionHandler
 	@ResponseBody
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	public Response<String> handle(ConstraintViolationException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "非法参数");
 		logger.warn("请求{} 请求参数有误,失败的原因为 {}  ", response.getId(), e.getMessage());
@@ -144,7 +144,7 @@ public class WebExceptionAutoConfiguration {
 	 */
 	@ExceptionHandler
 	@ResponseBody
-	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	@ResponseStatus(HttpStatus.OK)
 	public Response<String> handle(DuplicateKeyException e) {
 		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "已经存在相似的数据,不能重复添加");
 		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
@@ -154,7 +154,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 数组越界 - Internal Server Error
 	 */
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(IndexOutOfBoundsException.class)
 	public Response<String> handleIndexOutOfBoundsException(IndexOutOfBoundsException e) {
 		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "未查询到对应的数据");
@@ -165,7 +165,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 500 - Internal Server Error
 	 */
-	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(Exception.class)
 	public Response<String> handleException(Exception e) {
 		Response<String> response = ExceptionUtil.extract(e);
