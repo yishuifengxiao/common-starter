@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.Expression
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -64,6 +66,10 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
 	@Autowired
 	private DefaultWebSecurityExpressionHandler expressionHandler;
+	
+	@Autowired
+	@Qualifier("tokenExtractor")
+	private TokenExtractor tokenExtractor;
 
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) {
@@ -73,6 +79,8 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		((OAuth2AuthenticationEntryPoint) authenticationEntryPoint)
 				.setExceptionTranslator(new Auth2ResponseExceptionTranslator());
 		resources.authenticationEntryPoint(authenticationEntryPoint);
+		tokenExtractor=tokenExtractor==null?new BearerTokenExtractor(): tokenExtractor;
+		resources.tokenExtractor(tokenExtractor);
 		resources.resourceId(this.oauth2Properties.getRealm()).expressionHandler(expressionHandler);
 	}
 
@@ -123,6 +131,10 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		//其余的路径登录后才能访问
 		expressionInterceptUrlRegistry.anyRequest()
 		            .authenticated();
+		
+
+
+		
 		http
 			.exceptionHandling()
 			.authenticationEntryPoint(exceptionAuthenticationEntryPoint)// 定义的不存在access_token时候响应

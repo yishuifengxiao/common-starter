@@ -124,5 +124,10 @@ public final class SecurityConstant {
 	 * 短信登录参数
 	 */
 	public static final String SMS_LOGIN_PARAM="mobile";
+	
+	/**
+	 * 存储token的session的key值
+	 */
+	public static final String SESSION_TOKEN_KEY="yishuifengxiao.session.token";
 
 }

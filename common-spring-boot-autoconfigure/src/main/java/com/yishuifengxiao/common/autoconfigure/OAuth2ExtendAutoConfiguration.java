@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
@@ -46,6 +48,18 @@ public class OAuth2ExtendAutoConfiguration {
 	@ConditionalOnMissingBean(name = "customeTokenEnhancer")
 	public TokenEnhancer tokenEnhancer() {
 		return new CustomeTokenEnhancer();
+	}
+	
+	
+	/**
+	 * 自定义token提取器
+	 * 
+	 * @return
+	 */
+	@Bean("tokenExtractor")
+	@ConditionalOnMissingBean(name = "tokenExtractor")
+	public TokenExtractor tokenExtractor() {
+		return new CustomTokenExtractor();
 	}
 	
 	@Bean
