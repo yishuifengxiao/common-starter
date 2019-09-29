@@ -1,0 +1,21 @@
+package com.yishuifengxiao.common.security.service.impl;
+
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientRegistrationException;
+import org.springframework.security.oauth2.provider.client.BaseClientDetails;
+
+import com.yishuifengxiao.common.constant.Oauth2Constant;
+import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
+import com.yishuifengxiao.common.tool.encoder.DES;
+
+public class DefaultClientDetailsService extends AbstractClientDetailsService {
+
+	@Override
+	public ClientDetails findClientByClientId(String clientId) throws ClientRegistrationException {
+		BaseClientDetails client = new BaseClientDetails(clientId, "yishuifengxiao", Oauth2Constant.DEFAULT_SCOPE,
+				Oauth2Constant.DEFAULT_GRANT_TYPE, Oauth2Constant.DEFAULT_AUTHORTY, Oauth2Constant.DEFAULT_URL);
+		client.setClientSecret(DES.encrypt(clientId));
+		return client;
+	}
+
+}

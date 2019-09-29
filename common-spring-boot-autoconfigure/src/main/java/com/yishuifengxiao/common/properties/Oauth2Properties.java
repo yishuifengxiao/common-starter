@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.yishuifengxiao.common.properties.oauth2.ClientProperties;
+
 /**
  * oauth2相关的配置
  * 
@@ -20,29 +22,33 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class Oauth2Properties {
 
 	/**
-	 * Spring Security access rule for the check token endpoint (e.g. a SpEL expression
-	 * like "isAuthenticated()") . Default is empty, which is interpreted as "denyAll()"
-	 * (no access).
+	 * Spring Security access rule for the check token endpoint (e.g. a SpEL
+	 * expression like "isAuthenticated()") . Default is empty, which is interpreted
+	 * as "denyAll()" (no access).
 	 */
 	private String checkTokenAccess;
 
 	/**
-	 * Spring Security access rule for the token key endpoint (e.g. a SpEL expression like
-	 * "isAuthenticated()"). Default is empty, which is interpreted as "denyAll()" (no
-	 * access).
+	 * Spring Security access rule for the token key endpoint (e.g. a SpEL
+	 * expression like "isAuthenticated()"). Default is empty, which is interpreted
+	 * as "denyAll()" (no access).
 	 */
 	private String tokenKeyAccess;
 
 	/**
-	 * Realm name for client authentication. If an unauthenticated request comes in to the
-	 * token endpoint, it will respond with a challenge including this name.
+	 * Realm name for client authentication. If an unauthenticated request comes in
+	 * to the token endpoint, it will respond with a challenge including this name.
 	 */
-	private String realm="yishuifengxiao";
-	
+	private String realm = "yishuifengxiao";
+
 	/**
 	 * 所有不经过oauth2资源服务器授权管理的路径,value是不希望经过授权管理的路径，多个路径之间用半角逗号(,)分给开
 	 */
-	private Map<String,String> map=new HashMap<>();
+	private Map<String, String> map = new HashMap<>();
+	/**
+	 * 所有内置的终端账号
+	 */
+	private List<ClientProperties> clients;
 
 	public String getCheckTokenAccess() {
 		return this.checkTokenAccess;
@@ -70,6 +76,7 @@ public class Oauth2Properties {
 
 	/**
 	 * 所有不经过oauth2资源服务器授权管理的路径,value是不希望经过授权管理的路径，多个路径之间用半角逗号(,)分给开
+	 * 
 	 * @return
 	 */
 	public Map<String, String> getMap() {
@@ -79,25 +86,42 @@ public class Oauth2Properties {
 	public void setMap(Map<String, String> map) {
 		this.map = map;
 	}
-	
-	
+
 	/**
 	 * 获取所有不经过oauth2资源服务器授权管理的路径
+	 * 
 	 * @return
 	 */
-	public List<String> getExcludeUrls(){
-		List<String> excludeUrls=new ArrayList<>();
-		map.forEach((k,v)->{
-			if(StringUtils.isNotBlank(v)) {
+	public List<String> getExcludeUrls() {
+		List<String> excludeUrls = new ArrayList<>();
+		map.forEach((k, v) -> {
+			if (StringUtils.isNotBlank(v)) {
 				String[] urls = StringUtils.splitByWholeSeparatorPreserveAllTokens(v, ",");
-				for(String url:urls) {
+				for (String url : urls) {
 					excludeUrls.add(url);
 				}
-				
+
 			}
 		});
 		return excludeUrls.stream().distinct().collect(Collectors.toList());
 	}
-	
+
+	/**
+	 * 获取所有内置的终端
+	 * 
+	 * @return
+	 */
+	public List<ClientProperties> getClients() {
+		return clients;
+	}
+
+	/**
+	 * 内置的终端
+	 * 
+	 * @param clients
+	 */
+	public void setClients(List<ClientProperties> clients) {
+		this.clients = clients;
+	}
 
 }

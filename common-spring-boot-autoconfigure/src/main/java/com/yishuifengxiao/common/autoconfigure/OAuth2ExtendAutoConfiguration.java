@@ -25,7 +25,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
-import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
+import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
+import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
 
 @Configuration
@@ -121,7 +122,7 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean("customClientDetailsService")
 	@ConditionalOnMissingBean(name = "customClientDetailsService")
 	public ClientDetailsService customClientDetailsService(PasswordEncoder passwordEncoder) {
-		ClientDetailsServiceImpl customClientDetailsService = new ClientDetailsServiceImpl();
+		AbstractClientDetailsService customClientDetailsService = new DefaultClientDetailsService();
 		customClientDetailsService.setPasswordEncoder(passwordEncoder);
 		return customClientDetailsService;
 	}
