@@ -6,11 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
@@ -23,6 +20,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
+import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.matcher.ExcludeRequestMatcher;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 
@@ -50,19 +48,6 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	@Autowired
 	private SocialProperties socialProperties;
 
-	/**
-	 * 必须加入，不然自定义权限表达式不生效
-	 * 
-	 * @param applicationContext
-	 * @return
-	 */
-	@Bean
-	public DefaultWebSecurityExpressionHandler expressionHandler(ApplicationContext applicationContext) {
-		DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-		expressionHandler.setApplicationContext(applicationContext);
-		return expressionHandler;
-
-	}
 
 	@Autowired
 	private DefaultWebSecurityExpressionHandler expressionHandler;
@@ -70,6 +55,12 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	@Autowired
 	@Qualifier("tokenExtractor")
 	private TokenExtractor tokenExtractor;
+
+	/**
+	 * 授权配置管理器
+	 */
+	@Autowired
+	protected AuthorizeConfigManager authorizeConfigManager;
 
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) {
@@ -79,19 +70,24 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		((OAuth2AuthenticationEntryPoint) authenticationEntryPoint)
 				.setExceptionTranslator(new Auth2ResponseExceptionTranslator());
 		resources.authenticationEntryPoint(authenticationEntryPoint);
+		//自定义token信息提取器
 		tokenExtractor=tokenExtractor==null?new BearerTokenExtractor(): tokenExtractor;
 		resources.tokenExtractor(tokenExtractor);
-		resources.resourceId(this.oauth2Properties.getRealm()).expressionHandler(expressionHandler);
+		//权限拒绝处理器
+		resources.accessDeniedHandler(customAccessDeniedHandler);
+		resources.stateless(false);
+		//不然自定义权限表达式不生效
+		resources.expressionHandler(expressionHandler);
+		resources.resourceId(this.oauth2Properties.getRealm());
 	}
 
 	@Override
 	public void configure(HttpSecurity http) throws Exception {
 		//@formatter:off  
-		http.sessionManagement()
-        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-		
-		// 注入所有的授权适配器
 
+		// 加入自定义的授权配置
+		authorizeConfigManager.config(http.authorizeRequests());
+		
 
 		//所有的路径都要经过授权
 		http.requestMatcher(new ExcludeRequestMatcher(getExcludeUrls()));
