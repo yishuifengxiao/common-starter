@@ -69,6 +69,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
 		((OAuth2AuthenticationEntryPoint) authenticationEntryPoint)
 				.setExceptionTranslator(new Auth2ResponseExceptionTranslator());
+		
 		resources.authenticationEntryPoint(authenticationEntryPoint);
 		//自定义token信息提取器
 		tokenExtractor=tokenExtractor==null?new BearerTokenExtractor(): tokenExtractor;
@@ -79,6 +80,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		//不然自定义权限表达式不生效
 		resources.expressionHandler(expressionHandler);
 		resources.resourceId(this.oauth2Properties.getRealm());
+
 	}
 
 	@Override
@@ -137,6 +139,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 			.accessDeniedHandler(customAccessDeniedHandler)//自定义权限拒绝处理器
 			;
 		//@formatter:on  
+		
 	}
 
 	/**

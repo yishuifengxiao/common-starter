@@ -29,7 +29,6 @@ import com.yishuifengxiao.common.properties.Oauth2Properties;
  * @since 1.3.0
  */
 public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
-	
 
 	@Autowired
 	@Qualifier("tokenStore")
@@ -50,7 +49,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	 */
 	@Autowired
 	private UserApprovalHandler userApprovalHandler;
-	
+
 	@Autowired
 	private TokenEnhancer customeTokenEnhancer;
 
@@ -65,6 +64,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
 		clients.withClientDetails(customClientDetailsService);
+
 	}
 
 	@Override
