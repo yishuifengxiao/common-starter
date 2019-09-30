@@ -93,7 +93,8 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		// 开启http baisc认证
 		if (securityProperties.getHttpBasic()) {
 			http.httpBasic() // 开启basic认证
-					.realmName(securityProperties.getRealmName());
+					.realmName(securityProperties.getRealmName())
+					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 		}
 
 		// 关闭csrf防护

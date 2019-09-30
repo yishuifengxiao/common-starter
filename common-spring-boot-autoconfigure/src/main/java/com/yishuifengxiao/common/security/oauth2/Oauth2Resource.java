@@ -87,6 +87,14 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	public void configure(HttpSecurity http) throws Exception {
 		//@formatter:off  
 
+
+		// 开启http baisc认证
+		if (securityProperties.getHttpBasic()) {
+			http.httpBasic() // 开启basic认证
+			        .authenticationEntryPoint(exceptionAuthenticationEntryPoint)
+					.realmName(securityProperties.getRealmName());
+		}
+		
 		// 加入自定义的授权配置
 		authorizeConfigManager.config(http.authorizeRequests());
 		

@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.provider.approval.UserApprovalHandler
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 
@@ -52,6 +53,13 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
 	private TokenEnhancer customeTokenEnhancer;
+	
+	/**
+	 * 定义在security-core包中
+	 */
+	@Autowired
+	@Qualifier("exceptionAuthenticationEntryPoint")
+	private AuthenticationEntryPoint exceptionAuthenticationEntryPoint;
 
 	/**
 	 * 决定是否授权
@@ -64,7 +72,6 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
 		clients.withClientDetails(customClientDetailsService);
-
 	}
 
 	@Override
@@ -86,7 +93,6 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 			.tokenEnhancer(tokenEnhancerChain);
 		
 		// @formatter:on
-
 	}
 
 	@Override
@@ -100,6 +106,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 		if (this.properties.getRealm() != null) {
 			security.realm(this.properties.getRealm());
 		}
+		security.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 	}
 
 }
