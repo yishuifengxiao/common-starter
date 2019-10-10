@@ -58,7 +58,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 405 - Method Not Allowed
 	 */
-	@ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	public Response<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
 		Response<String> response = new Response<String>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前请求方法");
@@ -70,7 +70,7 @@ public class WebExceptionAutoConfiguration {
 	/**
 	 * 415 - Unsupported Media Type
 	 */
-	@ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(HttpMediaTypeNotSupportedException.class)
 	public Response<String> handleHttpMediaTypeNotSupportedException(Exception e) {
 		Response<String> response = new Response<String>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前媒体类型");

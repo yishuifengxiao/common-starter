@@ -75,7 +75,13 @@ public class OAuth2ExtendAutoConfiguration {
 	public TokenExtractor tokenExtractor() {
 		return new CustomTokenExtractor();
 	}
-
+    /**
+     * token生成工具
+     * @param clientDetailsService
+     * @param authorizationServerTokenServices
+     * @param userDetailsService
+     * @return
+     */
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
