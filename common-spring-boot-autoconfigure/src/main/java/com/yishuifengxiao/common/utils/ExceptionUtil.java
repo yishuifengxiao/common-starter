@@ -20,12 +20,12 @@ public final class ExceptionUtil {
 	/**
 	 * 异常信息提示 键: 异常类的简写名字 值: 异常提示信息
 	 */
-	private final static Map<String, Response<String>> map = new HashMap<>();
+	private final static Map<String, Response<String>> MAP = new HashMap<>();
 
 	static {
-		map.put("ConstraintViolationException",
+		MAP.put("ConstraintViolationException",
 				new Response<String>(Response.Const.CODE_BAD_REQUEST, "已经存在相似的数据,不能重复添加"));
-		map.put("DataIntegrityViolationException",
+		MAP.put("DataIntegrityViolationException",
 				new Response<String>(Response.Const.CODE_BAD_REQUEST, "已经存在相似的数据,不能重复添加"));
 	}
 
@@ -38,7 +38,7 @@ public final class ExceptionUtil {
 	public final static Response<String> extract(Exception e) {
 
 		String causeName = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "";
-		Response<String> response = map
+		Response<String> response = MAP
 				.getOrDefault(causeName, new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败"))
 				.setId(UID.uuid());
 		return response;

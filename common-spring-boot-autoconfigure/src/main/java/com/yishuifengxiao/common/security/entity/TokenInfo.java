@@ -102,33 +102,33 @@ public class TokenInfo implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
+		if (this == obj) {
+			return true;}
+		if (obj == null) {
+			return false;}
+		if (getClass() != obj.getClass()) {
+			return false;}
 		TokenInfo other = (TokenInfo) obj;
 		if (clientId == null) {
-			if (other.clientId != null)
-				return false;
-		} else if (!clientId.equals(other.clientId))
-			return false;
+			if (other.clientId != null) {
+				return false;}
+		} else if (!clientId.equals(other.clientId)) {
+			return false;}
 		if (ip == null) {
-			if (other.ip != null)
-				return false;
-		} else if (!ip.equals(other.ip))
-			return false;
+			if (other.ip != null) {
+				return false;}
+		} else if (!ip.equals(other.ip)) {
+			return false;}
 		if (sessionId == null) {
-			if (other.sessionId != null)
-				return false;
-		} else if (!sessionId.equals(other.sessionId))
-			return false;
+			if (other.sessionId != null) {
+				return false;}
+		} else if (!sessionId.equals(other.sessionId)) {
+			return false;}
 		if (username == null) {
-			if (other.username != null)
-				return false;
-		} else if (!username.equals(other.username))
-			return false;
+			if (other.username != null) {
+				return false;}
+		} else if (!username.equals(other.username)) {
+			return false;}
 		return true;
 	}
 

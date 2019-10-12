@@ -16,7 +16,7 @@ public class RegexUtil {
 	/**
 	 * 包含中文的正则
 	 */
-	private final static Pattern chinesePattern = Pattern.compile("[\\u4e00-\\u9fa5]+");
+	private final static Pattern CHINESE_PATTERN = Pattern.compile("[\\u4e00-\\u9fa5]+");
 
 	/**
 	 * 如果包含汉字则返回为true
@@ -25,6 +25,6 @@ public class RegexUtil {
 	 * @return
 	 */
 	public static boolean containChinese(String str) {
-		return chinesePattern.matcher(str).matches();
+		return CHINESE_PATTERN.matcher(str).matches();
 	}
 }

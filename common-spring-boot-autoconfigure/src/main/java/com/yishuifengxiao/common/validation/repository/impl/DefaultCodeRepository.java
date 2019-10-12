@@ -25,29 +25,29 @@ import com.yishuifengxiao.common.validation.repository.CodeRepository;
 public class DefaultCodeRepository implements CodeRepository {
 	private final static Logger log = LoggerFactory.getLogger(DefaultCodeRepository.class);
 
-	private final static Map<String, ValidateCode> map = new ConcurrentHashMap<>();
+	private final static Map<String, ValidateCode> MAP = new ConcurrentHashMap<>();
 
 	@Override
 	public void save(ServletWebRequest request, String key, ValidateCode code) {
 		log.debug("验证码存取的默认实现类 保存的键为 {},值为 {}", key, code);
-		map.put(key, code);
+		MAP.put(key, code);
 
 	}
 
 	@Override
 	public ValidateCode get(ServletWebRequest request, String key) {
-		ValidateCode code = map.get(key);
+		ValidateCode code = MAP.get(key);
 		log.debug("验证码存取的默认实现类 获取的键为 {},值为 ", key);
 		return code;
 	}
 
 	@Override
 	public void remove(ServletWebRequest request, String key) {
-		Iterator<String> it = map.keySet().iterator();
+		Iterator<String> it = MAP.keySet().iterator();
 		synchronized (DefaultCodeRepository.class) {
 			while (it.hasNext()) {
 				String currentKey = it.next();
-				map.keySet().remove(currentKey);
+				MAP.keySet().remove(currentKey);
 			}
 
 		}
