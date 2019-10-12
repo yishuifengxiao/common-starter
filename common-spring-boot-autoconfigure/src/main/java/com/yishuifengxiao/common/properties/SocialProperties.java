@@ -12,7 +12,7 @@ import com.yishuifengxiao.common.properties.social.WeixinProperties;
  * @date 2019年7月14日
  * @version 1.0.0
  */
-@ConfigurationProperties(prefix = "yishuifengxiao.social")
+@ConfigurationProperties(prefix = "yishuifengxiao.security.social")
 public class SocialProperties {
 
 	/**

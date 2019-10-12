@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.yishuifengxiao.common</groupId>
 	<artifactId>common-starter</artifactId>
-	<version>4.0.1</version>
+	<version>4.1.0</version>
 	<packaging>pom</packaging>
 	<name>common-starter</name>
 	<description>swagger ui自定义启动器</description>
@@ -55,7 +55,7 @@
 	</modules>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		
+
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<spring-security-oauth2-autoconfigure.version>2.1.6.RELEASE</spring-security-oauth2-autoconfigure.version>
 
@@ -78,7 +78,7 @@
 		<javax.interceptor-api.version>3.1</javax.interceptor-api.version>
 
 
-		<yishuifengxiao.tool.version>1.4.0</yishuifengxiao.tool.version>
+		<yishuifengxiao.tool.version>2.0.0</yishuifengxiao.tool.version>
 
 		<spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
 
