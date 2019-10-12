@@ -1,6 +1,9 @@
 package com.yishuifengxiao.common.autoconfigure;
 
+import java.io.IOException;
+
 import javax.annotation.PostConstruct;
+import javax.servlet.ServletException;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 
@@ -20,6 +23,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.ExceptionUtil;
+import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 全局异常处理类
@@ -87,6 +91,32 @@ public class WebExceptionAutoConfiguration {
 		e.printStackTrace();
 		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求失败");
 		logger.warn("请求{} 请求失败,失败的原因为空指针异常  ", response.getId());
+		return response;
+	}
+
+	/**
+	 * 500 - Internal Server Error
+	 */
+	@ResponseStatus(HttpStatus.OK)
+	@ExceptionHandler(ServletException.class)
+	public Response<String> handleServletException(ServletException e) {
+		String msg = e.getMessage();
+		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				RegexUtil.containChinese(msg) ? msg : "请求失败");
+		logger.warn("请求{} 请求失败,失败的原因为{}  ", response.getId(), msg);
+		return response;
+	}
+
+	/**
+	 * 500 - Internal Server Error
+	 */
+	@ResponseStatus(HttpStatus.OK)
+	@ExceptionHandler(IOException.class)
+	public Response<String> handleIOException(IOException e) {
+		String msg = e.getMessage();
+		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
+				RegexUtil.containChinese(msg) ? msg : "请求失败");
+		logger.warn("请求{} 请求失败,失败的原因为{}  ", response.getId(), msg);
 		return response;
 	}
 

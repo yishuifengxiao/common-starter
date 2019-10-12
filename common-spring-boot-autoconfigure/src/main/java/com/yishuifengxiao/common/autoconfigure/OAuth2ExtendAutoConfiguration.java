@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -17,6 +18,7 @@ import org.springframework.security.oauth2.provider.approval.TokenStoreUserAppro
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -24,6 +26,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
+import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
 import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
@@ -75,13 +78,37 @@ public class OAuth2ExtendAutoConfiguration {
 	public TokenExtractor tokenExtractor() {
 		return new CustomTokenExtractor();
 	}
-    /**
-     * token生成工具
-     * @param clientDetailsService
-     * @param authorizationServerTokenServices
-     * @param userDetailsService
-     * @return
-     */
+
+	/**
+	 * 自定义token生成规则
+	 * 
+	 * @param tokenStore
+	 * @param clientDetailsService
+	 * @param accessTokenEnhancer
+	 * @param authenticationManager
+	 * @return
+	 */
+	@Bean("authorizationServerTokenServices")
+	@ConditionalOnMissingBean(name = "authorizationServerTokenServices")
+	public AuthorizationServerTokenServices authorizationServerTokenServices(TokenStore tokenStore,
+			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer,
+			AuthenticationManager authenticationManager) {
+		DefaultTokenServices tokenServices = new DefaultTokenServices();
+		tokenServices.setTokenStore(tokenStore);
+		tokenServices.setClientDetailsService(clientDetailsService);
+		tokenServices.setTokenStore(tokenStore);
+		tokenServices.setAuthenticationManager(authenticationManager);
+		return tokenServices;
+	}
+
+	/**
+	 * token生成工具
+	 * 
+	 * @param clientDetailsService
+	 * @param authorizationServerTokenServices
+	 * @param userDetailsService
+	 * @return
+	 */
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
@@ -91,6 +118,21 @@ public class OAuth2ExtendAutoConfiguration {
 		tokenUtils.setUserDetailsService(userDetailsService);
 		tokenUtils.setAuthorizationServerTokenServices(authorizationServerTokenServices);
 		return tokenUtils;
+	}
+
+	/**
+	 *  获取token时在BasicAuthenticationFilter之前增加一个过滤器
+	 * 
+	 * @return
+	 */
+	@Bean("tokenEndpointAuthenticationFilter")
+	@ConditionalOnMissingBean(name = "tokenEndpointAuthenticationFilter")
+	public TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter(ApplicationContext contentx,ClientDetailsService clientDetailsService,PasswordEncoder passwordEncoder) {
+		TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter=	new TokenEndpointAuthenticationFilter();
+		tokenEndpointAuthenticationFilter.setClientDetailsService(clientDetailsService);
+		tokenEndpointAuthenticationFilter.setPasswordEncoder(passwordEncoder);
+		tokenEndpointAuthenticationFilter.setContentx(contentx);
+		return tokenEndpointAuthenticationFilter;
 	}
 
 	/**

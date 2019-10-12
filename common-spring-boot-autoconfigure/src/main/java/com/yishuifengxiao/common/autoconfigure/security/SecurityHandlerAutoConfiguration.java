@@ -23,7 +23,7 @@ import com.yishuifengxiao.common.security.handler.CustomAuthenticationFailureHan
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHandler;
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.processor.impl.CustomHandlerProcessor;
+import com.yishuifengxiao.common.security.processor.impl.DefaultHandlerProcessor;
 
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
@@ -45,7 +45,7 @@ public class SecurityHandlerAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public HandlerProcessor handlerProcessor(ObjectMapper objectMapper) {
-		CustomHandlerProcessor customHandle = new CustomHandlerProcessor();
+		DefaultHandlerProcessor customHandle = new DefaultHandlerProcessor();
 		customHandle.setObjectMapper(objectMapper);
 		customHandle.setSecurityProperties(securityProperties);
 		return customHandle;

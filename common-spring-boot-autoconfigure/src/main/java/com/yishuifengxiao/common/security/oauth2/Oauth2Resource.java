@@ -48,10 +48,9 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	@Autowired
 	private SocialProperties socialProperties;
 
-
 	@Autowired
 	private DefaultWebSecurityExpressionHandler expressionHandler;
-	
+
 	@Autowired
 	@Qualifier("tokenExtractor")
 	private TokenExtractor tokenExtractor;
@@ -69,18 +68,19 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
 		((OAuth2AuthenticationEntryPoint) authenticationEntryPoint)
 				.setExceptionTranslator(new Auth2ResponseExceptionTranslator());
-		
+
 		resources.authenticationEntryPoint(authenticationEntryPoint);
-		//自定义token信息提取器
-		tokenExtractor=tokenExtractor==null?new BearerTokenExtractor(): tokenExtractor;
+		// 自定义token信息提取器
+		tokenExtractor = tokenExtractor == null ? new BearerTokenExtractor() : tokenExtractor;
 		resources.tokenExtractor(tokenExtractor);
-		//权限拒绝处理器
+		// 权限拒绝处理器
 		resources.accessDeniedHandler(customAccessDeniedHandler);
 		resources.stateless(false);
-		//不然自定义权限表达式不生效
+		// 不然自定义权限表达式不生效
 		resources.expressionHandler(expressionHandler);
 		resources.resourceId(this.oauth2Properties.getRealm());
-
+		// token的验证和读取策略
+		// resources.tokenServices(tokenServices);
 	}
 
 	@Override
@@ -139,7 +139,6 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		            .authenticated();
 		
 
-
 		
 		http
 			.exceptionHandling()
@@ -147,7 +146,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 			.accessDeniedHandler(customAccessDeniedHandler)//自定义权限拒绝处理器
 			;
 		//@formatter:on  
-		
+
 	}
 
 	/**
@@ -156,12 +155,11 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	 * @return
 	 */
 	private List<String> getExcludeUrls() {
-		List<String> excludeUrls = Arrays.asList("/oauth/**",
-				securityProperties.getHandler().getSuc().getRedirectUrl(),//登录成功后跳转的地址
+		List<String> excludeUrls = Arrays.asList("/oauth/**", securityProperties.getHandler().getSuc().getRedirectUrl(), // 登录成功后跳转的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
 				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
-				socialProperties.getQq().getRegisterUrl(),//qq登陆成功后跳转的地址
-				socialProperties.getWeixin().getRegisterUrl(),//微信登陆成功后跳转的地址
+				socialProperties.getQq().getRegisterUrl(), // qq登陆成功后跳转的地址
+				socialProperties.getWeixin().getRegisterUrl(), // 微信登陆成功后跳转的地址
 				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
 				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
 				securityProperties.getCore().getLoginOutUrl() // 退出页面

@@ -18,7 +18,7 @@ import com.yishuifengxiao.common.security.event.AuthenticationFailureEvent;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
-import com.yishuifengxiao.common.utils.StringUtil;
+import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 登陆失败后处理
@@ -64,7 +64,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 			return;
 		}
 		String msg = "用户名或密码不正确";
-		if (StringUtil.containChinese(exception.getMessage())) {
+		if (RegexUtil.containChinese(exception.getMessage())) {
 			msg = exception.getMessage();
 		}
 

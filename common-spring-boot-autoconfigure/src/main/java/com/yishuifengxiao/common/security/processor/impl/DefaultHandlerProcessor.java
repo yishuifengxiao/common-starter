@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -25,8 +26,8 @@ import com.yishuifengxiao.common.tool.entity.Response;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public class CustomHandlerProcessor implements HandlerProcessor {
-	private final static Logger log = LoggerFactory.getLogger(CustomHandlerProcessor.class);
+public class DefaultHandlerProcessor implements HandlerProcessor, InitializingBean {
+	private final static Logger log = LoggerFactory.getLogger(HandlerProcessor.class);
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private ObjectMapper objectMapper;
@@ -55,9 +56,10 @@ public class CustomHandlerProcessor implements HandlerProcessor {
 	 * @throws IOException
 	 */
 	@SuppressWarnings("rawtypes")
-	private void send(HttpServletRequest request, HttpServletResponse response, Response result)
-			throws JsonProcessingException, IOException {
+	public void send(HttpServletRequest request, HttpServletResponse response, Response result) throws IOException {
+
 		log.debug("【协助处理器】 最终处理方式为 JSON ,发送的数据为{}", result);
+		this.objectMapper = this.objectMapper != null ? this.objectMapper : new ObjectMapper();
 		response.setStatus(HttpStatus.OK.value());
 		response.setHeader("Access-Control-Allow-Origin", "*");// 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");// 允许使用的请求方法，以逗号隔开
@@ -84,13 +86,20 @@ public class CustomHandlerProcessor implements HandlerProcessor {
 		redirectStrategy.sendRedirect(request, response, url);
 	}
 
-	public CustomHandlerProcessor(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		if (this.objectMapper == null) {
+			this.objectMapper = new ObjectMapper();
+		}
+	}
+
+	public DefaultHandlerProcessor(ObjectMapper objectMapper, SecurityProperties securityProperties) {
 
 		this.objectMapper = objectMapper;
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomHandlerProcessor() {
+	public DefaultHandlerProcessor() {
 
 	}
 

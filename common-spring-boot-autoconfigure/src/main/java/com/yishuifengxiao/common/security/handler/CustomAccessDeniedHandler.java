@@ -20,7 +20,7 @@ import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
-import com.yishuifengxiao.common.utils.StringUtil;
+import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 权限拒绝处理器
@@ -73,7 +73,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 			return;
 		}
 		String msg = Response.Const.MSG_UNAUTHORIZED;
-		if (StringUtil.containChinese(accessDeniedException.getMessage())) {
+		if (RegexUtil.containChinese(accessDeniedException.getMessage())) {
 			msg = accessDeniedException.getMessage();
 		}
 
