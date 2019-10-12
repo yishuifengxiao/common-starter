@@ -19,8 +19,8 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.authority.CustomAuthority;
-import com.yishuifengxiao.common.security.authority.impl.CustomAuthorityImpl;
+import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.impl.CustomAuthorityImpl;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.CorsAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.CsrfAuthorizeProvider;

@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.authority.impl;
+package com.yishuifengxiao.common.security.authorize.custom.impl;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 
-import com.yishuifengxiao.common.security.authority.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
 
 /**
  * 自定义授权的默认实现

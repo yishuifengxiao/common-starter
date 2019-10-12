@@ -8,4 +8,4 @@
  * @date 2019年1月9日
  * @version 0.0.1
  */
-package com.yishuifengxiao.common.security.authority;
+package com.yishuifengxiao.common.security.authorize.custom;

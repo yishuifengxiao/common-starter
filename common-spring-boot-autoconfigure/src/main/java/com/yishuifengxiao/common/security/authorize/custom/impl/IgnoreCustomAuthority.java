@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.authority.impl;
+package com.yishuifengxiao.common.security.authorize.custom.impl;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
 
-import com.yishuifengxiao.common.security.authority.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
 
 /**
  * 默认的授权表达式实现

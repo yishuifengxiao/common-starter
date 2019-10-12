@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.authority;
+package com.yishuifengxiao.common.security.authorize.custom;
 
 import javax.servlet.http.HttpServletRequest;
 

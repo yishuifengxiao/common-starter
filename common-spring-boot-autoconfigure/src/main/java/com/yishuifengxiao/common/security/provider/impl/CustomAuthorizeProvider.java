@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.authority.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
