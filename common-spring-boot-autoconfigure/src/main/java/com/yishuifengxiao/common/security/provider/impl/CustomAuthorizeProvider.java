@@ -25,17 +25,19 @@ public class CustomAuthorizeProvider implements AuthorizeProvider {
 	 * 自定义属性配置
 	 */
 	protected SecurityProperties securityProperties;
-
+    /**
+     * 实例的名字必须为 <code>customAuthority</code>
+     */
 	private CustomAuthority customAuthority;
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
 		log.debug("【自定义权限】需要自定义权限的路径为 {}", securityProperties.getCustom().getAll());
 		for (String path : securityProperties.getCustom().getAll()) {
 			// 自定义权限
-			config.antMatchers(path).access("@customAuthority.hasPermission(request, authentication)");
-			config.mvcMatchers(path).access("@customAuthority.hasPermission(request, authentication)");
+			expressionInterceptUrlRegistry.antMatchers(path).access("@customAuthority.hasPermission(request, authentication)");
+			expressionInterceptUrlRegistry.mvcMatchers(path).access("@customAuthority.hasPermission(request, authentication)");
 		}
 
 	}

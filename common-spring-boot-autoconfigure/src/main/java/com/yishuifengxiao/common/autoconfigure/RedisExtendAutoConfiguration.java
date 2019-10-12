@@ -122,4 +122,5 @@ public class RedisExtendAutoConfiguration {
 		return new RedisCodeRepository(redisTemplate);
 	}
 
+
 }

@@ -10,6 +10,8 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -20,8 +22,12 @@ import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.authority.CustomAuthority;
 import com.yishuifengxiao.common.security.authority.impl.CustomAuthorityImpl;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.provider.impl.CorsAuthorizeProvider;
+import com.yishuifengxiao.common.security.provider.impl.CsrfAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.CustomAuthorizeProvider;
+import com.yishuifengxiao.common.security.provider.impl.ExceptionAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.FormLoginAuthorizeProvider;
+import com.yishuifengxiao.common.security.provider.impl.HttpBasicAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.InterceptAllAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.LoginOutAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.PermitAllAuthorizeProvider;
@@ -145,7 +151,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	}
 
 	/**
-	 * 自定义授权提供其
+	 * 自定义授权提供器
 	 * 
 	 * @param customAuthority
 	 * @return
@@ -157,6 +163,66 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 		customAuthorizeProvider.setCustomAuthority(customAuthority);
 		customAuthorizeProvider.setSecurityProperties(securityProperties);
 		return customAuthorizeProvider;
+	}
+
+	/**
+	 * Basic登陆授权提供器
+	 * 
+	 * @param customAuthority
+	 * @return
+	 */
+	@Bean("httpBasicAuthorizeProvider")
+	@ConditionalOnMissingBean(name = "httpBasicAuthorizeProvider")
+	public AuthorizeProvider httpBasicAuthorizeProvider(
+			@Qualifier("exceptionAuthenticationEntryPoint") AuthenticationEntryPoint exceptionAuthenticationEntryPoint) {
+		HttpBasicAuthorizeProvider httpBasicAuthorizeProvider = new HttpBasicAuthorizeProvider();
+		httpBasicAuthorizeProvider.setExceptionAuthenticationEntryPoint(exceptionAuthenticationEntryPoint);
+		httpBasicAuthorizeProvider.setSecurityProperties(securityProperties);
+		return httpBasicAuthorizeProvider;
+	}
+
+	/**
+	 * 异常处理授权提供器
+	 * 
+	 * @param exceptionAuthenticationEntryPoint
+	 * @param customAccessDeniedHandler
+	 * @return
+	 */
+	@Bean("exceptionAuthorizeProvider")
+	@ConditionalOnMissingBean(name = "exceptionAuthorizeProvider")
+	public AuthorizeProvider exceptionAuthorizeProvider(
+			@Qualifier("exceptionAuthenticationEntryPoint") AuthenticationEntryPoint exceptionAuthenticationEntryPoint,
+			AccessDeniedHandler customAccessDeniedHandler) {
+		ExceptionAuthorizeProvider exceptionAuthorizeProvider = new ExceptionAuthorizeProvider();
+		exceptionAuthorizeProvider.setExceptionAuthenticationEntryPoint(exceptionAuthenticationEntryPoint);
+		exceptionAuthorizeProvider.setCustomAccessDeniedHandler(customAccessDeniedHandler);
+		return exceptionAuthorizeProvider;
+	}
+
+	/**
+	 * 跨域处理授权提供器
+	 * 
+	 * @return
+	 */
+	@Bean("corsAuthorizeProvider")
+	@ConditionalOnMissingBean(name = "corsAuthorizeProvider")
+	public AuthorizeProvider corsAuthorizeProvider() {
+		CorsAuthorizeProvider corsAuthorizeProvider = new CorsAuthorizeProvider();
+		corsAuthorizeProvider.setSecurityProperties(securityProperties);
+		return corsAuthorizeProvider;
+	}
+
+	/**
+	 * CSRF处理授权提供器
+	 * 
+	 * @return
+	 */
+	@Bean("csrfAuthorizeProvider")
+	@ConditionalOnMissingBean(name = "csrfAuthorizeProvider")
+	public AuthorizeProvider csrfAuthorizeProvider() {
+		CsrfAuthorizeProvider csrfAuthorizeProvider = new CsrfAuthorizeProvider();
+		csrfAuthorizeProvider.setSecurityProperties(securityProperties);
+		return csrfAuthorizeProvider;
 	}
 
 }

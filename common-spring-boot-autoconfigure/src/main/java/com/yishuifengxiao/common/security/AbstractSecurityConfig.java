@@ -71,6 +71,11 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		// @formatter:on
 	}
 
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		applyAuthenticationConfig(http);
+	}
+	
 	/**
 	 * 默认的spring security配置【需要在子类中调用此方法】
 	 * 
@@ -81,27 +86,16 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 
 		// @formatter:off
 
-		// 开启http baisc认证
-		if (securityProperties.getHttpBasic()) {
-			http.httpBasic() // 开启basic认证
-					.realmName(securityProperties.getRealmName())
-					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
-		}
 
-		// 关闭csrf防护
-		if (securityProperties.getCloseCsrf()) {
-			http.csrf().disable();
-		}
-		// 关闭cors保护
-		if (securityProperties.getCloseCors()) {
-			http.cors().disable();
-		}
 
-		// 添加全局异常处理
-		if (exceptionAuthenticationEntryPoint != null) {
-			http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler)
-					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
-		}
+
+	
+	
+//		// 添加全局异常处理
+//		if (exceptionAuthenticationEntryPoint != null) {
+//			http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler)
+//					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
+//		}
 
 		// 注入所有的自定义授权适配器
 		securityContextManager.config(http);

@@ -20,7 +20,7 @@ public interface AuthorizeProvider {
 	 * @param config
 	 * @throws Exception 
 	 */
-	void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config) throws Exception;
+	void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception;
 
 	/**
 	 * 授权提供器的顺序，数字越小越是提前使用，默认值为100

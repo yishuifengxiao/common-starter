@@ -24,9 +24,9 @@ public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 	
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config) {
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) {
 		// @formatter:off
-		config.antMatchers(
+		expressionInterceptUrlRegistry.antMatchers(
 				"/oauth/token", 
 				"/oauth/check_token",
 				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址

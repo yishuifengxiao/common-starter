@@ -29,9 +29,9 @@ public class LoginOutAuthorizeProvider implements AuthorizeProvider {
 	protected LogoutSuccessHandler customLogoutSuccessHandler;
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config) throws Exception {
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception {
 		//@formatter:off  
-		config.and()
+		expressionInterceptUrlRegistry.and()
 		.logout()
 		.logoutUrl(securityProperties.getCore().getLoginOutUrl())//退出登陆的URL
 		.logoutSuccessHandler(customLogoutSuccessHandler)

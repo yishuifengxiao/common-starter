@@ -19,10 +19,10 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 public class InterceptAllAuthorizeProvider implements AuthorizeProvider {
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
 		//只要经过了授权就能访问
-		config.anyRequest().authenticated();
+		expressionInterceptUrlRegistry.anyRequest().authenticated();
 
 	}
 

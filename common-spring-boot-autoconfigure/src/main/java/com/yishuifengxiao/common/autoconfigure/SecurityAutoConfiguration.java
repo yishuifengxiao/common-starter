@@ -29,6 +29,8 @@ import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
+import com.yishuifengxiao.common.security.authorize.AuthorizeResourceProvider;
+import com.yishuifengxiao.common.security.authorize.DefaultAuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.DefaultSecurityContextManager;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
@@ -170,8 +172,9 @@ public class SecurityAutoConfiguration {
 
 	/**
 	 * 自定义授权管理器
+	 * 
 	 * @param authorizeConfigManager 授权管理器
-	 * @param adapterManager 自定义适配器管理器
+	 * @param adapterManager         自定义适配器管理器
 	 * @return
 	 */
 	@Bean
@@ -182,5 +185,21 @@ public class SecurityAutoConfiguration {
 		securityContextManager.setAdapterManager(adapterManager);
 		securityContextManager.setAuthorizeConfigManager(authorizeConfigManager);
 		return securityContextManager;
+	}
+
+	/**
+	 * 授权资源配置器
+	 * 
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public AuthorizeResourceProvider authorizeResourceProvider(Oauth2Properties oauth2Properties,
+			SecurityProperties securityProperties, SocialProperties socialProperties) {
+		DefaultAuthorizeResourceProvider authorizeResourceProvider = new DefaultAuthorizeResourceProvider();
+		authorizeResourceProvider.setOauth2Properties(oauth2Properties);
+		authorizeResourceProvider.setSecurityProperties(securityProperties);
+		authorizeResourceProvider.setSocialProperties(socialProperties);
+		return authorizeResourceProvider;
 	}
 }

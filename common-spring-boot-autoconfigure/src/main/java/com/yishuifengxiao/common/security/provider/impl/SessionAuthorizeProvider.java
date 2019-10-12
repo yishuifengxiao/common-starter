@@ -35,10 +35,10 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
 	private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
 		//@formatter:off 
-		config
+		expressionInterceptUrlRegistry
 		.and()
 		.sessionManagement()
 		.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)

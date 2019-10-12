@@ -34,10 +34,10 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 	protected UserDetailsService userDetailsService;
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
 		//@formatter:off 
-		config
+		expressionInterceptUrlRegistry
 		.and()
 		.rememberMe()//记住我的功能
 		.useSecureCookie(securityProperties.getRemeberMe().getUseSecureCookie())//是否使用安全cookie

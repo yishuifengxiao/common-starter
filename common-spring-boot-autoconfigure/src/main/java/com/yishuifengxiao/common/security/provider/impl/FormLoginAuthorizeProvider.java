@@ -33,10 +33,10 @@ public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 	protected AuthenticationFailureHandler formAuthenticationFailureHandler;
 
 	@Override
-	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry config)
+	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
 		//@formatter:off 
-		config
+		expressionInterceptUrlRegistry
 		.and()
 		.formLogin()
 		.loginPage(securityProperties.getCore().getRedirectUrl())//权限拦截时默认跳转的页面
