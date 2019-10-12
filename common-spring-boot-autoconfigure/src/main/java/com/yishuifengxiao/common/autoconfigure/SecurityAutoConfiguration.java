@@ -29,8 +29,10 @@ import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
-import com.yishuifengxiao.common.security.authorize.AuthorizeResourceProvider;
-import com.yishuifengxiao.common.security.authorize.DefaultAuthorizeResourceProvider;
+import com.yishuifengxiao.common.security.authorize.ignore.DefaultIgnoreResourcesConfig;
+import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourcesConfig;
+import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
+import com.yishuifengxiao.common.security.authorize.intercept.DefaultAuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.DefaultSecurityContextManager;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
@@ -202,4 +204,19 @@ public class SecurityAutoConfiguration {
 		authorizeResourceProvider.setSocialProperties(socialProperties);
 		return authorizeResourceProvider;
 	}
+
+	/**
+	 * 配置需要忽视的资源
+	 * 
+	 * @param securityProperties
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public IgnoreResourcesConfig ignoreResourcesConfig(SecurityProperties securityProperties) {
+		DefaultIgnoreResourcesConfig ignoreResourcesConfig = new DefaultIgnoreResourcesConfig();
+		ignoreResourcesConfig.setSecurityProperties(securityProperties);
+		return ignoreResourcesConfig;
+	}
+
 }

@@ -1,9 +1,7 @@
 package com.yishuifengxiao.common.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,10 +9,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
 
-import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourcesConfig;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
 
 /**
@@ -25,11 +21,6 @@ import com.yishuifengxiao.common.security.manager.SecurityContextManager;
  * @Version 0.0.1
  */
 public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapter {
-	/**
-	 * 自定义属性配置
-	 */
-	@Autowired
-	protected SecurityProperties securityProperties;
 
 	/**
 	 * 自定义密码加密类
@@ -49,17 +40,10 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	protected SecurityContextManager securityContextManager;
 
 	/**
-	 * 定义在security-core包中
-	 */
-	@Autowired(required = false)
-	@Qualifier("exceptionAuthenticationEntryPoint")
-	protected AuthenticationEntryPoint exceptionAuthenticationEntryPoint;
-
-	/**
-	 * 权限拒绝管理器
+	 * 忽视资源管理
 	 */
 	@Autowired
-	protected AccessDeniedHandler customAccessDeniedHandler;
+	protected IgnoreResourcesConfig ignoreResourcesConfig;
 
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -75,7 +59,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	protected void configure(HttpSecurity http) throws Exception {
 		applyAuthenticationConfig(http);
 	}
-	
+
 	/**
 	 * 默认的spring security配置【需要在子类中调用此方法】
 	 * 
@@ -85,17 +69,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	protected void applyAuthenticationConfig(HttpSecurity http) throws Exception {
 
 		// @formatter:off
-
-
-
-
-	
-	
-//		// 添加全局异常处理
-//		if (exceptionAuthenticationEntryPoint != null) {
-//			http.exceptionHandling().accessDeniedHandler(customAccessDeniedHandler)
-//					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
-//		}
 
 		// 注入所有的自定义授权适配器
 		securityContextManager.config(http);
@@ -116,26 +89,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		// @formatter:off
-		web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**").mvcMatchers(securityProperties.getIgnore().getIgnore())
-				.antMatchers(securityProperties.getIgnore().getIgnore())// 设置忽视目录
-		;
-		// .antMatchers("/**/**.js", "/lang/*.json", "/**/**.css", "/**/**.js",
-		// "/**/**.map", "/**/**.html","/**/**.jsp",
-		// "/**/**.png")
-		// .antMatchers("/zui/**","/js/**","/images/**")
-		// .antMatchers("/uuac/zui/**","/uuac/js/**","/uuac/images/**")
-		// .antMatchers("/webjars/**", "/images/**",
-		// "/swagger-ui.html","/swagger-resources/**","/v2/api-docs","/configuration/ui","/configuration/security","/actuator/**");
-		// @formatter:on
-	}
-
-	public SecurityProperties getSecurityProperties() {
-		return securityProperties;
-	}
-
-	public void setSecurityProperties(SecurityProperties securityProperties) {
-		this.securityProperties = securityProperties;
+		ignoreResourcesConfig.configure(web);
 	}
 
 	public PasswordEncoder getPasswordEncoder() {
@@ -154,5 +108,20 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		this.userDetailsService = userDetailsService;
 	}
 
+	public SecurityContextManager getSecurityContextManager() {
+		return securityContextManager;
+	}
+
+	public void setSecurityContextManager(SecurityContextManager securityContextManager) {
+		this.securityContextManager = securityContextManager;
+	}
+
+	public IgnoreResourcesConfig getIgnoreResourcesConfig() {
+		return ignoreResourcesConfig;
+	}
+
+	public void setIgnoreResourcesConfig(IgnoreResourcesConfig ignoreResourcesConfig) {
+		this.ignoreResourcesConfig = ignoreResourcesConfig;
+	}
 
 }

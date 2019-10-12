@@ -13,7 +13,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
-import com.yishuifengxiao.common.security.authorize.AuthorizeResourceProvider;
+import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 

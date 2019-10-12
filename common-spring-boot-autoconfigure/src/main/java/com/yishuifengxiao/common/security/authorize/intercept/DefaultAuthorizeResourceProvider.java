@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.authorize;
+package com.yishuifengxiao.common.security.authorize.intercept;
 
 import java.util.Arrays;
 import java.util.List;
