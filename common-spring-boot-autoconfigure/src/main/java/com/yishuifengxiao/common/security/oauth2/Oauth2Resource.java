@@ -20,7 +20,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
-import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.matcher.ExcludeRequestMatcher;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 

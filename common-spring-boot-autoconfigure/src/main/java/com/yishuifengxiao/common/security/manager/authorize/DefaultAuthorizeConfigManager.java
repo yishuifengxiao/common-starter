@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.manager;
+package com.yishuifengxiao.common.security.manager.authorize;
 
 import java.util.Comparator;
 import java.util.List;

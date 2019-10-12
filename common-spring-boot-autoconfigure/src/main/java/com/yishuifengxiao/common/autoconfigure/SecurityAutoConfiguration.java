@@ -28,9 +28,14 @@ import com.yishuifengxiao.common.autoconfigure.security.SecurityRedisAutoConfigu
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
+import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
-import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
-import com.yishuifengxiao.common.security.manager.DefaultAuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.DefaultSecurityContextManager;
+import com.yishuifengxiao.common.security.manager.SecurityContextManager;
+import com.yishuifengxiao.common.security.manager.adapter.AdapterManager;
+import com.yishuifengxiao.common.security.manager.adapter.DefaultAdapterManager;
+import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.authorize.DefaultAuthorizeConfigManager;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
@@ -45,7 +50,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })
-@EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class ,SocialProperties.class})
+@EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class, SocialProperties.class })
 @Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,
 		PersistentTokenAutoConfiguration.class, SecurityCodeAutoConfiguration.class,
 		SecurityRedisAutoConfiguration.class })
@@ -149,4 +154,33 @@ public class SecurityAutoConfiguration {
 		return authorizeConfigManager;
 	}
 
+	/**
+	 * 自定义适配器管理器
+	 * 
+	 * @param securityAdapters 系统中所有的权限适配器
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public AdapterManager adapterManager(List<AbstractSecurityAdapter> securityAdapters) {
+		DefaultAdapterManager defaultAdapterManager = new DefaultAdapterManager();
+		defaultAdapterManager.setSecurityAdapters(securityAdapters);
+		return defaultAdapterManager;
+	}
+
+	/**
+	 * 自定义授权管理器
+	 * @param authorizeConfigManager 授权管理器
+	 * @param adapterManager 自定义适配器管理器
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnMissingBean
+	public SecurityContextManager securityContextManager(AuthorizeConfigManager authorizeConfigManager,
+			AdapterManager adapterManager) {
+		DefaultSecurityContextManager securityContextManager = new DefaultSecurityContextManager();
+		securityContextManager.setAdapterManager(adapterManager);
+		securityContextManager.setAuthorizeConfigManager(authorizeConfigManager);
+		return securityContextManager;
+	}
 }

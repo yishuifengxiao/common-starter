@@ -1,7 +1,5 @@
 package com.yishuifengxiao.common.security;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
-import com.yishuifengxiao.common.security.manager.AuthorizeConfigManager;
+import com.yishuifengxiao.common.security.manager.SecurityContextManager;
 
 /**
  * 安全服务器配置
@@ -46,10 +43,10 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	protected UserDetailsService userDetailsService;
 
 	/**
-	 * 授权配置管理器
+	 * 安全授权配置管理器
 	 */
 	@Autowired
-	protected AuthorizeConfigManager authorizeConfigManager;
+	protected SecurityContextManager securityContextManager;
 
 	/**
 	 * 定义在security-core包中
@@ -63,12 +60,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 */
 	@Autowired
 	protected AccessDeniedHandler customAccessDeniedHandler;
-
-	/**
-	 * 系统中所有的权限适配器
-	 */
-	@Autowired(required = false)
-	protected List<AbstractSecurityAdapter> securityAdapters;
 
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -112,12 +103,8 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 					.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 		}
 
-		// 注入所有的授权适配器
-		if (securityAdapters != null) {
-			for (AbstractSecurityAdapter securityAdapter : securityAdapters) {
-				http.apply(securityAdapter);
-			}
-		}
+		// 注入所有的自定义授权适配器
+		securityContextManager.config(http);
 
 		// .anonymous().disable()//禁止匿名访问要放在后面
 		// @formatter:on
@@ -173,12 +160,5 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		this.userDetailsService = userDetailsService;
 	}
 
-	public AuthorizeConfigManager getAuthorizeConfigManager() {
-		return authorizeConfigManager;
-	}
-
-	public void setAuthorizeConfigManager(AuthorizeConfigManager authorizeConfigManager) {
-		this.authorizeConfigManager = authorizeConfigManager;
-	}
 
 }

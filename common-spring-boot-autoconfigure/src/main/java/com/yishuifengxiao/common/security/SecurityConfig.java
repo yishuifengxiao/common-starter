@@ -30,8 +30,6 @@ public class SecurityConfig extends AbstractSecurityConfig {
 		// 调用父类中的默认配置
 		applyAuthenticationConfig(http);
 
-		// 加入自定义的授权配置
-		authorizeConfigManager.config(http.authorizeRequests());
 	}
 
 }
