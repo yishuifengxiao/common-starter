@@ -9,7 +9,6 @@ import javax.validation.ValidationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -166,20 +165,7 @@ public class WebExceptionAutoConfiguration {
 		return response;
 	}
 
-	/**
-	 * 当尝试插入或更新数据导致违反主键或唯一约束时引发异常。请注意，这不一定是纯关系概念；大多数数据库类型都需要唯一主键。
-	 * 
-	 * @param e
-	 * @return
-	 */
-	@ExceptionHandler
-	@ResponseBody
-	@ResponseStatus(HttpStatus.OK)
-	public Response<String> handle(DuplicateKeyException e) {
-		Response<String> response = new Response<String>(HttpStatus.BAD_REQUEST.value(), "已经存在相似的数据,不能重复添加");
-		logger.warn("请求{} 插入数据到数据库时出现问题,失败的原因为 {}  ", response.getId(), e.getMessage());
-		return response;
-	}
+
 
 	/**
 	 * 数组越界 - Internal Server Error
