@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AuthenticationFailureEvent;
-import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
 import com.yishuifengxiao.common.utils.RegexUtil;
@@ -38,7 +38,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 	/**
 	 * 协助处理器
 	 */
-	private HandlerProcessor customProcessor;
+	private ProcessHandler customProcessor;
 
 	private ApplicationContext context;
 
@@ -82,15 +82,15 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		this.securityProperties = securityProperties;
 	}
 
-	public HandlerProcessor getCustomHandle() {
+	public ProcessHandler getCustomHandle() {
 		return customProcessor;
 	}
 
-	public void setCustomHandle(HandlerProcessor customProcessor) {
+	public void setCustomHandle(ProcessHandler customProcessor) {
 		this.customProcessor = customProcessor;
 	}
 
-	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor) {
+	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, ProcessHandler customProcessor) {
 
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;
@@ -108,7 +108,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		this.context = context;
 	}
 
-	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor,
+	public CustomAuthenticationFailureHandler(SecurityProperties securityProperties, ProcessHandler customProcessor,
 			ApplicationContext context) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;

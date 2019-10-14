@@ -23,7 +23,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.yishuifengxiao.common.security.entity.TokenInfo;
 import com.yishuifengxiao.common.security.event.TokenEndpointEvent;
-import com.yishuifengxiao.common.security.processor.impl.DefaultHandlerProcessor;
+import com.yishuifengxiao.common.security.processor.impl.DefaultProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
@@ -92,7 +92,7 @@ public class TokenEndpointAuthenticationFilter extends OncePerRequestFilter impl
 	protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, String msg)
 			throws IOException {
 		Response data = Response.error(msg);
-		new DefaultHandlerProcessor().send(request, response, data);
+		new DefaultProcessHandler().send(request, response, data);
 	}
 
 	/**

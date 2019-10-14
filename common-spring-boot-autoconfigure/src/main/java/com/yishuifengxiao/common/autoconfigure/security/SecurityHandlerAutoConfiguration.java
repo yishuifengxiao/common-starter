@@ -22,8 +22,8 @@ import com.yishuifengxiao.common.security.handler.CustomAccessDeniedHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationFailureHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHandler;
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
-import com.yishuifengxiao.common.security.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.processor.impl.DefaultHandlerProcessor;
+import com.yishuifengxiao.common.security.processor.ProcessHandler;
+import com.yishuifengxiao.common.security.processor.impl.DefaultProcessHandler;
 
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
@@ -44,8 +44,8 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public HandlerProcessor handlerProcessor(ObjectMapper objectMapper) {
-		DefaultHandlerProcessor customHandle = new DefaultHandlerProcessor();
+	public ProcessHandler handlerProcessor(ObjectMapper objectMapper) {
+		DefaultProcessHandler customHandle = new DefaultProcessHandler();
 		customHandle.setObjectMapper(objectMapper);
 		customHandle.setSecurityProperties(securityProperties);
 		return customHandle;
@@ -58,7 +58,7 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public AuthenticationFailureHandler authenticationFailureHandler(HandlerProcessor customHandle,
+	public AuthenticationFailureHandler authenticationFailureHandler(ProcessHandler customHandle,
 			ApplicationContext context) {
 		CustomAuthenticationFailureHandler hanler = new CustomAuthenticationFailureHandler();
 		hanler.setSecurityProperties(securityProperties);
@@ -74,7 +74,7 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public AuthenticationSuccessHandler authenticationSuccessHandler(HandlerProcessor customHandle,
+	public AuthenticationSuccessHandler authenticationSuccessHandler(ProcessHandler customHandle,
 			ApplicationContext context) {
 		CustomAuthenticationSuccessHandler hanler = new CustomAuthenticationSuccessHandler();
 		hanler.setSecurityProperties(securityProperties);
@@ -90,7 +90,7 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean
 	@ConditionalOnMissingBean(LogoutSuccessHandler.class)
-	public LogoutSuccessHandler logoutSuccessHandler(HandlerProcessor customHandle, ApplicationContext context) {
+	public LogoutSuccessHandler logoutSuccessHandler(ProcessHandler customHandle, ApplicationContext context) {
 		CustomLogoutSuccessHandler hanler = new CustomLogoutSuccessHandler();
 		hanler.setSecurityProperties(securityProperties);
 		hanler.setCustomHandle(customHandle);
@@ -105,7 +105,7 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean("exceptionAuthenticationEntryPoint")
 	@ConditionalOnMissingBean(name = "exceptionAuthenticationEntryPoint")
-	public AuthenticationEntryPoint exceptionAuthenticationEntryPoint(HandlerProcessor customHandle,
+	public AuthenticationEntryPoint exceptionAuthenticationEntryPoint(ProcessHandler customHandle,
 			ApplicationContext context) {
 		ExceptionAuthenticationEntryPoint point = new ExceptionAuthenticationEntryPoint();
 		point.setCustomHandle(customHandle);
@@ -121,7 +121,7 @@ public class SecurityHandlerAutoConfiguration {
 	 */
 	@Bean("accessDeniedHandler")
 	@ConditionalOnMissingBean(name = "accessDeniedHandler")
-	public AccessDeniedHandler accessDeniedHandler(HandlerProcessor customHandle, ApplicationContext context) {
+	public AccessDeniedHandler accessDeniedHandler(ProcessHandler customHandle, ApplicationContext context) {
 		CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
 		handler.setSecurityProperties(securityProperties);
 		handler.setCustomHandle(customHandle);

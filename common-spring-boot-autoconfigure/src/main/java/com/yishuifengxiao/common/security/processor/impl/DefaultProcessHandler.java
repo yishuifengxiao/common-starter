@@ -16,7 +16,7 @@ import org.springframework.security.web.RedirectStrategy;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
 
 /**
@@ -26,8 +26,8 @@ import com.yishuifengxiao.common.tool.entity.Response;
  * @Date 2019年4月2日
  * @version 1.0.0
  */
-public class DefaultHandlerProcessor implements HandlerProcessor, InitializingBean {
-	private final static Logger log = LoggerFactory.getLogger(HandlerProcessor.class);
+public class DefaultProcessHandler implements ProcessHandler, InitializingBean {
+	private final static Logger log = LoggerFactory.getLogger(ProcessHandler.class);
 	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private ObjectMapper objectMapper;
@@ -93,13 +93,13 @@ public class DefaultHandlerProcessor implements HandlerProcessor, InitializingBe
 		}
 	}
 
-	public DefaultHandlerProcessor(ObjectMapper objectMapper, SecurityProperties securityProperties) {
+	public DefaultProcessHandler(ObjectMapper objectMapper, SecurityProperties securityProperties) {
 
 		this.objectMapper = objectMapper;
 		this.securityProperties = securityProperties;
 	}
 
-	public DefaultHandlerProcessor() {
+	public DefaultProcessHandler() {
 
 	}
 

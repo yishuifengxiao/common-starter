@@ -15,7 +15,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AuthenticationSuccessEvent;
-import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtil;
 
@@ -37,7 +37,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	/**
 	 * 协助处理器
 	 */
-	private HandlerProcessor customProcessor;
+	private ProcessHandler customProcessor;
 
 	private ApplicationContext context;
 
@@ -82,15 +82,15 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.securityProperties = securityProperties;
 	}
 
-	public HandlerProcessor getCustomHandle() {
+	public ProcessHandler getCustomHandle() {
 		return customProcessor;
 	}
 
-	public void setCustomHandle(HandlerProcessor customProcessor) {
+	public void setCustomHandle(ProcessHandler customProcessor) {
 		this.customProcessor = customProcessor;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor) {
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, ProcessHandler customProcessor) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;
 	}
@@ -107,7 +107,7 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 		this.context = context;
 	}
 
-	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, HandlerProcessor customProcessor,
+	public CustomAuthenticationSuccessHandler(SecurityProperties securityProperties, ProcessHandler customProcessor,
 			ApplicationContext context) {
 		this.securityProperties = securityProperties;
 		this.customProcessor = customProcessor;
