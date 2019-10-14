@@ -27,6 +27,8 @@ public final class ExceptionUtil {
 				new Response<String>(Response.Const.CODE_BAD_REQUEST, "已经存在相似的数据,不能重复添加"));
 		MAP.put("DataIntegrityViolationException",
 				new Response<String>(Response.Const.CODE_BAD_REQUEST, "已经存在相似的数据,不能重复添加"));
+		MAP.put("DuplicateKeyException",
+				new Response<String>(Response.Const.CODE_BAD_REQUEST, "已经存在相似的数据,不能重复添加"));
 	}
 
 	/**
