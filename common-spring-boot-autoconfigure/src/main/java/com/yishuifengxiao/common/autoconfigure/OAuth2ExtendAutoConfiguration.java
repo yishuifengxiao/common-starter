@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.provider.approval.ApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
 import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
@@ -28,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
+import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
 import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
@@ -121,14 +123,27 @@ public class OAuth2ExtendAutoConfiguration {
 	}
 
 	/**
-	 *  获取token时在BasicAuthenticationFilter之前增加一个过滤器
+	 * 自定义异常转换器
+	 * 
+	 * @return
+	 */
+	@Bean("auth2ResponseExceptionTranslator")
+	@ConditionalOnMissingBean(name = "auth2ResponseExceptionTranslator")
+	@SuppressWarnings("rawtypes")
+	public WebResponseExceptionTranslator auth2ResponseExceptionTranslator() {
+		return new Auth2ResponseExceptionTranslator();
+	}
+
+	/**
+	 * 获取token时在BasicAuthenticationFilter之前增加一个过滤器
 	 * 
 	 * @return
 	 */
 	@Bean("tokenEndpointAuthenticationFilter")
 	@ConditionalOnMissingBean(name = "tokenEndpointAuthenticationFilter")
-	public TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter(ApplicationContext contentx,ClientDetailsService clientDetailsService,PasswordEncoder passwordEncoder) {
-		TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter=	new TokenEndpointAuthenticationFilter();
+	public TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter(ApplicationContext contentx,
+			ClientDetailsService clientDetailsService, PasswordEncoder passwordEncoder) {
+		TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter = new TokenEndpointAuthenticationFilter();
 		tokenEndpointAuthenticationFilter.setClientDetailsService(clientDetailsService);
 		tokenEndpointAuthenticationFilter.setPasswordEncoder(passwordEncoder);
 		tokenEndpointAuthenticationFilter.setContentx(contentx);

@@ -8,6 +8,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 import org.springframework.security.oauth2.provider.authentication.BearerTokenExtractor;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.error.OAuth2AuthenticationEntryPoint;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
@@ -15,7 +16,6 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
-import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 
 public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
@@ -46,6 +46,11 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	@Autowired
 	@Qualifier("tokenExtractor")
 	private TokenExtractor tokenExtractor;
+	
+	@SuppressWarnings("rawtypes")
+	@Autowired
+	@Qualifier("auth2ResponseExceptionTranslator")
+	private  WebResponseExceptionTranslator auth2ResponseExceptionTranslator;
 
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) {
@@ -53,7 +58,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		// 定义异常转换类生效
 		AuthenticationEntryPoint authenticationEntryPoint = new OAuth2AuthenticationEntryPoint();
 		((OAuth2AuthenticationEntryPoint) authenticationEntryPoint)
-				.setExceptionTranslator(new Auth2ResponseExceptionTranslator());
+				.setExceptionTranslator(auth2ResponseExceptionTranslator);
 
 		resources.authenticationEntryPoint(authenticationEntryPoint);
 		// 自定义token信息提取器
