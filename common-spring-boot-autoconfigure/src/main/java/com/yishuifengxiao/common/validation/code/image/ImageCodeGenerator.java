@@ -38,6 +38,11 @@ public class ImageCodeGenerator implements CodeGenerator {
 	 * y方向上默认的内边距
 	 */
 	private final static int DEFAULT_Y_PADDING = 8;
+
+	/**
+	 * 默认的字体大小
+	 */
+	private final static int DEFAULT_FONT_SIZE = 23;
 	private CodeProperties codeProperties;
 
 	@Override
@@ -60,7 +65,7 @@ public class ImageCodeGenerator implements CodeGenerator {
 		g.setColor(codeProperties.getImage().getFringe() ? getRandColor(200, 250) : Color.WHITE);
 		g.fillRect(0, 0, width, height);
 
-		g.setFont(new Font("Times New Roman", Font.ITALIC, 23));
+		g.setFont(new Font("Times New Roman", Font.ITALIC, DEFAULT_FONT_SIZE));
 		// 生成干扰条纹
 		if (codeProperties.getImage().getFringe()) {
 			g.setColor(getRandColor(160, 200));
@@ -78,9 +83,9 @@ public class ImageCodeGenerator implements CodeGenerator {
 
 		for (int i = 0; i < length; i++) {
 
-			int xCoordinate = ((width - DEFAULT_X_PADDING) / length) * i + DEFAULT_X_PADDING;
-			int yCoordinate = height - DEFAULT_Y_PADDING;
-			//绘制文字
+			int xCoordinate = ((width - DEFAULT_X_PADDING - DEFAULT_X_PADDING) / length) * i + DEFAULT_X_PADDING;
+			int yCoordinate = (height - DEFAULT_FONT_SIZE - DEFAULT_Y_PADDING) / 2 + DEFAULT_FONT_SIZE;
+			// 绘制文字
 			String rand = generate(xCoordinate, yCoordinate, codeProperties.getImage().isContainLetter(),
 					codeProperties.getImage().isContainNumber(), g);
 			sRand += rand;
