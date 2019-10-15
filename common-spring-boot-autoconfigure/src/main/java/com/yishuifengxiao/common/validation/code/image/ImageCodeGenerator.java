@@ -112,7 +112,7 @@ public class ImageCodeGenerator implements CodeGenerator {
 			// 只包含数字
 			rand = RandomUtils.nextInt(0, 10) + "";
 		} else {
-			rand = RandomStringUtils.random(1, false, true);
+			rand = RandomStringUtils.random(1, true, true);
 		}
 		// 判断是否出现空白字符
 		rand = StringUtils.isNotBlank(rand) ? rand : random.nextInt(10) + "";
