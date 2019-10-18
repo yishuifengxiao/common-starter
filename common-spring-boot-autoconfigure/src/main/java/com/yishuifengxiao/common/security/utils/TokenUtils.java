@@ -71,7 +71,7 @@ public class TokenUtils {
 			throw new UnapprovedClientAuthenticationException("clientSecret不匹配");
 		}
 
-		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
+		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(0), clientId, clientDetails.getScope(),
 				StringUtils.isBlank(grantType) ? "custome" : grantType);
 
 		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
@@ -161,7 +161,7 @@ public class TokenUtils {
 			throw new UnapprovedClientAuthenticationException("clientSecret不匹配");
 		}
 
-		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
+		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(0), clientId, clientDetails.getScope(),
 				StringUtils.isBlank(grantType) ? "custome" : grantType);
 
 		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);

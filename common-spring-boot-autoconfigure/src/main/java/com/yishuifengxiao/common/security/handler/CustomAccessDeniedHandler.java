@@ -15,6 +15,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.context.SecurityHolder;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
@@ -60,12 +61,13 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 		request.getSession().setAttribute("yishuifengxiao.msg.denie", accessDeniedException);
 		// 将被拦截的url存放到session中
 		request.getSession().setAttribute("yishuifengxiao.denie.url", uri);
-
+		// 存储异常信息
+		SecurityHolder.getContext().setSecurityExcepion(accessDeniedException, uri);
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getDenie().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-		log.debug("【资源服务】资源请求,该资源的url为 {}",request.getRequestURL().toString());
+		log.debug("【资源服务】资源请求,该资源的url为 {}", request.getRequestURL().toString());
 		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", uri, accessDeniedException.getMessage(),
 				handleEnum, type);
 		if (type == HandleEnum.DEFAULT) {

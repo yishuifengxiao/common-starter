@@ -16,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.context.SecurityHolder;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.ExceptionAuthenticationEntryPointEvent;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
@@ -56,6 +57,9 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		request.getSession().setAttribute("yishuifengxiao.msg.exception", authException);
 	    //将被拦截的url存放到session中
 		request.getSession().setAttribute("yishuifengxiao.exception.url", uri);
+		//存储异常信息
+		SecurityHolder.getContext().setSecurityExcepion(authException, uri);
+		
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 

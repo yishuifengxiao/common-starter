@@ -13,6 +13,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.context.SecurityHolder;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AuthenticationFailureEvent;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
@@ -51,6 +52,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 		//存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.fail", exception);
+		// 存储异常信息
+		SecurityHolder.getContext().setSecurityExcepion(exception, request.getRequestURI());
 		
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getFail().getReturnType();
