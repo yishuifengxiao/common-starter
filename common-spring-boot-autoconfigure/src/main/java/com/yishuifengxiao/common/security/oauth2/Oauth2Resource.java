@@ -16,7 +16,12 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
-
+/**
+ * oauth2 资源相关的配置
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
 	@Autowired

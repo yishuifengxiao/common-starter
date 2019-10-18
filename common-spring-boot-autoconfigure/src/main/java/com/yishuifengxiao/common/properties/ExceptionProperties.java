@@ -5,6 +5,13 @@ import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * 异常信息提示配置
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @ConfigurationProperties(prefix = "yishuifengxiao.error")
 public class ExceptionProperties {
 	/**

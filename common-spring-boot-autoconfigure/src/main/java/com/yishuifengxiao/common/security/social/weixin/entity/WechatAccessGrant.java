@@ -1,7 +1,12 @@
 package com.yishuifengxiao.common.security.social.weixin.entity;
 
 import org.springframework.social.oauth2.AccessGrant;
-
+/**
+ * 微信登陆授权
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class WechatAccessGrant extends AccessGrant {
 
     /**

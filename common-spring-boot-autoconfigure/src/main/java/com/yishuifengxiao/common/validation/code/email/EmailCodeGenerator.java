@@ -8,6 +8,13 @@ import com.yishuifengxiao.common.validation.entity.EmailCode;
 import com.yishuifengxiao.common.validation.entity.ValidateCode;
 import com.yishuifengxiao.common.validation.generator.CodeGenerator;
 
+/**
+ * 邮箱验证码生成器
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class EmailCodeGenerator implements CodeGenerator {
 
 	private CodeProperties codeProperties;
@@ -36,6 +43,4 @@ public class EmailCodeGenerator implements CodeGenerator {
 
 	}
 
-	
-	
 }

@@ -8,6 +8,13 @@ import com.yishuifengxiao.common.constant.Oauth2Constant;
 import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
 import com.yishuifengxiao.common.tool.encoder.DES;
 
+/**
+ * 缺省的ClientDetailsService实现类
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class DefaultClientDetailsService extends AbstractClientDetailsService {
 
 	@Override

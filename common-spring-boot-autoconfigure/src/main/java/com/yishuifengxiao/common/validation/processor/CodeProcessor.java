@@ -18,7 +18,7 @@ public interface CodeProcessor {
 	 * 创建校验码
 	 * 
 	 * @param request
-	 * @throws Exception
+	 * @throws ValidateException
 	 */
 	void create(ServletWebRequest request) throws ValidateException;
 
@@ -26,7 +26,7 @@ public interface CodeProcessor {
 	 * 校验验证码
 	 * 
 	 * @param servletWebRequest
-	 * @throws Exception
+	 * @throws ValidateException
 	 */
 	void validate(ServletWebRequest servletWebRequest) throws ValidateException;
 }

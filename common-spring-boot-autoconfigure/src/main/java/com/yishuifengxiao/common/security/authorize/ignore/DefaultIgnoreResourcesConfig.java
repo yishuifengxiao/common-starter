@@ -6,12 +6,20 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 
+/**
+ * 配置忽视的资源
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class DefaultIgnoreResourcesConfig implements IgnoreResourcesConfig {
 	/**
 	 * 自定义属性配置
 	 */
 	@Autowired
 	protected SecurityProperties securityProperties;
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 
@@ -30,15 +38,15 @@ public class DefaultIgnoreResourcesConfig implements IgnoreResourcesConfig {
 		// .antMatchers("/webjars/**", "/images/**",
 		// "/swagger-ui.html","/swagger-resources/**","/v2/api-docs","/configuration/ui","/configuration/security","/actuator/**");
 		// @formatter:on
-	
+
 	}
+
 	public SecurityProperties getSecurityProperties() {
 		return securityProperties;
 	}
+
 	public void setSecurityProperties(SecurityProperties securityProperties) {
 		this.securityProperties = securityProperties;
 	}
-	
-	
 
 }

@@ -118,7 +118,7 @@ public class WebExceptionAutoConfiguration {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(IOException.class)
-	public Response<String> handleIOException(IOException e) {
+	public Response<String> handleIoException(IOException e) {
 		String msg = e.getMessage();
 		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				RegexUtil.containChinese(msg) ? msg : "请求失败");

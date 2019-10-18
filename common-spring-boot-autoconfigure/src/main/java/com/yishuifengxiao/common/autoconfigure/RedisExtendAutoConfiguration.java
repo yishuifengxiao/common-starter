@@ -27,7 +27,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
-
+/**
+ * 注入redis相关的配置
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
 public class RedisExtendAutoConfiguration {

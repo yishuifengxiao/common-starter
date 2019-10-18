@@ -6,7 +6,12 @@ import org.springframework.social.connect.UserProfile;
 
 import com.yishuifengxiao.common.security.social.weixin.api.Wechat;
 import com.yishuifengxiao.common.security.social.weixin.entity.WechatUserInfo;
-
+/**
+ * 微信登陆适配器
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class WechatAdapter implements ApiAdapter<Wechat> {
 
     private String openId;

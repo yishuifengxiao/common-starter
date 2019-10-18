@@ -32,7 +32,12 @@ import com.yishuifengxiao.common.security.social.processor.SocialAuthenticationF
 import com.yishuifengxiao.common.security.social.processor.impl.SsoSocialAuthenticationFilterPostProcessor;
 import com.yishuifengxiao.common.security.social.qq.QQSocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.weixin.WechatAutoConfigurerAdapter;
-
+/**
+ * 注入spring social相关的配置
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ ConnectController.class, SocialConfigurerAdapter.class })
 @ConditionalOnBean({ ConnectionFactoryLocator.class, UsersConnectionRepository.class })
