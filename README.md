@@ -1,117 +1,76 @@
-在日常开发过程中，发现有一个重要的组件会被经常使用到，但是又没有一个比较好用的功能集合，在开发项目是需要反复配置，造成了大量不必要的重复性简单劳动，因此对日常使用到功能进行了一个通用封装，形成了【易水风萧通用组件】，方便后期项目开发。
+在日常开发过程中，发现有一个重要的功能会被经常使用到，但是又没有一个比较好用的功能集合，在开发项目是需要反复配置，造成了大量不必要的重复性简单劳动，因此对日常使用到功能进行了一个通用封装，形成了【易水公共组件】(以后简称组件)，方便后期项目开发。 本着"一次开发,开箱即用"的原则，组件在开发时遵守以下几点：
+
+- 开箱即用
+- 基本配置,即在开启本组件功能后，无须二次配置即能使用组件的基本工功能。
+- 个性配置，组件提供大量的配置属性，能通过预留的配置属性自定义组件功能。
+- 高级配置，在系统默认配置和个性配置不能满足开发需要时，能通过自定义组件中的某些元件实现高级配置。
+
+<br/>
+**快速使用**
+
+
+```
+    <dependency>
+        <groupId>com.yishuifengxiao.common</groupId>
+        <artifactId>common-spring-boot-starter</artifactId>
+        <version>4.1.1</version>
+    </dependency>
+```
+
+
+易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。
+
+在保证功能灵活可用的基础上，易水公共组件还针对国人的使用习惯进行了一些本地化配置，提供了详细完整的中文使用说明文档。总的来说，易水公共组件在保证单机应用的高效性能同时，还能支持分部署环境，是目前主流的微服务开发过程中不可或缺的重要伙伴。
+
 易水风萧通用组件主要包含以下一些常用功能：
+
 - swagger-ui文档
+> - 快速启动/关闭swagger-ui功能
+> - 支持自定义swagger-ui启动参数
+> - 支持生成离线文档
 - 全局跨域支持
+> - 快速启动/关闭跨域功能
+> - 支持自定义跨域属性设置
 - 全局异常捕获
+> - 包含各种基本的异常信息捕获
+> - 支持自定义异常提示信息
 - 通用辅助工具
+> - 默认支持各种字符处理方式，如去掉空白字符串，去掉非法字符
+> - 快速获取spring上下文
+> - 快速获取spring中的实例对象
 - 验证码功能
+> - 默认支持图形验证码，短信验证码和邮件验证码
+> - 支持前后端分离情况下的验证码使用
+> - 支持自定义验证码生成策略
+> - 支持自定义验证码存储策略
+> - 支持分布式与集群功能
 - spring security
+> - 大量丰富灵活的配置属性
+> - 支持验证码功能，快速给任意资源设置各种类型的验证码
+> - 简单清晰的资源管理方式，能够轻松管理系统中的应用资源
+> - 支持短信登录
+> - 支持修改表单登录参数
+> - 支持自定义登录流程
+> - 支持自定义权限配置
+> - 支持并发登录管理
+> - 支持"记住我"功能
+> - 防止密码暴力破解
+> - 内置各种消息时间，快速感知各种操作动作
 - oauth2
-- spring social (QQ登录 、微信登录)
-
-在使用 易水风萧通用组件 之前，需要先在项目的pom依赖里加入以下配置：
-
-
-```
-<dependency>
-    <groupId>com.yishuifengxiao.common</groupId>
-    <artifactId>common-spring-boot-starter</artifactId>
-    <version>3.0.0</version>
-</dependency>
-```
-
-注意：在使用时请参考 [https://mvnrepository.com/artifact/com.yishuifengxiao.common/common-spring-boot-starter](hhttps://mvnrepository.com/artifact/com.yishuifengxiao.common/common-spring-boot-starter) 将版本号替换为最新版本。
-
-> **本文档针对于3.0.0及后续版本，由于3.0.0版本更新内容较多，对于历史版本本说明文档可能会有较大出入**。
+> - 支持自定义token生成策略
+> - 支持自定义token存储策略
+> - 内置全局异常功能
+> - 内置token解析功能，能够根据特定算法从token中解析出用户信息
+> - 内置多种token提取方式，支持从url、请求头以及session中提取token
+> - 支持oauth2模式下单用户多终端登录管理功能
+- 第三方登陆
+> - 默认支持QQ登录
+> - 默认支持微信登录功能
+> - 支持其他的第三方登录
 
 
-## 一 swagger-ui文档
+**资源链接**
 
-### 1.1 快速启动
+官方文档地址：http://doc.yishuifengxiao.com/ <br/>
+源码地址：https://gitee.com/zhiyubujian/common-starter
 
-在配置文件中加入以下配置即可快速开启swagger-ui功能。
-
-
-```
-yishuifengxiao.swagger.base-package= 需要扫描的控制器代码的路径
-```
-
-加入上述配置后，即可通过  
-
-http://ip:port/doc.html
-
-或者 
-
-http://ip:port/swagger-ui.html
-
-查看自己的swagger-ui文档了。
-
-此外，也可以通过http://ip:port/v2/api-docs查看元数据
-
-> 这里只是简化了swagger-ui的扫描注解，对于软件开发过程中必须swagger-ui其他API注解任然不可省略。
-
-下面是一个简单的swagger-ui配置文档示例
-
-
-```
-@Api(value = "【测试接口】测试接口", tags = {"测试接口"})
-@Valid
-@Controller
-@RequestMapping
-@Slf4j
-public class WebConftroller  {
-
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "username", value = "登录的用户名"),
-            @ApiImplicitParam(name = "loginIp", value = "登录ip"),
-            @ApiImplicitParam(name = "pass", value = "登录结果,true表示成功，false失败"),
-            @ApiImplicitParam(name = "pageSize", value = "分页大小,分页的大小不能小于1,默认值为20"),
-            @ApiImplicitParam(name = "pageNum", value = "当前页的页码,页码的大小不能小于1，默认值为1")})
-    @ApiOperation(value = "分页查询登录记录", notes = "分页查询登录记录")
-    @GetMapping("/demo")
-    @ResponseBody
-    public Response<String> findPage(
-        HttpServletRequest request, HttpServletResponse response,
-        @RequestParam(value = "username", required = false) String username,
-        @RequestParam(value = "loginIp", required = false) String loginIp,
-        @RequestParam(value = "pass", required = false) Boolean pass,
-        @RequestParam(name = "pageSize", defaultValue = "20", required = false) Integer pageSize,
-        @RequestParam(name = "pageNum", defaultValue = "1", required = false) Integer pageNum) {
-
-
-        return Response.suc();
-
-    }
-
-}
-```
-
-
-
-**特别鸣谢**： 此项功能中的doc.html界面中功能使用到了刀哥的 swagger-bootstrap-ui 中的功能 ，在此特别感谢 刀哥 的大力支持，关于swagger-bootstrap-ui的详细说明请参见刀哥的 [swagger-bootstrap-ui文档](https://doc.xiaominfo.com/guide/)
-### 1.2 常规配置
-
-
-```
-# swagger-ui文档的标题
-yishuifengxiao.swagger.title=API接口文档
-# swagger-ui文档描述
-yishuifengxiao.swagger.description=易水风萧 接口说明文档
-#swagger-ui 项目服务的url
-yishuifengxiao.swagger.terms-of-service-url=http://www.yishuifengxiao.com/
-# swagger-ui 文档分组的名字
-yishuifengxiao.swagger.group-name=default
-# swagger-ui 文档版本
-yishuifengxiao.swagger.version=1.0.0
-# 项目联系人名字
-yishuifengxiao.swagger.contact-user=yishuifengxiao
-# 项目联系的url
-yishuifengxiao.swagger.contact-url=http://www.yishuifengxiao.com/
-# 项目联系邮箱
-yishuifengxiao.swagger.contact-email=zhiyubujian@163.com
-```
-
-以上常规配置都有缺省默认值，用户在使用 易水风萧通用组件 时，如果没有特别需要，使用默认配置即可。
-
-
-更详细的说明文档请参见[易水通用组件说明文档](http://www.yishuifengxiao.com/2019/07/24/%E6%98%93%E6%B0%B4%E9%80%9A%E7%94%A8%E7%BB%84%E4%BB%B6/)
