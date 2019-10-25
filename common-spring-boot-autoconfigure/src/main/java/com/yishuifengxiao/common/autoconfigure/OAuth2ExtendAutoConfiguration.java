@@ -121,11 +121,12 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
-			AuthorizationServerTokenServices authorizationServerTokenServices, UserDetailsService userDetailsService) {
+			AuthorizationServerTokenServices authorizationServerTokenServices, UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
 		TokenUtils tokenUtils = new TokenUtils();
 		tokenUtils.setClientDetailsService(clientDetailsService);
 		tokenUtils.setUserDetailsService(userDetailsService);
 		tokenUtils.setAuthorizationServerTokenServices(authorizationServerTokenServices);
+		tokenUtils.setPasswordEncoder(passwordEncoder);
 		return tokenUtils;
 	}
 

@@ -11,18 +11,18 @@ import org.springframework.util.Assert;
  */
 public class SecurityHolder {
 
-	private static final ThreadLocal<SecurityContext> contextHolder = new ThreadLocal<>();
+	private static final ThreadLocal<SecurityContext> CONTEXT_HOLLDER = new ThreadLocal<>();
 
 	public static void clearContext() {
-		contextHolder.remove();
+		CONTEXT_HOLLDER.remove();
 	}
 
 	public static SecurityContext getContext() {
-		SecurityContext ctx = contextHolder.get();
+		SecurityContext ctx = CONTEXT_HOLLDER.get();
 
 		if (ctx == null) {
 			ctx = createEmptyContext();
-			contextHolder.set(ctx);
+			CONTEXT_HOLLDER.set(ctx);
 		}
 
 		return ctx;
@@ -30,7 +30,7 @@ public class SecurityHolder {
 
 	public static void setContext(SecurityContext context) {
 		Assert.notNull(context, "Only non-null SecurityContext instances are permitted");
-		contextHolder.set(context);
+		CONTEXT_HOLLDER.set(context);
 	}
 
 	public static SecurityContext createEmptyContext() {
