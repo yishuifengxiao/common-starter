@@ -2,6 +2,8 @@ package com.yishuifengxiao.common.security.context;
 
 import java.io.Serializable;
 
+import javax.servlet.http.HttpServletRequest;
+
 import com.yishuifengxiao.common.security.entity.SecurityContextException;
 
 
@@ -33,9 +35,9 @@ public interface SecurityContext extends Serializable {
 	 * 存储异常信息
 	 * 
 	 * @param excption 引起异常的原因
-	 * @param uri      引起异常的uri
+	 * @param request      引起异常的请求
 	 */
-	void setSecurityExcepion(Exception excption, String uri);
+	void setSecurityExcepion(HttpServletRequest request,Exception excption);
 
 	/**
 	 * 存储异常信息
@@ -49,6 +51,6 @@ public interface SecurityContext extends Serializable {
 	 * 
 	 * @param uri 引起异常的uri
 	 */
-	void setSecurityExcepion(String uri);
+	void setSecurityExcepion(HttpServletRequest request);
 
 }

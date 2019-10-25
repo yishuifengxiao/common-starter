@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.security.context;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 
 import com.yishuifengxiao.common.security.entity.SecurityContextException;
@@ -35,20 +37,20 @@ public class SecurityContextImpl implements SecurityContext {
 	}
 
 	@Override
-	public void setSecurityExcepion(Exception excption, String uri) {
-		this.excption = new SecurityContextException(excption, uri);
+	public void setSecurityExcepion(HttpServletRequest request,Exception excption) {
+		this.excption = new SecurityContextException( request,excption);
 
 	}
 
 	@Override
 	public void setSecurityExcepion(Exception excption) {
-		this.excption = new SecurityContextException(excption, null);
+		this.excption = new SecurityContextException(null, excption);
 
 	}
 
 	@Override
-	public void setSecurityExcepion(String uri) {
-		this.excption = new SecurityContextException(null, uri);
+	public void setSecurityExcepion(HttpServletRequest request) {
+		this.excption = new SecurityContextException(request, null);
 
 	}
 

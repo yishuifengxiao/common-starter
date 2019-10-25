@@ -53,7 +53,7 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 		//存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.fail", exception);
 		// 存储异常信息
-		SecurityHolder.getContext().setSecurityExcepion(exception, request.getRequestURI());
+		SecurityHolder.getContext().setSecurityExcepion(request,exception);
 		
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getFail().getReturnType();

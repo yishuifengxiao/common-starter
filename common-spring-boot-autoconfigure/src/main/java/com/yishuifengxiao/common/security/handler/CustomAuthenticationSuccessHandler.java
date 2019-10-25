@@ -45,12 +45,11 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication authentication) throws IOException, ServletException {
-		// 引起跳转的url
-		String url = request.getRequestURI();
 
 		// 发布事件
 		context.publishEvent(new AuthenticationSuccessEvent(authentication, request));
-		
+		// 引起跳转的url
+		String url = request.getRequestURI();
 		//存储消息到session中
 		request.getSession().setAttribute("yishuifengxiao.msg.suc", authentication);
 
