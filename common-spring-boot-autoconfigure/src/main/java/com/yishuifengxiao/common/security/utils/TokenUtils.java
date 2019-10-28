@@ -77,6 +77,22 @@ public class TokenUtils {
 
 		return this.createToken(authentication, clientDetails, grantType);
 	}
+	
+	/**
+	 * 根据认证信息生成token
+	 * 
+	 * @param request
+	 * @param username     用户名
+	 * @param clientDetails 终端信息
+	 * @param clientSecret 原始终端密码
+	 * @param grantType    授权类型，默认为 custome
+	 * @return
+	 */
+	public OAuth2AccessToken createToken(HttpServletRequest request, String username, ClientDetails clientDetails,
+			String grantType) {
+		UsernamePasswordAuthenticationToken authentication = extracted(request, username);
+		return this.createToken(authentication, clientDetails, grantType);
+	}
 
 	/**
 	 * 根据认证信息生成token 【请求头中必须包含basic信息】
