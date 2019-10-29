@@ -13,6 +13,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.constant.SessionConstant;
 import com.yishuifengxiao.common.properties.SecurityProperties;
@@ -21,8 +22,8 @@ import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.utils.RegexUtil;
 import com.yishuifengxiao.common.utils.HttpUtil;
-import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 权限拒绝处理器
@@ -56,8 +57,9 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
-		// 引起跳转的url
-		String url = cache.getRequest(request, response).getRedirectUrl();
+		// 引起跳转的uri
+		SavedRequest savedRequest= cache.getRequest(request, response);
+		String url = savedRequest!=null?savedRequest.getRedirectUrl():request.getRequestURL().toString();
 		// 存储消息到session中
 		request.getSession().setAttribute(SessionConstant.DENIE_MSG, accessDeniedException);
 		// 将被拦截的url存放到session中

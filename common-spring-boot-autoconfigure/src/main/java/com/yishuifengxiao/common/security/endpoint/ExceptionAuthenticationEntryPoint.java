@@ -16,6 +16,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.constant.SessionConstant;
 import com.yishuifengxiao.common.properties.SecurityProperties;
@@ -59,7 +60,8 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 		// 引起跳转的uri
-		String url = cache.getRequest(request, response).getRedirectUrl();
+		SavedRequest savedRequest= cache.getRequest(request, response);
+		String url = savedRequest!=null?savedRequest.getRedirectUrl():request.getRequestURL().toString();
 		//存储消息到session中
 		request.getSession().setAttribute(SessionConstant.EXCEPTION_MSG, authException);
 	    //将被拦截的url存放到session中

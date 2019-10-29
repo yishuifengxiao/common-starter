@@ -33,4 +33,11 @@ public final class SessionConstant {
 	 * 存储导致认证失败信息的消息的键
 	 */
 	public final static String FAIL_MSG = "yishuifengxiao.msg.fail";
+	
+	
+	
+	/**
+	 * 存储token的session的key值
+	 */
+	public static final String SESSION_TOKEN_KEY="yishuifengxiao.session.token";
 }

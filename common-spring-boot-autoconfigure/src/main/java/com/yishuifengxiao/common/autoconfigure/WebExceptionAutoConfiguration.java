@@ -24,8 +24,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.yishuifengxiao.common.properties.ExceptionProperties;
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.utils.RegexUtil;
 import com.yishuifengxiao.common.utils.ExceptionUtil;
-import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 全局异常处理类
