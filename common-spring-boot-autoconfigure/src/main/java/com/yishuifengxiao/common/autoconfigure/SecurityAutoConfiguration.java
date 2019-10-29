@@ -15,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.rememberme.InMemoryTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
@@ -41,6 +40,7 @@ import com.yishuifengxiao.common.security.manager.adapter.DefaultAdapterManager;
 import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
 import com.yishuifengxiao.common.security.manager.authorize.DefaultAuthorizeConfigManager;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.remerberme.InMemoryTokenRepositoryImpl;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
 

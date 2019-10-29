@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -38,7 +39,10 @@ import com.yishuifengxiao.common.utils.HttpUtil;
 public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoint {
 
 	private final static Logger log = LoggerFactory.getLogger(ExceptionAuthenticationEntryPoint.class);
-
+	/**
+	 * 请求需要认证的异常
+	 */
+	private final static String NEED_AUTH = "InsufficientAuthenticationException";
 
 	private SecurityProperties securityProperties;
 
@@ -48,7 +52,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	private ProcessHandler customHandle;
 
 	private ApplicationContext context;
-	
+
 	/**
 	 * 声明了缓存与恢复操作
 	 */
@@ -60,20 +64,20 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 		// 发布信息
 		context.publishEvent(new ExceptionAuthenticationEntryPointEvent(authException, request));
 		// 引起跳转的uri
-		SavedRequest savedRequest= cache.getRequest(request, response);
-		String url = savedRequest!=null?savedRequest.getRedirectUrl():request.getRequestURL().toString();
-		//存储消息到session中
+		SavedRequest savedRequest = cache.getRequest(request, response);
+		String url = savedRequest != null ? savedRequest.getRedirectUrl() : request.getRequestURL().toString();
+		// 存储消息到session中
 		request.getSession().setAttribute(SessionConstant.EXCEPTION_MSG, authException);
-	    //将被拦截的url存放到session中
+		// 将被拦截的url存放到session中
 		request.getSession().setAttribute(SessionConstant.EXCEPTION_URL, url);
-		//存储异常信息
-		SecurityHolder.getContext().setSecurityExcepion(request,authException);
-		
+		// 存储异常信息
+		SecurityHolder.getContext().setSecurityExcepion(request, authException);
+
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getException().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-		log.debug("【资源服务】获取资源 失败(可能是缺少token),该资源的url为 {}",request.getRequestURL().toString());
+		log.debug("【资源服务】获取资源 失败(可能是缺少token),该资源的url为 {}", request.getRequestURL().toString());
 		log.debug("【资源服务】获取资源 {} 失败(可能是缺少token) , 失败的原因为 {} , 系统配置的处理方式为 {} ,实际的处理方式为 {}", url,
 				authException.getMessage(), handleEnum, type);
 
@@ -84,8 +88,23 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 
 		customHandle.handle(request, response, type == HandleEnum.REDIRECT,
 				securityProperties.getHandler().getException().getRedirectUrl(),
-				new Response<>(Response.Const.CODE_UNAUTHORIZED, Response.Const.MSG_UNAUTHORIZED, authException));
+				new Response<>(Response.Const.CODE_UNAUTHORIZED, extractMsg(authException), authException));
 
+	}
+
+	/**
+	 * 根据异常提取错误信息提示
+	 * 
+	 * @param e
+	 * @return
+	 */
+	private String extractMsg(AuthenticationException e) {
+		String msg = e.getMessage();
+		String causeName = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "";
+		if (StringUtils.containsIgnoreCase(causeName, NEED_AUTH)) {
+			msg = "请求需要认证";
+		}
+		return msg;
 	}
 
 	public SecurityProperties getSecurityProperties() {
