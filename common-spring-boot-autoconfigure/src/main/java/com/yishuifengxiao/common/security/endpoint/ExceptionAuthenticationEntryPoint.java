@@ -100,7 +100,7 @@ public class ExceptionAuthenticationEntryPoint extends Http403ForbiddenEntryPoin
 	 */
 	private String extractMsg(AuthenticationException e) {
 		String msg = e.getMessage();
-		String causeName = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "";
+		String causeName = e.getClass().getSimpleName();
 		if (StringUtils.containsIgnoreCase(causeName, NEED_AUTH)) {
 			msg = "请求需要认证";
 		}

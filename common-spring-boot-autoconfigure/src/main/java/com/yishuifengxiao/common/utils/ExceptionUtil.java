@@ -23,7 +23,7 @@ public final class ExceptionUtil {
 	 */
 	public final static Response<String> extract(Map<String, String> map, Exception e) {
 
-		String causeName = e.getCause() != null ? e.getCause().getClass().getSimpleName() : "";
+		String causeName = e.getClass().getSimpleName();
 		String errMsg = getMsg(map, causeName);
 		return Response.error(errMsg);
 
