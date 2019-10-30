@@ -27,6 +27,7 @@ public class DefaultIgnoreResourcesConfig implements IgnoreResourcesConfig {
 		web
 		.ignoring()
 		.antMatchers(HttpMethod.OPTIONS, "/**")
+		.antMatchers("/oauth/check_token")
 		.mvcMatchers(securityProperties.getIgnore().getIgnore())
 		.antMatchers(securityProperties.getIgnore().getIgnore())// 设置忽视目录
 		;
