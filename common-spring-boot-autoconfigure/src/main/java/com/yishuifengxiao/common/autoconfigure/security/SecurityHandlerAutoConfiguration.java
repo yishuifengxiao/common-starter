@@ -24,7 +24,12 @@ import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHan
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.security.processor.impl.DefaultProcessHandler;
-
+/**
+ * 配置spring security 处理器
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 	WebSecurityConfigurerAdapter.class })

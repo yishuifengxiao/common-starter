@@ -16,6 +16,13 @@ import com.yishuifengxiao.common.validation.entity.EmailCode;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 import com.yishuifengxiao.common.validation.sender.impl.EmailCodeSender;
 
+/**
+ * 注入邮件发送相关的配置
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ MimeMessage.class, MimeType.class, JavaMailSender.class })
 @ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username", "password" })

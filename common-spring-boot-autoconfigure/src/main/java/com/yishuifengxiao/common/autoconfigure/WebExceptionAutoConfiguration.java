@@ -9,6 +9,8 @@ import javax.validation.ValidationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.HttpMediaTypeNotSupportedException;
@@ -20,9 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.yishuifengxiao.common.properties.ExceptionProperties;
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.utils.RegexUtil;
 import com.yishuifengxiao.common.utils.ExceptionUtil;
-import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 全局异常处理类
@@ -33,8 +36,12 @@ import com.yishuifengxiao.common.utils.RegexUtil;
  */
 @ControllerAdvice
 @ResponseBody
+@EnableConfigurationProperties(ExceptionProperties.class)
 public class WebExceptionAutoConfiguration {
 	private static Logger logger = LoggerFactory.getLogger(WebExceptionAutoConfiguration.class);
+	
+	@Autowired
+	private ExceptionProperties exceptionProperties;
 
 	/**
 	 * 400 - Bad Request
@@ -111,7 +118,7 @@ public class WebExceptionAutoConfiguration {
 	 */
 	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(IOException.class)
-	public Response<String> handleIOException(IOException e) {
+	public Response<String> handleIoException(IOException e) {
 		String msg = e.getMessage();
 		Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(),
 				RegexUtil.containChinese(msg) ? msg : "请求失败");
@@ -184,7 +191,7 @@ public class WebExceptionAutoConfiguration {
 	@ResponseStatus(HttpStatus.OK)
 	@ExceptionHandler(Exception.class)
 	public Response<String> handleException(Exception e) {
-		Response<String> response = ExceptionUtil.extract(e);
+		Response<String> response = ExceptionUtil.extract(exceptionProperties.getMap(),e);
 		logger.warn("【全局异常拦截】请求{} 请求失败,拦截到未知异常{}", response.getId(), e);
 		logger.warn("请求{} 请求失败,失败的原因为 {}  ", response.getId(), e.getMessage());
 		return response;

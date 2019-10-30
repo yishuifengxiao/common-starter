@@ -6,7 +6,6 @@ import java.util.Base64;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -14,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.util.Assert;
 
 /**
  * 在oauth2的情况下，根据spring security的认证信息生成token
@@ -39,77 +40,71 @@ public class TokenUtils {
 
 	private UserDetailsService userDetailsService;
 
+	private PasswordEncoder passwordEncoder;
+
 	/**
-	 * 根据认证信息生成token【密码包含在请求中】
+	 * 根据认证信息生成token
 	 * 
 	 * @param request
-	 * @param username     登陆名
+	 * @param username     用户名
 	 * @param clientId
-	 * @param clientSecret
+	 * @param clientSecret 原始终端密码
 	 * @param grantType    授权类型，默认为 custome
 	 * @return
 	 */
 	public OAuth2AccessToken createToken(HttpServletRequest request, String username, String clientId,
 			String clientSecret, String grantType) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-		if (userDetails == null) {
-			throw new UnapprovedClientAuthenticationException(
-					MessageFormat.format("username ({0}) 对应的信息不存在", clientId));
-		}
-		// 生成通过认证
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-				userDetails.getAuthorities());
+		UsernamePasswordAuthenticationToken authentication = extracted(request, username);
 
-		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
-		if (clientDetails == null) {
-			throw new UnapprovedClientAuthenticationException(
-					MessageFormat.format("clientId ({0}) 对应的信息不存在", clientId));
-		}
-		if (StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
-			throw new UnapprovedClientAuthenticationException("clientSecret不匹配");
-		}
-
-		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
-				StringUtils.isBlank(grantType) ? "custome" : grantType);
-
-		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
-
-		OAuth2Authentication oAuth2Authentication = new OAuth2Authentication(oAuth2Request, authentication);
-
-		OAuth2AccessToken oAuth2AccessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
-
-		return oAuth2AccessToken;
+		return this.createToken(authentication, clientId, clientSecret, grantType);
 	}
 
 	/**
-	 * 根据认证信息生成token 【请求头中必须包含basic信息】
+	 * 根据认证信息生成token
 	 * 
 	 * @param request
-	 * @param response
-	 * @param authentication
+	 * @param username     用户名
+	 * @param clientId
+	 * @param clientSecret 原始终端密码
+	 * @param grantType    授权类型，默认为 custome
 	 * @return
-	 * @throws IOException
 	 */
-	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException {
+	public OAuth2AccessToken createToken(HttpServletRequest request, String username, String clientId,
+			String grantType) {
+		UsernamePasswordAuthenticationToken authentication = extracted(request, username);
 
-		return this.createToken(request, response, authentication, null);
+		ClientDetails clientDetails = extracted(clientId);
+
+		return this.createToken(authentication, clientDetails, grantType);
+	}
+	
+	/**
+	 * 根据认证信息生成token
+	 * 
+	 * @param request
+	 * @param username     用户名
+	 * @param clientDetails 终端信息
+	 * @param clientSecret 原始终端密码
+	 * @param grantType    授权类型，默认为 custome
+	 * @return
+	 */
+	public OAuth2AccessToken createToken(HttpServletRequest request, String username, ClientDetails clientDetails,
+			String grantType) {
+		UsernamePasswordAuthenticationToken authentication = extracted(request, username);
+		return this.createToken(authentication, clientDetails, grantType);
 	}
 
 	/**
 	 * 根据认证信息生成token 【请求头中必须包含basic信息】
 	 * 
 	 * @param request
-	 * @param response
 	 * @param authentication spring security登陆成功后的认证信息
 	 * @param grantType      授权类型
 	 * @return
 	 * @throws IOException
 	 */
-	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication, String grantType) throws IOException {
+	public OAuth2AccessToken createToken(HttpServletRequest request, Authentication authentication, String grantType)
+			throws IOException {
 		String header = request.getHeader("Authorization");
 
 		if (header == null || !header.toLowerCase().startsWith("basic ")) {
@@ -121,48 +116,59 @@ public class TokenUtils {
 
 		String clientId = tokens[0];
 		String clientSecret = tokens[1];
-		return this.createToken(request, response, authentication, clientId, clientSecret, grantType);
+		return this.createToken(authentication, clientId, clientSecret, grantType);
 	}
 
 	/**
 	 * 根据认证信息和客户端信息生成token
-	 * 
-	 * @param request
-	 * @param response
+	 *
 	 * @param authentication spring security登陆成功后的认证信息
 	 * @param clientId       clientId
-	 * @param clientSecret   clientSecret
+	 * @param clientSecret   原始终端密码
+	 * @param grantType      授权类型,默认为custome
 	 * @return OAuth2AccessToken
 	 */
-	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication, String clientId, String clientSecret) {
-		return this.createToken(request, response, authentication, clientId, clientSecret, null);
-	}
+	public OAuth2AccessToken createToken(Authentication authentication, String clientId, String clientSecret,
+			String grantType) {
+		ClientDetails clientDetails = extracted(clientId);
 
-	/**
-	 * 根据认证信息和客户端信息生成token
-	 * 
-	 * @param request
-	 * @param response
-	 * @param authentication spring security登陆成功后的认证信息
-	 * @param clientId       clientId
-	 * @param clientSecret   clientSecret
-	 * @param grantType      授权类型
-	 * @return OAuth2AccessToken
-	 */
-	public OAuth2AccessToken createToken(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication, String clientId, String clientSecret, String grantType) {
-		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
-		if (clientDetails == null) {
-			throw new UnapprovedClientAuthenticationException(
-					MessageFormat.format("clientId ({0}) 对应的信息不存在", clientId));
-		}
-		if (StringUtils.equals(clientDetails.getClientSecret(), clientSecret)) {
+		if (!passwordEncoder.matches(clientSecret, clientDetails.getClientSecret())) {
 			throw new UnapprovedClientAuthenticationException("clientSecret不匹配");
 		}
+		return this.createToken(authentication, clientDetails, grantType);
 
-		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(), clientId, clientDetails.getScope(),
-				StringUtils.isBlank(grantType) ? "custome" : grantType);
+	}
+
+	/**
+	 * 根据认证信息和客户端id信息生成token </br>
+	 * <b>注意此方法不会校验终端密码，一定要在可信环境下使用</b>
+	 * 
+	 * @param authentication spring security登陆成功后的认证信息
+	 * @param clientId       clientId
+	 * @param grantType      授权类型,默认为custome
+	 * @return OAuth2AccessToken
+	 */
+	public OAuth2AccessToken createToken(Authentication authentication, String clientId, String grantType) {
+		ClientDetails clientDetails = extracted(clientId);
+		return this.createToken(authentication, clientDetails, grantType);
+
+	}
+
+	/**
+	 * 根据认证信息生成token
+	 * 
+	 * @param authentication spring security登陆成功后的认证信息
+	 * @param clientDetails  终端登录成功后的认证信息
+	 * @param grantType      授权类型,默认为custome
+	 * @return
+	 */
+	public OAuth2AccessToken createToken(Authentication authentication, ClientDetails clientDetails, String grantType) {
+
+		Assert.notNull(authentication, "Authentication认证信息不能为空");
+		Assert.notNull(clientDetails, "ClientDetails认证信息不能为空");
+
+		TokenRequest tokenRequest = new TokenRequest(new HashMap<String, String>(0), clientDetails.getClientId(),
+				clientDetails.getScope(), StringUtils.isBlank(grantType) ? "custome" : grantType);
 
 		OAuth2Request oAuth2Request = tokenRequest.createOAuth2Request(clientDetails);
 
@@ -171,6 +177,42 @@ public class TokenUtils {
 		OAuth2AccessToken oAuth2AccessToken = authorizationServerTokenServices.createAccessToken(oAuth2Authentication);
 
 		return oAuth2AccessToken;
+	}
+
+	/**
+	 * 根据终端id获取到终端的完整信息
+	 * 
+	 * @param clientId
+	 * @return
+	 */
+	private ClientDetails extracted(String clientId) {
+		ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+		if (clientDetails == null) {
+			throw new UnapprovedClientAuthenticationException(
+					MessageFormat.format("clientId ({0}) 对应的信息不存在", clientId));
+		}
+		return clientDetails;
+	}
+
+	/**
+	 * 根据用户生成UsernamePasswordAuthenticationToken
+	 * 
+	 * @param request
+	 * @param username 用户名
+	 * @return
+	 */
+	private UsernamePasswordAuthenticationToken extracted(HttpServletRequest request, String username) {
+		Assert.notNull(username, "用户名不能为空");
+		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		if (userDetails == null) {
+			throw new UnapprovedClientAuthenticationException(MessageFormat.format("用户名 ({0}) 不存在", username));
+		}
+		// 生成通过认证
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+				userDetails.getAuthorities());
+
+		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		return authentication;
 	}
 
 	/**
@@ -221,6 +263,14 @@ public class TokenUtils {
 
 	public void setUserDetailsService(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
+	}
+
+	public PasswordEncoder getPasswordEncoder() {
+		return passwordEncoder;
+	}
+
+	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+		this.passwordEncoder = passwordEncoder;
 	}
 
 }

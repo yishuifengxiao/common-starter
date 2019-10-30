@@ -18,6 +18,13 @@ import com.yishuifengxiao.common.validation.entity.EmailCode;
 import com.yishuifengxiao.common.validation.eunm.CodeType;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 
+/**
+ * 默认的邮箱验证码发送器
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class EmailCodeSender implements CodeSender<EmailCode> {
 
 	private final static Logger log = LoggerFactory.getLogger(EmailCodeSender.class);

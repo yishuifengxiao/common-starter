@@ -7,6 +7,9 @@ import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAda
 import com.yishuifengxiao.common.security.social.weixin.connect.factoty.WechatConnectionFactory;
 /**
  * 构建一个微信连接工厂
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
  */
 public class WechatAutoConfigurerAdapter extends SocialAutoConfigurerAdapter {
     

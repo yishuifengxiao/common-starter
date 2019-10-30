@@ -5,6 +5,7 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -30,6 +31,8 @@ import com.yishuifengxiao.common.properties.CorsProperties;
 public class CorsAutoConfiguration {
 	private final static Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
+	@Autowired
+	private CorsProperties corsProperties;
 	/**
 	 * cors协议支持
 	 * 
@@ -43,11 +46,11 @@ public class CorsAutoConfiguration {
 				log.debug("【跨域设置】 开启跨域了");
 				//@formatter:off  
 				registry
-					.addMapping("/**")
-					.allowedOrigins("*")
-					.allowedMethods("HEAD", "GET", "PUT", "POST", "PATCH", "DELETE")
-					.allowedHeaders("*")
-					.allowCredentials(true);//允许带认证信息的配置
+					.addMapping(corsProperties.getUrl())
+					.allowedOrigins(corsProperties.getAllowedOrigins())
+					.allowedMethods(corsProperties.getAllowedMethods())
+					.allowedHeaders(corsProperties.getAllowedHeaders())
+					.allowCredentials(corsProperties.getAllowCredentials());//允许带认证信息的配置
 				//@formatter:on  
 			}
 		};
@@ -62,10 +65,10 @@ public class CorsAutoConfiguration {
 	public CorsFilter corsFilter() {
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		CorsConfiguration corsConfiguration = new CorsConfiguration();
-		corsConfiguration.addAllowedOrigin("*");
-		corsConfiguration.addAllowedHeader("*");
-		corsConfiguration.addAllowedMethod("*");
-		source.registerCorsConfiguration("/**", corsConfiguration);
+		corsConfiguration.addAllowedOrigin(corsProperties.getAllowedOrigins());
+		corsConfiguration.addAllowedHeader(corsProperties.getAllowedHeaders());
+		corsConfiguration.addAllowedMethod(corsProperties.getAllowedMethods());
+		source.registerCorsConfiguration(corsProperties.getUrl(), corsConfiguration);
 		return new CorsFilter(source);
 	}
 

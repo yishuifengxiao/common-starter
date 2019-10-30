@@ -37,6 +37,8 @@ public class TokenEndpointAuthenticationFilter extends OncePerRequestFilter impl
 	private final static Logger logger = LoggerFactory.getLogger(TokenEndpointAuthenticationFilter.class);
 
 
+	private final static String BASIC ="basic ";
+	
 	private ApplicationContext contentx;
 
 	private ClientDetailsService clientDetailsService;
@@ -54,7 +56,7 @@ public class TokenEndpointAuthenticationFilter extends OncePerRequestFilter impl
 		String sessionId = session.getId();
 		String header = request.getHeader("Authorization");
 
-		if (header == null || !header.toLowerCase().startsWith("basic ")) {
+		if (header == null || !header.toLowerCase().startsWith(BASIC)) {
 			chain.doFilter(request, response);
 			return;
 		}

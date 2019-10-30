@@ -1,4 +1,10 @@
 package com.yishuifengxiao.common.security.social.weixin.entity;
+/**
+ * 微信登陆的用户的信息
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class WechatUserInfo {
     /**
      * 普通用户的标识，对当前开发者帐号唯一

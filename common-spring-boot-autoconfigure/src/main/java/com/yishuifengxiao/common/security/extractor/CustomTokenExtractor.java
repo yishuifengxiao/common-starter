@@ -25,7 +25,7 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
-import com.yishuifengxiao.common.constant.SecurityConstant;
+import com.yishuifengxiao.common.constant.SessionConstant;
 
 /**
  * {@link TokenExtractor} that strips the authenticator from a bearer token request (with an Authorization header in the
@@ -59,7 +59,7 @@ public class CustomTokenExtractor implements TokenExtractor {
 			token = request.getParameter(OAuth2AccessToken.ACCESS_TOKEN);
 			if (token == null) {
 				logger.debug("Token not found in request parameters. Trying session parameters.  ");
-				 token = (String) request.getSession().getAttribute(SecurityConstant.SESSION_TOKEN_KEY);
+				 token = (String) request.getSession().getAttribute(SessionConstant.SESSION_TOKEN_KEY);
 				 if(token == null) {
 						logger.debug("Token not found in session by key {}. Not an OAuth2 request."); 
 				 }

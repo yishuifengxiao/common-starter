@@ -34,6 +34,13 @@ import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
 import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
 
+/**
+ * 注入oauth2相关的配置
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ OAuth2AccessToken.class, WebMvcConfigurer.class })
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
@@ -114,11 +121,12 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
-			AuthorizationServerTokenServices authorizationServerTokenServices, UserDetailsService userDetailsService) {
+			AuthorizationServerTokenServices authorizationServerTokenServices, UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
 		TokenUtils tokenUtils = new TokenUtils();
 		tokenUtils.setClientDetailsService(clientDetailsService);
 		tokenUtils.setUserDetailsService(userDetailsService);
 		tokenUtils.setAuthorizationServerTokenServices(authorizationServerTokenServices);
+		tokenUtils.setPasswordEncoder(passwordEncoder);
 		return tokenUtils;
 	}
 

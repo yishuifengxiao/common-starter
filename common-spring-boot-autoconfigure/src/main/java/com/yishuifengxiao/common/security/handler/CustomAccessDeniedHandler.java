@@ -13,14 +13,17 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
+import com.yishuifengxiao.common.constant.SessionConstant;
 import com.yishuifengxiao.common.properties.SecurityProperties;
+import com.yishuifengxiao.common.security.context.SecurityHolder;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 import com.yishuifengxiao.common.security.event.AccessDeniedEvent;
 import com.yishuifengxiao.common.security.processor.ProcessHandler;
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.utils.RegexUtil;
 import com.yishuifengxiao.common.utils.HttpUtil;
-import com.yishuifengxiao.common.utils.RegexUtil;
 
 /**
  * 权限拒绝处理器
@@ -52,21 +55,23 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
-		// 引起跳转的url
-		String uri = cache.getRequest(request, response).getRedirectUrl();
 		// 发布事件
 		context.publishEvent(new AccessDeniedEvent(accessDeniedException, request));
+		// 引起跳转的uri
+		SavedRequest savedRequest= cache.getRequest(request, response);
+		String url = savedRequest!=null?savedRequest.getRedirectUrl():request.getRequestURL().toString();
 		// 存储消息到session中
-		request.getSession().setAttribute("yishuifengxiao.msg.denie", accessDeniedException);
+		request.getSession().setAttribute(SessionConstant.DENIE_MSG, accessDeniedException);
 		// 将被拦截的url存放到session中
-		request.getSession().setAttribute("yishuifengxiao.denie.url", uri);
-
+		request.getSession().setAttribute(SessionConstant.DENIE_URL, url);
+		// 存储异常信息
+		SecurityHolder.getContext().setSecurityExcepion(request,accessDeniedException);
 		// 获取系统的处理方式
 		HandleEnum handleEnum = securityProperties.getHandler().getDenie().getReturnType();
 
 		HandleEnum type = HttpUtil.handleType(request, securityProperties.getHandler(), handleEnum);
-		log.debug("【资源服务】资源请求,该资源的url为 {}",request.getRequestURL().toString());
-		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", uri, accessDeniedException.getMessage(),
+		log.debug("【资源服务】资源请求,该资源的url为 {}", request.getRequestURL().toString());
+		log.debug("【资源服务】资源请求 {} 失败 , 失败的原因为 {} ,系统配置的处理方式为 {} , 最终的处理方式为 {}", url, accessDeniedException.getMessage(),
 				handleEnum, type);
 		if (type == HandleEnum.DEFAULT) {
 			super.handle(request, response, accessDeniedException);

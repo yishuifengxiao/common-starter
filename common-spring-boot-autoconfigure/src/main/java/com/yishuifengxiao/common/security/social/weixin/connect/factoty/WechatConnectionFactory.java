@@ -12,7 +12,12 @@ import com.yishuifengxiao.common.security.social.weixin.adapter.WechatAdapter;
 import com.yishuifengxiao.common.security.social.weixin.api.Wechat;
 import com.yishuifengxiao.common.security.social.weixin.connect.provider.WechatServiceProvider;
 import com.yishuifengxiao.common.security.social.weixin.entity.WechatAccessGrant;
-
+/**
+ * 微信登陆连接工厂
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
 
     /**

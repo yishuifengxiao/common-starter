@@ -2,6 +2,13 @@ package com.yishuifengxiao.common.properties.code;
 
 import com.yishuifengxiao.common.constant.CodeConstant;
 
+/**
+ * 邮件验证码相关的配置
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class EmailCodeProperties extends SmsCodeProperties {
 
 	/**

@@ -34,6 +34,13 @@ import com.yishuifengxiao.common.security.provider.impl.PermitAllAuthorizeProvid
 import com.yishuifengxiao.common.security.provider.impl.RemeberMeAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.SessionAuthorizeProvider;
 
+/**
+ * 配置spring security 授权提供器
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
 		WebSecurityConfigurerAdapter.class })

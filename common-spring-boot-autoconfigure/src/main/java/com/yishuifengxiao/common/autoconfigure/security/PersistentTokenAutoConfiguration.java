@@ -14,10 +14,17 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 
 import com.yishuifengxiao.common.security.remerberme.RedisTokenRepository;
 
+/**
+ * 记住密码策略配置
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 @Configuration
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-	WebSecurityConfigurerAdapter.class ,RedisOperations.class})
-@ConditionalOnMissingBean(name="persistentTokenRepository")
+		WebSecurityConfigurerAdapter.class, RedisOperations.class })
+@ConditionalOnMissingBean(name = "persistentTokenRepository")
 public class PersistentTokenAutoConfiguration {
 	/**
 	 * 记住密码策略【存储在redis数据库中】

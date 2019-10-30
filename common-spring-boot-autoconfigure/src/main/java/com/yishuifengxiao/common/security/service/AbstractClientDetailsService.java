@@ -16,6 +16,13 @@ import org.springframework.security.oauth2.provider.client.BaseClientDetails;
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.oauth2.ClientProperties;
 
+/**
+ * 抽象的ClientDetailsService，主要用于内置一部分终端client
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public abstract class AbstractClientDetailsService implements ClientDetailsService {
 
 	@Autowired

@@ -17,6 +17,13 @@ import com.yishuifengxiao.common.validation.processor.AbstractCodeProcessor;
 import com.yishuifengxiao.common.validation.repository.CodeRepository;
 import com.yishuifengxiao.common.validation.sender.CodeSender;
 
+/**
+ * 邮箱验证码处理器
+ * 
+ * @author yishui
+ * @date 2019年10月18日
+ * @version 1.0.0
+ */
 public class EmailCodeProcessor extends AbstractCodeProcessor<EmailCode> {
 
 	private final static Logger log = LoggerFactory.getLogger(EmailCodeProcessor.class);
