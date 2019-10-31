@@ -19,7 +19,6 @@ import org.springframework.security.oauth2.provider.authentication.TokenExtracto
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -29,6 +28,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
+import com.yishuifengxiao.common.security.oauth2.token.CustomTokenServices;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
 import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
@@ -101,12 +101,13 @@ public class OAuth2ExtendAutoConfiguration {
 	@ConditionalOnMissingBean(name = "authorizationServerTokenServices")
 	public AuthorizationServerTokenServices authorizationServerTokenServices(TokenStore tokenStore,
 			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer,
-			AuthenticationManager authenticationManager) {
-		DefaultTokenServices tokenServices = new DefaultTokenServices();
+			AuthenticationManager authenticationManager,ApplicationContext context) {
+		CustomTokenServices tokenServices = new CustomTokenServices();
 		tokenServices.setTokenStore(tokenStore);
 		tokenServices.setClientDetailsService(clientDetailsService);
 		tokenServices.setTokenStore(tokenStore);
 		tokenServices.setAuthenticationManager(authenticationManager);
+		tokenServices.setContext(context);
 		return tokenServices;
 	}
 
