@@ -13,7 +13,7 @@
     <dependency>
         <groupId>com.yishuifengxiao.common</groupId>
         <artifactId>common-spring-boot-starter</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
     </dependency>
 ```
 
@@ -71,13 +71,22 @@
 
 **资源链接**
 
-官方文档地址：http://doc.yishuifengxiao.com/ <br/>
-源码地址：https://gitee.com/zhiyubujian/common-starter
+[易水公共组件官方文档地址](http://doc.yishuifengxiao.com)：http://doc.yishuifengxiao.com
 
- **相关博客** 
+[易水公共组件源码地址](https://gitee.com/zhiyubujian/common-starter)：https://gitee.com/zhiyubujian/common-starter
+
+[易水风萧个人博客](http://www.yishuifengxiao.com) http://www.yishuifengxiao.com
+
+**相关博客**
 
 1. [springboot整合单点登录sso](http://www.yishuifengxiao.com/2019/10/25/springboot%E6%95%B4%E5%90%88%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95sso/)
 
 1. [搭建基于易水公共组件的资源服务器](http://www.yishuifengxiao.com/2019/10/30/%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/)
+
+1. [spring security之获取当前用户信息](http://www.yishuifengxiao.com/2019/10/15/spring-security%E4%B9%8B%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF/)
+
+1. [基于易水公共组件的权限管理系统](http://www.yishuifengxiao.com/2019/10/31/%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/)
+
+1. [基于易水公共组件的验证码快速入门教程](http://www.yishuifengxiao.com/2019/10/31/%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E9%AA%8C%E8%AF%81%E7%A0%81%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/)
 
 
