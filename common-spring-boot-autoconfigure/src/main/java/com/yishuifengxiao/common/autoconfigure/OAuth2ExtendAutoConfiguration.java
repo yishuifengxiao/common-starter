@@ -30,8 +30,7 @@ import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilt
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.oauth2.token.CustomTokenServices;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
-import com.yishuifengxiao.common.security.service.AbstractClientDetailsService;
-import com.yishuifengxiao.common.security.service.impl.DefaultClientDetailsService;
+import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
 
 /**
@@ -194,7 +193,7 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean("customClientDetailsService")
 	@ConditionalOnMissingBean(name = "customClientDetailsService")
 	public ClientDetailsService customClientDetailsService(PasswordEncoder passwordEncoder) {
-		AbstractClientDetailsService customClientDetailsService = new DefaultClientDetailsService();
+		ClientDetailsServiceImpl customClientDetailsService = new ClientDetailsServiceImpl();
 		customClientDetailsService.setPasswordEncoder(passwordEncoder);
 		return customClientDetailsService;
 	}
