@@ -21,7 +21,9 @@ import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.TokenRequest;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 
@@ -38,9 +40,38 @@ public class TokenUtils {
 
 	private AuthorizationServerTokenServices authorizationServerTokenServices;
 
+	private ConsumerTokenServices consumerTokenServices;
+
 	private UserDetailsService userDetailsService;
 
 	private PasswordEncoder passwordEncoder;
+
+	private TokenExtractor tokenExtractor;
+
+	/**
+	 * 根据token的值移除存储的登录token
+	 * 
+	 * @param tokenValue token的
+	 * @return 移除成功返回为true，否则为false
+	 */
+	public boolean removeToken(String tokenValue) {
+		Assert.notNull(tokenValue, "token不能为空");
+		return consumerTokenServices.revokeToken(tokenValue);
+	}
+     /**
+      * 根据请求里token信息移除存储的登录token <br/>
+      *  token 的提取方式参见 TokenExtractor
+      * @param request  HttpServletRequest
+      * @return  移除成功返回为true，否则为false
+      */
+	public boolean removeToken(HttpServletRequest request) {
+		Authentication authentication = tokenExtractor.extract(request);
+		if (authentication == null) {
+			return false;
+		}
+		String token = authentication.getPrincipal().toString();
+		return removeToken(token);
+	}
 
 	/**
 	 * 根据认证信息生成token
@@ -77,15 +108,15 @@ public class TokenUtils {
 
 		return this.createToken(authentication, clientDetails, grantType);
 	}
-	
+
 	/**
 	 * 根据认证信息生成token
 	 * 
 	 * @param request
-	 * @param username     用户名
+	 * @param username      用户名
 	 * @param clientDetails 终端信息
-	 * @param clientSecret 原始终端密码
-	 * @param grantType    授权类型，默认为 custome
+	 * @param clientSecret  原始终端密码
+	 * @param grantType     授权类型，默认为 custome
 	 * @return
 	 */
 	public OAuth2AccessToken createToken(HttpServletRequest request, String username, ClientDetails clientDetails,
@@ -271,6 +302,22 @@ public class TokenUtils {
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	public ConsumerTokenServices getConsumerTokenServices() {
+		return consumerTokenServices;
+	}
+
+	public void setConsumerTokenServices(ConsumerTokenServices consumerTokenServices) {
+		this.consumerTokenServices = consumerTokenServices;
+	}
+
+	public TokenExtractor getTokenExtractor() {
+		return tokenExtractor;
+	}
+
+	public void setTokenExtractor(TokenExtractor tokenExtractor) {
+		this.tokenExtractor = tokenExtractor;
 	}
 
 }

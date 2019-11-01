@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.provider.authentication.TokenExtracto
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
@@ -121,12 +122,15 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
-			AuthorizationServerTokenServices authorizationServerTokenServices, UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
+			AuthorizationServerTokenServices authorizationServerTokenServices,TokenExtractor tokenExtractor,
+			ConsumerTokenServices consumerTokenServices,UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
 		TokenUtils tokenUtils = new TokenUtils();
 		tokenUtils.setClientDetailsService(clientDetailsService);
 		tokenUtils.setUserDetailsService(userDetailsService);
 		tokenUtils.setAuthorizationServerTokenServices(authorizationServerTokenServices);
 		tokenUtils.setPasswordEncoder(passwordEncoder);
+		tokenUtils.setConsumerTokenServices(consumerTokenServices);
+		tokenUtils.setTokenExtractor(tokenExtractor);
 		return tokenUtils;
 	}
 
