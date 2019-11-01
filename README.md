@@ -5,7 +5,15 @@
 - 个性配置，组件提供大量的配置属性，能通过预留的配置属性自定义组件功能。
 - 高级配置，在系统默认配置和个性配置不能满足开发需要时，能通过自定义组件中的某些元件实现高级配置。
 
-<br/>
+
+
+交流 QQ 群 :<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=a81681f687ced1bf514d6226d00463798cefc0a9559fc7d34f1e17e719ca8573"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="易水组件交流群" title="易水组件交流群"></a> (群号 624646260)
+
+
+易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。
+
+在保证功能灵活可用的基础上，易水公共组件还针对国人的使用习惯进行了一些本地化配置，提供了详细完整的中文使用说明文档。总的来说，易水公共组件在保证单机应用的高效性能同时，还能支持分部署环境，是目前主流的微服务开发过程中不可或缺的重要伙伴。
+
 **快速使用**
 
 
@@ -16,11 +24,6 @@
         <version>4.1.2</version>
     </dependency>
 ```
-
-
-易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。
-
-在保证功能灵活可用的基础上，易水公共组件还针对国人的使用习惯进行了一些本地化配置，提供了详细完整的中文使用说明文档。总的来说，易水公共组件在保证单机应用的高效性能同时，还能支持分部署环境，是目前主流的微服务开发过程中不可或缺的重要伙伴。
 
 易水风萧通用组件主要包含以下一些常用功能：
 
@@ -81,17 +84,19 @@
 
 1. [swagger ui快速入门教程](http://www.yishuifengxiao.com/2019/10/31/swagger-ui%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/)
 
-1. [基于易水公共组件的全局异常捕获](http://www.yishuifengxiao.com/2019/10/31/%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/)
+2. [基于易水公共组件的全局异常捕获](http://www.yishuifengxiao.com/2019/10/31/%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E5%85%A8%E5%B1%80%E5%BC%82%E5%B8%B8%E6%8D%95%E8%8E%B7/)
 
-1. [基于易水公共组件的验证码快速入门教程](http://www.yishuifengxiao.com/2019/10/31/%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E9%AA%8C%E8%AF%81%E7%A0%81%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/)
+3. [基于易水公共组件的验证码快速入门教程](http://www.yishuifengxiao.com/2019/10/31/%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E9%AA%8C%E8%AF%81%E7%A0%81%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/)
 
-1. [springboot整合单点登录sso](http://www.yishuifengxiao.com/2019/10/25/springboot%E6%95%B4%E5%90%88%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95sso/)
+4. [oauth2快速入门教程](http://www.yishuifengxiao.com/2019/11/01/oauth2%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8%E6%95%99%E7%A8%8B/)
 
-1. [搭建基于易水公共组件的资源服务器](http://www.yishuifengxiao.com/2019/10/30/%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/)
+5. [springboot整合单点登录sso](http://www.yishuifengxiao.com/2019/10/25/springboot%E6%95%B4%E5%90%88%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95sso/)
 
-1. [spring security之获取当前用户信息](http://www.yishuifengxiao.com/2019/10/15/spring-security%E4%B9%8B%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF/)
+6. [搭建基于易水公共组件的资源服务器](http://www.yishuifengxiao.com/2019/10/30/%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/)
 
-1. [基于易水公共组件的权限管理系统](http://www.yishuifengxiao.com/2019/10/31/%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/)
+7. [spring security之获取当前用户信息](http://www.yishuifengxiao.com/2019/10/15/spring-security%E4%B9%8B%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF/)
+
+8. [基于易水公共组件的权限管理系统](http://www.yishuifengxiao.com/2019/10/31/%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/)
 
 
 
