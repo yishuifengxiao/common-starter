@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,8 +84,7 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 		// 生成token的时间
 		String time = LocalDateTime.now(ZoneId.of(ZONE_ID)).format(DateTimeFormatter.ofPattern(PATTERN));
 
-		CustomToken customToken = new CustomToken(username, clientId,
-				list.stream().map(t -> t.getAuthority()).collect(Collectors.toList()), grantType, time,
+		CustomToken customToken = new CustomToken(username, clientId, list, grantType, time,
 				accessToken.getExpiresIn());
 		String token = customToken.toString();
 		try {
