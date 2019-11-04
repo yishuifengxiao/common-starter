@@ -37,9 +37,7 @@ import com.yishuifengxiao.common.security.event.TokenGenerateEvent;
 import com.yishuifengxiao.common.security.event.TokenRemoveEvent;
 
 public class CustomTokenServices implements AuthorizationServerTokenServices, ResourceServerTokenServices,
-ConsumerTokenServices, InitializingBean{
-
-
+		ConsumerTokenServices, InitializingBean {
 
 	private int refreshTokenValiditySeconds = 60 * 60 * 24 * 30; // default 30 days.
 
@@ -56,11 +54,12 @@ ConsumerTokenServices, InitializingBean{
 	private TokenEnhancer accessTokenEnhancer;
 
 	private AuthenticationManager authenticationManager;
-	
+
 	private ApplicationContext context;
 
 	/**
-	 * Initialize these token services. If no random generator is set, one will be created.
+	 * Initialize these token services. If no random generator is set, one will be
+	 * created.
 	 */
 	public void afterPropertiesSet() throws Exception {
 		Assert.notNull(tokenStore, "tokenStore must be set");
@@ -81,10 +80,10 @@ ConsumerTokenServices, InitializingBean{
 					tokenStore.removeRefreshToken(refreshToken);
 				}
 				tokenStore.removeAccessToken(existingAccessToken);
-			}
-			else {
+			} else {
 				// Re-store the access token in case the authentication has changed
 				tokenStore.storeAccessToken(existingAccessToken, authentication);
+				context.publishEvent(new TokenGenerateEvent(existingAccessToken, authentication, true));
 				return existingAccessToken;
 			}
 		}
@@ -117,7 +116,7 @@ ConsumerTokenServices, InitializingBean{
 
 	}
 
-	@Transactional(noRollbackFor={InvalidTokenException.class, InvalidGrantException.class})
+	@Transactional(noRollbackFor = { InvalidTokenException.class, InvalidGrantException.class })
 	public OAuth2AccessToken refreshAccessToken(String refreshTokenValue, TokenRequest tokenRequest)
 			throws AuthenticationException {
 
@@ -132,9 +131,11 @@ ConsumerTokenServices, InitializingBean{
 
 		OAuth2Authentication authentication = tokenStore.readAuthenticationForRefreshToken(refreshToken);
 		if (this.authenticationManager != null && !authentication.isClientOnly()) {
-			// The client has already been authenticated, but the user authentication might be old now, so give it a
+			// The client has already been authenticated, but the user authentication might
+			// be old now, so give it a
 			// chance to re-authenticate.
-			Authentication user = new PreAuthenticatedAuthenticationToken(authentication.getUserAuthentication(), "", authentication.getAuthorities());
+			Authentication user = new PreAuthenticatedAuthenticationToken(authentication.getUserAuthentication(), "",
+					authentication.getAuthorities());
 			user = authenticationManager.authenticate(user);
 			Object details = authentication.getDetails();
 			authentication = new OAuth2Authentication(authentication.getOAuth2Request(), user);
@@ -177,21 +178,22 @@ ConsumerTokenServices, InitializingBean{
 	 * Create a refreshed authentication.
 	 * 
 	 * @param authentication The authentication.
-	 * @param request The scope for the refreshed token.
+	 * @param request        The scope for the refreshed token.
 	 * @return The refreshed authentication.
-	 * @throws InvalidScopeException If the scope requested is invalid or wider than the original scope.
+	 * @throws InvalidScopeException If the scope requested is invalid or wider than
+	 *                               the original scope.
 	 */
-	private OAuth2Authentication createRefreshedAuthentication(OAuth2Authentication authentication, TokenRequest request) {
+	private OAuth2Authentication createRefreshedAuthentication(OAuth2Authentication authentication,
+			TokenRequest request) {
 		OAuth2Authentication narrowed = authentication;
 		Set<String> scope = request.getScope();
 		OAuth2Request clientAuth = authentication.getOAuth2Request().refresh(request);
 		if (scope != null && !scope.isEmpty()) {
 			Set<String> originalScope = clientAuth.getScope();
 			if (originalScope == null || !originalScope.containsAll(scope)) {
-				throw new InvalidScopeException("Unable to narrow the scope of the client authentication to " + scope
-						+ ".", originalScope);
-			}
-			else {
+				throw new InvalidScopeException(
+						"Unable to narrow the scope of the client authentication to " + scope + ".", originalScope);
+			} else {
 				clientAuth = clientAuth.narrowScope(scope);
 			}
 		}
@@ -212,13 +214,12 @@ ConsumerTokenServices, InitializingBean{
 		return tokenStore.readAccessToken(accessToken);
 	}
 
-	public OAuth2Authentication loadAuthentication(String accessTokenValue) throws AuthenticationException,
-			InvalidTokenException {
+	public OAuth2Authentication loadAuthentication(String accessTokenValue)
+			throws AuthenticationException, InvalidTokenException {
 		OAuth2AccessToken accessToken = tokenStore.readAccessToken(accessTokenValue);
 		if (accessToken == null) {
 			throw new InvalidTokenException("Invalid access token: " + accessTokenValue);
-		}
-		else if (accessToken.isExpired()) {
+		} else if (accessToken.isExpired()) {
 			tokenStore.removeAccessToken(accessToken);
 			throw new InvalidTokenException("Access token expired: " + accessTokenValue);
 		}
@@ -232,8 +233,7 @@ ConsumerTokenServices, InitializingBean{
 			String clientId = result.getOAuth2Request().getClientId();
 			try {
 				clientDetailsService.loadClientByClientId(clientId);
-			}
-			catch (ClientRegistrationException e) {
+			} catch (ClientRegistrationException e) {
 				throw new InvalidTokenException("Client not valid: " + clientId, e);
 			}
 		}
@@ -272,8 +272,8 @@ ConsumerTokenServices, InitializingBean{
 		int validitySeconds = getRefreshTokenValiditySeconds(authentication.getOAuth2Request());
 		String value = UUID.randomUUID().toString();
 		if (validitySeconds > 0) {
-			return new DefaultExpiringOAuth2RefreshToken(value, new Date(System.currentTimeMillis()
-					+ (validitySeconds * 1000L)));
+			return new DefaultExpiringOAuth2RefreshToken(value,
+					new Date(System.currentTimeMillis() + (validitySeconds * 1000L)));
 		}
 		return new DefaultOAuth2RefreshToken(value);
 	}
@@ -286,8 +286,10 @@ ConsumerTokenServices, InitializingBean{
 		}
 		token.setRefreshToken(refreshToken);
 		token.setScope(authentication.getOAuth2Request().getScope());
-		OAuth2AccessToken	oAuth2AccessToken=	accessTokenEnhancer != null ? accessTokenEnhancer.enhance(token, authentication) : token;
-        context.publishEvent(new TokenGenerateEvent(oAuth2AccessToken));
+		OAuth2AccessToken oAuth2AccessToken = accessTokenEnhancer != null
+				? accessTokenEnhancer.enhance(token, authentication)
+				: token;
+		context.publishEvent(new TokenGenerateEvent(oAuth2AccessToken, authentication, false));
 		return oAuth2AccessToken;
 	}
 
@@ -327,7 +329,8 @@ ConsumerTokenServices, InitializingBean{
 
 	/**
 	 * Is a refresh token supported for this client (or the global setting if
-	 * {@link #setClientDetailsService(ClientDetailsService) clientDetailsService} is not set.
+	 * {@link #setClientDetailsService(ClientDetailsService) clientDetailsService}
+	 * is not set.
 	 * 
 	 * @param clientAuth the current authorization request
 	 * @return boolean to indicate if refresh token is supported
@@ -341,7 +344,8 @@ ConsumerTokenServices, InitializingBean{
 	}
 
 	/**
-	 * An access token enhancer that will be applied to a new token before it is saved in the token store.
+	 * An access token enhancer that will be applied to a new token before it is
+	 * saved in the token store.
 	 * 
 	 * @param accessTokenEnhancer the access token enhancer to set
 	 */
@@ -350,21 +354,24 @@ ConsumerTokenServices, InitializingBean{
 	}
 
 	/**
-	 * The validity (in seconds) of the refresh token. If less than or equal to zero then the tokens will be
-	 * non-expiring.
+	 * The validity (in seconds) of the refresh token. If less than or equal to zero
+	 * then the tokens will be non-expiring.
 	 * 
-	 * @param refreshTokenValiditySeconds The validity (in seconds) of the refresh token.
+	 * @param refreshTokenValiditySeconds The validity (in seconds) of the refresh
+	 *                                    token.
 	 */
 	public void setRefreshTokenValiditySeconds(int refreshTokenValiditySeconds) {
 		this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
 	}
 
 	/**
-	 * The default validity (in seconds) of the access token. Zero or negative for non-expiring tokens. If a client
-	 * details service is set the validity period will be read from the client, defaulting to this value if not defined
-	 * by the client.
+	 * The default validity (in seconds) of the access token. Zero or negative for
+	 * non-expiring tokens. If a client details service is set the validity period
+	 * will be read from the client, defaulting to this value if not defined by the
+	 * client.
 	 * 
-	 * @param accessTokenValiditySeconds The validity (in seconds) of the access token.
+	 * @param accessTokenValiditySeconds The validity (in seconds) of the access
+	 *                                   token.
 	 */
 	public void setAccessTokenValiditySeconds(int accessTokenValiditySeconds) {
 		this.accessTokenValiditySeconds = accessTokenValiditySeconds;
@@ -398,8 +405,8 @@ ConsumerTokenServices, InitializingBean{
 	}
 
 	/**
-	 * An authentication manager that will be used (if provided) to check the user authentication when a token is
-	 * refreshed.
+	 * An authentication manager that will be used (if provided) to check the user
+	 * authentication when a token is refreshed.
 	 * 
 	 * @param authenticationManager the authenticationManager to set
 	 */
@@ -408,8 +415,9 @@ ConsumerTokenServices, InitializingBean{
 	}
 
 	/**
-	 * The client details service to use for looking up clients (if necessary). Optional if the access token expiry is
-	 * set globally via {@link #setAccessTokenValiditySeconds(int)}.
+	 * The client details service to use for looking up clients (if necessary).
+	 * Optional if the access token expiry is set globally via
+	 * {@link #setAccessTokenValiditySeconds(int)}.
 	 * 
 	 * @param clientDetailsService the client details service
 	 */
@@ -424,7 +432,5 @@ ConsumerTokenServices, InitializingBean{
 	public void setContext(ApplicationContext context) {
 		this.context = context;
 	}
-	
-	
 
 }
