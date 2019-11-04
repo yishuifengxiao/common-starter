@@ -80,6 +80,7 @@ public class CustomTokenServices implements AuthorizationServerTokenServices, Re
 					tokenStore.removeRefreshToken(refreshToken);
 				}
 				tokenStore.removeAccessToken(existingAccessToken);
+				context.publishEvent(new TokenRemoveEvent(existingAccessToken));
 			} else {
 				// Re-store the access token in case the authentication has changed
 				tokenStore.storeAccessToken(existingAccessToken, authentication);
