@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
 
-import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomResourceProvider;
 
 /**
  * 默认的授权表达式实现
@@ -23,7 +23,7 @@ import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
  * @date 2019年1月24日
  * @version 0.0.1
  */
-public class IgnoreCustomAuthority implements CustomAuthority {
+public class IgnoreCustomAuthority implements CustomResourceProvider {
 	private final static Logger log = LoggerFactory.getLogger(IgnoreCustomAuthority.class);
 	/**
 	 * 请求路径前缀(防止设置了项目名)

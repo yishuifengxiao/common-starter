@@ -33,7 +33,7 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 	 */
 	public final static int FIRST_ELEMENT_INDEX = 0;
 
-	protected ApplicationContext applicationContext;
+	protected static ApplicationContext applicationContext;
 
 	/**
 	 * 对传入的参数进行非空处理
@@ -172,16 +172,13 @@ public abstract class BaseAware implements ApplicationContextAware, DisposableBe
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.applicationContext = applicationContext;
+		BaseAware.applicationContext = applicationContext;
 
 	}
 
 	@Override
 	public void destroy() throws Exception {
 		log.debug("baseware 销毁");
-		if (this.applicationContext != null) {
-			this.applicationContext = null;
-		}
 
 	}
 

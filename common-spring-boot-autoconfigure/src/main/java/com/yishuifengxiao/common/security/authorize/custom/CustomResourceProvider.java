@@ -13,7 +13,7 @@ import org.springframework.security.core.Authentication;
  * @date 2019年1月9日
  * @version 0.0.1 
  */
-public interface CustomAuthority {
+public interface CustomResourceProvider {
 	/**
 	 * 自定义权限判断 
 	 * @param request HttpServletRequest

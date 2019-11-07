@@ -6,7 +6,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 
 /**
@@ -28,7 +28,7 @@ public class CustomAuthorizeProvider implements AuthorizeProvider {
     /**
      * 实例的名字必须为 <code>customAuthority</code>
      */
-	private CustomAuthority customAuthority;
+	private CustomResourceProvider customAuthority;
 
 	@Override
 	public void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
@@ -55,11 +55,11 @@ public class CustomAuthorizeProvider implements AuthorizeProvider {
 		this.securityProperties = securityProperties;
 	}
 
-	public CustomAuthority getCustomAuthority() {
+	public CustomResourceProvider getCustomAuthority() {
 		return customAuthority;
 	}
 
-	public void setCustomAuthority(CustomAuthority customAuthority) {
+	public void setCustomAuthority(CustomResourceProvider customAuthority) {
 		this.customAuthority = customAuthority;
 	}
 

@@ -1,17 +1,17 @@
-package com.yishuifengxiao.common.security.authorize.ignore;
+package com.yishuifengxiao.common.security.websecurity.adapter;
 
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
 /**
- * 忽视资源配置管理
+ * WebSecurity 管理适配器
  * 
  * @author yishui
- * @date 2019年10月12日
+ * @date 2019年11月7日
  * @version 1.0.0
  */
-public interface IgnoreResourcesConfig {
+public interface WebSecurityAdapter {
 	/**
-	 * 配置需要忽视的资源
+	 * 配置WebSecurity 管理
 	 * 
 	 * @param web
 	 * @throws Exception

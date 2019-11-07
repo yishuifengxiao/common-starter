@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.authorize.ignore;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity.IgnoredRequestConfigurer;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
 
@@ -13,7 +13,7 @@ import com.yishuifengxiao.common.properties.SecurityProperties;
  * @date 2019年10月18日
  * @version 1.0.0
  */
-public class DefaultIgnoreResourcesConfig implements IgnoreResourcesConfig {
+public class DefaultIgnoreResourceProvider implements IgnoreResourceProvider {
 	/**
 	 * 自定义属性配置
 	 */
@@ -21,11 +21,10 @@ public class DefaultIgnoreResourcesConfig implements IgnoreResourcesConfig {
 	protected SecurityProperties securityProperties;
 
 	@Override
-	public void configure(WebSecurity web) throws Exception {
+	public void configure(IgnoredRequestConfigurer ignoring) throws Exception {
 
 		// @formatter:off
-		web
-		.ignoring()
+		ignoring
 		.antMatchers(HttpMethod.OPTIONS, "/**")
 		.antMatchers("/oauth/check_token")
 		.mvcMatchers(securityProperties.getIgnore().getIgnore())
