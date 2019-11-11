@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yishuifengxiao.common.properties.security.HandlerProperties;
+import com.yishuifengxiao.common.properties.SecurityProperties.HandlerProperties;
 import com.yishuifengxiao.common.security.eunm.HandleEnum;
 
 /**

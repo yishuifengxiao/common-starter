@@ -10,8 +10,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourcesConfig;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 
 /**
  * 安全服务器配置
@@ -39,11 +39,10 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	@Autowired
 	protected SecurityContextManager securityContextManager;
 
-	/**
-	 * 忽视资源管理
-	 */
 	@Autowired
-	protected IgnoreResourcesConfig ignoreResourcesConfig;
+	protected WebSecurityManager webSecurityManager;
+
+
 
 	@Autowired
 	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -89,7 +88,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	 */
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		ignoreResourcesConfig.configure(web);
+		webSecurityManager.configure(web);
 	}
 
 	public PasswordEncoder getPasswordEncoder() {
@@ -116,12 +115,14 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		this.securityContextManager = securityContextManager;
 	}
 
-	public IgnoreResourcesConfig getIgnoreResourcesConfig() {
-		return ignoreResourcesConfig;
+	public WebSecurityManager getWebSecurityManager() {
+		return webSecurityManager;
 	}
 
-	public void setIgnoreResourcesConfig(IgnoreResourcesConfig ignoreResourcesConfig) {
-		this.ignoreResourcesConfig = ignoreResourcesConfig;
+	public void setWebSecurityManager(WebSecurityManager webSecurityManager) {
+		this.webSecurityManager = webSecurityManager;
 	}
+
+
 
 }

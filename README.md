@@ -100,3 +100,10 @@
 
 
 
+ **相关博客** 
+
+1. [springboot整合单点登录sso](http://www.yishuifengxiao.com/2019/10/25/springboot%E6%95%B4%E5%90%88%E5%8D%95%E7%82%B9%E7%99%BB%E5%BD%95sso/)
+
+1. [搭建基于易水公共组件的资源服务器](http://www.yishuifengxiao.com/2019/10/30/%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E8%B5%84%E6%BA%90%E6%9C%8D%E5%8A%A1%E5%99%A8/)
+
+

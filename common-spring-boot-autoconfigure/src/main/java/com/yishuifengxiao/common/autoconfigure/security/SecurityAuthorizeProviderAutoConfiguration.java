@@ -19,12 +19,9 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.properties.SecurityProperties;
-import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
-import com.yishuifengxiao.common.security.authorize.custom.impl.CustomAuthorityImpl;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.CorsAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.CsrfAuthorizeProvider;
-import com.yishuifengxiao.common.security.provider.impl.CustomAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.ExceptionAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.FormLoginAuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.impl.HttpBasicAuthorizeProvider;
@@ -145,32 +142,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 		return permitAllConfigProvider;
 	}
 
-	/**
-	 * 注入一个名为 customAuthority 授权行为实体
-	 * 
-	 * @return
-	 */
-	@Bean("customAuthority")
-	@ConditionalOnMissingBean(name = "customAuthority")
-	public CustomAuthority customAuthority() {
-		CustomAuthorityImpl customAuthority = new CustomAuthorityImpl();
-		return customAuthority;
-	}
 
-	/**
-	 * 自定义授权提供器
-	 * 
-	 * @param customAuthority
-	 * @return
-	 */
-	@Bean("customAuthorizeProvider")
-	@ConditionalOnMissingBean(name = "customAuthorizeProvider")
-	public AuthorizeProvider customAuthorizeProvider(@Qualifier("customAuthority") CustomAuthority customAuthority) {
-		CustomAuthorizeProvider customAuthorizeProvider = new CustomAuthorizeProvider();
-		customAuthorizeProvider.setCustomAuthority(customAuthority);
-		customAuthorizeProvider.setSecurityProperties(securityProperties);
-		return customAuthorizeProvider;
-	}
 
 	/**
 	 * Basic登陆授权提供器

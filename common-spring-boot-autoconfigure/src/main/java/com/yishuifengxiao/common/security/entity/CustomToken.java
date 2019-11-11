@@ -1,7 +1,9 @@
 package com.yishuifengxiao.common.security.entity;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
+
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * 自定义授权接口
@@ -30,7 +32,7 @@ public class CustomToken implements Serializable {
 	/**
 	 * 登录用户的角色
 	 */
-	private List<String> roles;
+	private	Collection<GrantedAuthority> authorities;
 
 	/**
 	 * 当前token的授权模式
@@ -81,22 +83,21 @@ public class CustomToken implements Serializable {
 		this.clientId = clientId;
 	}
 
-	/**
-	 * 获取登录用户的角色
-	 * 
-	 * @return
-	 */
-	public List<String> getRoles() {
-		return roles;
-	}
 
+    /**
+     * 获取 获取登录用户的角色
+     * @return
+     */
+	public Collection<GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
+   
 	/**
-	 * 设置登录用户的角色
-	 * 
-	 * @param roles
+	 * 设置 获取登录用户的角色
+	 * @param authorities
 	 */
-	public void setRoles(List<String> roles) {
-		this.roles = roles;
+	public void setAuthorities(Collection<GrantedAuthority> authorities) {
+		this.authorities = authorities;
 	}
 
 	/**
@@ -153,18 +154,18 @@ public class CustomToken implements Serializable {
 		this.expiresIn = expiresIn;
 	}
 
-	public CustomToken(String username, String clientId, List<String> roles, String grantType) {
+	public CustomToken(String username, String clientId, Collection<GrantedAuthority> authorities, String grantType) {
 		this.username = username;
 		this.clientId = clientId;
-		this.roles = roles;
+		this.authorities = authorities;
 		this.grantType = grantType;
 	}
 
-	public CustomToken(String username, String clientId, List<String> roles, String grantType, String date,
+	public CustomToken(String username, String clientId, Collection<GrantedAuthority> authorities, String grantType, String date,
 			Integer expiresIn) {
 		this.username = username;
 		this.clientId = clientId;
-		this.roles = roles;
+		this.authorities = authorities;
 		this.grantType = grantType;
 		this.date = date;
 		this.expiresIn = expiresIn;

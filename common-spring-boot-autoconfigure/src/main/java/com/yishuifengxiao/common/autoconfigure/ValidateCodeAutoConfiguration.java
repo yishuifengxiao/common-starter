@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.autoconfigure;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 //gitee.com/zhiyubujian/common-starter.git
@@ -36,6 +37,7 @@ import com.yishuifengxiao.common.validation.sender.CodeSender;
 @Configuration
 @EnableConfigurationProperties({ CodeProperties.class })
 @Import(MailExtendAutoConfiguration.class)
+@AutoConfigureAfter(RedisExtendAutoConfiguration.class)
 public class ValidateCodeAutoConfiguration {
 
 	@Autowired

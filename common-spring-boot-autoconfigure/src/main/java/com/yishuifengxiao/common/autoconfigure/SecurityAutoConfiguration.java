@@ -24,14 +24,12 @@ import com.yishuifengxiao.common.autoconfigure.security.SecurityAuthorizeProvide
 import com.yishuifengxiao.common.autoconfigure.security.SecurityCodeAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityHandlerAutoConfiguration;
 import com.yishuifengxiao.common.autoconfigure.security.SecurityRedisAutoConfiguration;
+import com.yishuifengxiao.common.autoconfigure.security.SecurityResourceAutoConfiguration;
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
-import com.yishuifengxiao.common.security.authorize.ignore.DefaultIgnoreResourcesConfig;
-import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourcesConfig;
-import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
-import com.yishuifengxiao.common.security.authorize.intercept.DefaultAuthorizeResourceProvider;
+import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourceProvider;
 import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
 import com.yishuifengxiao.common.security.manager.DefaultSecurityContextManager;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
@@ -43,6 +41,10 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.remerberme.InMemoryTokenRepositoryImpl;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
+import com.yishuifengxiao.common.security.websecurity.DefaultWebSecurityManager;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
+import com.yishuifengxiao.common.security.websecurity.adapter.DefaultWebSecurityAdapter;
+import com.yishuifengxiao.common.security.websecurity.adapter.WebSecurityAdapter;
 
 /**
  * spring security应用配置
@@ -57,7 +59,7 @@ import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrat
 @EnableConfigurationProperties({ SecurityProperties.class, Oauth2Properties.class, SocialProperties.class })
 @Import({ SecurityHandlerAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,
 		PersistentTokenAutoConfiguration.class, SecurityCodeAutoConfiguration.class,
-		SecurityRedisAutoConfiguration.class })
+		SecurityRedisAutoConfiguration.class ,SecurityResourceAutoConfiguration.class})
 public class SecurityAutoConfiguration {
 
 	/**
@@ -190,33 +192,31 @@ public class SecurityAutoConfiguration {
 	}
 
 	/**
-	 * 授权资源配置器
+	 * WebSecurity 管理器
 	 * 
+	 * @param ignoreResourcesConfig
+	 * @param webSecurityAdapters
 	 * @return
 	 */
 	@Bean
 	@ConditionalOnMissingBean
-	public AuthorizeResourceProvider authorizeResourceProvider(Oauth2Properties oauth2Properties,
-			SecurityProperties securityProperties, SocialProperties socialProperties) {
-		DefaultAuthorizeResourceProvider authorizeResourceProvider = new DefaultAuthorizeResourceProvider();
-		authorizeResourceProvider.setOauth2Properties(oauth2Properties);
-		authorizeResourceProvider.setSecurityProperties(securityProperties);
-		authorizeResourceProvider.setSocialProperties(socialProperties);
-		return authorizeResourceProvider;
+	public WebSecurityManager webSecurityManager(IgnoreResourceProvider ignoreResourceProvider,
+			List<WebSecurityAdapter> webSecurityAdapters) {
+		DefaultWebSecurityManager webSecurityManager = new DefaultWebSecurityManager();
+		webSecurityManager.setIgnoreResourceProvider(ignoreResourceProvider);
+		webSecurityManager.setWebSecurityAdapters(webSecurityAdapters);
+		return webSecurityManager;
 	}
 
 	/**
-	 * 配置需要忽视的资源
+	 * 默认实现的HttpFirewall，主要是解决路径里包含 // 路径报错的问题
 	 * 
-	 * @param securityProperties
 	 * @return
 	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public IgnoreResourcesConfig ignoreResourcesConfig(SecurityProperties securityProperties) {
-		DefaultIgnoreResourcesConfig ignoreResourcesConfig = new DefaultIgnoreResourcesConfig();
-		ignoreResourcesConfig.setSecurityProperties(securityProperties);
-		return ignoreResourcesConfig;
+	@Bean("firewall")
+	@ConditionalOnMissingBean(name = { "firewall" })
+	public WebSecurityAdapter fireWell() {
+		return new DefaultWebSecurityAdapter();
 	}
 
 }

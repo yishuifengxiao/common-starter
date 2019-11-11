@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 
-import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
+import com.yishuifengxiao.common.security.authorize.custom.CustomResourceProvider;
 
 /**
  * 自定义授权的默认实现
@@ -15,8 +15,8 @@ import com.yishuifengxiao.common.security.authorize.custom.CustomAuthority;
  * @date 2019年1月24日
  * @version 0.0.1
  */
-public class CustomAuthorityImpl implements CustomAuthority {
-	private final static Logger log = LoggerFactory.getLogger(CustomAuthorityImpl.class);
+public class DefaultCustomResourceProvider implements CustomResourceProvider {
+	private final static Logger log = LoggerFactory.getLogger(DefaultCustomResourceProvider.class);
 
 	@Override
 	public boolean hasPermission(HttpServletRequest request, Authentication auth) {
