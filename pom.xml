@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.yishuifengxiao.common</groupId>
 	<artifactId>common-starter</artifactId>
-	<version>4.1.3</version>
+	<version>4.1.4</version>
 	<packaging>pom</packaging>
 	<name>common-starter</name>
 	<description>易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。</description>
