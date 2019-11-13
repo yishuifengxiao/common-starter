@@ -10,7 +10,7 @@
 交流 QQ 群 :<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=a81681f687ced1bf514d6226d00463798cefc0a9559fc7d34f1e17e719ca8573"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="易水组件交流群" title="易水组件交流群"></a> (群号 624646260)
 
 
-易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。
+易水公共组件是基于springboot的高度封装的通用型组件，在对spring security和spring security oauth2高度可定制化的功能封装外，还支持第三方登录和sso单点登录功能，使用户能够快速开启QQ登录和微信登录能力，搭建属于自己的认证/授权中心。此外，工具还提供各种常见的图形验证码、短信验证码和邮件验证码功能，并支持跨域设置和全局异常捕获功能，实现自定义异常信息提示。另外，组件还包含swagger接口文档功能，支持一键导出离线接口使用文档。最后，组件提供了大量丰富的配置属性，支持通过属性配置完成各项功能设置，真正实现零侵入、无缝接入功能。
 
 在保证功能灵活可用的基础上，易水公共组件还针对国人的使用习惯进行了一些本地化配置，提供了详细完整的中文使用说明文档。总的来说，易水公共组件在保证单机应用的高效性能同时，还能支持分部署环境，是目前主流的微服务开发过程中不可或缺的重要伙伴。
 
@@ -99,4 +99,22 @@
 8. [基于易水公共组件的权限管理系统](http://www.yishuifengxiao.com/2019/10/31/%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/)
 
 
+ **效果展示**
+ 
+登录界面
+![登录界面](https://images.gitee.com/uploads/images/2019/1113/090913_bbe000a5_400404.png "login.png")
 
+用户管理
+![用户管理](https://images.gitee.com/uploads/images/2019/1113/090958_0d4c4c09_400404.png "user.png")
+
+终端管理
+![终端管理](https://images.gitee.com/uploads/images/2019/1113/091049_4442a7eb_400404.png "client.png")
+
+在线用户管理
+![在线用户管理](https://images.gitee.com/uploads/images/2019/1113/091145_f5415447_400404.png "online.png")
+
+登录记录
+![登录记录](https://images.gitee.com/uploads/images/2019/1113/091209_a4c911fb_400404.png "record.png")
+
+说明文档
+![说明文档](https://images.gitee.com/uploads/images/2019/1113/091240_2bac1057_400404.png "swagger.png")
