@@ -13,7 +13,6 @@
 	<version>4.1.4</version>
 	<packaging>pom</packaging>
 	<name>common-starter</name>
-	<description>易水公共组件是基于spring security和spring security oauth2上的二次开发，除了对spring security和oauth2高度可定制化的功能封装外，还集成了在日常开发过程需要经常使用的swagger-ui和验证码功能以及项目中必不可少的全局异常捕获功能，另外，易水公共组件还支持第三方登录功能，对单点登录(sso)功能做了一个简单的默认实现，使用用户能够快速开启QQ登录和微信登录能力。</description>
 	<url>http://www.yishuifengxiao.com</url>
 	<licenses>
 		<license>
@@ -78,7 +77,7 @@
 		<javax.interceptor-api.version>3.1</javax.interceptor-api.version>
 
 
-		<yishuifengxiao.tool.version>2.0.1</yishuifengxiao.tool.version>
+		<yishuifengxiao.tool.version>2.0.2</yishuifengxiao.tool.version>
 
 		<spring-cloud.version>Greenwich.RELEASE</spring-cloud.version>
 
@@ -196,4 +195,5 @@
 		</profile>
 		<!-- 发布环境 -->
 	</profiles>
+	<description>易水公共组件是基于springboot的高度封装的通用型组件，在对spring security和spring security oauth2高度可定制化的功能封装外，还支持第三方登录和sso单点登录功能，使用户能够快速开启QQ登录和微信登录能力，搭建属于自己的认证/授权中心。此外，工具还提供各种常见的图形验证码、短信验证码和邮件验证码功能，并支持跨域设置和全局异常捕获功能，实现自定义异常信息提示。另外，组件还包含swagger接口文档功能，支持一键导出离线接口使用文档。最后，组件提供了大量丰富的配置属性，支持通过属性配置完成各项功能设置，真正实现零侵入、无缝接入功能</description>
 </project>
