@@ -1,11 +1,13 @@
 package com.yishuifengxiao.common.utils;
 
+import com.yishuifengxiao.common.tool.entity.JpaPage;
 import com.yishuifengxiao.common.tool.entity.Page;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
+import org.springframework.data.repository.query.QueryByExampleExecutor;
 
 import java.util.List;
 
@@ -66,9 +68,9 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T> Page<T> pageFuzzy(JpaRepositoryImplementation repository, T query, int pageSize, int pageNum) {
+	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum) {
 		Example<T> example = JpaUtil.fuzzy(query);
-		return Page.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
+		return JpaPage.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
 
 	}
 
@@ -85,10 +87,10 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T> Page<T> pageFuzzy(JpaRepositoryImplementation repository, T query, int pageSize, int pageNum,
+	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum,
 			String orderName) {
 		Example<T> example = JpaUtil.fuzzy(query);
-		return Page.of(repository.findAll(example,
+		return JpaPage.of(repository.findAll(example,
 				PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize, Sort.Direction.ASC, orderName)));
 
 	}
@@ -106,10 +108,10 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T> Page<T> pageFuzzy(JpaRepositoryImplementation repository, T query, int pageSize, int pageNum,
+	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum,
 			Sort sort) {
 		Example<T> example = JpaUtil.fuzzy(query);
-		return Page.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
+		return JpaPage.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
 
 	}
 
@@ -213,9 +215,9 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> Page<T> page(JpaRepositoryImplementation repository, Example<T> example, int pageSize,
+	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize,
 			int pageNum) {
-		return Page.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
+		return JpaPage.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize)));
 	}
 
 	/**
@@ -228,9 +230,9 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> Page<T> page(JpaRepositoryImplementation repository, Example<T> example, int pageSize,
+	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize,
 			int pageNum, String orderName) {
-		return Page.of(repository.findAll(example,
+		return JpaPage.of(repository.findAll(example,
 				PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize, Sort.Direction.ASC, orderName)));
 	}
 
@@ -244,9 +246,9 @@ public class JpaUtil {
 	 * @return
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> Page<T> page(JpaRepositoryImplementation repository, Example<T> example, int pageSize,
+	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize,
 			int pageNum, Sort sort) {
-		return Page.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize, sort)));
+		return JpaPage.of(repository.findAll(example, PageRequest.of(pageNum > 1 ? pageNum - 1 : 0, pageSize, sort)));
 	}
 
 	/**
