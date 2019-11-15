@@ -3,9 +3,9 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.yishuifengxiao.common.autoconfigure.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.CorsAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.WebExceptionAutoConfiguration,\
+com.yishuifengxiao.common.autoconfigure.RedisExtendAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.ValidateCodeAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.SecurityAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.SpringSocialAutoConfiguration,\
-com.yishuifengxiao.common.autoconfigure.RedisExtendAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.OAuth2ExtendAutoConfiguration,\
 com.yishuifengxiao.common.autoconfigure.CommonAutoConfiguration
