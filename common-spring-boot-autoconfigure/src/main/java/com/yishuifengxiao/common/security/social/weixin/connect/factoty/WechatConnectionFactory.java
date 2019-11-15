@@ -60,7 +60,8 @@ public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
         return new WechatAdapter(providerUserId);
     }
 
-    private OAuth2ServiceProvider<Wechat> getOAuth2ServiceProvider() {
+
+    protected OAuth2ServiceProvider<Wechat> getOAuth2ServiceProvider() {
         return (OAuth2ServiceProvider<Wechat>) getServiceProvider();
     }
 

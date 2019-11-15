@@ -2,7 +2,6 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
 import javax.servlet.ServletException;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
@@ -197,10 +196,6 @@ public class WebExceptionAutoConfiguration {
 		return response;
 	}
 
-	@PostConstruct
-	public void checkConfig() {
 
-		logger.debug("【全局异常拦截】 开启全局异常拦截自定义配置为 {}");
-	}
 
 }

@@ -2,6 +2,10 @@ package com.yishuifengxiao.common.autoconfigure;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -37,9 +41,9 @@ import com.yishuifengxiao.common.validation.sender.CodeSender;
 @Configuration
 @EnableConfigurationProperties({ CodeProperties.class })
 @Import(MailExtendAutoConfiguration.class)
-@AutoConfigureAfter(RedisExtendAutoConfiguration.class)
+@AutoConfigureAfter(value= {RedisExtendAutoConfiguration.class})
 public class ValidateCodeAutoConfiguration {
-
+	private static Logger logger = LoggerFactory.getLogger(ValidateCodeAutoConfiguration.class);
 	@Autowired
 	private CodeProperties codeProperties;
 
@@ -145,6 +149,11 @@ public class ValidateCodeAutoConfiguration {
 	public CodeProcessor emailCodeProcessor(Map<String, CodeGenerator> codeGenerators, CodeRepository repository,
 			CodeSender<EmailCode> emailCodeSender) {
 		return new EmailCodeProcessor(codeGenerators, repository, codeProperties, emailCodeSender);
+	}
+	@PostConstruct
+	public void checkConfig() {
+
+		logger.debug("开启验证码相关的配置");
 	}
 
 }

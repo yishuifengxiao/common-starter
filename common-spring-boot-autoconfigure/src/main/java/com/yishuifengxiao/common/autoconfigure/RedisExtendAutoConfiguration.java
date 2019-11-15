@@ -3,6 +3,11 @@ package com.yishuifengxiao.common.autoconfigure;
 import java.net.UnknownHostException;
 import java.time.Duration;
 
+import javax.annotation.PostConstruct;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -35,8 +40,9 @@ import com.yishuifengxiao.common.validation.repository.impl.RedisCodeRepository;
  */
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
+@AutoConfigureBefore(value={ValidateCodeAutoConfiguration.class})
 public class RedisExtendAutoConfiguration {
-
+	private static Logger logger = LoggerFactory.getLogger(RedisExtendAutoConfiguration.class);
 	/**
 	 * 定义一个redisValueSerializer
 	 * 
@@ -127,5 +133,9 @@ public class RedisExtendAutoConfiguration {
 		return new RedisCodeRepository(redisTemplate);
 	}
 
+	@PostConstruct
+	public void checkConfig() {
 
+		logger.debug("开启Redis相关的配置");
+	}
 }
