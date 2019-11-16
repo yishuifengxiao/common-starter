@@ -128,6 +128,7 @@ public class RedisExtendAutoConfiguration {
 	 * @return
 	 */
 	@ConditionalOnBean(name = "redisTemplate")
+	@ConditionalOnMissingBean(name = {"codeRepository"})
 	@Bean("codeRepository")
 	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate) {
 		return new RedisCodeRepository(redisTemplate);
