@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -29,6 +29,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
+import com.yishuifengxiao.common.security.oauth2.token.BaseTokenServices;
 import com.yishuifengxiao.common.security.oauth2.token.CustomTokenServices;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
@@ -97,17 +98,14 @@ public class OAuth2ExtendAutoConfiguration {
 	 * @param authenticationManager
 	 * @return
 	 */
-	@Bean("authorizationServerTokenServices")
-	@ConditionalOnMissingBean(name = "authorizationServerTokenServices")
-	public AuthorizationServerTokenServices authorizationServerTokenServices(TokenStore tokenStore,
-			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer,
-			AuthenticationManager authenticationManager,ApplicationContext context) {
-		CustomTokenServices tokenServices = new CustomTokenServices();
-		tokenServices.setTokenStore(tokenStore);
-		tokenServices.setClientDetailsService(clientDetailsService);
-		tokenServices.setTokenStore(tokenStore);
-		tokenServices.setAuthenticationManager(authenticationManager);
-		tokenServices.setContext(context);
+	@Bean("tokenServices")
+	@ConditionalOnMissingBean(name = "tokenServices")
+	@Primary
+	public BaseTokenServices authorizationServerTokenServices(TokenStore tokenStore,
+			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer, ApplicationContext context) {
+		CustomTokenServices tokenServices = new CustomTokenServices(tokenStore, clientDetailsService,
+				accessTokenEnhancer, context);
+
 		return tokenServices;
 	}
 
@@ -122,8 +120,9 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
-			AuthorizationServerTokenServices authorizationServerTokenServices,TokenExtractor tokenExtractor,
-			ConsumerTokenServices consumerTokenServices,UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
+			AuthorizationServerTokenServices authorizationServerTokenServices, TokenExtractor tokenExtractor,
+			ConsumerTokenServices consumerTokenServices, UserDetailsService userDetailsService,
+			PasswordEncoder passwordEncoder) {
 		TokenUtils tokenUtils = new TokenUtils();
 		tokenUtils.setClientDetailsService(clientDetailsService);
 		tokenUtils.setUserDetailsService(userDetailsService);

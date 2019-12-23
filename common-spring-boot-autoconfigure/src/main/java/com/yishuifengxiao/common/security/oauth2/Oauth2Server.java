@@ -1,11 +1,16 @@
 package com.yishuifengxiao.common.security.oauth2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
@@ -13,14 +18,16 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Aut
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
-import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
+import com.yishuifengxiao.common.security.oauth2.token.BaseTokenServices;
 
 /**
  * Configuration for a Spring Security OAuth2 authorization server. Back off if
@@ -74,13 +81,15 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	 * token生成器，负责token的生成或获取
 	 */
 	@Autowired
-	@Qualifier("authorizationServerTokenServices")
-	private AuthorizationServerTokenServices authorizationServerTokenServices;
-	
-	
+	@Qualifier("tokenServices")
+	private BaseTokenServices tokenServices;
+
 	@Autowired
 	@Qualifier("tokenEndpointAuthenticationFilter")
 	private TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter;
+
+	@Autowired
+	private UserDetailsService userDetailsService;
 
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
@@ -105,10 +114,29 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 		//加入到增强器链中
 		endpoints
 			.tokenEnhancer(tokenEnhancerChain);
+		
 		//配置token的生成规则
-		endpoints.tokenServices(authorizationServerTokenServices);
+      endpoints.tokenServices(this.addUserDetailsService(this.tokenServices,this.userDetailsService));
 		// @formatter:on
 
+	}
+
+	/**
+	 * 增加provider，否则刷新token时会出错
+	 * 
+	 * @param tokenServices
+	 * @param userDetailsService
+	 */
+	private BaseTokenServices addUserDetailsService(BaseTokenServices tokenServices,
+			UserDetailsService userDetailsService) {
+		if (userDetailsService != null) {
+			PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
+			provider.setPreAuthenticatedUserDetailsService(
+					new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>(userDetailsService));
+			tokenServices
+					.setAuthenticationManager(new ProviderManager(Arrays.<AuthenticationProvider>asList(provider)));
+		}
+		return tokenServices;
 	}
 
 	@Override
@@ -123,7 +151,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 			security.realm(this.properties.getRealm());
 		}
 		security.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
-		//Adds a new custom authentication filter for the TokenEndpoint. 
+		// Adds a new custom authentication filter for the TokenEndpoint.
 		security.addTokenEndpointAuthenticationFilter(tokenEndpointAuthenticationFilter);
 		security.allowFormAuthenticationForClients();
 	}
