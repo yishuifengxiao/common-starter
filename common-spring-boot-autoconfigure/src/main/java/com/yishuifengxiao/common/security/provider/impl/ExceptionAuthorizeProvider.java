@@ -27,8 +27,10 @@ public class ExceptionAuthorizeProvider implements AuthorizeProvider {
 		//@formatter:off 
 		expressionInterceptUrlRegistry.and()
 		.exceptionHandling()
-		.authenticationEntryPoint(exceptionAuthenticationEntryPoint)// 定义的不存在access_token时候响应
-		.accessDeniedHandler(customAccessDeniedHandler)//自定义权限拒绝处理器
+		// 定义的不存在access_token时候响应
+		.authenticationEntryPoint(exceptionAuthenticationEntryPoint)
+		//自定义权限拒绝处理器
+		.accessDeniedHandler(customAccessDeniedHandler)
 		;
 		//@formatter:on  
 	}

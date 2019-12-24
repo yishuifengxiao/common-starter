@@ -49,7 +49,7 @@ public interface SecurityContext extends Serializable {
 	/**
 	 * 存储异常信息
 	 * 
-	 * @param uri 引起异常的uri
+	 * @param request 引起异常的uri
 	 */
 	void setSecurityExcepion(HttpServletRequest request);
 

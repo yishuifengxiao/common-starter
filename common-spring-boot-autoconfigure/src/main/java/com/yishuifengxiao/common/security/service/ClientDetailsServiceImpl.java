@@ -10,7 +10,12 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.security.oauth2.provider.client.BaseClientDetails;
-
+/**
+ * 默认的ClientDetailsService
+ * @author yishui
+ * @date 2019年12月24日
+ * @version 1.0.0
+ */
 public class ClientDetailsServiceImpl implements ClientDetailsService {
 	/**
 	 * 默认的允许的认证类型
@@ -55,7 +60,8 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 
 		// 用于指定客户端(client)的访问密匙; 在注册时必须填写(也可由服务端自动生成).
 		// 对于不同的grant_type,该字段都是必须的. 在实际应用中的另一个名称叫appSecret,与client_secret是同一个概念.
-		clientDetails.setClientSecret(passwordEncoder.encode("12345678"));// 这里是加密后的密码
+		// 这里是加密后的密码
+		clientDetails.setClientSecret(passwordEncoder.encode("12345678"));
 
 		// 指定客户端支持的grant_type,可选值包括authorization_code,password,refresh_token,implicit,client_credentials,
 		// 若支持多个grant_type用逗号(,)分隔,如: "authorization_code,password".

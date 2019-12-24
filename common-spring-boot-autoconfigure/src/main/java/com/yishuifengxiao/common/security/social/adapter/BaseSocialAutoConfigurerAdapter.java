@@ -7,17 +7,22 @@ import org.springframework.social.connect.ConnectionFactory;
 
 /**
  * spring social 1.1.6已经移除了该类，所以自己新建一下
+ * 
  * @author yishui
  * @date 2019年10月18日
  * @version 1.0.0
  */
-public abstract class SocialAutoConfigurerAdapter extends SocialConfigurerAdapter {
+public abstract class BaseSocialAutoConfigurerAdapter extends SocialConfigurerAdapter {
 
-    @Override
-    public void addConnectionFactories(ConnectionFactoryConfigurer configurer, Environment environment) {
-        configurer.addConnectionFactory(createConnectionFactory());
-    }
+	@Override
+	public void addConnectionFactories(ConnectionFactoryConfigurer configurer, Environment environment) {
+		configurer.addConnectionFactory(createConnectionFactory());
+	}
 
-    protected abstract ConnectionFactory<?> createConnectionFactory();
+	/**
+	 * 
+	 * @return
+	 */
+	protected abstract ConnectionFactory<?> createConnectionFactory();
 
 }

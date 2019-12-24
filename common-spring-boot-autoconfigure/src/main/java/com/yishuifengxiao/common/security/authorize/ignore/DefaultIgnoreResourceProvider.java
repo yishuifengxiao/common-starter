@@ -28,7 +28,8 @@ public class DefaultIgnoreResourceProvider implements IgnoreResourceProvider {
 		.antMatchers(HttpMethod.OPTIONS, "/**")
 		.antMatchers("/oauth/check_token")
 		.mvcMatchers(securityProperties.getIgnore().getIgnore())
-		.antMatchers(securityProperties.getIgnore().getIgnore())// 设置忽视目录
+		//// 设置忽视目录
+		.antMatchers(securityProperties.getIgnore().getIgnore())
 		;
 		// .antMatchers("/**/**.js", "/lang/*.json", "/**/**.css", "/**/**.js",
 		// "/**/**.map", "/**/**.html","/**/**.jsp",

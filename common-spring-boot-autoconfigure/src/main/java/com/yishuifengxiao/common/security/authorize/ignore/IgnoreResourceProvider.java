@@ -13,7 +13,7 @@ public interface IgnoreResourceProvider {
 	/**
 	 * 配置需要忽视的资源
 	 * 
-	 * @param web
+	 * @param ignoring
 	 * @throws Exception
 	 */
 	void configure(IgnoredRequestConfigurer ignoring) throws Exception;

@@ -8,5 +8,10 @@ import com.yishuifengxiao.common.security.social.weixin.entity.WechatUserInfo;
  * @version 1.0.0
  */
 public interface Wechat {
+	/**
+	 * 
+	 * @param openId
+	 * @return
+	 */
     WechatUserInfo getUserInfo(String openId);
 }

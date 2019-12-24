@@ -16,7 +16,7 @@ import org.springframework.social.security.SocialUserDetailsService;
  * @author yishui
  * @date 2018年6月23日
  */
-public class CustomeSocialUserDetailsService implements SocialUserDetailsService {
+public class SocialUserDetailsServiceImpl implements SocialUserDetailsService {
 
 	private final static Logger log = LoggerFactory.getLogger(CustomeUserDetailsServiceImpl.class);
 

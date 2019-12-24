@@ -29,11 +29,15 @@ import com.yishuifengxiao.common.tool.random.UID;
  * @date 2019年12月24日
  * @version 1.0.0
  */
-public class SimpleTokenService implements TokenService, InitializingBean {
-
-	private int refreshTokenValiditySeconds = 60 * 60 * 24 * 30; // default 30 days.
-
-	private int accessTokenValiditySeconds = 60 * 60 * 12; // default 12 hours.
+public class TokenServiceImpl implements TokenService, InitializingBean {
+    /**
+     * default 30 days.
+     */
+	private int refreshTokenValiditySeconds = 60 * 60 * 24 * 30; 
+    /**
+     * default 12 hours.
+     */
+	private int accessTokenValiditySeconds = 60 * 60 * 12; 
 
 	/**
 	 * Create a refreshed authentication.

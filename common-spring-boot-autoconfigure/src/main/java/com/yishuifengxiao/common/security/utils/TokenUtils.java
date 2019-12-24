@@ -27,6 +27,8 @@ import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
 
+import com.yishuifengxiao.common.constant.SecurityConstant;
+
 /**
  * 在oauth2的情况下，根据spring security的认证信息生成token
  * 
@@ -138,7 +140,7 @@ public class TokenUtils {
 			throws IOException {
 		String header = request.getHeader("Authorization");
 
-		if (header == null || !header.toLowerCase().startsWith("basic ")) {
+		if (header == null || !header.toLowerCase().startsWith(SecurityConstant.BASIC_FLAG)) {
 			throw new UnapprovedClientAuthenticationException("请求头中无client 信息");
 		}
 

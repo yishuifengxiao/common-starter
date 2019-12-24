@@ -49,7 +49,8 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.mobile = mobile;
-		super.setAuthenticated(true); // must use super, as we override
+		// must use super, as we override
+		super.setAuthenticated(true); 
 	}
 
 	// ~ Methods

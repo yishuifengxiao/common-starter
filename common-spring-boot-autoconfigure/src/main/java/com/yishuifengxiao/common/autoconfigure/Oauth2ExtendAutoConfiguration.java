@@ -30,7 +30,7 @@ import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.security.oauth2.token.TokenStrategy;
-import com.yishuifengxiao.common.security.oauth2.token.SimpleTokenService;
+import com.yishuifengxiao.common.security.oauth2.token.TokenServiceImpl;
 import com.yishuifengxiao.common.security.oauth2.token.TokenService;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
@@ -46,7 +46,7 @@ import com.yishuifengxiao.common.security.utils.TokenUtils;
 @Configuration
 @ConditionalOnClass({ OAuth2AccessToken.class, WebMvcConfigurer.class })
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-public class OAuth2ExtendAutoConfiguration {
+public class Oauth2ExtendAutoConfiguration {
 
 	@ConditionalOnMissingBean(name = { "tokenStore" })
 	@Bean("tokenStore")
@@ -97,7 +97,7 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnClass
 	public TokenService tokenService() {
-		return new SimpleTokenService();
+		return new TokenServiceImpl();
 	}
 	
 	/**

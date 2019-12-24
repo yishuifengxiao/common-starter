@@ -45,7 +45,7 @@ public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
     @Override
     public Connection<Wechat> createConnection(AccessGrant accessGrant) {
         return new OAuth2Connection<Wechat>(getProviderId(), extractProviderUserId(accessGrant), accessGrant.getAccessToken(),
-                accessGrant.getRefreshToken(), accessGrant.getExpireTime(), getOAuth2ServiceProvider(), getApiAdapter(extractProviderUserId(accessGrant)));
+                accessGrant.getRefreshToken(), accessGrant.getExpireTime(), getOauth2ServiceProvider(), getApiAdapter(extractProviderUserId(accessGrant)));
     }
 
     /* (non-Javadoc)
@@ -53,7 +53,7 @@ public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
      */
     @Override
     public Connection<Wechat> createConnection(ConnectionData data) {
-        return new OAuth2Connection<Wechat>(data, getOAuth2ServiceProvider(), getApiAdapter(data.getProviderUserId()));
+        return new OAuth2Connection<Wechat>(data, getOauth2ServiceProvider(), getApiAdapter(data.getProviderUserId()));
     }
 
     private ApiAdapter<Wechat> getApiAdapter(String providerUserId) {
@@ -61,7 +61,7 @@ public class WechatConnectionFactory extends OAuth2ConnectionFactory<Wechat> {
     }
 
 
-    protected OAuth2ServiceProvider<Wechat> getOAuth2ServiceProvider() {
+    protected OAuth2ServiceProvider<Wechat> getOauth2ServiceProvider() {
         return (OAuth2ServiceProvider<Wechat>) getServiceProvider();
     }
 

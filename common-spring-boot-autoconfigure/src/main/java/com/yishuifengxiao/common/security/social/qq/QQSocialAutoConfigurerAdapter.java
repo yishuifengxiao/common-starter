@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.social.qq;
 
 import org.springframework.social.connect.ConnectionFactory;
 
-import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAdapter;
+import com.yishuifengxiao.common.security.social.adapter.BaseSocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.qq.connect.factory.QQConnectionFactory;
 
 /**
@@ -12,7 +12,7 @@ import com.yishuifengxiao.common.security.social.qq.connect.factory.QQConnection
  * @date 2019年7月15日
  * @version 1.0.0
  */
-public class QQSocialAutoConfigurerAdapter extends SocialAutoConfigurerAdapter {
+public class QQSocialAutoConfigurerAdapter extends BaseSocialAutoConfigurerAdapter {
 
 	private String qqAppId;
 

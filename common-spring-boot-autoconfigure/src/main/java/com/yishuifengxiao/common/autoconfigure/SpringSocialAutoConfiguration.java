@@ -25,9 +25,9 @@ import org.springframework.social.security.SocialUserDetailsService;
 import org.springframework.social.security.SpringSocialConfigurer;
 
 import com.yishuifengxiao.common.properties.SocialProperties;
-import com.yishuifengxiao.common.security.service.CustomeSocialUserDetailsService;
+import com.yishuifengxiao.common.security.service.SocialUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.social.SsoSpringSocialConfigurer;
-import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAdapter;
+import com.yishuifengxiao.common.security.social.adapter.BaseSocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.processor.SocialAuthenticationFilterPostProcessor;
 import com.yishuifengxiao.common.security.social.processor.impl.SsoSocialAuthenticationFilterPostProcessor;
 import com.yishuifengxiao.common.security.social.qq.QQSocialAutoConfigurerAdapter;
@@ -82,7 +82,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	 * @return
 	 */
 	@Bean("qqSocialAutoConfigurerAdapter")
-	public SocialAutoConfigurerAdapter qqSocialAutoConfigurerAdapter(SocialProperties socialProperties) {
+	public BaseSocialAutoConfigurerAdapter qqSocialAutoConfigurerAdapter(SocialProperties socialProperties) {
 
 		QQSocialAutoConfigurerAdapter qqSocialAutoConfigurerAdapter = new QQSocialAutoConfigurerAdapter();
 		qqSocialAutoConfigurerAdapter.setQqAppId(socialProperties.getQq().getAppId());
@@ -118,7 +118,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	@Bean
 	@ConditionalOnMissingBean
 	public SocialUserDetailsService socialUserDetailsService(PasswordEncoder passwordEncoder) {
-		CustomeSocialUserDetailsService customeSocialUserDetailsService = new CustomeSocialUserDetailsService();
+		SocialUserDetailsServiceImpl customeSocialUserDetailsService = new SocialUserDetailsServiceImpl();
 		customeSocialUserDetailsService.setPasswordEncoder(passwordEncoder);
 		return customeSocialUserDetailsService;
 	}
@@ -172,7 +172,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	 */
 	@Bean
 	@ConditionalOnProperty(prefix = "yishuifengxiao.social.weixin", name = { "appId", "appSecret" })
-	public SocialAutoConfigurerAdapter wechatAutoConfigurerAdapter(SocialProperties socialProperties) {
+	public BaseSocialAutoConfigurerAdapter wechatAutoConfigurerAdapter(SocialProperties socialProperties) {
 		WechatAutoConfigurerAdapter wechatAutoConfigurerAdapter = new WechatAutoConfigurerAdapter();
 		wechatAutoConfigurerAdapter.setSocialProperties(socialProperties);
 		return wechatAutoConfigurerAdapter;
