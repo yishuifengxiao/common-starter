@@ -16,7 +16,7 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.authorize.intercept.AuthorizeResourceProvider;
 import com.yishuifengxiao.common.security.manager.authorize.AuthorizeConfigManager;
-import com.yishuifengxiao.common.security.oauth2.token.BaseTokenServices;
+import com.yishuifengxiao.common.security.oauth2.token.TokenStrategy;
 
 /**
  * oauth2 资源相关的配置
@@ -64,8 +64,8 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	 * token生成器，负责token的生成或获取
 	 */
 	@Autowired
-	@Qualifier("tokenServices")
-	private BaseTokenServices tokenServices;
+	@Qualifier("tokenStrategy")
+	private TokenStrategy tokenStrategy;
 
 	@Override
 	public void configure(ResourceServerSecurityConfigurer resources) {
@@ -86,7 +86,7 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 		resources.expressionHandler(expressionHandler);
 		resources.resourceId(this.oauth2Properties.getRealm());
 		// token的验证和读取策略
-		resources.tokenServices(tokenServices);
+		resources.tokenServices(tokenStrategy);
 	}
 
 	@Override

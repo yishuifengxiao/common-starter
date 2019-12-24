@@ -12,9 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
-import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
@@ -22,7 +20,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.entity.CustomToken;
 import com.yishuifengxiao.common.tool.encoder.DES;
-import com.yishuifengxiao.common.tool.random.UID;
 
 /**
  * 自定义token生成器
@@ -52,10 +49,10 @@ public class CustomeTokenEnhancer implements TokenEnhancer {
 		if (accessToken instanceof DefaultOAuth2AccessToken) {
 			DefaultOAuth2AccessToken token = ((DefaultOAuth2AccessToken) accessToken);
 			token.setValue(getNewToken(accessToken, authentication));
-			OAuth2RefreshToken refreshToken = token.getRefreshToken();
-			if (refreshToken instanceof DefaultOAuth2RefreshToken) {
-				token.setRefreshToken(new DefaultOAuth2RefreshToken(UID.uuid()));
-			}
+//			OAuth2RefreshToken refreshToken = token.getRefreshToken();
+//			if (refreshToken instanceof DefaultOAuth2RefreshToken) {
+//				token.setRefreshToken(new DefaultOAuth2RefreshToken(UID.uuid()));
+//			}
 			Map<String, Object> additionalInformation = new HashMap<String, Object>(1);
 			additionalInformation.put("developer", "yishuifengxiao");
 			token.setAdditionalInformation(additionalInformation);

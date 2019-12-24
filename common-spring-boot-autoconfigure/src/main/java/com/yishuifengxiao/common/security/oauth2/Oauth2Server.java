@@ -27,7 +27,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 
 import com.yishuifengxiao.common.properties.Oauth2Properties;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
-import com.yishuifengxiao.common.security.oauth2.token.BaseTokenServices;
+import com.yishuifengxiao.common.security.oauth2.token.TokenStrategy;
 
 /**
  * Configuration for a Spring Security OAuth2 authorization server. Back off if
@@ -81,8 +81,8 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	 * token生成器，负责token的生成或获取
 	 */
 	@Autowired
-	@Qualifier("tokenServices")
-	private BaseTokenServices tokenServices;
+	@Qualifier("tokenStrategy")
+	private TokenStrategy tokenStrategy;
 
 	@Autowired
 	@Qualifier("tokenEndpointAuthenticationFilter")
@@ -116,7 +116,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 			.tokenEnhancer(tokenEnhancerChain);
 		
 		//配置token的生成规则
-      endpoints.tokenServices(this.addUserDetailsService(this.tokenServices,this.userDetailsService));
+      endpoints.tokenServices(this.addUserDetailsService(this.tokenStrategy,this.userDetailsService));
 		// @formatter:on
 
 	}
@@ -127,16 +127,16 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	 * @param tokenServices
 	 * @param userDetailsService
 	 */
-	private BaseTokenServices addUserDetailsService(BaseTokenServices tokenServices,
+	private TokenStrategy addUserDetailsService(TokenStrategy tokenStrategy,
 			UserDetailsService userDetailsService) {
 		if (userDetailsService != null) {
 			PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
 			provider.setPreAuthenticatedUserDetailsService(
 					new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>(userDetailsService));
-			tokenServices
+			tokenStrategy
 					.setAuthenticationManager(new ProviderManager(Arrays.<AuthenticationProvider>asList(provider)));
 		}
-		return tokenServices;
+		return tokenStrategy;
 	}
 
 	@Override

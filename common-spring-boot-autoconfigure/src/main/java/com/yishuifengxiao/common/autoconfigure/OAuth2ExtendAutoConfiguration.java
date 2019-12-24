@@ -29,8 +29,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
-import com.yishuifengxiao.common.security.oauth2.token.BaseTokenServices;
-import com.yishuifengxiao.common.security.oauth2.token.CustomTokenServices;
+import com.yishuifengxiao.common.security.oauth2.token.TokenStrategy;
+import com.yishuifengxiao.common.security.oauth2.token.SimpleTokenService;
+import com.yishuifengxiao.common.security.oauth2.token.TokenService;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
@@ -90,6 +91,16 @@ public class OAuth2ExtendAutoConfiguration {
 	}
 
 	/**
+	 * 注入一个自定义token生成类
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnClass
+	public TokenService tokenService() {
+		return new SimpleTokenService();
+	}
+	
+	/**
 	 * 自定义token生成规则
 	 * 
 	 * @param tokenStore
@@ -98,16 +109,17 @@ public class OAuth2ExtendAutoConfiguration {
 	 * @param authenticationManager
 	 * @return
 	 */
-	@Bean("tokenServices")
-	@ConditionalOnMissingBean(name = "tokenServices")
+	@Bean("tokenStrategy")
+	@ConditionalOnMissingBean(name = "tokenStrategy")
 	@Primary
-	public BaseTokenServices authorizationServerTokenServices(TokenStore tokenStore,
-			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer, ApplicationContext context) {
-		CustomTokenServices tokenServices = new CustomTokenServices(tokenStore, clientDetailsService,
-				accessTokenEnhancer, context);
-
+	public TokenStrategy tokenStrategy(TokenStore tokenStore, ClientDetailsService clientDetailsService,
+			TokenEnhancer accessTokenEnhancer, TokenService tokenService, ApplicationContext context) {
+		TokenStrategy tokenServices = new TokenStrategy(tokenStore, clientDetailsService, accessTokenEnhancer, context);
+		tokenServices.setTokenService(tokenService);
 		return tokenServices;
 	}
+   
+
 
 	/**
 	 * token生成工具
