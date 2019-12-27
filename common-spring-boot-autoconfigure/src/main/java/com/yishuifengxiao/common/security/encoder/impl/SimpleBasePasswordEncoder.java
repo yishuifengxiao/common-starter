@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.yishuifengxiao.common.security.encoder.CustomPasswordEncoder;
+import com.yishuifengxiao.common.security.encoder.BasePasswordEncoder;
 import com.yishuifengxiao.common.tool.encoder.DES;
 
 /**
@@ -13,9 +13,9 @@ import com.yishuifengxiao.common.tool.encoder.DES;
  * @author admin
  *
  */
-public class CustomPasswordEncoderImpl extends CustomPasswordEncoder {
+public class SimpleBasePasswordEncoder extends BasePasswordEncoder {
 
-	private final static Logger log = LoggerFactory.getLogger(CustomPasswordEncoderImpl.class);
+	private final static Logger log = LoggerFactory.getLogger(SimpleBasePasswordEncoder.class);
 	/**
 	 * 加解密时用到密钥
 	 */
@@ -58,11 +58,11 @@ public class CustomPasswordEncoderImpl extends CustomPasswordEncoder {
 		this.key = key;
 	}
 
-	public CustomPasswordEncoderImpl(String key) {
+	public SimpleBasePasswordEncoder(String key) {
 		this.key = key;
 	}
 
-	public CustomPasswordEncoderImpl() {
+	public SimpleBasePasswordEncoder() {
 
 	}
 

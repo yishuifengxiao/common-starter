@@ -47,10 +47,13 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
 		//请注意，如果在基于表单的登录期间发生错误，则此属性不会发生，其中URL身份验证失败将优先
 		.sessionAuthenticationFailureHandler(customAuthenticationFailureHandler)
 		//.invalidSessionUrl(securityProperties.getSession().getSessionInvalidUrl()) //session过期时的跳转的url
-		.maximumSessions(securityProperties.getSession().getMaximumSessions())//同一个用户最大的session数量
-		.maxSessionsPreventsLogin(securityProperties.getSession().isMaxSessionsPreventsLogin())//session数量达到最大时，是否阻止第二个用户登陆
+		//同一个用户最大的session数量
+		.maximumSessions(securityProperties.getSession().getMaximumSessions())
+		//session数量达到最大时，是否阻止第二个用户登陆
+		.maxSessionsPreventsLogin(securityProperties.getSession().isMaxSessionsPreventsLogin())
 		//.invalidSessionUrl(customProperties.getSecurity().getSession().getSessionInvalidUrl())//session过期后的跳转
-		.expiredSessionStrategy(sessionInformationExpiredStrategy)//session过期时的处理策略
+		//session过期时的处理策略
+		.expiredSessionStrategy(sessionInformationExpiredStrategy)
 		;
 		//@formatter:on  
 	}

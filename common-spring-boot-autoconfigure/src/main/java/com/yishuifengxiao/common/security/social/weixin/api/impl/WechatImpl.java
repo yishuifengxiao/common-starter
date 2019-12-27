@@ -10,6 +10,7 @@ import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.oauth2.TokenStrategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yishuifengxiao.common.constant.Oauth2Constant;
 import com.yishuifengxiao.common.security.social.weixin.api.Wechat;
 import com.yishuifengxiao.common.security.social.weixin.entity.WechatUserInfo;
 
@@ -56,7 +57,7 @@ public class WechatImpl extends AbstractOAuth2ApiBinding implements Wechat {
 	public WechatUserInfo getUserInfo(String openId) {
 		String url = URL_GET_USER_INFO + openId;
 		String response = getRestTemplate().getForObject(url, String.class);
-		if (StringUtils.contains(response, "errcode")) {
+		if (StringUtils.contains(response,  Oauth2Constant.ERROR_CODE)) {
 			return null;
 		}
 		WechatUserInfo profile = null;

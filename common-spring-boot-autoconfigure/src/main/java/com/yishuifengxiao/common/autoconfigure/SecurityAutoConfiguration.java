@@ -30,7 +30,7 @@ import com.yishuifengxiao.common.properties.SecurityProperties;
 import com.yishuifengxiao.common.properties.SocialProperties;
 import com.yishuifengxiao.common.security.adapter.AbstractSecurityAdapter;
 import com.yishuifengxiao.common.security.authorize.ignore.IgnoreResourceProvider;
-import com.yishuifengxiao.common.security.encoder.impl.CustomPasswordEncoderImpl;
+import com.yishuifengxiao.common.security.encoder.impl.SimpleBasePasswordEncoder;
 import com.yishuifengxiao.common.security.manager.DefaultSecurityContextManager;
 import com.yishuifengxiao.common.security.manager.SecurityContextManager;
 import com.yishuifengxiao.common.security.manager.adapter.AdapterManager;
@@ -70,7 +70,7 @@ public class SecurityAutoConfiguration {
 	@Bean("passwordEncoder")
 	@ConditionalOnMissingBean
 	public PasswordEncoder passwordEncoder(SecurityProperties securityProperties) {
-		return new CustomPasswordEncoderImpl(securityProperties.getSecretKey());
+		return new SimpleBasePasswordEncoder(securityProperties.getSecretKey());
 	}
 
 	/**

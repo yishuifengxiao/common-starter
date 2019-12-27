@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yishuifengxiao.common.constant.Oauth2Constant;
 import com.yishuifengxiao.common.security.social.weixin.entity.WechatAccessGrant;
 
 /**
@@ -95,7 +96,7 @@ public class WechatOAuth2Template extends OAuth2Template {
 		}
 
 		// 返回错误码时直接返回空
-		if (StringUtils.isNotBlank(MapUtils.getString(result, "errcode"))) {
+		if (StringUtils.isNotBlank(MapUtils.getString(result, Oauth2Constant.ERROR_CODE))) {
 			String errcode = MapUtils.getString(result, "errcode");
 			String errmsg = MapUtils.getString(result, "errmsg");
 			throw new RuntimeException("获取access token失败, errcode:" + errcode + ", errmsg:" + errmsg);

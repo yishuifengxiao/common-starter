@@ -28,13 +28,18 @@ public class JpaUtil {
 	 * @return
 	 */
 	public static <T> Example<T> fuzzy(T t) {
-
-		ExampleMatcher matcher = ExampleMatcher.matching()// 构建查询对象
-				.withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) // 改变默认字符串匹配方式：模糊查询
-				.withNullHandler(ExampleMatcher.NullHandler.IGNORE)// 忽略空字段
-				.withIgnoreCase(true); // 改变默认大小写忽略方式：忽略大小写
+		//@formatter:off 
+		ExampleMatcher matcher = ExampleMatcher
+				// 构建查询对象
+				.matching()
+				// 改变默认字符串匹配方式：模糊查询
+				.withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING) 
+				// 忽略空字段
+				.withNullHandler(ExampleMatcher.NullHandler.IGNORE)
+				// 改变默认大小写忽略方式：忽略大小写
+				.withIgnoreCase(true); 
 		Example<T> example = Example.of(t, matcher);
-
+		//@formatter:on  
 		return example;
 	}
 
@@ -46,13 +51,18 @@ public class JpaUtil {
 	 * @return
 	 */
 	public static <T> Example<T> exact(T t) {
-
-		ExampleMatcher matcher = ExampleMatcher.matching()// 构建查询对象
-				.withStringMatcher(ExampleMatcher.StringMatcher.DEFAULT) // 改变默认字符串匹配方式：精确匹配
-				.withNullHandler(ExampleMatcher.NullHandler.IGNORE)// 忽略空字段
-				.withIgnoreCase(false); // 改变默认大小写忽略方式：忽略大小写
+		//@formatter:off 
+		ExampleMatcher matcher = ExampleMatcher
+				// 构建查询对象
+				.matching()
+				 // 改变默认字符串匹配方式：精确匹配
+				.withStringMatcher(ExampleMatcher.StringMatcher.DEFAULT)
+				// 忽略空字段
+				.withNullHandler(ExampleMatcher.NullHandler.IGNORE)
+				 // 改变默认大小写忽略方式：不忽略大小写
+				.withIgnoreCase(false);
 		Example<T> example = Example.of(t, matcher);
-
+		//@formatter:on  
 		return example;
 	}
 

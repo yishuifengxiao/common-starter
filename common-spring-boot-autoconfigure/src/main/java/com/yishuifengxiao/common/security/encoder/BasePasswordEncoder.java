@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @author admin
  *
  */
-public abstract class CustomPasswordEncoder implements PasswordEncoder {
+public abstract class BasePasswordEncoder implements PasswordEncoder {
 
 	/**
 	 * 对加密后的密码进行解密

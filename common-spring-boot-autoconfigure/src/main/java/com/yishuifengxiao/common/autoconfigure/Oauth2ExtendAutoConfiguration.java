@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -29,7 +29,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.yishuifengxiao.common.security.extractor.CustomTokenExtractor;
 import com.yishuifengxiao.common.security.filter.TokenEndpointAuthenticationFilter;
 import com.yishuifengxiao.common.security.oauth2.enhancer.CustomeTokenEnhancer;
-import com.yishuifengxiao.common.security.oauth2.token.CustomTokenServices;
+import com.yishuifengxiao.common.security.oauth2.token.TokenStrategy;
+import com.yishuifengxiao.common.security.oauth2.token.TokenServiceImpl;
+import com.yishuifengxiao.common.security.oauth2.token.TokenService;
 import com.yishuifengxiao.common.security.oauth2.translator.Auth2ResponseExceptionTranslator;
 import com.yishuifengxiao.common.security.service.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtils;
@@ -44,7 +46,7 @@ import com.yishuifengxiao.common.security.utils.TokenUtils;
 @Configuration
 @ConditionalOnClass({ OAuth2AccessToken.class, WebMvcConfigurer.class })
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
-public class OAuth2ExtendAutoConfiguration {
+public class Oauth2ExtendAutoConfiguration {
 
 	@ConditionalOnMissingBean(name = { "tokenStore" })
 	@Bean("tokenStore")
@@ -89,6 +91,16 @@ public class OAuth2ExtendAutoConfiguration {
 	}
 
 	/**
+	 * 注入一个自定义token生成类
+	 * @return
+	 */
+	@Bean
+	@ConditionalOnClass
+	public TokenService tokenService() {
+		return new TokenServiceImpl();
+	}
+	
+	/**
 	 * 自定义token生成规则
 	 * 
 	 * @param tokenStore
@@ -97,19 +109,17 @@ public class OAuth2ExtendAutoConfiguration {
 	 * @param authenticationManager
 	 * @return
 	 */
-	@Bean("authorizationServerTokenServices")
-	@ConditionalOnMissingBean(name = "authorizationServerTokenServices")
-	public AuthorizationServerTokenServices authorizationServerTokenServices(TokenStore tokenStore,
-			ClientDetailsService clientDetailsService, TokenEnhancer accessTokenEnhancer,
-			AuthenticationManager authenticationManager,ApplicationContext context) {
-		CustomTokenServices tokenServices = new CustomTokenServices();
-		tokenServices.setTokenStore(tokenStore);
-		tokenServices.setClientDetailsService(clientDetailsService);
-		tokenServices.setTokenStore(tokenStore);
-		tokenServices.setAuthenticationManager(authenticationManager);
-		tokenServices.setContext(context);
+	@Bean("tokenStrategy")
+	@ConditionalOnMissingBean(name = "tokenStrategy")
+	@Primary
+	public TokenStrategy tokenStrategy(TokenStore tokenStore, ClientDetailsService clientDetailsService,
+			TokenEnhancer accessTokenEnhancer, TokenService tokenService, ApplicationContext context) {
+		TokenStrategy tokenServices = new TokenStrategy(tokenStore, clientDetailsService, accessTokenEnhancer, context);
+		tokenServices.setTokenService(tokenService);
 		return tokenServices;
 	}
+   
+
 
 	/**
 	 * token生成工具
@@ -122,8 +132,9 @@ public class OAuth2ExtendAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public TokenUtils tokenUtils(ClientDetailsService clientDetailsService,
-			AuthorizationServerTokenServices authorizationServerTokenServices,TokenExtractor tokenExtractor,
-			ConsumerTokenServices consumerTokenServices,UserDetailsService userDetailsService,PasswordEncoder passwordEncoder) {
+			AuthorizationServerTokenServices authorizationServerTokenServices, TokenExtractor tokenExtractor,
+			ConsumerTokenServices consumerTokenServices, UserDetailsService userDetailsService,
+			PasswordEncoder passwordEncoder) {
 		TokenUtils tokenUtils = new TokenUtils();
 		tokenUtils.setClientDetailsService(clientDetailsService);
 		tokenUtils.setUserDetailsService(userDetailsService);

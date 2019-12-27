@@ -80,7 +80,8 @@ public class CustomTokenExtractor implements TokenExtractor {
 	 */
 	protected String extractHeaderToken(HttpServletRequest request) {
 		Enumeration<String> headers = request.getHeaders("Authorization");
-		while (headers.hasMoreElements()) { // typically there is only one (most servers enforce that)
+		 // typically there is only one (most servers enforce that)
+		while (headers.hasMoreElements()) {
 			String value = headers.nextElement();
 			if ((value.toLowerCase().startsWith(OAuth2AccessToken.BEARER_TYPE.toLowerCase()))) {
 				String authHeaderValue = value.substring(OAuth2AccessToken.BEARER_TYPE.length()).trim();

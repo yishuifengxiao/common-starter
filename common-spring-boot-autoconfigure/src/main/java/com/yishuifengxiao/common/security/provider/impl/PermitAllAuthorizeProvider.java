@@ -29,16 +29,19 @@ public class PermitAllAuthorizeProvider implements AuthorizeProvider {
 		expressionInterceptUrlRegistry.antMatchers(
 				"/oauth/token", 
 				"/oauth/check_token",
-				securityProperties.getCore().getRedirectUrl(), // 权限拦截时默认的跳转地址
-				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
-				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-				securityProperties.getCore().getLoginOutUrl(),//退出页面
-				securityProperties.getSession().getSessionInvalidUrl() //session失效时跳转的页面
+				 // 权限拦截时默认的跳转地址
+				securityProperties.getCore().getRedirectUrl(),
+				// 登陆页面的URL
+				securityProperties.getCore().getLoginPage(), 
+				// 登陆页面表单提交地址
+				securityProperties.getCore().getFormActionUrl(), 
+				//退出页面
+				securityProperties.getCore().getLoginOutUrl(),
+				 //session失效时跳转的页面
+				securityProperties.getSession().getSessionInvalidUrl()
 				)
-				.permitAll()// 登出页面的地址
-				// .antMatchers("/js/**","/css/**","/images/**","/fonts/**","/**/**.png","/**/**.jpg","/**/**.html","/**/**.jsp","/**/**.js","/**/**.css").permitAll()
-			//	.antMatchers(customProperties.getSecurity().getIgnore().getIgnore()).permitAll()
-     	    	//.antMatchers("/**").access("@ignoreCustomAuthority.hasPermission(request, authentication)")//使用自定义配置，对符合要求的目录进行忽视
+		       // 登出页面的地址
+				.permitAll()
 		;
 
 	}

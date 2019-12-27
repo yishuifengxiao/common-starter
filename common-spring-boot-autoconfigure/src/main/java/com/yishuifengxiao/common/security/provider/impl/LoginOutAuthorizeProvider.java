@@ -33,9 +33,11 @@ public class LoginOutAuthorizeProvider implements AuthorizeProvider {
 		//@formatter:off  
 		expressionInterceptUrlRegistry.and()
 		.logout()
-		.logoutUrl(securityProperties.getCore().getLoginOutUrl())//退出登陆的URL
+		//退出登陆的URL
+		.logoutUrl(securityProperties.getCore().getLoginOutUrl())
 		.logoutSuccessHandler(customLogoutSuccessHandler)
-		.deleteCookies(securityProperties.getHandler().getExit().getCookieName());//退出时删除cookie
+		//退出时删除cookie
+		.deleteCookies(securityProperties.getHandler().getExit().getCookieName());
 		//@formatter:on  
 	}
 

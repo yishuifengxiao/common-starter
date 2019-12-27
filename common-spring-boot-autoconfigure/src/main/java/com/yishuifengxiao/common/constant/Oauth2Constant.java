@@ -41,5 +41,9 @@ public final class Oauth2Constant {
 	// "ROLE_CLIENT,ROLE_TRUSTED_CLIENT";
 
 	public final static String DEFAULT_URL = "http://localhost:8080/";
+	/**
+	 * 错误码标志
+	 */
+	public final static String ERROR_CODE="errcode";
 
 }

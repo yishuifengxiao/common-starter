@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.yishuifengxiao.common</groupId>
 	<artifactId>common-starter</artifactId>
-	<version>4.2.0</version>
+	<version>4.2.1</version>
 	<packaging>pom</packaging>
 	<name>common-starter</name>
 	<url>http://www.yishuifengxiao.com</url>

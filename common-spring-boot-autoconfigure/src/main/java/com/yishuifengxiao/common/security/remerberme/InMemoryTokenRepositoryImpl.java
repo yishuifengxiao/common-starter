@@ -32,6 +32,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
 
+	@Override
 	public synchronized void createNewToken(PersistentRememberMeToken token) {
 		PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
 
@@ -43,6 +44,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		seriesTokens.put(token.getSeries(), token);
 	}
 
+	@Override
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
 		PersistentRememberMeToken token = getTokenForSeries(series);
 
@@ -53,10 +55,12 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		seriesTokens.put(series, newToken);
 	}
 
+	@Override
 	public synchronized PersistentRememberMeToken getTokenForSeries(String seriesId) {
 		return seriesTokens.get(seriesId);
 	}
 
+	@Override
 	public synchronized void removeUserTokens(String username) {
 		Iterator<String> series = seriesTokens.keySet().iterator();
 

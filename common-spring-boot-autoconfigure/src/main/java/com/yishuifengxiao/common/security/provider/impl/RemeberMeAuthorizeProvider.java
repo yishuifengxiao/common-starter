@@ -39,13 +39,19 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 		//@formatter:off 
 		expressionInterceptUrlRegistry
 		.and()
-		.rememberMe()//记住我的功能
-		.useSecureCookie(securityProperties.getRemeberMe().getUseSecureCookie())//是否使用安全cookie
-		.key(securityProperties.getRemeberMe().getKey())//记住我产生的token的key
+		//记住我的功能
+		.rememberMe()
+		//是否使用安全cookie
+		.useSecureCookie(securityProperties.getRemeberMe().getUseSecureCookie())
+		//记住我产生的token的key
+		.key(securityProperties.getRemeberMe().getKey())
 		.rememberMeParameter(securityProperties.getRemeberMe().getRememberMeParameter())
-		.tokenRepository(persistentTokenRepository)//记住我的实现
-		.tokenValiditySeconds(securityProperties.getRemeberMe().getRememberMeSeconds())//记住我的时间
-		.userDetailsService(userDetailsService);//记住我的验证逻辑
+		//记住我的实现
+		.tokenRepository(persistentTokenRepository)
+		//记住我的时间
+		.tokenValiditySeconds(securityProperties.getRemeberMe().getRememberMeSeconds())
+		//记住我的验证逻辑
+		.userDetailsService(userDetailsService);
 		//@formatter:on  
 	}
 

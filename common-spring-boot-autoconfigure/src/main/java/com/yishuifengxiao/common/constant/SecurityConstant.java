@@ -124,6 +124,10 @@ public final class SecurityConstant {
 	 * 短信登录参数
 	 */
 	public static final String SMS_LOGIN_PARAM="mobile";
+	/**
+	 * basic标志
+	 */
+	public static final String BASIC_FLAG="basic ";
 
 
 }

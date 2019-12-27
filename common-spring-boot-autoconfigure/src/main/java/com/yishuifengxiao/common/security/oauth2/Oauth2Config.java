@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Configuration;
  * @date 2019年10月18日
  * @version 1.0.0
  */
-public class OAuth2Config {
+public class Oauth2Config {
 
 	@Configuration
-	public class OAuth2ResourceConfig extends Oauth2Resource {
+	public class Oauth2ResourceConfig extends Oauth2Resource {
 	}
 
 	@Configuration
-	public class OAuth2ServerConfig extends Oauth2Server {
+	public class Oauth2ServerConfig extends Oauth2Server {
 	}
 }

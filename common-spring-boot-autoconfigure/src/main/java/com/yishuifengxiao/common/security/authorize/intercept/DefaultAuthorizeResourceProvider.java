@@ -39,16 +39,27 @@ public class DefaultAuthorizeResourceProvider implements AuthorizeResourceProvid
 	 * @return
 	 */
 	private List<String> getExcludeUrls() {
-		List<String> excludeUrls = Arrays.asList("/oauth/**", securityProperties.getHandler().getSuc().getRedirectUrl(), // 登录成功后跳转的地址
-				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), // QQ登陆的地址
-				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), // 微信登陆的地址
-				socialProperties.getQq().getRegisterUrl(), // qq登陆成功后跳转的地址
-				socialProperties.getWeixin().getRegisterUrl(), // 微信登陆成功后跳转的地址
-				securityProperties.getCore().getLoginPage(), // 登陆页面的URL
-				securityProperties.getCore().getFormActionUrl(), // 登陆页面表单提交地址
-				securityProperties.getCore().getLoginOutUrl() // 退出页面
+		// @formatter:off
+		List<String> excludeUrls = Arrays.asList("/oauth/**", 
+				 // 登录成功后跳转的地址
+				securityProperties.getHandler().getSuc().getRedirectUrl(),
+				// QQ登陆的地址
+				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(), 
+				// 微信登陆的地址
+				socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(), 
+				// qq登陆成功后跳转的地址
+				socialProperties.getQq().getRegisterUrl(), 
+				// 微信登陆成功后跳转的地址
+				socialProperties.getWeixin().getRegisterUrl(), 
+				 // 登陆页面的URL
+				securityProperties.getCore().getLoginPage(),
+				// 登陆页面表单提交地址
+				securityProperties.getCore().getFormActionUrl(), 
+				// 退出页面
+				securityProperties.getCore().getLoginOutUrl() 
 		);
 		excludeUrls.addAll(oauth2Properties.getExcludeUrls());
+		//@formatter:on
 		return excludeUrls.stream().distinct().collect(Collectors.toList());
 	}
 

@@ -96,7 +96,7 @@ public abstract class AbstractCodeProcessor<C extends ValidateCode> implements C
 	 * 
 	 * @param request
 	 * @param validateCode
-	 * @throws Exception
+	 * @throws ValidateException
 	 */
 	protected abstract void send(ServletWebRequest request, C validateCode) throws ValidateException;
 

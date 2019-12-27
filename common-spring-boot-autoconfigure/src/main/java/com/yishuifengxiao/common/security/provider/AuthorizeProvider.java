@@ -17,7 +17,7 @@ public interface AuthorizeProvider {
 	/**
 	 * 授权配置
 	 * 
-	 * @param config
+	 * @param expressionInterceptUrlRegistry
 	 * @throws Exception 
 	 */
 	void config(ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception;

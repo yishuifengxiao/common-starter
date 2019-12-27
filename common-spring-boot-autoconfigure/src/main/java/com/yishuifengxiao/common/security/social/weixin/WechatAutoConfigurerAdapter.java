@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.security.social.weixin;
 import org.springframework.social.connect.ConnectionFactory;
 
 import com.yishuifengxiao.common.properties.SocialProperties;
-import com.yishuifengxiao.common.security.social.adapter.SocialAutoConfigurerAdapter;
+import com.yishuifengxiao.common.security.social.adapter.BaseSocialAutoConfigurerAdapter;
 import com.yishuifengxiao.common.security.social.weixin.connect.factoty.WechatConnectionFactory;
 /**
  * 构建一个微信连接工厂
@@ -11,7 +11,7 @@ import com.yishuifengxiao.common.security.social.weixin.connect.factoty.WechatCo
  * @date 2019年10月18日
  * @version 1.0.0
  */
-public class WechatAutoConfigurerAdapter extends SocialAutoConfigurerAdapter {
+public class WechatAutoConfigurerAdapter extends BaseSocialAutoConfigurerAdapter {
     
 	private SocialProperties socialProperties;
 

@@ -114,7 +114,8 @@ public class RedisExtendAutoConfiguration {
 		RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig();
 		configuration = configuration
 				.serializeValuesWith(RedisSerializationContext.SerializationPair
-						.fromSerializer(redisValueSerializer))// spring Security 默认不支持 jackson的序列化
+				// spring Security 默认不支持 jackson的序列化
+				.fromSerializer(redisValueSerializer))
 				.serializeKeysWith(
 						RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 				.entryTtl(Duration.ofMinutes(30L));
