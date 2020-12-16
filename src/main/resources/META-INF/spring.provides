@@ -1,0 +1,1 @@
+provides: common-tool,spring-boot-starter-web,jstl,springfox-swagger2,springfox-swagger-ui,swagger-bootstrap-ui
