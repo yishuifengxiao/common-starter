@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -32,11 +34,11 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
- * Swagger2生成接口文档
+ * swagger扩展支持自动配置
  * 
  * @author yishui
- * @date 2018年6月15日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 @Configuration
@@ -73,7 +75,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 	/**
 	 * swagger-ui配置
 	 * 
-	 * @return
+	 * @return Docket实例
 	 */
 	@Bean
 	@ConditionalOnMissingClass
@@ -96,7 +98,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 	
     /**
      * 生成版本和作者信息
-     * @return
+     * @return api信息
      */
 	private ApiInfo apiInfo() {
 		return new ApiInfoBuilder()
@@ -115,10 +117,13 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 
 	/**
 	 * 生成全局配置信息
-	 * @return
+	 * @return 全局配置信息
 	 */
 	private List<Parameter>  buildParameter(){
-		log.debug("【易水组件】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
+		if(BooleanUtils.isTrue(this.swaggerProperties.getShowDeatil())) {
+			log.info("【易水组件】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
+		}
+
 		List<Parameter> pars = new ArrayList<>();
 		if(EmptyUtil.notEmpty(this.swaggerProperties.getAuths())) {
 			this.swaggerProperties.getAuths().forEach(t->{
@@ -134,12 +139,28 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 		return pars;
 	}
 	
+	
+	/**
+	 * 配置swagger文档访问权限认证
+	 * @param swaggerProperties swagger扩展支持属性配置
+	 * @return swagger文档访问权限认证过滤器
+	 */
+	@Bean
+	public Filter swaggerAuthFilter(SwaggerProperties swaggerProperties) {
+		SwaggerAuthFilter swaggerAuthFilter=new SwaggerAuthFilter();
+		swaggerAuthFilter.setSwaggerProperties(swaggerProperties);
+		return swaggerAuthFilter;
+	}
+	
 	// @formatter:on
 
+	/**
+	 * 配置检查
+	 */
 	@PostConstruct
 	public void checkConfig() {
 
-		log.debug("【易水组件】: 开启 <Swagger-ui 相关配置> 相关的配置");
+		log.trace("【易水组件】: 开启 <Swagger-ui扩展支持> 相关的配置");
 	}
 
 }

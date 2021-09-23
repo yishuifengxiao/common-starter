@@ -39,8 +39,8 @@ import com.yishuifengxiao.common.security.provider.impl.SessionAuthorizeProvider
  * 配置spring security 授权提供器
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Configuration
 @ConditionalOnBean(AbstractSecurityConfig.class)
@@ -53,7 +53,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 注入一个名为 customAuthority 授权行为实体
 	 * 
-	 * @return
+	 * @return 自定义授权提供器
 	 */
 	@Bean("customAuthority")
 	@ConditionalOnMissingBean(name = "customAuthority")
@@ -65,8 +65,8 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 自定义授权提供器
 	 * 
-	 * @param customAuthority
-	 * @return
+	 * @param customAuthority 自定义授权提供器
+	 * @return 授权提供器实例
 	 */
 	@Bean("customAuthorizeProvider")
 	@ConditionalOnMissingBean(name = "customAuthorizeProvider")
@@ -80,9 +80,9 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 表单登陆授权管理
 	 * 
-	 * @param authenticationSuccessHandler
-	 * @param authenticationFailureHandler
-	 * @return
+	 * @param authenticationSuccessHandler 登陆成功处理器
+	 * @param authenticationFailureHandler 登陆失败处理器
+	 * @return 授权提供器 实例
 	 */
 	@Bean("formLoginProvider")
 	@ConditionalOnMissingBean(name = "formLoginProvider")
@@ -97,7 +97,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 拦截所有资源
 	 * 
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("interceptAllProvider")
 	@ConditionalOnMissingBean(name = "interceptAllProvider")
@@ -109,7 +109,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * 退出授权管理
 	 * 
 	 * @param logoutSuccessHandler 退出成功管理
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("loginOutProvider")
 	@ConditionalOnMissingBean(name = "loginOutProvider")
@@ -124,12 +124,12 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * 
 	 * @param persistentTokenRepository token存储器
 	 * @param userDetailsService        用户认证处理器
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("remeberMeProvider")
 	@ConditionalOnMissingBean(name = "remeberMeProvider")
 	public AuthorizeProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository,
-			@Qualifier("userDetailsService") UserDetailsService userDetailsService) {
+			UserDetailsService userDetailsService) {
 		RemeberMeAuthorizeProvider remeberMeProvider = new RemeberMeAuthorizeProvider();
 		remeberMeProvider.setPersistentTokenRepository(persistentTokenRepository);
 		remeberMeProvider.setUserDetailsService(userDetailsService);
@@ -141,7 +141,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	 * 
 	 * @param sessionInformationExpiredStrategy session失效策略
 	 * @param authenticationFailureHandler      认证失败处理器
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("sessionProvider")
 	@ConditionalOnMissingBean(name = "sessionProvider")
@@ -156,7 +156,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 放行通过授权管理
 	 * 
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("permitAllProvider")
 	@ConditionalOnMissingBean(name = "permitAllProvider")
@@ -168,8 +168,8 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * Basic登陆授权提供器
 	 * 
-	 * @param customAuthority
-	 * @return
+	 * @param exceptionAuthenticationEntryPoint 异常处理
+	 * @return 授权提供器 实例
 	 */
 	@Bean("httpBasicAuthorizeProvider")
 	@ConditionalOnMissingBean(name = "httpBasicAuthorizeProvider")
@@ -183,9 +183,9 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 异常处理授权提供器
 	 * 
-	 * @param exceptionAuthenticationEntryPoint
-	 * @param customAccessDeniedHandler
-	 * @return
+	 * @param exceptionAuthenticationEntryPoint  AuthenticationEntryPoint
+	 * @param customAccessDeniedHandler 权限拒绝处理器
+	 * @return 授权提供器 实例
 	 */
 	@Bean("exceptionAuthorizeProvider")
 	@ConditionalOnMissingBean(name = "exceptionAuthorizeProvider")
@@ -201,7 +201,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * 跨域处理授权提供器
 	 * 
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("corsAuthorizeProvider")
 	@ConditionalOnMissingBean(name = "corsAuthorizeProvider")
@@ -213,7 +213,7 @@ public class SecurityAuthorizeProviderAutoConfiguration {
 	/**
 	 * CSRF处理授权提供器
 	 * 
-	 * @return
+	 * @return 授权提供器 实例
 	 */
 	@Bean("csrfAuthorizeProvider")
 	@ConditionalOnMissingBean(name = "csrfAuthorizeProvider")

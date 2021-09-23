@@ -14,8 +14,8 @@ import com.yishuifengxiao.common.social.qq.entity.QqUserInfo;
  * 必须继承 AbstractOAuth2ApiBinding
  * 
  * @author yishui
- * @date 2019年2月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class QqImpl extends AbstractOAuth2ApiBinding implements QQ {
 
@@ -33,12 +33,12 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements QQ {
 	private static final String QQ_URL_GET_USER_INFO = "https://graph.qq.com/user/get_user_info?oauth_consumer_key=%s&openid=%s";
 
 	/**
-	 *  appId 配置文件读取
+	 * appId 配置文件读取
 	 */
 	private String appId;
 
 	/**
-	 *  openId 请求QQ_URL_GET_OPENID返回
+	 * openId 请求QQ_URL_GET_OPENID返回
 	 */
 	private String openId;
 	/**
@@ -48,6 +48,9 @@ public class QqImpl extends AbstractOAuth2ApiBinding implements QQ {
 
 	/**
 	 * 构造方法获取openId
+	 * 
+	 * @param accessToken accessToken
+	 * @param appId       appId
 	 */
 	public QqImpl(String accessToken, String appId) {
 		// 会自动access_token作为查询参数来携带，所以无需显式手动处理access_token

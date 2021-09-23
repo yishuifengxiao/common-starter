@@ -9,46 +9,43 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.web.DefaultRedirectStrategy;
-import org.springframework.security.web.RedirectStrategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * http 工具类
+ * http工具
  * 
  * @author yishui
- * @date 2020年6月23日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class HttpUtil {
-	private static final RedirectStrategy STRATEGY = new DefaultRedirectStrategy();
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
-	 * 重定向到指定的url
+	 * 携带指定的信息重定向到指定的地址
 	 * 
-	 * @param request
-	 * @param response
-	 * @param url
-	 * @param data
-	 * @throws IOException
+	 * @param request  HttpServletRequest
+	 * @param response HttpServletResponse
+	 * @param url      指定的重定向地址
+	 * @param data     需要携带的信息
+	 * @throws IOException 重定向时出现异常
 	 */
 	public synchronized static void redirect(HttpServletRequest request, HttpServletResponse response, String url,
 			Object data) throws IOException {
 		request.getSession().setAttribute("info", data);
-		STRATEGY.sendRedirect(request, response, url);
+		response.sendRedirect(url);
 	}
 
 	/**
-	 * 向http响应流中推送数据并关闭响应流
+	 * 将指定的信息按照json格式输出到指定的响应
 	 * 
-	 * @param resp
-	 * @param result
+	 * @param response 响应
+	 * @param data     输出的指定信息
 	 */
 	public synchronized static void out(HttpServletResponse response, Object data) {
 		response.setStatus(HttpStatus.OK.value());
@@ -58,6 +55,7 @@ public class HttpUtil {
 		response.setHeader("Access-Control-Allow-Methods", "*");
 		// 是否允许请求带有验证信息，
 		response.setHeader("Access-Control-Allow-Credentials", "true");
+		response.setHeader("Access-Control-Allow-Headers", "*");
 		response.setContentType("application/json;charset=UTF-8");
 		response.setCharacterEncoding("UTF-8");
 		try {
@@ -70,13 +68,12 @@ public class HttpUtil {
 	}
 
 	/**
-	 * 打印请求头数据
+	 * 打印请求中携带的查询参数和请求头信息
 	 * 
 	 * @param request HttpServletRequest
-	 * @return 用户希望返回的数据类型
 	 */
 	public static void stack(HttpServletRequest request) {
-		log.debug("");
+		log.debug("\r\n");
 		log.debug("==start  用户请求的请求参数中包含的信息为 query start ===");
 		Map<String, String[]> params = request.getParameterMap();
 		if (null != params) {
@@ -91,7 +88,7 @@ public class HttpUtil {
 			log.debug("请求头的名字为 {},对应的值为 {}", name, request.getHeader(name));
 		}
 		log.debug("==end  用户请求的请求头中包含的信息为 header end ===");
-		log.debug("");
+		log.debug("\r\n");
 	}
 
 }

@@ -9,8 +9,8 @@ import com.yishuifengxiao.common.social.qq.connect.factory.QqConnectionFactory;
  * 构建QQ登陆连接工厂
  * 
  * @author yishui
- * @date 2019年7月15日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class QqSocialAutoConfigurerAdapter extends BaseSocialAutoConfigurerAdapter {
 

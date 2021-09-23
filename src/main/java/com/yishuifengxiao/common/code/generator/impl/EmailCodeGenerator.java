@@ -8,31 +8,31 @@ import com.yishuifengxiao.common.code.CodeProperties;
 import com.yishuifengxiao.common.code.constant.ErrorCode;
 import com.yishuifengxiao.common.code.entity.EmailCode;
 import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.extractor.CodeExtractor;
-import com.yishuifengxiao.common.code.generator.CodeGenerator;
+import com.yishuifengxiao.common.code.generator.BaseCodeGenerator;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 
 /**
- * 邮箱验证码生成器
+ * <p>
+ * 邮件验证码生成器
+ * </p>
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
-public class EmailCodeGenerator implements CodeGenerator {
-
-	private CodeProperties codeProperties;
+public class EmailCodeGenerator extends BaseCodeGenerator {
 
 	@Override
-	public ValidateCode generate(ServletWebRequest servletWebRequest) {
+	public ValidateCode generate(ServletWebRequest servletWebRequest, CodeProperties codeProperties) {
 		String code = RandomStringUtils.random(codeProperties.getEmail().getLength(),
 				codeProperties.getEmail().getContainLetter(), codeProperties.getEmail().getContainNumber());
 		return new EmailCode(codeProperties.getEmail().getExpireIn(), code);
 	}
 
 	@Override
-	public String generateKey(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException {
-		String value = codeExtractor.extractKey(request.getRequest(), this.codeProperties.getEmail().getCodeKey());
+	public String generateKey(ServletWebRequest request, CodeProperties codeProperties)
+			throws ValidateException {
+		String value = this.extract(request.getRequest(), codeProperties.getEmail().getCodeKey());
 		if (StringUtils.isBlank(value)) {
 			throw new ValidateException(ErrorCode.ERROR_CODE_TARGET, "获取目标邮箱失败");
 		}
@@ -40,25 +40,8 @@ public class EmailCodeGenerator implements CodeGenerator {
 	}
 
 	@Override
-	public String getCodeInRequest(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException {
-		return codeExtractor.extractValue(request.getRequest(), this.codeProperties.getEmail().getCodeValue());
-	}
-
-	public CodeProperties getCodeProperties() {
-		return codeProperties;
-	}
-
-	public void setCodeProperties(CodeProperties codeProperties) {
-		this.codeProperties = codeProperties;
-	}
-
-	public EmailCodeGenerator(CodeProperties codeProperties) {
-
-		this.codeProperties = codeProperties;
-	}
-
-	public EmailCodeGenerator() {
-
+	public String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException {
+		return  this.extract(request.getRequest(), codeProperties.getEmail().getCodeValue());
 	}
 
 }

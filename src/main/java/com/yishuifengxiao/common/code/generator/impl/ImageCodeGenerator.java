@@ -17,21 +17,22 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 import com.yishuifengxiao.common.code.CodeProperties;
 import com.yishuifengxiao.common.code.entity.ImageCode;
-import com.yishuifengxiao.common.code.extractor.CodeExtractor;
-import com.yishuifengxiao.common.code.generator.CodeGenerator;
+import com.yishuifengxiao.common.code.generator.BaseCodeGenerator;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
+ * <p>
  * 图形验证码生成器
+ * </p>
  * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
-public class ImageCodeGenerator implements CodeGenerator {
+public class ImageCodeGenerator  extends BaseCodeGenerator  {
 	/**
 	 * 默认验证码的长度
 	 */
@@ -51,12 +52,11 @@ public class ImageCodeGenerator implements CodeGenerator {
 	 */
 	private final static int DEFAULT_FONT_SIZE = 23;
 
-	private CodeProperties codeProperties;
-
 	@Override
-	public String generateKey(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException {
+	public String generateKey(ServletWebRequest request, CodeProperties codeProperties)
+			throws ValidateException {
 
-		String value = codeExtractor.extractKey(request.getRequest(), this.codeProperties.getImage().getCodeKey());
+		String value =  this.extract(request.getRequest(), codeProperties.getImage().getCodeKey());
 		if (StringUtils.isBlank(value)) {
 			value = request.getSessionId();
 			log.debug("【易水组件】未获取系统配置的图形验证码标识符,使用系统默认的验证码标识符 {}", value);
@@ -65,14 +65,14 @@ public class ImageCodeGenerator implements CodeGenerator {
 	}
 
 	@Override
-	public String getCodeInRequest(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException {
+	public String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException {
 
-		return codeExtractor.extractValue(request.getRequest(), this.codeProperties.getImage().getCodeValue());
+		return  this.extract(request.getRequest(), codeProperties.getImage().getCodeValue());
 
 	}
 
 	@Override
-	public ImageCode generate(ServletWebRequest servletWebRequest) {
+	public ImageCode generate(ServletWebRequest servletWebRequest, CodeProperties codeProperties) {
 		// 图形验证码的宽度
 		int width = ServletRequestUtils.getIntParameter(servletWebRequest.getRequest(), "width",
 				codeProperties.getImage().getWidth());
@@ -172,22 +172,6 @@ public class ImageCodeGenerator implements CodeGenerator {
 		int g = fc + random.nextInt(bc - fc);
 		int b = fc + random.nextInt(bc - fc);
 		return new Color(r, g, b);
-	}
-
-	public CodeProperties getCodeProperties() {
-		return codeProperties;
-	}
-
-	public void setCodeProperties(CodeProperties codeProperties) {
-		this.codeProperties = codeProperties;
-	}
-
-	public ImageCodeGenerator(CodeProperties codeProperties) {
-		this.codeProperties = codeProperties;
-	}
-
-	public ImageCodeGenerator() {
-
 	}
 
 }

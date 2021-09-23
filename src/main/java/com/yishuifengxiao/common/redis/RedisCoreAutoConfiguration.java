@@ -1,10 +1,10 @@
 package com.yishuifengxiao.common.redis;
 
 import java.net.UnknownHostException;
-import java.time.Duration;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -34,11 +34,11 @@ import com.yishuifengxiao.common.code.CodeAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 注入redis相关的配置
+ * Redis扩展支持自动配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 @Configuration
@@ -48,11 +48,14 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnProperty(prefix = "yishuifengxiao.redis", name = {
 		"enable" }, havingValue = "true", matchIfMissing = true)
 public class RedisCoreAutoConfiguration {
+	
+	@Autowired
+	private RedisProperties redisProperties;
 
 	/**
-	 * 定义一个redisValueSerializer
+	 * 注入一个Redis序列化器
 	 * 
-	 * @return
+	 * @return Redis序列化器
 	 */
 	@SuppressWarnings("deprecation")
 	@Bean("redisValueSerializer")
@@ -74,13 +77,21 @@ public class RedisCoreAutoConfiguration {
 		// 启用反序列化所需的类型信息,在属性中添加@class
 //		objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL,
 //				com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY);
-		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,  JsonTypeInfo.As.PROPERTY);
+		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 		// 配置null值的序列化器
 //		GenericJackson2JsonRedisSerializer.registerNullValueSerializer(objectMapper, null);
 
 		return new GenericJackson2JsonRedisSerializer(objectMapper);
 	}
 
+	/**
+	 * 注入一个Redis操作工具
+	 * 
+	 * @param redisConnectionFactory 连接工厂
+	 * @param redisValueSerializer   Redis序列化器
+	 * @return Redis操作工具
+	 * @throws UnknownHostException 创建Redis操作工具时出现异常
+	 */
 	@Bean
 	@ConditionalOnMissingBean(name = "redisTemplate")
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
@@ -99,12 +110,12 @@ public class RedisCoreAutoConfiguration {
 	}
 
 	/**
-	 * 自定义一个名字为springSessionDefaultRedisSerializer 的序列化器<br/>
+	 * <p>自定义一个名字为springSessionDefaultRedisSerializer 的序列化器</p>
 	 * 参见
 	 * org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration
 	 * 的188行
 	 * 
-	 * @return
+	 * @return Redis序列化器
 	 */
 	@Bean("springSessionDefaultRedisSerializer")
 	public RedisSerializer<Object> springSessionDefaultRedisSerializer() {
@@ -113,9 +124,10 @@ public class RedisCoreAutoConfiguration {
 	}
 
 	/**
-	 * 配置序列化（解决乱码的问题）
+	 * 自定义Redis缓存配置
 	 * 
-	 * @return
+	 * @param redisValueSerializer Redis序列化器
+	 * @return Redis缓存配置
 	 */
 	@Bean
 	@ConditionalOnMissingBean
@@ -129,15 +141,18 @@ public class RedisCoreAutoConfiguration {
 				.fromSerializer(redisValueSerializer))
 				.serializeKeysWith(
 						RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-				.entryTtl(Duration.ofMinutes(30L));
+				.entryTtl(redisProperties.getTtl());
 		//@formatter:on
 		return configuration;
 	}
 
+	/**
+	 * 配置检查
+	 */
 	@PostConstruct
 	public void checkConfig() {
 
-		log.debug("【易水组件】: 开启 <Redis相关配置> 相关的配置");
+		log.trace("【易水组件】: 开启 <Redis扩展支持> 相关的配置");
 	}
 
 }

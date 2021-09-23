@@ -14,9 +14,10 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
 /**
  * spring security表单登录相关的配置
  * 
+ * 
  * @author yishui
- * @date 2019年1月9日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 

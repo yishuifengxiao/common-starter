@@ -6,14 +6,16 @@ package com.yishuifengxiao.common.code.entity;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
+import com.alibaba.fastjson.JSONObject;
+
 /**
- * 验证码父类
+ * 验证码基类
  * 
  * @author yishui
- * @date 2019年1月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
-public  class ValidateCode implements Serializable {
+public class ValidateCode implements Serializable {
 
 	/**
 	 * 
@@ -34,15 +36,6 @@ public  class ValidateCode implements Serializable {
 	 * 构造函数
 	 * 
 	 * @param expireTimeInSeconds 验证码的有效时间，单位 秒
-	 */
-	protected ValidateCode(long expireTimeInSeconds) {
-		this.expireTime = LocalDateTime.now().plusSeconds(expireTimeInSeconds);
-	}
-
-	/**
-	 * 构造函数
-	 * 
-	 * @param expireTimeInSeconds 验证码的有效时间，单位 秒
 	 * @param code                验证码内容
 	 */
 	public ValidateCode(long expireTimeInSeconds, String code) {
@@ -53,16 +46,16 @@ public  class ValidateCode implements Serializable {
 	/**
 	 * 获取验证码是否已经过期
 	 * 
-	 * @return
+	 * @return true表示已过期，false未过期
 	 */
 	public boolean isExpired() {
 		return LocalDateTime.now().isAfter(this.expireTime);
 	}
 
 	/**
-	 * 获取验证码的失效日期
+	 * 获取验证码的失效时间
 	 * 
-	 * @return
+	 * @return 验证码的失效时间
 	 */
 	public LocalDateTime getExpireTime() {
 		return expireTime;
@@ -71,7 +64,7 @@ public  class ValidateCode implements Serializable {
 	/**
 	 * 设置验证码的失效时间
 	 * 
-	 * @param expireTime
+	 * @param expireTime 验证码的失效时间
 	 */
 	public void setExpireTime(LocalDateTime expireTime) {
 		this.expireTime = expireTime;
@@ -80,7 +73,7 @@ public  class ValidateCode implements Serializable {
 	/**
 	 * 获取验证码的内容
 	 * 
-	 * @return
+	 * @return 验证码的内容
 	 */
 	public String getCode() {
 		return code;
@@ -89,7 +82,7 @@ public  class ValidateCode implements Serializable {
 	/**
 	 * 设置验证码的内容
 	 * 
-	 * @param code
+	 * @param code 验证码的内容
 	 */
 	public void setCode(String code) {
 		this.code = code;
@@ -97,13 +90,15 @@ public  class ValidateCode implements Serializable {
 
 	@Override
 	public String toString() {
-		return "ValidateCode [expireTime=" + expireTime + ", code=" + code + "]";
+
+		return JSONObject.toJSONString(this);
 	}
 
+	/**
+	 * 构造函数
+	 */
 	public ValidateCode() {
 
 	}
 
-	
-	
 }

@@ -14,11 +14,11 @@ import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
 
 /**
- * 注入redis相关的配置
+ * 基于Redis的验证码存储器自动配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
@@ -26,15 +26,17 @@ import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
 public class RedisExtendAutoConfiguration {
 
 	/**
-	 * 验证码redis管理器
+	 * 注入一个名字为codeRepository验证码存储器
 	 * 
-	 * @return
+	 * @param redisTemplate  RedisTemplate
+	 * @param codeProperties 验证码属性配置
+	 * @return 名字为codeRepository验证码存储器
 	 */
 	@ConditionalOnBean(name = "redisTemplate")
-	@ConditionalOnMissingBean(name = { "codeRepository" })
-	@Bean("codeRepository")
-	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate,CodeProperties codeProperties) {
-		return new RedisCodeRepository(redisTemplate,codeProperties);
+	@ConditionalOnMissingBean({ CodeRepository.class })
+	@Bean
+	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate, CodeProperties codeProperties) {
+		return new RedisCodeRepository(redisTemplate, codeProperties);
 	}
 
 }

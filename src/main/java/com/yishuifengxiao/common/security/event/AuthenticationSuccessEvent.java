@@ -9,8 +9,8 @@ import org.springframework.security.core.Authentication;
  * 认证成功的事件
  * 
  * @author yishui
- * @Date 2019年5月30日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class AuthenticationSuccessEvent extends ApplicationEvent {
 

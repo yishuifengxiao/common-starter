@@ -28,24 +28,29 @@ import com.yishuifengxiao.common.oauth2.Oauth2Resource;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * {@link TokenExtractor} that strips the authenticator from a bearer token
+ * <p>{@link TokenExtractor} that strips the authenticator from a bearer token
  * request (with an Authorization header in the form "Bearer
  * <code>&lt;TOKEN&gt;</code>", or as a request parameter if that fails). The
  * access token is the principal in the authentication token that is
- * extracted.<br/>
+ * extracted.</p>
  * 
- * 从请求中提取出token信息<br/>
+ * <p>
+ * 从请求中提取出token信息
+ * </p>
  * 
- * 提取过程如下：<br/>
- * 
- * 1 先从请求头参数里获取 <br/>
- * 2 再从请求参数里获取 <br/>
- * 3 最后尝试先从session里获取
- * 
+ * 提取过程如下：
+ * <ul>
+ * <li>先从请求头参数里获取</li>
+ * <li>再从请求参数里获取</li>
+ * <li>最后尝试先从session里获取</li>
+ * </ul>
  * 该提取器会被 <code>Oauth2Resource</code>收集，然后配置到oauth2中
  * 
  * @see Oauth2Resource
  * @author Dave Syer
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  * 
  */
 @Slf4j
@@ -68,13 +73,13 @@ public class CustomTokenExtractor implements TokenExtractor {
 
 		// bearer type allows a request parameter as well
 		if (token == null) {
-			log.debug("Token not found in headers. Trying request parameters.");
+			log.trace("Token not found in headers. Trying request parameters.");
 			token = request.getParameter(OAuth2AccessToken.ACCESS_TOKEN);
 			if (token == null) {
-				log.debug("Token not found in request parameters. Trying session parameters.  ");
+				log.trace("Token not found in request parameters. Trying session parameters.  ");
 				token = (String) request.getSession().getAttribute(OAuth2AccessToken.ACCESS_TOKEN);
 				if (token == null) {
-					log.debug("Token not found in session by key {}. Not an OAuth2 request.");
+					log.trace("Token not found in session by key {}. Not an OAuth2 request.");
 				}
 			} else {
 				request.setAttribute(OAuth2AuthenticationDetails.ACCESS_TOKEN_TYPE, OAuth2AccessToken.BEARER_TYPE);

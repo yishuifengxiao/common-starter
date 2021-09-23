@@ -5,52 +5,47 @@ package com.yishuifengxiao.common.code.generator;
 
 import org.springframework.web.context.request.ServletWebRequest;
 
+import com.yishuifengxiao.common.code.CodeProperties;
 import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.extractor.CodeExtractor;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
 
 /**
- * 验证码生成器<br/>
- * <br/>
- * 
- * 作用如下：<br/>
- * 1. 生成验证码<br/>
- * 2. 生成验证码存储时的key<br/>
- * 3. 获取请求中携带的验证码<br/>
+ * <p>
+ * 验证码生成器
+ * </p>
  * 
  * @author yishui
- * @date 2019年1月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public interface CodeGenerator {
+
 	/**
 	 * 生成验证码
 	 * 
-	 * @param servletWebRequest
-	 * @return
+	 * @param servletWebRequest 用户请求
+	 * @param codeProperties    验证码属性配置
+	 * @return 验证码
 	 */
-	ValidateCode generate(ServletWebRequest servletWebRequest);
+	ValidateCode generate(ServletWebRequest servletWebRequest, CodeProperties codeProperties);
 
 	/**
-	 * 生成验证码存储时的key<br/>
-	 * 对于短信验证码,key为手机号<br/>
-	 * 对于邮件验证码，key为邮箱<br/>
-	 * 对于图像验证码，key为sessionid或指定的值
+	 * 生成验证码的唯一标识符
 	 * 
-	 * @param request
-	 * @param codeExtractor
-	 * @return
-	 * @throws ValidateException
+	 * @param request        用户请求
+	 * @param codeProperties 验证码属性配置
+	 * @return 验证码的唯一标识符
+	 * @throws ValidateException 提取时出现问题
 	 */
-	String generateKey(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException;
+	String generateKey(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException;
 
 	/**
-	 * 获取请求中携带的验证码
+	 * 获取请求中携带的验证码的内容
 	 * 
-	 * @param request
-	 * @param codeExtractor
-	 * @return
-	 * @throws ValidateException
+	 * @param request        用户请求
+	 * @param codeProperties 验证码属性配置
+	 * @return 验证码的内容
+	 * @throws ValidateException 提取时出现问题
 	 */
-	String getCodeInRequest(ServletWebRequest request, CodeExtractor codeExtractor) throws ValidateException;
+	String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException;
 }

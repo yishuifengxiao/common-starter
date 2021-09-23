@@ -7,43 +7,51 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.web.context.request.ServletWebRequest;
-
 import com.yishuifengxiao.common.code.entity.ValidateCode;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
- * 验证码内存管理器<br/>
- * 验证码保存在内存中
+ * 基于内存实现的验证码存储器
  * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
-@Slf4j
 public class SimpleCodeRepository implements CodeRepository {
-
 
 	private final static Map<String, ValidateCode> MAP = new ConcurrentHashMap<>();
 
+	/**
+	 * 存储验证码
+	 * 
+	 * @param key  验证码的唯一标识符
+	 * @param code 需要存储的验证码
+	 */
 	@Override
-	public void save(ServletWebRequest request, String key, ValidateCode code) {
-		log.debug("验证码存取的默认实现类 保存的键为 {},值为 {}", key, code);
+	public synchronized void save(String key, ValidateCode code) {
 		MAP.put(key, code);
 
 	}
 
+	/**
+	 * 根据验证码的唯一标识符获取存储的验证码
+	 * 
+	 * @param key 验证码的唯一标识符
+	 * @return 存储的验证码
+	 */
 	@Override
-	public ValidateCode get(ServletWebRequest request, String key) {
+	public synchronized ValidateCode get(String key) {
 		ValidateCode code = MAP.get(key);
-		log.debug("验证码存取的默认实现类 获取的键为 {},值为 ", key);
 		return code;
 	}
 
+	/**
+	 * 根据验证码的唯一标识符移除存储的验证码
+	 * 
+	 * @param key 验证码的唯一标识符
+	 */
 	@Override
-	public void remove(ServletWebRequest request, String key) {
+	public synchronized void remove(String key) {
 		Iterator<String> it = MAP.keySet().iterator();
 		synchronized (SimpleCodeRepository.class) {
 			while (it.hasNext()) {

@@ -9,20 +9,23 @@ import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 
 /**
- * 更新动作解释器<br/>
+ * <p>
+ * 更新动作解释器
+ * </p>
  * 负责执行更新相关的操作
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
+
 public interface UpdateTranslator extends ExecuteTranslator {
 
 	/**
 	 * 根据主键更新一条数据
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             待更新的数据数据类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 非查询语句执行器
 	 * @param selective       是否为可选属性方式
@@ -35,8 +38,8 @@ public interface UpdateTranslator extends ExecuteTranslator {
 	/**
 	 * 根据条件方式批量更新数据
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             待更新的数据数据类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 非查询语句执行器
 	 * @param selective       是否为可选属性方式
@@ -50,8 +53,8 @@ public interface UpdateTranslator extends ExecuteTranslator {
 	/**
 	 * 根据条件方式批量更新数据
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             待更新的数据数据类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 非查询语句执行器
 	 * @param selective       是否为可选属性方式

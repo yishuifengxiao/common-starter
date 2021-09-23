@@ -12,17 +12,18 @@ import com.yishuifengxiao.common.security.constant.OAuth2Constant;
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.constant.UriConstant;
+import com.yishuifengxiao.common.tool.entity.Response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 安全相关的配置
+ * 安全属性配置
  * 
  * @author yishui
- * @date 2019年1月5日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @AllArgsConstructor
@@ -54,6 +55,11 @@ public class SecurityProperties {
 	 * 资源名称,默认为yishuifengxiao
 	 */
 	private String realmName = OAuth2Constant.REAL_NAME;
+    
+	/**
+	 * 是否显示加载日志，默认为false
+	 */
+	private Boolean showDeatil = false;
 
 	/**
 	 * spring security 核心配置
@@ -81,6 +87,11 @@ public class SecurityProperties {
 	 * token生成相关的配置
 	 */
 	private TokenProperties token = new TokenProperties();
+
+	/**
+	 * 提示信息
+	 */
+	private MessageProperties msg = new MessageProperties();
 	/**
 	 * 所有不经过资源授权管理的的资源路径<br/>
 	 * key: 不参与解析，可以为任意值，但必须唯一<br/>
@@ -112,9 +123,9 @@ public class SecurityProperties {
 	/**
 	 * spring security 核心配置文件类
 	 * 
-	 * @version 0.0.1
 	 * @author yishui
-	 * @date 2018年6月29日
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -137,7 +148,7 @@ public class SecurityProperties {
 		 */
 		private String redirectUrl = UriConstant.DEFAULT_REDIRECT_LOGIN_URL;
 		/**
-		 * 表单登陆时form表单请求的地址，默认为/login
+		 * 表单登陆时form表单请求的地址，默认为/web/login
 		 */
 		private String formActionUrl = UriConstant.DEFAULT_FORM_ACTION_URL;
 
@@ -150,20 +161,20 @@ public class SecurityProperties {
 		 * 需要删除的cookie的名字 JSESSIONID
 		 */
 		private String cookieName = SecurityConstant.DEFAULT_COOKIE_NAME;
-		
+
 		/**
 		 * 是否关闭前置参数验证,默认为false
 		 */
-		private Boolean closePreAuth=false;
+		private Boolean closePreAuth = false;
 
 	}
 
 	/**
 	 * spring security token生成配置文件类
 	 * 
-	 * @version 0.0.1
 	 * @author yishui
-	 * @date 2018年6月29日
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -198,14 +209,19 @@ public class SecurityProperties {
 		 */
 		private String userUniqueIdentitier = TokenConstant.USER_UNIQUE_IDENTIFIER;
 
+		/**
+		 * 是否在使用用户唯一标识符参数获取参数失败时使用请求的sessionId作为用户唯一标识符
+		 */
+		private Boolean useSessionId = false;
+
 	}
 
 	/**
 	 * spring security session相关的配置
 	 * 
 	 * @author yishui
-	 * @date 2019年1月5日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -229,8 +245,8 @@ public class SecurityProperties {
 	 * spring security忽视目录
 	 * 
 	 * @author yishui
-	 * @date 2019年1月8日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -249,6 +265,11 @@ public class SecurityProperties {
 		 * 是否包含actuator相关的路径
 		 */
 		private Boolean containActuator = true;
+
+		/**
+		 * 是否包含错误页面相关的路径，默认为包含
+		 */
+		private Boolean containErrorPage = true;
 		/**
 		 * 是否包含webJars资源
 		 */
@@ -269,8 +290,8 @@ public class SecurityProperties {
 	 * 记住我相关的属性配置
 	 * 
 	 * @author yishui
-	 * @date 2019年1月8日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -300,8 +321,8 @@ public class SecurityProperties {
 	 * 短信验证码相关属性配置文件
 	 * 
 	 * @author yishui
-	 * @date 2019年1月23日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor
@@ -321,12 +342,110 @@ public class SecurityProperties {
 		 */
 		private String smsLoginUrl;
 		/**
-		 * 需要过滤的路径<br/>
-		 * key：验证码类型的名字<br/>
-		 * value: 需要过滤的路径，多个路径采用半角的逗号分隔
+		 * <p>
+		 * 需要过滤的路径
+		 * </p>
+		 * key：验证码类型的名字, value: 需要过滤的路径，多个路径采用半角的逗号分隔
 		 */
 		private Map<String, String> filter = new HashMap<>();
 
+	}
+
+	/**
+	 * 短信验证码相关属性配置文件
+	 * 
+	 * @author yishui
+	 * @version 1.0.0
+	 * @since 1.0.0
+	 */
+	@Data
+	@AllArgsConstructor
+	@NoArgsConstructor
+	public static class MessageProperties {
+
+		/**
+		 * 根据令牌值从系统中获取令牌的结果位null时的提示信息,默认值为 令牌无效或登陆状态已过期
+		 */
+		private String tokenIsNull = "令牌无效或登陆状态已过期";
+
+		/**
+		 * 根据令牌值从系统中获取令牌的已过期时的提示信息,默认值为 令牌已过期
+		 */
+		private String tokenIsExpired = "令牌已过期";
+
+		/**
+		 * 根据令牌值从系统中获取令牌的已失效时的提示信息,默认值为 令牌已失效
+		 */
+		private String tokenIsInvalid = "令牌已失效";
+
+		/**
+		 * 登录账号不存在时的提示信息,默认值为 账号不存在
+		 */
+		private String accountNoExtis = "账号不存在";
+
+		/**
+		 * 登录账号已过期时的提示信息,默认值为 账号已过期
+		 */
+		private String accountExpired = "账号已过期";
+
+		/**
+		 * 登录账号已锁定时的提示信息,默认值为 账号已锁定
+		 */
+		private String accountLocked = "账号已锁定";
+
+		/**
+		 * 登录账号对应的密码已过期时的提示信息,默认值为 密码已过期
+		 */
+		private String passwordExpired = "密码已过期";
+
+		/**
+		 * 登录账号未启用时的提示信息,默认值为 账号未启用
+		 */
+		private String accountNoEnable = "账号未启用";
+
+		/**
+		 * 登录密码错误时的提示信息，默认值为密码错误
+		 */
+		private String passwordIsError = "密码错误";
+
+		/**
+		 * 用户认证信息为null时的提示信息，默认为值 用户认证信息不能为空
+		 */
+		private String userDetailsIsNull = "用户认证信息不能为空";
+		/**
+		 * 本身是一个合法的用户，但是对于部分资源没有访问权限,访问这些资源时被拒绝时的提示信息，默认为
+		 */
+		private String accessIsDenied = "无权访问此资源";
+
+		/**
+		 * 本身是一个合法的用户，但是对于部分资源没有访问权限,访问这些资源时被拒绝时的响应码，默认值为 403
+		 */
+		private Integer accessDeniedCode = Response.Const.CODE_FORBIDDEN;
+
+		/**
+		 * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的提示信息，默认为该资源需要经过授权才能被访问
+		 */
+		private String visitOnError = "该资源需要经过授权才能被访问";
+
+		/**
+		 * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的响应码，默认值为401
+		 */
+		private Integer visitOnErrorCode = Response.Const.CODE_UNAUTHORIZED;
+
+		/**
+		 * 请求中未携带访问令牌或获取到的访问令牌为空时的提示信息，令牌不能为空
+		 */
+		private String tokenValueIsNull = "令牌不能为空";
+
+		/**
+		 * 请求中携带的访问令牌是非法或无效时的响应码，默认为 401
+		 */
+		private Integer invalidTokenValueCode = Response.Const.CODE_UNAUTHORIZED;
+
+		/**
+		 * 无效的登陆参数(用户名或密码不正确时的响应码),默认为 500
+		 */
+		private Integer invalidLoginParamCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
 	}
 
 }

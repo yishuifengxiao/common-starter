@@ -5,23 +5,25 @@ import com.yishuifengxiao.common.security.handler.CustomAccessDeniedHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationFailureHandler;
 
 /**
- * 自定义异常信息存储类<br/>
+ * <p>
+ * 自定义异常信息存储类
+ * </p>
  * 在各种<code>Handler</code>中例如<code>ExceptionAuthenticationEntryPoint</code>和<code>CustomAuthenticationFailureHandler</code>中携带异常信息
  * 
  * @see CustomAuthenticationFailureHandler
  * @see CustomAccessDeniedHandler
  * @see ExceptionAuthenticationEntryPoint
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class SecurityHolder {
 
 	private static final ThreadLocal<Exception> CONTEXT_EXCEPTION = new ThreadLocal<>();
 
 	public static final synchronized Exception getException(boolean clear) {
-		Exception e=CONTEXT_EXCEPTION.get();
-		if(clear) {
+		Exception e = CONTEXT_EXCEPTION.get();
+		if (clear) {
 			CONTEXT_EXCEPTION.remove();
 		}
 		return e;

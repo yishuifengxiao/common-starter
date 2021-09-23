@@ -7,19 +7,17 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.provider.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.resource.PropertyResource;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
- * 自定义授权配置 <br/>
+ * <p>自定义授权配置 </p>
  * 【注意】必须在spring上下文中注入一个名为 customAuthority
  * 的<code>CustomResourceProvider</code>对象
  * 
  * @see CustomResourceProvider
+ * 
  * @author yishui
- * @date 2019年1月8日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
-@Slf4j
 public class CustomAuthorizeProvider implements AuthorizeProvider {
 
 
@@ -32,7 +30,7 @@ public class CustomAuthorizeProvider implements AuthorizeProvider {
 	public void config(PropertyResource propertyResource,
 			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
 			throws Exception {
-		log.debug("【易水组件】需要自定义权限的路径为 {}", propertyResource.getAllCustomUrls());
+
 		for (String path : propertyResource.getAllCustomUrls()) {
 			// 自定义权限
 			expressionInterceptUrlRegistry.antMatchers(path)

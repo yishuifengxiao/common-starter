@@ -8,17 +8,20 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 
 /**
- * <strong>自定义授权提供器</strong><br/>
- * <br/>
- * 用户根据自己实际项目需要确定如何根据实际项目变化配置是否给予授权<br/>
+ * <p>
+ * 自定义授权提供器
+ * </p>
  * 
- * 在使用时，自定义授权提供器实例会被注入到<code>CustomAuthorizeProvider</code>中<br/>
+ * 用户根据自己实际项目需要确定如何根据实际项目变化配置是否给予授权,
+ * 
+ * 在使用时，自定义授权提供器实例会被注入到<code>CustomAuthorizeProvider</code>中
  * 
  * 
- * @see CustomAuthorizeProvider
+ * 
+ * 
  * @author yishui
- * @date 2019年1月9日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public interface CustomResourceProvider {
 	/**

@@ -11,13 +11,15 @@ import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.tool.entity.Page;
 
 /**
- * JdbcTemplate操作器<br/>
+ * <p>
+ * JdbcTemplate操作器
+ * </p>
  * 
  * 【注意】在没有特意指出的前提下，所有筛选条件的笔记方式为完全匹配
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public interface JdbcHelper {
 
@@ -208,39 +210,39 @@ public interface JdbcHelper {
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param t     查询条件
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>    POJO类
+	 * @param t      查询条件
+	 * @param order  排序条件
+	 * @param topNum 查询出的记录的数量
 	 * @return 符合条件的数据
 	 */
-	<T> List<T> findTop(T t, Order order, Integer topNum);
+	<T> List<T> findTop(T t, Order order, int topNum);
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param clazz POJO类
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>     POJO类
+	 * @param clazz   POJO类
+	 * @param order   排序条件
+	 * @param topNum  查询出的记录的数量
 	 * @param example 筛选条件
 	 * 
 	 * @return 符合条件的数据
 	 */
-	<T> List<T> findTop(Class<T> clazz, Order order, Integer topNum, Example example);
+	<T> List<T> findTop(Class<T> clazz, Order order, int topNum, Example example);
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param clazz POJO类
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>        POJO类
+	 * @param clazz      POJO类
+	 * @param order      排序条件
+	 * @param topNum     查询出的记录的数量
 	 * @param conditions 筛选条件
 	 * 
 	 * @return 符合条件的数据
 	 */
-	<T> List<T> findTop(Class<T> clazz, Order order, Integer topNum, Condition... conditions);
+	<T> List<T> findTop(Class<T> clazz, Order order, int topNum, Condition... conditions);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -251,7 +253,7 @@ public interface JdbcHelper {
 	 * @param pageNum  当前页页码
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(T t, Integer pageSize, Integer pageNum);
+	<T> Page<T> findPage(T t, int pageSize, int pageNum);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -263,7 +265,7 @@ public interface JdbcHelper {
 	 * @param order    排序条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, Order order);
+	<T> Page<T> findPage(T t, int pageSize, int pageNum, Order order);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -275,7 +277,7 @@ public interface JdbcHelper {
 	 * @param orderName 排序字段，必须为对应的POJO属性的名字
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, String orderName);
+	<T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -288,7 +290,7 @@ public interface JdbcHelper {
 	 * @param direction 排序方向
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, String orderName, Order.Direction direction);
+	<T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName, Order.Direction direction);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -300,7 +302,7 @@ public interface JdbcHelper {
 	 * @param conditions 筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Condition... conditions);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Condition... conditions);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -312,7 +314,7 @@ public interface JdbcHelper {
 	 * @param example  筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Example example);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Example example);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -324,7 +326,7 @@ public interface JdbcHelper {
 	 * @param conditions 筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, List<Condition> conditions);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, List<Condition> conditions);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -337,7 +339,7 @@ public interface JdbcHelper {
 	 * @param conditions 筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order, Condition... conditions);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Condition... conditions);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -350,7 +352,7 @@ public interface JdbcHelper {
 	 * @param example  筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order, Example example);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Example example);
 
 	/**
 	 * 分页查询所有符合条件的数据
@@ -363,7 +365,7 @@ public interface JdbcHelper {
 	 * @param conditions 筛选条件
 	 * @return 符合条件的数据
 	 */
-	<T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order, List<Condition> conditions);
+	<T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, List<Condition> conditions);
 
 	/**
 	 * 根据主键全属性更新方式更新一条数据
@@ -382,16 +384,6 @@ public interface JdbcHelper {
 	 * @return 受影响的记录的数量
 	 */
 	<T> int updateByPrimaryKeySelective(T t);
-
-	/**
-	 * 根据条件全属性更新方式批量更新数据
-	 * 
-	 * @param <T>        POJO类
-	 * @param t          待更新的数据
-	 * @param conditions 筛选条件
-	 * @return 受影响的记录的数量
-	 */
-	<T> int update(T t, Condition... conditions);
 
 	/**
 	 * 根据条件全属性更新方式批量更新数据
@@ -432,16 +424,6 @@ public interface JdbcHelper {
 	 * @return 受影响的记录的数量
 	 */
 	<T> int updateSelective(T t, T condition);
-
-	/**
-	 * 根据条件可选属性更新方式批量更新数据
-	 * 
-	 * @param <T>        POJO类
-	 * @param t          待更新的数据
-	 * @param conditions 筛选条件
-	 * @return 受影响的记录的数量
-	 */
-	<T> int updateSelective(T t, Condition... conditions);
 
 	/**
 	 * 根据条件可选属性更新方式批量更新数据

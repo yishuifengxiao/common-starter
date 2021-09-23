@@ -12,14 +12,14 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
- * 黑名单路径匹配器<br/>
- * 如果路径在目标路径匹配范围之内,则返回为true<br/>
+ * <p>黑名单路径匹配器</p>
+ * 如果路径在目标路径匹配范围之内,则返回为true,
  * 
  * 如 /demo/**表示除了/demo/**之外的路径都能匹配
  * 
  * @author yishui
- * @date 2019年7月22日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class ExcludeRequestMatcher implements RequestMatcher {
 

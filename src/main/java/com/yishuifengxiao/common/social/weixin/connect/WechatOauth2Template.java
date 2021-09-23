@@ -22,8 +22,8 @@ import com.yishuifengxiao.common.social.weixin.entity.WechatAccessGrant;
  * 微信登陆请求
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class WechatOauth2Template extends OAuth2Template {
 
@@ -45,13 +45,7 @@ public class WechatOauth2Template extends OAuth2Template {
 		this.accessTokenUrl = accessTokenUrl;
 	}
 
-	/**
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.springframework.social.oauth2.OAuth2Template#exchangeForAccess(java.lang.
-	 * String, java.lang.String, org.springframework.util.MultiValueMap)
-	 */
+
 	@Override
 	public AccessGrant exchangeForAccess(String authorizationCode, String redirectUri,
 			MultiValueMap<String, String> parameters) {

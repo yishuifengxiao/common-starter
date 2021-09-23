@@ -24,10 +24,16 @@ import org.springframework.security.web.authentication.rememberme.PersistentReme
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 /**
- * Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map. Intended for
- * testing only. <br/>
- *  <b>解决原生类报错DataIntegrityViolationException再未引入数据库相关的包时出错的问题
- * @author Luke Taylor
+ * <p>Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map.
+ * Intended for testing only. </p>
+ * <p>
+ * 解决原生类报错DataIntegrityViolationException再未引入数据库相关的包时出错的问题
+ * </p>
+ * 
+ * @author Luke Taylor *
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	private final Map<String, PersistentRememberMeToken> seriesTokens = new HashMap<>();
@@ -37,8 +43,7 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 		PersistentRememberMeToken current = seriesTokens.get(token.getSeries());
 
 		if (current != null) {
-			throw new RuntimeException("Series Id '" + token.getSeries()
-					+ "' already exists!");
+			throw new RuntimeException("Series Id '" + token.getSeries() + "' already exists!");
 		}
 
 		seriesTokens.put(token.getSeries(), token);
@@ -48,8 +53,8 @@ public class InMemoryTokenRepositoryImpl implements PersistentTokenRepository {
 	public synchronized void updateToken(String series, String tokenValue, Date lastUsed) {
 		PersistentRememberMeToken token = getTokenForSeries(series);
 
-		PersistentRememberMeToken newToken = new PersistentRememberMeToken(
-				token.getUsername(), series, tokenValue, new Date());
+		PersistentRememberMeToken newToken = new PersistentRememberMeToken(token.getUsername(), series, tokenValue,
+				new Date());
 
 		// Store it, overwriting the existing one.
 		seriesTokens.put(series, newToken);

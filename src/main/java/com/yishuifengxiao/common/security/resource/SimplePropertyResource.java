@@ -10,19 +10,25 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.OAuth2Constant;
+import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.social.SocialProperties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 简单实现的资源管理器
  * 
- * @author qingteng
- * @date 2020年11月27日
+ * 
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
+@Slf4j
 public class SimplePropertyResource implements PropertyResource {
 
 	/**
@@ -59,6 +65,11 @@ public class SimplePropertyResource implements PropertyResource {
 	 */
 	private SocialProperties socialProperties;
 
+	/**
+	 * 是否显示详细信息日志
+	 */
+	private boolean show = false;
+
 	@Override
 	public SecurityProperties security() {
 		return this.securityProperties;
@@ -87,6 +98,9 @@ public class SimplePropertyResource implements PropertyResource {
 				securityProperties.getSession().getSessionInvalidUrl()
 
 		));
+		if (show) {
+			log.info("【易水组件】所有直接放行的资源的为 {}", StringUtils.join(urls, " ; "));
+		}
 
 		return urls;
 	}
@@ -109,7 +123,11 @@ public class SimplePropertyResource implements PropertyResource {
 
 	@Override
 	public Set<String> getAllCustomUrls() {
-		return this.getUrls(this.securityProperties.getCustoms());
+		Set<String> urls = this.getUrls(this.securityProperties.getCustoms());
+		if (show) {
+			log.info("【易水组件】需要自定义权限的路径为 {}", StringUtils.join(urls, " ; "));
+		}
+		return urls;
 	}
 
 	@Override
@@ -119,7 +137,7 @@ public class SimplePropertyResource implements PropertyResource {
 		urls.addAll(this.getAllPermitUlrs());
 		// 所有忽视的资源
 		urls.addAll(Arrays.asList(this.getAllIgnoreUrls()));
-		//登陆地址
+		// 登陆地址
 		urls.add(this.securityProperties.getCore().getFormActionUrl());
 		// 短信登陆地址
 		urls.add(this.securityProperties.getCode().getSmsLoginUrl());
@@ -144,7 +162,16 @@ public class SimplePropertyResource implements PropertyResource {
 		if (this.securityProperties.getIgnore().getContainAll()) {
 			set.addAll(Arrays.asList(ALL_RESOURCE));
 		}
+		if (this.securityProperties.getIgnore().getContainErrorPage()) {
+			// 错误页面
+			set.add(UriConstant.ERROR_PAGE);
+		}
+
 		set.addAll(this.getUrls(this.securityProperties.getIgnore().getUrls()));
+
+		if (show) {
+			log.info("【易水组件】所有忽视管理的资源的为 {}", StringUtils.join(set, " ; "));
+		}
 		return set.toArray(new String[] {});
 	}
 
@@ -169,6 +196,7 @@ public class SimplePropertyResource implements PropertyResource {
 
 	public void setSecurityProperties(SecurityProperties securityProperties) {
 		this.securityProperties = securityProperties;
+		this.show = BooleanUtils.isTrue(securityProperties.getShowDeatil());
 	}
 
 	public void setSocialProperties(SocialProperties socialProperties) {

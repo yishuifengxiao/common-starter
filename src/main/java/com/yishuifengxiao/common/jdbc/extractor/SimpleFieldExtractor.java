@@ -22,11 +22,11 @@ import com.yishuifengxiao.common.tool.utils.HumpUtil;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 默认实现的属性提取器
+ * 系统属性提取器
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class SimpleFieldExtractor implements FieldExtractor {
@@ -34,36 +34,41 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	/**
 	 * 存储一个类所有对应的属性
 	 */
-	private final Map<String, List<FieldValue>> FIELDS_MAP = new HashMap<>();
+	private static final Map<String, List<FieldValue>> FIELDS_MAP = new HashMap<>();
 
 	/**
 	 * 存储一个类对应的主键属性
 	 */
-	private final Map<String, FieldValue> FIELD_MAP = new HashMap<>();
+	private static final Map<String, FieldValue> FIELD_MAP = new HashMap<>();
 
 	/**
 	 * 存储一个类对应的数据表名字
 	 */
-	private final Map<String, String> TABLE_MAP = new HashMap<>();
+	private static final Map<String, String> TABLE_MAP = new HashMap<>();
 
 	/**
 	 * 对应一个类里对象属性名字与数据库属性名字
 	 */
-	private final Map<String, String> NAME_TABLE = new HashMap<>();
+	private static final Map<String, String> NAME_TABLE = new HashMap<>();
 
 	/**
-	 * 提取一个POJO类所有字段属性<br/>
-	 * <br/>
-	 * 【注意】下面的字段属性会不会被提取出来<br/>
-	 * 1 被final修饰的属性<br/>
-	 * 2 被 @Transient 修饰的属性<br/>
-	 * 3 被static 修饰<br/>
-	 * 4 被native 修饰的不处理<br/>
-	 * 5 被abstract 修饰的不处理<br/>
-	 * 6 属性为接口
+	 * <p>
+	 * 提取一个POJO类所有字段属性
+	 * </p>
+	 *
+	 * 【注意】下面的字段属性会不会被提取出来
+	 * <ul>
+	 * <li>被final修饰的属性</li>
+	 * <li>被 @Transient 修饰的属性</li>
+	 * <li>被 transient 修饰的属性</li>
+	 * <li>被static 修饰</li>
+	 * <li>被native 修饰的不处理</li>
+	 * <li>被abstract 修饰的不处理</li>
+	 * <li>属性为接口</li>
+	 * </ul>
 	 * 
-	 * @see @Transient
-	 * @param <T>
+	 * 
+	 * @param <T>   POJO类的类型
 	 * @param clazz POJO类
 	 * @return POJO类所有字段属性
 	 */
@@ -92,7 +97,11 @@ public class SimpleFieldExtractor implements FieldExtractor {
 					Column column = field.getAnnotation(Column.class);
 					if (null != column) {
 						filedValue.setColName(column.name());
+					} else {
+						filedValue.setColName(name);
 					}
+
+					filedValue.setType(field.getType());
 
 					list.add(filedValue);
 				}
@@ -118,6 +127,11 @@ public class SimpleFieldExtractor implements FieldExtractor {
 		if (null != sient) {
 			return true;
 		}
+		// 被Transient 修饰的不处理
+		if (Modifier.isTransient(field.getModifiers())) {
+			return true;
+		}
+
 		// 被final修饰的不处理
 		if (Modifier.isFinal(field.getModifiers())) {
 			return true;
@@ -147,11 +161,13 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	}
 
 	/**
-	 * 提取一个POJO类的主键字段信息<br/>
+	 * <p>
+	 * 提取一个POJO类的主键字段信息
+	 * </p>
 	 * 根据POJO类属性上的@Id 注解查找，如果没有找到，默认返回值的为 id
 	 * 
-	 * @see @Id
-	 * @param <T>
+	 * 
+	 * @param <T>   POJO类的类型
 	 * @param clazz POJO类
 	 * @return POJO类的主键字段信息
 	 */
@@ -177,7 +193,12 @@ public class SimpleFieldExtractor implements FieldExtractor {
 						Column column = field.getAnnotation(Column.class);
 						if (null != column) {
 							filedValue.setColName(column.name());
+						} else {
+							filedValue.setColName(field.getName());
 						}
+
+						filedValue.setType(field.getType());
+
 						FIELD_MAP.put(clazz.getName(), filedValue);
 						return filedValue;
 					}
@@ -185,19 +206,23 @@ public class SimpleFieldExtractor implements FieldExtractor {
 				}
 			}
 		}
-		primaryKey = new FieldValue("id", null);
+		primaryKey = new FieldValue("id", null, null);
 		FIELD_MAP.put(clazz.getName(), primaryKey);
 		return primaryKey;
 	}
 
 	/**
-	 * 提取一个POJO类的对应的数据表的名字<br/>
-	 * 查找策略如下:<br/>
-	 * 1 先提取类上面 @Table 注解的值<br/>
-	 * 2 其次提取类注解上 @Entity 注解的值<br/>
-	 * 3 最后使用当前类的名字，然后将其转化为驼峰命名
+	 * <p>
+	 * 提取一个POJO类的对应的数据表的名字
+	 * </p>
+	 * 查找策略如下
+	 * <ul>
+	 * <li>先提取类上面 @Table 注解的值</li>
+	 * <li>其次提取类注解上 @Entity 注解的值</li>
+	 * <li>最后使用当前类的名字，然后将其转化为驼峰命名</li>
+	 * </ul>
 	 * 
-	 * @param <T>
+	 * @param <T> POJO类的类型
 	 * @param clazz POJO类
 	 * @return OJO类的对应的数据表的名字
 	 */
@@ -263,7 +288,9 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	}
 
 	/**
+	 * <p>
 	 * 提取对象中指定属性的值
+	 * </p>
 	 * 
 	 * @param data      提取对象
 	 * @param fieldName 属性的名字
@@ -282,15 +309,15 @@ public class SimpleFieldExtractor implements FieldExtractor {
 			Object value = method.invoke(data, new Object[] {});
 			return value;
 		} catch (Exception e) {
-			log.debug("根据属性名获取属性值时出现问题，出现问题的原因为 {}", e.getMessage());
+			log.warn("根据属性名获取属性值时出现问题，出现问题的原因为 {}", e.getMessage());
 		}
 		return null;
 	}
 
 	/**
-	 * 根据POJO类属性的名字提取其再数据库库里对应的列的名字
+	 * 根据POJO类属性的名字提取其在数据库库里对应的列的名字
 	 * 
-	 * @param <T>
+	 * @param <T>   POJO类的类型
 	 * @param clazz POJO类
 	 * @param name  POJO类属性的名字
 	 * @return POJO类属性再数据库里对应的列的名字

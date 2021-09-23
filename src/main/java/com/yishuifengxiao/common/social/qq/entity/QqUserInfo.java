@@ -6,72 +6,74 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * QQ用户信息
  * 
  * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  *
  */
 public class QqUserInfo {
 	@JsonProperty("ret")
 	private Integer ret;
-	
+
 	@JsonProperty("msg")
 	private String msg;
-	
+
 	@JsonProperty("is_lost")
 	private Integer lost;
-	
+
 	@JsonProperty("nickname")
 	private String nickname;
-	
+
 	@JsonProperty("gender")
 	private String gender;
-	
+
 	@JsonProperty("province")
 	private String province;
-	
+
 	@JsonProperty("city")
 	private String city;
-	
+
 	@JsonProperty("year")
 	private String year;
-	
+
 	@JsonProperty("constellation")
 	private String constellation;
-	
+
 	@JsonProperty("figureurl")
 	private String figureurl;
-	
+
 	@JsonProperty("figureurl_1")
 	private String figureurl1;
-	
+
 	@JsonProperty("figureurl_2")
 	private String figureurl2;
-	
+
 	@JsonProperty("figureurl_qq_1")
 	private String figureurlQq1;
-	
+
 	@JsonProperty("figureurl_qq_2")
 	private String figureurlQq2;
-	
+
 	@JsonProperty("figureurl_qq")
 	private String figureurlQq;
-	
+
 	@JsonProperty("figureurl_type")
 	private String figureurlType;
-	
+
 	@JsonProperty("is_yellow_vip")
 	private String yellowVip;
-	
+
 	@JsonProperty("vip")
 	private String vip;
-	
+
 	@JsonProperty("yellow_vip_level")
 	private String yellowVipLevel;
-	
+
 	@JsonProperty("level")
 	private String level;
-	
+
 	@JsonProperty("is_yellow_year_vip")
 	private String yellowYearVip;
-	
+
 	@JsonProperty("openId")
 	private String openId;
 
@@ -250,6 +252,5 @@ public class QqUserInfo {
 	public void setOpenId(String openId) {
 		this.openId = openId;
 	}
-
 
 }

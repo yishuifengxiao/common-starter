@@ -5,7 +5,9 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 /**
  * 模仿UsernamePasswordAuthenticationToken实现自定义的SmsCodeAuthenticationToken
- * @author admin
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  *
  */
 public class SmsAuthenticationToken extends AbstractAuthenticationToken implements java.io.Serializable{
@@ -28,7 +30,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	 * This constructor can be safely used by any code that wishes to create a
 	 * <code>UsernamePasswordAuthenticationToken</code>, as the {@link #isAuthenticated()}
 	 * will return <code>false</code>.
-	 *
+	 * @param mobile 手机号
 	 */
 	public SmsAuthenticationToken(String mobile) {
 		super(null);
@@ -42,8 +44,8 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	 * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
 	 * authentication token.
 	 *
-	 * @param mobile
-	 * @param authorities
+	 * @param mobile 手机号
+	 * @param authorities 认证角色
 	 */
 	public SmsAuthenticationToken(String mobile, 
 			Collection<? extends GrantedAuthority> authorities) {

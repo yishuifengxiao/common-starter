@@ -24,11 +24,11 @@ import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 
 /**
- * 默认实现的JdbcTemplate操作器
+ * 系统JdbcTemplate操作器
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class SimpleJdbcHelper implements JdbcHelper {
 
@@ -311,30 +311,30 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param t     查询条件
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>    POJO类
+	 * @param t      查询条件
+	 * @param order  排序条件
+	 * @param topNum 查询出的记录的数量
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> List<T> findTop(T t, Order order, Integer topNum) {
+	public <T> List<T> findTop(T t, Order order, int topNum) {
 		return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, t, order, topNum);
 	}
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param clazz POJO类
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>     POJO类
+	 * @param clazz   POJO类
+	 * @param order   排序条件
+	 * @param topNum  查询出的记录的数量
 	 * @param example 筛选条件
 	 * 
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> List<T> findTop(Class<T> clazz, Order order, Integer topNum, Example example) {
+	public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Example example) {
 		return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, clazz, example.toCondition(),
 				order, topNum);
 	}
@@ -342,16 +342,16 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>   POJO类
-	 * @param clazz POJO类
-	 * @param order 排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param <T>        POJO类
+	 * @param clazz      POJO类
+	 * @param order      排序条件
+	 * @param topNum     查询出的记录的数量
 	 * @param conditions 筛选条件
 	 * 
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> List<T> findTop(Class<T> clazz, Order order, Integer topNum, Condition... conditions) {
+	public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Condition... conditions) {
 		return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions),
 				order, topNum);
 	}
@@ -366,7 +366,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(T t, Integer pageSize, Integer pageNum) {
+	public <T> Page<T> findPage(T t, int pageSize, int pageNum) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
 	}
 
@@ -381,7 +381,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Condition... conditions) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Condition... conditions) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions),
 				null, pageSize, pageNum);
 	}
@@ -397,7 +397,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Example example) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Example example) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz,
 				null == example ? new ArrayList<>() : example.toCondition(), null, pageSize, pageNum);
 	}
@@ -413,7 +413,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, List<Condition> conditions) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, List<Condition> conditions) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, null,
 				pageSize, pageNum);
 	}
@@ -430,8 +430,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order,
-			Condition... conditions) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Condition... conditions) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions),
 				order, pageSize, pageNum);
 	}
@@ -448,7 +447,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order, Example example) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Example example) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz,
 				null == example ? new ArrayList<>() : example.toCondition(), order, pageSize, pageNum);
 	}
@@ -465,8 +464,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(Class<T> clazz, Integer pageSize, Integer pageNum, Order order,
-			List<Condition> conditions) {
+	public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, List<Condition> conditions) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, order,
 				pageSize, pageNum);
 	}
@@ -482,7 +480,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, Order order) {
+	public <T> Page<T> findPage(T t, int pageSize, int pageNum, Order order) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, order, pageSize, pageNum);
 	}
 
@@ -497,7 +495,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, String orderName) {
+	public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
 	}
 
@@ -513,7 +511,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	 * @return 符合条件的数据
 	 */
 	@Override
-	public <T> Page<T> findPage(T t, Integer pageSize, Integer pageNum, String orderName, Order.Direction direction) {
+	public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName, Order.Direction direction) {
 		return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t,
 				Order.of(orderName, direction), pageSize, pageNum);
 	}
@@ -540,20 +538,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	@Override
 	public <T> int updateByPrimaryKeySelective(T t) {
 		return updateTranslator.updateByPrimaryKey(jdbcTemplate, fieldExtractor, executeExecutor, true, t);
-	}
-
-	/**
-	 * 根据条件全属性更新方式批量更新数据
-	 * 
-	 * @param <T>        POJO类
-	 * @param t          待更新的数据
-	 * @param conditions 筛选条件
-	 * @return 受影响的记录的数量
-	 */
-	@Override
-	public <T> int update(T t, Condition... conditions) {
-		return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, false, t,
-				this.collect(conditions));
 	}
 
 	/**
@@ -607,20 +591,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
 	@Override
 	public <T> int updateSelective(T t, T condition) {
 		return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, true, t, condition);
-	}
-
-	/**
-	 * 根据条件可选属性更新方式批量更新数据
-	 * 
-	 * @param <T>        POJO类
-	 * @param t          待更新的数据
-	 * @param conditions 筛选条件
-	 * @return 受影响的记录的数量
-	 */
-	@Override
-	public <T> int updateSelective(T t, Condition... conditions) {
-		return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, true, t,
-				this.collect(conditions));
 	}
 
 	/**

@@ -11,9 +11,9 @@ import lombok.experimental.Accessors;
 /**
  * SQL执行对象
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @AllArgsConstructor
@@ -39,29 +39,10 @@ public class SqlData implements Serializable {
 	/**
 	 * 获取到查询语句
 	 * 
-	 * @return
+	 * @return 查询语句
 	 */
 	public String getSqlString() {
 		return null == this.sql ? "" : this.sql.toString();
-	}
-
-	/**
-	 * 获取最终查询的参数
-	 * 
-	 * @return
-	 */
-	public Object[] getSqlArgs() {
-		if (null == this.args) {
-			return new Object[] {};
-		}
-
-		Object[] array = new Object[this.args.size()];
-
-		for (int i = 0; i < this.args.size(); i++) {
-			array[i] = this.args.get(i);
-		}
-		return array;
-
 	}
 
 }

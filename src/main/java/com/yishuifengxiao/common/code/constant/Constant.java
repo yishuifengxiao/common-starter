@@ -4,11 +4,11 @@
 package com.yishuifengxiao.common.code.constant;
 
 /**
- * 与验证码相关的常量
+ * 验证码常磊
  * 
  * @author yishui
- * @date 2019年1月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class Constant {
 	/**
@@ -50,7 +50,7 @@ public final class Constant {
 	/**
 	 * 验证码是否包含字母
 	 */
-	public final static boolean IS_CONTAIN_LETTERS = true;
+	public final static boolean IS_CONTAIN_LETTERS = false;
 	/**
 	 * 验证码是否包含数字
 	 */
@@ -83,10 +83,10 @@ public final class Constant {
 	 * 邮箱验证码的key的对应的值
 	 */
 	public final static String CODE_EMAIL_VALUE = "email_code";
-	
+
 	/**
 	 * 将验证码存储到Redis时的key的前缀
 	 */
-	public final static String PREFIX = "validate_code_";
-	
+	public final static String PREFIX = "validate_code_store_redis";
+
 }

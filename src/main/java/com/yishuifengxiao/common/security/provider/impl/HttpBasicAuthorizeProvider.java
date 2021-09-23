@@ -10,9 +10,10 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
 /**
  * http basic登陆时的配置
  * 
+ * 
  * @author yishui
- * @date 2019年10月12日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
 

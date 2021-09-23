@@ -11,9 +11,10 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
 /**
  * 异常处理器
  * 
+ * 
  * @author yishui
- * @date 2019年10月12日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class ExceptionAuthorizeProvider implements AuthorizeProvider {
 

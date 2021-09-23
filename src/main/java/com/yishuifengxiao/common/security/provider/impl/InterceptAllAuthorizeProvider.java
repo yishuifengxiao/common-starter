@@ -10,12 +10,13 @@ import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.resource.PropertyResource;
 
 /**
- * 拦截所有的资源<br/>
+ * <p>拦截所有的资源</p>
  * <strong>注意此过滤器一定要最后加载</strong>
  * 
+ * 
  * @author yishui
- * @date 2019年1月22日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class InterceptAllAuthorizeProvider implements AuthorizeProvider {
 

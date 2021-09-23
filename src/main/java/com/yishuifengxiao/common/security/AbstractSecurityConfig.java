@@ -1,7 +1,6 @@
 package com.yishuifengxiao.common.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -16,12 +15,10 @@ import com.yishuifengxiao.common.security.authorize.SecurityContextManager;
  * 安全服务器配置
  * 
  * @author yishui
- * @date 2018年11月19日
- * @Version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapter {
-
-
 
 	/**
 	 * 安全授权配置管理器
@@ -30,7 +27,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 	protected SecurityContextManager securityContextManager;
 
 	@Autowired
-	@Qualifier("authenticationProvider")
 	protected DaoAuthenticationProvider authenticationProvider;
 
 	@Autowired
@@ -50,12 +46,6 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		this.applyAuthenticationConfig(http);
 	}
 
-	/**
-	 * 默认的spring security配置【需要在子类中调用此方法】
-	 * 
-	 * @param http
-	 * @throws Exception
-	 */
 	private void applyAuthenticationConfig(HttpSecurity http) throws Exception {
 
 		// @formatter:off
@@ -74,11 +64,10 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		return super.authenticationManagerBean();
 	}
 
-	/**
-	 * 设置忽视的目录
-	 */
+
 	@Override
 	public void configure(WebSecurity web) throws Exception {
+		//设置忽视的目录
 		securityContextManager.config(web);
 	}
 

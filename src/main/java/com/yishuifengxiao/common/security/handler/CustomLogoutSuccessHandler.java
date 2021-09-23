@@ -10,11 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
-import com.yishuifengxiao.common.security.event.LogoutSuccessEvent;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.resource.PropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
-import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.context.SessionStorage;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +21,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 登出成功处理器
  * 
- * @version 0.0.1
  * @author yishui
- * @date 2018年4月14日
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
@@ -36,12 +35,11 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
 	private TokenBuilder tokenBuilder;
 
+	private PropertyResource propertyResource;
+
 	@Override
 	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException, ServletException {
-		log.debug("【易水组件】退出成功，此用户的信息为 {}", authentication);
-		// 发布事件
-		SpringContext.publishEvent(new LogoutSuccessEvent(this, request, authentication));
 
 		try {
 			// 取出存储的信息
@@ -52,7 +50,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 		} catch (Exception e) {
 			log.debug("【易水组件】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
 
-			handlerProcessor.exception(request, response, e);
+			handlerProcessor.exception(propertyResource, request, response, e);
 		}
 
 		handlerProcessor.exit(request, response, authentication);
@@ -73,6 +71,14 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 
 	public void setTokenBuilder(TokenBuilder tokenBuilder) {
 		this.tokenBuilder = tokenBuilder;
+	}
+
+	public PropertyResource getPropertyResource() {
+		return propertyResource;
+	}
+
+	public void setPropertyResource(PropertyResource propertyResource) {
+		this.propertyResource = propertyResource;
 	}
 
 }

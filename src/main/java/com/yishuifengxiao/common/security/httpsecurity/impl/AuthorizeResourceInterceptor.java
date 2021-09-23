@@ -7,16 +7,16 @@ import com.yishuifengxiao.common.security.matcher.ExcludeRequestMatcher;
 import com.yishuifengxiao.common.security.resource.PropertyResource;
 
 /**
- * <strong>授权资源拦截器</strong><br/>
- * <br/>
+ * <p>授权资源拦截器</p>
+
  * 
- * 决定系统中哪些资源需要经过授权系统管理<br/>
+ * 决定系统中哪些资源需要经过授权系统管理,
  * 
  * 这里采用黑名单匹配规则，除了在黑名单里的资源之外其他的资源都要经过授权管理
  *
  * @author yishui
- * @date 2019年10月12日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class AuthorizeResourceInterceptor extends HttpSecurityInterceptor {
 

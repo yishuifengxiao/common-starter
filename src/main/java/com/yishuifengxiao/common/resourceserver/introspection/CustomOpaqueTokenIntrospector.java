@@ -43,16 +43,20 @@ import com.nimbusds.oauth2.sdk.id.Audience;
 import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
 
 /**
- * token探寻器<br/>
- * <br/>
+ * <p>
+ * token探寻器
+ * </p>
+ * 
+ * <p>
  * 用于内省和验证OAuth 2.0令牌的协定。此接口的典型实现将向OAuth
- * 2.0自省终结点发出请求，以验证令牌并返回其属性，表示成功验证。另一个这个接口的合理实现是查询令牌的后备存储，例如分布式缓存。 <br/>
+ * 2.0自省终结点发出请求，以验证令牌并返回其属性，表示成功验证。另一个这个接口的合理实现是查询令牌的后备存储，例如分布式缓存。
+ * </p>
  * 在<code>ResourceAuthorizeProvider</code>中被配置
  * 
  * @see ResourceAuthorizeProvider
  * @author yishui
  * @version 1.0.0
- * @date 2019-10-28
+ * @since 1.0.0
  */
 public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 

@@ -1,16 +1,17 @@
 package com.yishuifengxiao.common.jdbc.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 /**
- * 筛选对象
+ * 筛选条件
  * 
- * @author qingteng
- * @date 2020年12月6日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @Accessors(chain = true)
@@ -77,7 +78,7 @@ public class Condition implements Serializable {
 	/**
 	 * 设置筛选对象的待比较的数据
 	 * 
-	 * @param name 待比较的数据
+	 * @param value 待比较的数据
 	 * @return 筛选对象
 	 */
 	public Condition value(Object value) {
@@ -88,9 +89,9 @@ public class Condition implements Serializable {
 	/**
 	 * 语句连接方式
 	 * 
-	 * @author qingteng
-	 * @date 2020年12月6日
+	 * @author yishui
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	public static enum Link {
 		/**
@@ -106,9 +107,9 @@ public class Condition implements Serializable {
 	/**
 	 * 比较方式
 	 * 
-	 * @author qingteng
-	 * @date 2020年12月6日
+	 * @author yishui
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	public static enum Type {
 		/**
@@ -120,19 +121,19 @@ public class Condition implements Serializable {
 		 */
 		NOT_EQUAL,
 		/**
-		 * 大于 >
+		 * 大于 &#62;
 		 */
 		GREATER,
 		/**
-		 * 大于或等于>=
+		 * 大于或等于&#62;=
 		 */
 		GREATER_EQUAL,
 		/**
-		 * 小于 <
+		 * 小于 &#60;
 		 */
 		LESS,
 		/**
-		 * 小于或等于 <=
+		 * 小于或等于 &#60;=
 		 */
 		LESS_EQUAL,
 		/**
@@ -146,7 +147,11 @@ public class Condition implements Serializable {
 		/**
 		 * 模糊查询 like
 		 */
-		LIKE
+		LIKE,
+		/**
+		 * in 查询，会替换成 (colName = ? or colName = ? )的形式
+		 */
+		IN
 	}
 
 	/**
@@ -161,7 +166,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <>
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#60;&#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -172,7 +177,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 >
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -183,7 +188,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 >=
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#62;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -194,7 +199,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#60;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -205,7 +210,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <=
+	 * 生成一个连接条件为and的比较语句，比较方式为&#60;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -248,6 +253,29 @@ public class Condition implements Serializable {
 	}
 
 	/**
+	 * 生成一个连接条件为and的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	public static Condition andIn(String name, Object... values) {
+		return new Condition(Link.AND, Type.IN, name, values);
+	}
+
+	/**
+	 * 生成一个连接条件为and的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Condition andIn(String name, List values) {
+		return new Condition(Link.AND, Type.IN, name, values);
+	}
+
+	/**
 	 * 生成一个连接条件为or的比较语句，比较方式为 =
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
@@ -259,7 +287,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <>
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;&#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -270,7 +298,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 >
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -281,7 +309,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 >=
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#62;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -292,7 +320,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -303,7 +331,7 @@ public class Condition implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <=
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -342,6 +370,29 @@ public class Condition implements Serializable {
 	 */
 	public static Condition orLike(String name, Object value) {
 		return new Condition(Link.OR, Type.LIKE, name, value);
+	}
+
+	/**
+	 * 生成一个连接条件为or的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	public static Condition orIn(String name, Object... values) {
+		return new Condition(Link.OR, Type.IN, name, values);
+	}
+
+	/**
+	 * 生成一个连接条件为or的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Condition orIn(String name, List values) {
+		return new Condition(Link.OR, Type.IN, name, values);
 	}
 
 	private Condition() {

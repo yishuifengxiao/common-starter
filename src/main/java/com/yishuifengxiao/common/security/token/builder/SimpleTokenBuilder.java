@@ -24,9 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 基于Redis实现的token生成器
  * 
- * @author qingteng
- * @date 2020年11月29日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class SimpleTokenBuilder implements TokenBuilder {
@@ -38,9 +38,21 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	 */
 	private TokenHolder tokenHolder;
 
+	
+	/**
+	 * 创建一个新的token
+	 * 
+	 * @param username      用户名
+	 * @param sessionId     会话id
+	 * @param validSeconds  token的有效时间，单位为秒
+	 * @param preventsLogin 在达到最大的token数量限制时是否阻止后面的用户登陆
+	 * @param maxSessions   最大的token数量
+	 * @return SecurityToken 生成的token
+	 * @throws CustomException 生成时出现了问题
+	 */
 	@Override
-	public SecurityToken creatNewToken(String username, String sessionId, Integer validSeconds, boolean preventsLogin,
-			int maxSessions) throws CustomException {
+	public synchronized SecurityToken creatNewToken(String username, String sessionId, Integer validSeconds,
+			boolean preventsLogin, int maxSessions) throws CustomException {
 		if (StringUtils.isBlank(username)) {
 			throw new ValidateException(ErrorCode.USERNAME_NULL, "用户名不能为空");
 		}
@@ -121,7 +133,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	}
 
 	@Override
-	public List<SecurityToken> loadAllToken(String username, boolean isOnlyAvailable) {
+	public synchronized List<SecurityToken> loadAllToken(String username, boolean isOnlyAvailable) {
 		// 获取该用户所有的token信息
 		List<SecurityToken> list = DataUtil.stream(tokenHolder.getAll(username)).filter(Objects::nonNull).distinct()
 				.collect(Collectors.toList());
@@ -133,13 +145,13 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	}
 
 	@Override
-	public int getTokenNum(String username, boolean isActive, boolean isExpired) {
+	public synchronized int getTokenNum(String username, boolean isActive, boolean isExpired) {
 		List<SecurityToken> list = this.loadAllToken(username, false);
 		return (int) DataUtil.stream(list).filter(t -> t.isActive() == isActive && t.isExpired() == isExpired).count();
 	}
 
 	@Override
-	public String[] parseTokenValue(String tokenValue) throws CustomException {
+	public synchronized String[] parseTokenValue(String tokenValue) throws CustomException {
 		try {
 			tokenValue = DES.decrypt(tokenValue);
 		} catch (Exception e) {
@@ -166,7 +178,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	}
 
 	@Override
-	public SecurityToken loadByTokenValue(String tokenValue) throws CustomException {
+	public synchronized SecurityToken loadByTokenValue(String tokenValue) throws CustomException {
 		try {
 			String[] tokens = this.parseTokenValue(tokenValue);
 			return tokenHolder.get(tokens[0], tokens[1]);
@@ -179,13 +191,13 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	}
 
 	@Override
-	public void remove(String tokenValue) throws CustomException {
+	public synchronized void remove(String tokenValue) throws CustomException {
 		String[] tokens = this.parseTokenValue(tokenValue);
 		tokenHolder.delete(tokens[0], tokens[1]);
 	}
 
 	@Override
-	public SecurityToken refreshExpireTime(String tokenValue) throws CustomException {
+	public synchronized SecurityToken refreshExpireTime(String tokenValue) throws CustomException {
 		SecurityToken token = this.loadByTokenValue(tokenValue);
 		if (null != token && token.isAvailable()) {
 			token.refreshExpireTime();

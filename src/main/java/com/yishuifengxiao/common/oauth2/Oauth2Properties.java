@@ -2,16 +2,18 @@ package com.yishuifengxiao.common.oauth2;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import com.yishuifengxiao.common.tool.entity.Response;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * oauth2相关的配置
+ * oauth2扩展支持属性配置
  * 
  * @author yishui
- * @date 2019年71月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @AllArgsConstructor
@@ -48,5 +50,15 @@ public class Oauth2Properties {
 	 * 终端对应的密码错误时的异常提示信息
 	 */
 	private String pwdErrorMsg = "终端密码错误";
+
+	/**
+	 * 携带的basic token 无效时的提示信息
+	 */
+	private String invalidBasicToken = "无效的basic token";
+
+	/**
+	 * 终端信息不正确时的响应码，默认为500
+	 */
+	private Integer invalidClientCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
 
 }

@@ -15,8 +15,8 @@ import org.springframework.security.oauth2.provider.client.BaseClientDetails;
  * 默认的ClientDetailsService
  * 
  * @author yishui
- * @date 2019年12月24日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class ClientDetailsServiceImpl implements ClientDetailsService {
 	/**
@@ -127,6 +127,11 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 
 	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Override
+	public String toString() {
+		return "ClientDetailsServiceImpl [passwordEncoder=" + passwordEncoder + "]";
 	}
 
 }

@@ -10,26 +10,27 @@ import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.social.SocialProperties;
 
 /**
- * 资源管理器<br/>
+ * <p>资源管理器</p>
  * 管理系统中所有的资源
  * 
- * @author qingteng
- * @date 2020年11月27日
+ * 
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public interface PropertyResource {
 
 	/**
 	 * spring security 相关的配置
 	 * 
-	 * @return
+	 * @return spring security 相关的配置
 	 */
 	SecurityProperties security();
 
 	/**
 	 * spring social 相关的配置
 	 * 
-	 * @return
+	 * @return spring social 相关的配置
 	 */
 	SocialProperties social();
 

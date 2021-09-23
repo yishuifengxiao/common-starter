@@ -12,7 +12,9 @@ import org.springframework.util.Assert;
 /**
  * 模仿UsernamePasswordAuthenticationFilter实现自己的SmsCodeAuthenticationFilter
  * 
- * @author admin
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  *
  */
 public class SmsAuthenticationFilter extends
@@ -96,15 +98,7 @@ public class SmsAuthenticationFilter extends
 				.buildDetails(request));
 	}
 
-	/**
-	 * Defines whether only HTTP POST requests will be allowed by this filter.
-	 * If set to true, and an authentication request is received which is not a
-	 * POST request, an exception will be raised immediately and authentication
-	 * will not be attempted. The <tt>unsuccessfulAuthentication()</tt> method
-	 * will be called as if handling a failed authentication.
-	 * <p>
-	 * Defaults to <tt>true</tt> but may be overridden by subclasses.
-	 */
+	
 	public void setPostOnly(boolean postOnly) {
 		this.postOnly = postOnly;
 	}

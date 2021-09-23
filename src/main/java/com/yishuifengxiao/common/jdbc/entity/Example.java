@@ -9,11 +9,13 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.tool.collections.DataUtil;
+
 /**
- * 筛选条件
- * @author qingteng
- * @date 2020年12月6日
+ * 判断条件
+ * 
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class Example implements Serializable {
 
@@ -42,7 +44,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <>
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#60;&#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -55,7 +57,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 >
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -67,7 +69,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 >=
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#62;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -79,7 +81,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#60;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -91,7 +93,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为and的比较语句，比较方式为 <=
+	 * 生成一个连接条件为and的比较语句，比较方式为 &#60;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -138,6 +140,31 @@ public class Example implements Serializable {
 	}
 
 	/**
+	 * 生成一个连接条件为and的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	public Example andIn(String name, Object... values) {
+		list.add(Condition.andIn(name, values));
+		return this;
+	}
+
+	/**
+	 * 生成一个连接条件为and的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	@SuppressWarnings("rawtypes")
+	public Example andIn(String name, List values) {
+		list.add(Condition.andIn(name, values));
+		return this;
+	}
+
+	/**
 	 * 生成一个连接条件为or的比较语句，比较方式为 =
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
@@ -150,7 +177,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <>
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;&#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -162,7 +189,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 >
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#62;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -174,7 +201,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 >=
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#62;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -186,7 +213,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -198,7 +225,7 @@ public class Example implements Serializable {
 	}
 
 	/**
-	 * 生成一个连接条件为or的比较语句，比较方式为 <=
+	 * 生成一个连接条件为or的比较语句，比较方式为 &#60;=
 	 * 
 	 * @param name  属性名称【对应POJO类的属性名字】
 	 * @param value 比较值
@@ -240,6 +267,31 @@ public class Example implements Serializable {
 	 */
 	public Example orLike(String name, Object value) {
 		list.add(Condition.orLike(name, value));
+		return this;
+	}
+
+	/**
+	 * 生成一个连接条件为or的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	public Example orIn(String name, Object... values) {
+		list.add(Condition.orIn(name, values));
+		return this;
+	}
+
+	/**
+	 * 生成一个连接条件为or的比较语句，比较方式为 in
+	 * 
+	 * @param name   属性名称【对应POJO类的属性名字】
+	 * @param values 比较值
+	 * @return 比较条件
+	 */
+	@SuppressWarnings("rawtypes")
+	public Example orIn(String name, List values) {
+		list.add(Condition.orIn(name, values));
 		return this;
 	}
 

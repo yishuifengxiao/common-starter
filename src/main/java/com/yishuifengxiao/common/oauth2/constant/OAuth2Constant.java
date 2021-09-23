@@ -4,8 +4,8 @@ package com.yishuifengxiao.common.oauth2.constant;
  * oauth2中client的默认参数
  * 
  * @author yishui
- * @date 2019年9月29日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public final class OAuth2Constant {
 
@@ -20,7 +20,7 @@ public final class OAuth2Constant {
 	/**
 	 * 默认的刷新token有效时间,默认为30天
 	 */
-	public final static int TOKEN_REDRESH_TIME_IN_SECOND =60 * 60 * 24 * 30;
+	public final static int TOKEN_REDRESH_TIME_IN_SECOND = 60 * 60 * 24 * 30;
 	/**
 	 * 默认的scope
 	 */

@@ -9,25 +9,28 @@ import com.yishuifengxiao.common.tool.exception.ValidateException;
  * 验证码发送器
  * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public interface CodeSender {
+
 	/**
-	 * 发送短信验证码<br/>
-	 * <br/>
+	 * <p>
+	 * 发送验证码到指定的目标
+	 * </p>
+	 * 一般来说发送目标的含义如下:
 	 * 
+	 * <ul>
+	 * <li>对于短信验证码，一般来说标识符为发送目标的手机号</li>
+	 * <li>对于邮件验证码，一般来说标识符为发送目标的邮箱地址</li>
+	 * <li>对于图形验证码，一般来说为与用户约定的字符</li>
+	 * </ul>
 	 * 
-	 * 1. 对于短信验证码，一般来说标识符为发送目标的手机号<br/>
-	 * 2. 对于邮件验证码，一般来说标识符为发送目标的邮箱地址<br/>
-	 * 3. 对于图形验证码，一般来说为与用户约定的字符
-	 * 
-	 * @param <T>
-	 * 
-	 * @param request ServletWebRequest
-	 * @param target  验证码的唯一标识符
-	 * @param code    验证码内容
-	 * @throws ValidateException
+	 * @param <T> 验证码的类型
+	 * @param request 用户请求
+	 * @param target  验证码发送目标
+	 * @param code    验证码的内容
+	 * @throws ValidateException 发送时出现问题
 	 */
 	<T extends ValidateCode> void send(ServletWebRequest request, String target, T code) throws ValidateException;
 }

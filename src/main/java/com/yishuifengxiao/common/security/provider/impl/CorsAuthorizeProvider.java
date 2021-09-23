@@ -9,9 +9,10 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
 /**
  * cros授权提供器
  * 
+ * 
  * @author yishui
- * @date 2019年10月12日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class CorsAuthorizeProvider implements AuthorizeProvider {
 

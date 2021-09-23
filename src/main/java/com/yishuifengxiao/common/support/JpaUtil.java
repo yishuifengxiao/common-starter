@@ -14,20 +14,20 @@ import com.yishuifengxiao.common.tool.entity.JpaPage;
 import com.yishuifengxiao.common.tool.entity.Page;
 
 /**
- * jpa工具类
- *
+ * JPA操作扩展支持工具
+ * 
  * @author yishui
  * @version 1.0.0
- * @date 2019-8-28
+ * @since 1.0.0
  */
 public class JpaUtil {
 
 	/**
 	 * 生成根据条件查询的忽略大小和空字段的模糊查询jpa查询条件
-	 *
-	 * @param t
-	 * @param <T>
-	 * @return
+	 * 
+	 * @param <T> 查询数据对应的数据类型
+	 * @param t   查询数据(POJO类)
+	 * @return 忽略大小和空字段的模糊查询jpa查询条件
 	 */
 	public static <T> Example<T> fuzzy(T t) {
 		//@formatter:off 
@@ -47,10 +47,10 @@ public class JpaUtil {
 
 	/**
 	 * 生成根据条件查询的忽略大小和空字段的精确查询jpa查询条件
-	 *
-	 * @param t
-	 * @param <T>
-	 * @return
+	 * 
+	 * @param <T> 查询数据对应的数据类型
+	 * @param t   查询数据(POJO类)
+	 * @return 忽略大小和空字段的精确查询jpa查询条件
 	 */
 	public static <T> Example<T> exact(T t) {
 		//@formatter:off 
@@ -69,70 +69,71 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据查询条件查询出全部数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询条件对应的POJO类的类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
-	 * @return
+	 * @return 查询出的数据
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> List<T> all(JpaRepositoryImplementation repository, Example<T> example) {
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> all(@SuppressWarnings("rawtypes") JpaRepositoryImplementation repository,
+			Example<T> example) {
 		return repository.findAll(example);
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据查询条件查询出全部数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
-	 * @param orderName  排序字段【升序】
-	 * @return
+	 * @param orderName  排序字段名字，默认升序
+	 * @return 查询出的数据
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> List<T> all(JpaRepositoryImplementation repository, Example<T> example, String orderName) {
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> all(@SuppressWarnings("rawtypes") JpaRepositoryImplementation repository,
+			Example<T> example, String orderName) {
 		return repository.findAll(example, Sort.by(new Sort.Order(Sort.Direction.ASC, orderName)));
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据查询条件查询出全部数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
 	 * @param sort       排序条件
-	 * @return
+	 * @return 查询出的数据
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static <T> List<T> all(JpaRepositoryImplementation repository, Example<T> example, Sort sort) {
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> all(@SuppressWarnings("rawtypes") JpaRepositoryImplementation repository,
+			Example<T> example, Sort sort) {
 		return repository.findAll(example, sort);
 	}
 
 	/**
-	 * 根据条件查询出所有的数据 【模糊查询】 <br/>
-	 * 【全部模糊查询】
+	 * 根据条件查询<strong>模糊查询</strong>出所有的数据
 	 * 
-	 * @param repository
-	 * @param query      查询条件
-	 * @param <T>
-	 * @return
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
+	 * @return 查询出的数据
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static <T> List<T> allFuzzy(JpaRepositoryImplementation repository, T query) {
+	@SuppressWarnings("unchecked")
+	public static <T> List<T> allFuzzy(@SuppressWarnings("rawtypes") JpaRepositoryImplementation repository, T query) {
 		Example<T> example = JpaUtil.fuzzy(query);
 		return repository.findAll(example);
 	}
 
 	/**
-	 * 根据条件查询出所有的数据 <br/>
-	 * 【全部模糊查询】
+	 * 根据条件查询<strong>模糊查询</strong>出所有的数据
 	 * 
-	 * @param repository
-	 * @param query      查询条件
-	 * @param orderName  排序字段【升序】
-	 * @param <T>
-	 * @return
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
+	 * @param orderName  排序字段名字，默认升序
+	 * @return 查询出的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> allFuzzy(JpaRepositoryImplementation repository, T query, String orderName) {
@@ -141,14 +142,13 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件模糊查询出所有的数据<br/>
-	 * 【全部模糊查询】
+	 * 根据条件查询<strong>模糊查询</strong>出所有的数据
 	 * 
-	 * @param <T>
-	 * @param repository
-	 * @param query      查询条件
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
 	 * @param sort       排序条件
-	 * @return
+	 * @return 查询出的数据
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> List<T> allFuzzy(JpaRepositoryImplementation repository, T query, Sort sort) {
@@ -157,12 +157,12 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询出所有的数据 【精确查询】 <br/>
-	 *
-	 * @param repository
-	 * @param query      查询条件
-	 * @param <T>
-	 * @return
+	 * 根据条件查询<strong>精确查询</strong>出所有的数据
+	 * 
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
+	 * @return 查询出的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> allExact(JpaRepositoryImplementation repository, T query) {
@@ -171,13 +171,13 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询出所有的数据 【精确查询】
-	 *
-	 * @param repository
-	 * @param query      查询条件
-	 * @param orderName  排序字段【升序】
-	 * @param <T>
-	 * @return
+	 * 根据条件查询<strong>精确查询</strong>出所有的数据
+	 * 
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
+	 * @param orderName  排序字段名字，默认升序
+	 * @return 查询出的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> allExact(JpaRepositoryImplementation repository, T query, String orderName) {
@@ -186,13 +186,13 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询出所有的数据 【精确查询】 <br/>
+	 * 根据条件查询<strong>精确查询</strong>出所有的数据
 	 * 
-	 * @param <T>
-	 * @param repository
-	 * @param query      查询条件
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
 	 * @param sort       排序条件
-	 * @return
+	 * @return 查询出的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> List<T> allExact(JpaRepositoryImplementation repository, T query, Sort sort) {
@@ -201,15 +201,14 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件分页查询数据<br/>
-	 * 【分页模糊查询】
+	 * 根据条件<strong>分页模糊查询</strong>出数据
 	 * 
-	 * @param repository
-	 * @param query      查询条件
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
-	 * @param <T>
-	 * @return
+	 * @param pageNum    当前页页码,从1开始
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum) {
@@ -219,16 +218,15 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件分页查询数据<br/>
-	 * 【分页模糊查询】
+	 * 根据条件<strong>分页模糊查询</strong>出数据
 	 * 
-	 * @param repository
-	 * @param query      查询条件
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
-	 * @param orderName  排序字段【升序】
-	 * @param <T>
-	 * @return
+	 * @param pageNum    当前页页码,从1开始
+	 * @param orderName  排序字段名字，默认升序
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum,
@@ -240,16 +238,15 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件分页查询数据<br/>
-	 * 【分页模糊查询】
+	 * 根据条件<strong>分页模糊查询</strong>出数据
 	 * 
-	 * @param <T>
-	 * @param repository
-	 * @param query      查询条件
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
+	 * @param query      查询条件(POJO类实例)
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
+	 * @param pageNum    当前页页码,从1开始
 	 * @param sort       排序条件
-	 * @return
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static <T> Page<T> pageFuzzy(QueryByExampleExecutor repository, T query, int pageSize, int pageNum,
@@ -260,14 +257,14 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据条件<strong>分页精确查询</strong>出数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
-	 * @return
+	 * @param pageNum    当前页页码,从1开始
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize, int pageNum) {
@@ -275,15 +272,15 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据条件<strong>分页精确查询</strong>出数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
-	 * @param orderName  排序字段【升序】
-	 * @return
+	 * @param pageNum    当前页页码,从1开始
+	 * @param orderName  排序字段名字，默认升序
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize, int pageNum,
@@ -293,15 +290,15 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件查询数据
+	 * 根据条件<strong>分页精确查询</strong>出数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
+	 * @param pageNum    当前页页码,从1开始
 	 * @param sort       排序条件
-	 * @return
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize, int pageNum,
@@ -310,16 +307,16 @@ public class JpaUtil {
 	}
 
 	/**
-	 * 根据条件分页查询数据
+	 * 根据条件<strong>分页精确查询</strong>出数据
 	 * 
-	 * @param <T>
-	 * @param repository
+	 * @param <T>        查询数据对应的数据类型
+	 * @param repository JpaRepository实例
 	 * @param example    查询条件
 	 * @param pageSize   分页大小
-	 * @param pageNum    分页数
+	 * @param pageNum    当前页页码,从1开始
 	 * @param direction  排序方向
-	 * @param properties 属性
-	 * @return
+	 * @param properties 排序属性
+	 * @return 查询出来的数据
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static <T> Page<T> page(QueryByExampleExecutor repository, Example<T> example, int pageSize, int pageNum,

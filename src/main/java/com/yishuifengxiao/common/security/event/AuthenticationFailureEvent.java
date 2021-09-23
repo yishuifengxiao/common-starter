@@ -3,14 +3,13 @@ package com.yishuifengxiao.common.security.event;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationEvent;
-import org.springframework.security.core.AuthenticationException;
 
 /**
  * 认证失败的事件
  * 
  * @author yishui
- * @Date 2019年5月30日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class AuthenticationFailureEvent extends ApplicationEvent {
 
@@ -20,19 +19,19 @@ public class AuthenticationFailureEvent extends ApplicationEvent {
 	private static final long serialVersionUID = 2240683622233923579L;
 
 	private HttpServletRequest request;
-	private AuthenticationException exception;
+	private Exception exception;
 
-	public AuthenticationFailureEvent(Object source, HttpServletRequest request, AuthenticationException exception) {
+	public AuthenticationFailureEvent(Object source, HttpServletRequest request, Exception exception) {
 		super(source);
 		this.request = request;
 		this.exception = exception;
 	}
 
-	public AuthenticationException getException() {
+	public Exception getException() {
 		return this.exception;
 	}
 
-	public void setException(AuthenticationException exception) {
+	public void setException(Exception exception) {
 		this.exception = exception;
 	}
 

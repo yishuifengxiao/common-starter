@@ -5,23 +5,23 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * 实现自定义SmsCodeAuthenticationProvider
  * 
- * @author admin
- *
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class SmsAuthenticationProvider implements AuthenticationProvider {
-	private UserDetailsService userDetailsService;
+	private SmsUserDetailsService smsUserDetailsService;
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		
 		SmsAuthenticationToken smsCodeAuthenticationToken = (SmsAuthenticationToken) authentication;
 		
-		UserDetails userDetails = userDetailsService
+		UserDetails userDetails = smsUserDetailsService
 				.loadUserByUsername((String) smsCodeAuthenticationToken.getPrincipal());
 		
 		if (userDetails == null) {
@@ -41,12 +41,14 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
 		return SmsAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
+	public SmsUserDetailsService getSmsUserDetailsService() {
+		return smsUserDetailsService;
 	}
 
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
+	public void setSmsUserDetailsService(SmsUserDetailsService smsUserDetailsService) {
+		this.smsUserDetailsService = smsUserDetailsService;
 	}
+
+
 
 }

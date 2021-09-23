@@ -18,8 +18,8 @@ import com.yishuifengxiao.common.social.weixin.entity.WechatUserInfo;
  * 获取微信登陆用户信息实现类
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class WechatImpl extends AbstractOAuth2ApiBinding implements Wechat {
 
@@ -32,32 +32,24 @@ public class WechatImpl extends AbstractOAuth2ApiBinding implements Wechat {
 	 */
 	private static final String URL_GET_USER_INFO = "https://api.weixin.qq.com/sns/userinfo?openid=";
 
-	/**
-	 * @param accessToken
-	 */
 	public WechatImpl(String accessToken) {
 		super(accessToken, TokenStrategy.ACCESS_TOKEN_PARAMETER);
 	}
 
-	/**
-	 * 默认注册的StringHttpMessageConverter字符集为ISO-8859-1，而微信返回的是UTF-8的，所以覆盖了原来的方法。
-	 */
 	@Override
 	protected List<HttpMessageConverter<?>> getMessageConverters() {
+		// 默认注册的StringHttpMessageConverter字符集为ISO-8859-1，而微信返回的是UTF-8的，所以覆盖了原来的方法。
 		List<HttpMessageConverter<?>> messageConverters = super.getMessageConverters();
 		messageConverters.remove(0);
 		messageConverters.add(new StringHttpMessageConverter(Charset.forName("UTF-8")));
 		return messageConverters;
 	}
 
-	/**
-	 * 获取微信用户信息。
-	 */
 	@Override
 	public WechatUserInfo getUserInfo(String openId) {
 		String url = URL_GET_USER_INFO + openId;
 		String response = getRestTemplate().getForObject(url, String.class);
-		if (StringUtils.contains(response,  OAuth2Constant.ERROR_CODE)) {
+		if (StringUtils.contains(response, OAuth2Constant.ERROR_CODE)) {
 			return null;
 		}
 		WechatUserInfo profile = null;

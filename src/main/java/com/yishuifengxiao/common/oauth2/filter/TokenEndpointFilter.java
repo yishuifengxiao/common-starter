@@ -5,36 +5,46 @@ package com.yishuifengxiao.common.oauth2.filter;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.yishuifengxiao.common.security.constant.ErrorCode;
+import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.resource.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.utils.HttpExtractor;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * 用于oauth2密码模式下载提前校验用户名和密码
+ * <p>
+ * 用于oauth2密码模式下载提前校验用户名和密码是否正确
+ * </p>
+ * 在 <code>Oauth2Server</code>中被使用
  * 
- * @author qingteng
- * @date 2020年11月23日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
-public class TokenEndpointFilter implements Filter {
+@Slf4j
+public class TokenEndpointFilter extends OncePerRequestFilter {
 
 	private static final AntPathRequestMatcher MATCHER = new AntPathRequestMatcher("/oauth/token");
+
+	private HttpExtractor httpExtractor = new HttpExtractor();
+
+	private final static String BASIC = "basic ";
 
 	private static final String USERNAME = "username";
 
@@ -44,106 +54,115 @@ public class TokenEndpointFilter implements Filter {
 
 	private static final String PARAM_VALUE = "password";
 
-	private UserDetailsService userDetailsService;
+	/**
+	 * 是否显示日志
+	 */
+	private boolean show = false;
 
-	private PasswordEncoder passwordEncoder;
 	/**
 	 * 协助处理器
 	 */
 	private HandlerProcessor handlerProcessor;
 
+	private PropertyResource propertyResource;
+
+	private SecurityHelper securityHelper;
+
+	private ClientDetailsService clientDetailsService;
+
+	private PasswordEncoder passwordEncoder;
+
+	private Oauth2Properties oauth2Properties;
+
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws ServletException, IOException {
+
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
 		if (MATCHER.matches(httpServletRequest)) {
-			// 授权类型
-			String grantType = httpServletRequest.getParameter(GRANT_TYPE);
-			if (StringUtils.containsIgnoreCase(PARAM_VALUE, grantType)) {
-				// 密码模式
 
-				String username = httpServletRequest.getParameter(USERNAME);
-				String password = httpServletRequest.getParameter(PASSWORD);
+			String header = request.getHeader("Authorization");
 
-				try {
-					if (StringUtils.isBlank(username)) {
-						throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
-					}
-
-					if (StringUtils.isBlank(password)) {
-						throw new CustomException(ErrorCode.PASSWORD_NULL, "密码不能为空");
-					}
-					// 账号密码检查
-					check(username, password);
-				} catch (CustomException exception) {
-					handlerProcessor.preAuth(httpServletRequest, httpServletResponse,
-							Response.of(Response.Const.CODE_INTERNAL_SERVER_ERROR, exception.getMessage(), exception));
-					return;
-				}
-
-				catch (Exception exception) {
-					handlerProcessor.exception(httpServletRequest, httpServletResponse, exception);
-					return;
-				}
-
+			if (header == null || !header.toLowerCase().startsWith(BASIC)) {
+				chain.doFilter(request, response);
+				return;
 			}
+
+			try {
+				String[] tokens = httpExtractor.extractBaiscAuth(request);
+
+				String clientId = tokens[0];
+
+				if (this.show) {
+					log.info("Basic Authentication Authorization header found for user '" + clientId + "'");
+				}
+
+				ClientDetails clientDetails = clientDetailsService.loadClientByClientId(clientId);
+
+				if (clientDetails == null) {
+					// 终端不存在
+					handlerProcessor.preAuth(request, response, Response.of(oauth2Properties.getInvalidClientCode(),
+							oauth2Properties.getClientNotExtis(), null));
+					return;
+				}
+				if (!passwordEncoder.matches(tokens[1], clientDetails.getClientSecret())) {
+
+					// 密码错误
+					handlerProcessor.preAuth(request, response, Response.of(oauth2Properties.getInvalidClientCode(),
+							oauth2Properties.getPwdErrorMsg(), null));
+					return;
+				}
+
+				// 授权类型
+				String grantType = httpServletRequest.getParameter(GRANT_TYPE);
+				if (StringUtils.containsIgnoreCase(PARAM_VALUE, grantType)) {
+					// 密码模式
+
+					String username = httpServletRequest.getParameter(USERNAME);
+					String password = httpServletRequest.getParameter(PASSWORD);
+
+					if (this.show) {
+						log.info("The user name obtained in oauth2 password mode is {} ", username);
+					}
+
+					try {
+						securityHelper.authorize(username, password);
+					} catch (CustomException exception) {
+						handlerProcessor.preAuth(httpServletRequest, httpServletResponse,
+								Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(),
+										exception.getMessage(), exception));
+						return;
+					}
+
+				}
+
+			} catch (CustomException e) {
+				handlerProcessor.preAuth(request, response, Response.of(oauth2Properties.getInvalidClientCode(),
+						oauth2Properties.getInvalidBasicToken(), e));
+				return;
+			} catch (Exception e) {
+				// 其他异常
+				handlerProcessor.exception(propertyResource, request, response, e);
+				return;
+			}
+
 		}
 
 		chain.doFilter(request, response);
+
 	}
 
-	/**
-	 * 账号密码检查
-	 * 
-	 * @param username 用户名
-	 * @param password 密码
-	 * @throws CustomException
-	 */
-	private void check(String username, String password) throws CustomException {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-		if (null == userDetails) {
-			throw new CustomException(ErrorCode.USERNAME_NO_EXTIS, "用户名不存在");
-		}
-		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-			throw new CustomException(ErrorCode.PASSWORD_ERROR, "密码错误");
-		}
-		if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
-			throw new CustomException(ErrorCode.ACCOUNT_EXPIRED, "账号已过期");
-		}
-		if (BooleanUtils.isFalse(userDetails.isAccountNonLocked())) {
-			throw new CustomException(ErrorCode.ACCOUNT_LOCKED, "账号已锁定");
-		}
-		if (BooleanUtils.isFalse(userDetails.isCredentialsNonExpired())) {
-			throw new CustomException(ErrorCode.PASSWORD_EXPIRED, "密码已过期");
-		}
-		if (BooleanUtils.isFalse(userDetails.isEnabled())) {
-			throw new CustomException(ErrorCode.ACCOUNT_UNENABLE, "账号未启用");
-		}
-	}
-
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
-	}
-
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
-
-	public PasswordEncoder getPasswordEncoder() {
-		return passwordEncoder;
-	}
-
-	public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-		this.passwordEncoder = passwordEncoder;
-	}
-
-	public HandlerProcessor getHandlerProcessor() {
-		return handlerProcessor;
-	}
-
-	public void setHandlerProcessor(HandlerProcessor handlerProcessor) {
+	public TokenEndpointFilter(HandlerProcessor handlerProcessor, PropertyResource propertyResource,
+			SecurityHelper securityHelper, ClientDetailsService clientDetailsService, PasswordEncoder passwordEncoder,
+			Oauth2Properties oauth2Properties) {
 		this.handlerProcessor = handlerProcessor;
+		this.propertyResource = propertyResource;
+		this.securityHelper = securityHelper;
+		this.clientDetailsService = clientDetailsService;
+		this.passwordEncoder = passwordEncoder;
+		this.oauth2Properties = oauth2Properties;
 	}
 
 }

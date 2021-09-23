@@ -11,9 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 自定义授权的默认实现
  * 
+ * 
  * @author yishui
- * @date 2019年1月24日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class SimpleCustomResourceProvider implements CustomResourceProvider {

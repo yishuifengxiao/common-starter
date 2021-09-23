@@ -19,9 +19,10 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 默认的授权表达式实现
  * 
+ * 
  * @author yishui
- * @date 2019年1月24日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class IgnoreCustomAuthority implements CustomResourceProvider {

@@ -25,9 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 基于redis的token存取工具类
  * 
- * @author qingteng
- * @date 2020年11月29日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class RedisTokenHolder implements TokenHolder {
@@ -35,16 +35,18 @@ public class RedisTokenHolder implements TokenHolder {
 	/**
 	 * redis中存储时的key的前缀
 	 */
-	private final static String TOKEN_PREFIX = "token_redis_holder_";
+	private final static String TOKEN_PREFIX = "security_token_store_redis";
 
 	private RedisTemplate<String, Object> redisTemplate;
 
 	/**
-	 * 获取所有的token<br/>
-	 * 按照token的过期时间点从小到到排列
+	 * <p>
+	 * 根据用户账号获取所有的令牌
+	 * </p>
+	 * 按照令牌的过期时间点从小到到排列
 	 * 
-	 * @param key
-	 * @return
+	 * @param key 用户账号
+	 * @return 所有的令牌
 	 */
 	@Override
 	public synchronized List<SecurityToken> getAll(String key) {
@@ -59,14 +61,15 @@ public class RedisTokenHolder implements TokenHolder {
 				}
 			}
 		}
-		return DataUtil.stream(list).filter(Objects::nonNull).filter(t -> null != t.getExpireAt()).collect(Collectors.toList());
+		return DataUtil.stream(list).filter(Objects::nonNull).filter(t -> null != t.getExpireAt())
+				.collect(Collectors.toList());
 	}
 
 	/**
 	 * 保存一个令牌
 	 * 
-	 * @param token
-	 * @throws CustomException
+	 * @param token 令牌
+	 * @throws CustomException 保存时出现问题
 	 */
 	@Override
 	public synchronized void save(SecurityToken token) throws CustomException {
@@ -83,8 +86,8 @@ public class RedisTokenHolder implements TokenHolder {
 	/**
 	 * 更新一个令牌
 	 * 
-	 * @param token
-	 * @throws CustomException
+	 * @param token 令牌
+	 * @throws CustomException 更新时出现问题
 	 */
 	@Override
 	public synchronized void update(SecurityToken token) throws CustomException {
@@ -99,7 +102,7 @@ public class RedisTokenHolder implements TokenHolder {
 	 * 
 	 * @param username  用户账号
 	 * @param sessionId 会话id
-	 * @throws CustomException
+	 * @throws CustomException 删除时出现问题
 	 */
 	@Override
 	public synchronized void delete(String username, String sessionId) throws CustomException {
@@ -132,25 +135,25 @@ public class RedisTokenHolder implements TokenHolder {
 	 * 
 	 * @param username 用户账号
 	 * @param expireAt 过期时间点
-	 * @throws ValidateException 
+	 * @throws ValidateException 处理时出现问题
 	 */
 	@Override
 	public synchronized void setExpireAt(String username, LocalDateTime expireAt) throws ValidateException {
-		if(null==expireAt) {
+		if (null == expireAt) {
 			throw new ValidateException("过期时间点不能为空");
 		}
 		this.get(username).expireAt(DateTimeUtil.localDateTime2Date(expireAt));
 	}
 
 	private BoundHashOperations<String, Object, Object> get(String key) {
-		return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(key).toString());
+		return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(":").append(key).toString());
 	}
 
 	/**
 	 * 检查令牌的内容合法性
 	 * 
-	 * @param token
-	 * @throws ValidateException
+	 * @param token 令牌
+	 * @throws ValidateException 令牌非法
 	 */
 	private void check(SecurityToken token) throws ValidateException {
 		if (null == token) {

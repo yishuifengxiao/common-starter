@@ -37,15 +37,16 @@ import org.springframework.util.StringUtils;
  */
 
 /**
- * token处理策略<br/>
- * <br/>
+ * <p>
+ * token处理策略
+ * </p>
+ * 
  * 
  * 在ResourceAuthorizeProvider中被配置为token处理方式
  * 
- * @see ResourceAuthorizeProvider
- * @author qingteng
- * @date 2020年10月31日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public final class CustomBearerTokenResolver implements BearerTokenResolver {
 

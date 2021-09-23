@@ -8,14 +8,15 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
 
 /**
  * 
- * Firewall安全授权器<br/>
- * <br/>
+ * <p>
+ * Firewall安全授权器
+ * </p>
  * 主要是解决问题 ： The request was rejected because the URL was not normalized
  * ,解决路径里包含 // 路径报错的问题
  * 
  * @author yishui
- * @date 2019年11月7日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class FirewallWebSecurityProvider implements WebSecurityProvider {
 

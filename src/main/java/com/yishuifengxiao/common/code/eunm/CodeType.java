@@ -11,8 +11,8 @@ import com.yishuifengxiao.common.code.constant.Constant;
  * 验证码类型
  * 
  * @author yishui
- * @date 2019年1月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public enum CodeType {
 
@@ -29,8 +29,14 @@ public enum CodeType {
 	 */
 	EMAIL(Constant.DEFAULT_PARAMETER_NAME_CODE_EMAIL, "邮件验证码");
 
+	/**
+	 * 类型代码
+	 */
 	private String code;
 
+	/**
+	 * 类型名称
+	 */
 	private String name;
 
 	private CodeType(String code, String name) {
@@ -39,10 +45,10 @@ public enum CodeType {
 	}
 
 	/**
-	 * 根据参数解析验证码类型
+	 * 根据名字解析出验证码类型
 	 * 
-	 * @param name
-	 * @return
+	 * @param code 名字
+	 * @return 验证码类型
 	 */
 	public static CodeType parse(String code) {
 		Assert.notNull(code, "参数不能为空");
@@ -63,20 +69,22 @@ public enum CodeType {
 		return type;
 	}
 
+	/**
+	 * 获取类型代码
+	 * 
+	 * @return 类型代码
+	 */
 	public String getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
-		this.code = code;
-	}
-
+	/**
+	 * 获取类型名称
+	 * 
+	 * @return 类型名称
+	 */
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 }

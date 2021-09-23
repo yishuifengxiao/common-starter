@@ -7,11 +7,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * spring social登陆相关的配置
+ * spring social属性配置
  * 
  * @author yishui
- * @date 2019年7月14日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -42,7 +42,7 @@ public class SocialProperties {
 	/**
 	 * QQ登陆相关的属性配置
 	 * 
-	 * @return
+	 * @return QQ登陆相关的属性配置
 	 */
 	public QqProperties getQq() {
 		return qq;
@@ -51,7 +51,7 @@ public class SocialProperties {
 	/**
 	 * QQ登陆相关的属性配置
 	 * 
-	 * @param qq
+	 * @param qq QQ登陆相关的属性配置
 	 */
 	public void setQq(QqProperties qq) {
 		this.qq = qq;
@@ -68,7 +68,7 @@ public class SocialProperties {
 	/**
 	 * 微信登陆相关的配置
 	 * 
-	 * @return
+	 * @return 微信登陆相关的配置
 	 */
 	public WeixinProperties getWeixin() {
 		return weixin;
@@ -81,7 +81,7 @@ public class SocialProperties {
 	/**
 	 * 是否开启 spring social功能，默认为 false
 	 * 
-	 * @return
+	 * @return 是否开启 spring social功能
 	 */
 	public Boolean getEnable() {
 		return enable;
@@ -95,8 +95,8 @@ public class SocialProperties {
 	 * QQ登陆相关的配置
 	 * 
 	 * @author yishui
-	 * @date 2019年7月14日
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@AllArgsConstructor
 	@NoArgsConstructor
@@ -127,8 +127,8 @@ public class SocialProperties {
 	 * 微信登陆相关的配置
 	 * 
 	 * @author yishui
-	 * @date 2019年7月16日
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@AllArgsConstructor
 	@NoArgsConstructor

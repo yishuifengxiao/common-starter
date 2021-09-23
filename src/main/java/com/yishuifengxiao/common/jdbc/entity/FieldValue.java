@@ -12,9 +12,9 @@ import lombok.experimental.Accessors;
 /**
  * POJO类属性提取对象
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @AllArgsConstructor
@@ -38,7 +38,12 @@ public class FieldValue implements Serializable {
 	private String colName;
 
 	/**
-	 * POJO类中的属性在数据库中对应的属性的名字<br/>
+	 * 该属性对应的数据的类型
+	 */
+	private Class<?> type;
+
+	/**
+	 * <p>POJO类中的属性在数据库中对应的属性的名字</p>
 	 * 获取方法如下: 如果colName的值为null就使用name的值
 	 * 
 	 * @return POJO类中的属性在数据库中对应的属性的名字

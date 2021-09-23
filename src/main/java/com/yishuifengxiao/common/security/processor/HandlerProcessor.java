@@ -10,22 +10,23 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 
 import com.yishuifengxiao.common.security.endpoint.ExceptionAuthenticationEntryPoint;
 import com.yishuifengxiao.common.security.handler.CustomAccessDeniedHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationFailureHandler;
 import com.yishuifengxiao.common.security.handler.CustomAuthenticationSuccessHandler;
 import com.yishuifengxiao.common.security.handler.CustomLogoutSuccessHandler;
+import com.yishuifengxiao.common.security.resource.PropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 
 /**
- * <strong>协助处理器</strong><br/>
- * <br/>
+ * <p>
+ * 协助处理器
+ * </p>
  * 
- * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据<br/>
+ * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
  * 
  * @see ExceptionAuthenticationEntryPoint
  * @see CustomAccessDeniedHandler
@@ -34,77 +35,88 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
  * @see CustomLogoutSuccessHandler
  * 
  * @author yishui
- * @Date 2019年4月2日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public interface HandlerProcessor {
 
 	/**
 	 * 登陆成功后的处理
 	 * 
-	 * @param request
-	 * @param response
-	 * @param authentication
-	 * @param  token 生成的token
-	 * @throws IOException
+	 * @param request        HttpServletRequest
+	 * @param response       HttpServletResponse
+	 * @param authentication 认证信息
+	 * @param token          生成的token
+	 * @throws IOException 处理时发生问题
 	 */
-	void login(HttpServletRequest request, HttpServletResponse response, Authentication authentication,SecurityToken token)
-			throws IOException;
+	void login(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
+			SecurityToken token) throws IOException;
 
 	/**
 	 * 登陆失败后的处理
 	 * 
-	 * @param request
-	 * @param response
-	 * @param exception
-	 * @throws IOException
+	 * @param propertyResource 系统里配置的资源
+	 * @param request          HttpServletRequest
+	 * @param response         HttpServletResponse
+	 * @param exception        失败的原因
+	 * @throws IOException 处理时发生问题
 	 */
-	void failure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception)
-			throws IOException;
+	void failure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
+			Exception exception) throws IOException;
 
 	/**
 	 * 退出成功后的处理
 	 * 
-	 * @param request
-	 * @param response
-	 * @param authentication
-	 * @throws IOException
+	 * @param request        HttpServletRequest
+	 * @param response       HttpServletResponse
+	 * @param authentication 认证信息
+	 * @throws IOException 处理时发生问题
 	 */
 	void exit(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException;
 
 	/**
-	 * 访问资源时权限被拒绝<br/>
+	 * <p>
+	 * 访问资源时权限被拒绝
+	 * </p>
 	 * 本身是一个合法的用户，但是对于部分资源没有访问权限
 	 * 
-	 * @param request
-	 * @param response
-	 * @param exception
-	 * @throws IOException
+	 * @param propertyResource 系统里配置的资源
+	 * @param request          HttpServletRequest
+	 * @param response         HttpServletResponse
+	 * @param exception        被拒绝的原因
+	 * @throws IOException 处理时发生问题
 	 */
-	void deney(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception)
-			throws IOException;
+	void deney(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
+			AccessDeniedException exception) throws IOException;
 
 	/**
-	 * 访问资源时因为权限等原因发生了异常后的处理<br/>
+	 * <p>
+	 * 访问资源时因为权限等原因发生了异常后的处理
+	 * </p>
 	 * 可能本身就不是一个合法的用户
 	 * 
-	 * @param request
-	 * @param response
-	 * @param exception
-	 * @throws IOException
+	 * @param propertyResource 系统里配置的资源
+	 * @param request          HttpServletRequest
+	 * @param response         HttpServletResponse
+	 * @param exception        发生异常的原因
+	 * @throws IOException 处理时发生问题
 	 */
-	void exception(HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
+	void exception(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
+			Exception exception) throws IOException;
 
 	/**
-	 * 输出前置校验时出现的异常信息<br/>
+	 * <p>
+	 * 输出前置校验时出现的异常信息
+	 * </p>
 	 * 在进行前置校验时出现了问题，一般情况下为用户名或密码错误之类的
 	 * 
-	 * @param request
-	 * @param response
+	 * @param request  HttpServletRequest
+	 * @param response HttpServletResponse
 	 * @param data     响应信息
-	 * @throws IOException
+	 * @throws IOException 处理时发生问题
 	 */
-	void preAuth(HttpServletRequest request, HttpServletResponse response, Response<CustomException> data) throws IOException;
+	void preAuth(HttpServletRequest request, HttpServletResponse response, Response<CustomException> data)
+			throws IOException;
 
 }

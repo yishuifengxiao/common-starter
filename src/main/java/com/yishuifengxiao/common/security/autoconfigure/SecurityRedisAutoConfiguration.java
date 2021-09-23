@@ -22,36 +22,31 @@ import com.yishuifengxiao.common.security.token.holder.impl.RedisTokenHolder;
  * 配置基于Redis的记住密码策略配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Configuration
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @ConditionalOnClass({ DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-		WebSecurityConfigurerAdapter.class, RedisOperations.class})
+		WebSecurityConfigurerAdapter.class, RedisOperations.class })
 @ConditionalOnMissingBean(name = "persistentTokenRepository")
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
 		"enable" }, havingValue = "true", matchIfMissing = true)
 public class SecurityRedisAutoConfiguration {
-	/**
-	 * 记住密码策略【存储在redis数据库中】
-	 * 
-	 * @return
-	 */
-	@Bean("persistentTokenRepository")
+
+	@Bean
 	@ConditionalOnBean(name = "redisTemplate")
 	@ConditionalOnClass(DefaultAuthenticationEventPublisher.class)
 	public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
-		RedisTokenRepository redisTokenRepository = new RedisTokenRepository();
-		redisTokenRepository.setRedisTemplate(redisTemplate);
-		return new RedisTokenRepository();
+		RedisTokenRepository redisTokenRepository = new RedisTokenRepository(redisTemplate);
+		return redisTokenRepository;
 	}
-	
+
 	@ConditionalOnBean(name = "redisTemplate")
-	@Bean("tokenHolder")
-	@ConditionalOnMissingBean
-	public TokenHolder tokenHolder(RedisTemplate<String, Object> redisTemplate){
-		RedisTokenHolder redisTokenHolder=new RedisTokenHolder();
+	@Bean
+	@ConditionalOnMissingBean({ TokenHolder.class })
+	public TokenHolder tokenHolder(RedisTemplate<String, Object> redisTemplate) {
+		RedisTokenHolder redisTokenHolder = new RedisTokenHolder();
 		redisTokenHolder.setRedisTemplate(redisTemplate);
 		return redisTokenHolder;
 	}

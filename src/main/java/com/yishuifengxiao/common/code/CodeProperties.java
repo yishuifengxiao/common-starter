@@ -12,11 +12,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 验证码相关的属性配置
+ * 验证码属性配置
  * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Data
 @NoArgsConstructor
@@ -31,6 +31,11 @@ public class CodeProperties {
 	 * 将验证码存储到Redis时的key的前缀，默认值为 validate_code_
 	 */
 	protected String prefix = Constant.PREFIX;
+
+	/**
+	 * 是否显示加载日志，默认为false
+	 */
+	private Boolean showDeatil = false;
 
 	/**
 	 * 是否在验证成功后删除验证过的验证码
@@ -53,8 +58,8 @@ public class CodeProperties {
 	 * 短信验证码的配置参数
 	 * 
 	 * @author yishui
-	 * @date 2019年1月23日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	public static class SmsCodeProperties {
 		/**
@@ -66,7 +71,7 @@ public class CodeProperties {
 		 */
 		protected Integer expireIn = Constant.DEFAULT_EXPIREIN;
 		/**
-		 * 验证码是否包含字母,默认包含
+		 * 验证码是否包含字母,默认不包含
 		 */
 		protected Boolean containLetter = Constant.IS_CONTAIN_LETTERS;
 		/**
@@ -137,8 +142,8 @@ public class CodeProperties {
 	 * 邮件验证码相关的配置
 	 * 
 	 * @author yishui
-	 * @date 2019年10月18日
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	public static class EmailCodeProperties extends SmsCodeProperties {
 
@@ -207,8 +212,8 @@ public class CodeProperties {
 	 * 图形验证码的参数配置
 	 * 
 	 * @author yishui
-	 * @date 2019年1月23日
-	 * @version 0.0.1
+	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 
 	public static class ImageCodeProperties extends SmsCodeProperties {

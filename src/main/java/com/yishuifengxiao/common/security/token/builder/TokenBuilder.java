@@ -11,9 +11,9 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
 /**
  * token生成器
  * 
- * @author qingteng
- * @date 2020年11月29日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public interface TokenBuilder {
 
@@ -25,8 +25,8 @@ public interface TokenBuilder {
 	 * @param validSeconds  token的有效时间，单位为秒
 	 * @param preventsLogin 在达到最大的token数量限制时是否阻止后面的用户登陆
 	 * @param maxSessions   最大的token数量
-	 * @return SecurityToken
-	 * @throws CustomException
+	 * @return SecurityToken 生成的token
+	 * @throws CustomException 生成时出现了问题
 	 */
 	SecurityToken creatNewToken(String username, String sessionId, Integer validSeconds, boolean preventsLogin,
 			int maxSessions) throws CustomException;
@@ -51,12 +51,14 @@ public interface TokenBuilder {
 	int getTokenNum(String username, boolean isActive, boolean isExpired);
 
 	/**
-	 * 从token值中解析出信息<br/>
+	 * <p>
+	 * 从token值中解析出信息
+	 * </p>
 	 * 正确的tokenValue解析出来的后的信息为[username,clientId,currentTimeMillis]形式的数组
 	 * 
 	 * @param tokenValue token值
 	 * @return [username,clientId,currentTimeMillis]形式的数组
-	 * @throws CustomException
+	 * @throws CustomException 非法的token信息
 	 */
 	String[] parseTokenValue(String tokenValue) throws CustomException;
 
@@ -64,8 +66,8 @@ public interface TokenBuilder {
 	 * 根据token的值获取token
 	 * 
 	 * @param tokenValue token的值
-	 * @return SecurityToken
-	 * @throws CustomException
+	 * @return SecurityToken 获取的token
+	 * @throws CustomException 非法的token信息
 	 */
 	SecurityToken loadByTokenValue(String tokenValue) throws CustomException;
 
@@ -73,15 +75,16 @@ public interface TokenBuilder {
 	 * 根据token的值从列表里移除一个token
 	 * 
 	 * @param tokenValue token的值
-	 * @throws CustomException 
+	 * @throws CustomException 非法的token信息
 	 */
 	void remove(String tokenValue) throws CustomException;
 
 	/**
 	 * 根据token的值重置token的过期时间点
 	 * 
-	 * @param tokenValue token的值
-	 * @throws CustomException
+	 * @param tokenValue 令牌内容
+	 * @return 重置后的token
+	 * @throws CustomException 非法的token信息
 	 */
 	SecurityToken refreshExpireTime(String tokenValue) throws CustomException;
 

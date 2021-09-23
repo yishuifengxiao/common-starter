@@ -14,12 +14,12 @@ import com.yishuifengxiao.common.tool.exception.ValidateException;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 /**
  * 图形验证码发送器
- * 
  * @author yishui
- * @date 2019年1月23日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class ImageCodeSender implements CodeSender {
@@ -31,7 +31,7 @@ public class ImageCodeSender implements CodeSender {
 		try {
 			ImageIO.write(((ImageCode) code).getImage(), "JPEG", request.getResponse().getOutputStream());
 		} catch (IOException e) {
-			log.info("输出图形验证码失败，失败的原因为 {}", e.getMessage());
+			log.warn("输出图形验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException(ErrorCode.CODE_SEND_ERROR, "输出图形验证码失败");
 		}
 

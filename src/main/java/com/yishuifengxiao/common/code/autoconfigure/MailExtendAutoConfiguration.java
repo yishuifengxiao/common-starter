@@ -16,21 +16,28 @@ import com.yishuifengxiao.common.code.sender.CodeSender;
 import com.yishuifengxiao.common.code.sender.impl.EmailCodeSender;
 
 /**
- * 注入邮件发送相关的配置
+ * 邮箱验证码发送器自动配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Configuration
 @ConditionalOnClass({ MimeMessage.class, MimeType.class, JavaMailSender.class })
 @ConditionalOnProperty(prefix = "spring.mail", name = { "host", "username", "password" })
 public class MailExtendAutoConfiguration {
 
+	/**
+	 * 注入一个名为emailCodeSender的邮箱验证码发送器
+	 * 
+	 * @param env            环境配置
+	 * @param javaMailSender java邮件发送器
+	 * @param codeProperties 验证码属性配置
+	 * @return 名为emailCodeSender的邮箱验证码发送器
+	 */
 	@Bean("emailCodeSender")
 	@ConditionalOnMissingBean(name = "emailCodeSender")
-	public CodeSender emailCodeSender(Environment env, JavaMailSender javaMailSender,
-			CodeProperties codeProperties) {
+	public CodeSender emailCodeSender(Environment env, JavaMailSender javaMailSender, CodeProperties codeProperties) {
 		EmailCodeSender emailCodeSender = new EmailCodeSender();
 		emailCodeSender.setCodeProperties(codeProperties);
 		emailCodeSender.setEmailSender(env.getProperty("spring.mail.username", "zhiyubujian@163.com"));

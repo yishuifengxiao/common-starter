@@ -9,8 +9,8 @@ import org.springframework.social.connect.ConnectionFactory;
  * spring social 1.1.6已经移除了该类，所以自己新建一下
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public abstract class BaseSocialAutoConfigurerAdapter extends SocialConfigurerAdapter {
 
@@ -20,8 +20,8 @@ public abstract class BaseSocialAutoConfigurerAdapter extends SocialConfigurerAd
 	}
 
 	/**
-	 * 创建链接工厂
-	 * @return
+	 * 创建连接工厂
+	 * @return 连接工厂
 	 */
 	protected abstract ConnectionFactory<?> createConnectionFactory();
 

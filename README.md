@@ -33,7 +33,7 @@
 <dependency>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>5.2.0</version>
+    <version>5.3.0</version>
 </dependency>
 ```
 
@@ -569,7 +569,7 @@ yishuifengxiao.security.social.weixin.provider-id=weixin
 8. [基于易水公共组件的权限管理系统](http://www.yishuifengxiao.com/2019/10/31/%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%E6%98%93%E6%B0%B4%E5%85%AC%E5%85%B1%E7%BB%84%E4%BB%B6%E7%9A%84%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E7%B3%BB%E7%BB%9F/)
 
 <br/><br/>
- **效果展示**
+
  
 登录界面
 ![登录界面](https://images.gitee.com/uploads/images/2019/1113/090913_bbe000a5_400404.png "login.png")

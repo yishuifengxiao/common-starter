@@ -1,15 +1,13 @@
 package com.yishuifengxiao.common.oauth2;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.Filter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -24,11 +22,6 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
-
-import com.yishuifengxiao.common.oauth2.filter.TokenEndpointAuthenticationFilter;
-import com.yishuifengxiao.common.oauth2.provider.TokenStrategy;
 
 /**
  * Configuration for a Spring Security OAuth2 authorization server. Back off if
@@ -37,12 +30,13 @@ import com.yishuifengxiao.common.oauth2.provider.TokenStrategy;
  *
  * @author Greg Turnquist
  * @author Dave Syer
- * @since 1.3.0
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 
 	@Autowired
-	@Qualifier("tokenStore")
 	private TokenStore tokenStore;
 
 	@Autowired
@@ -80,27 +74,19 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 	 */
 	@Autowired
 	@Qualifier("customClientDetailsService")
-	private ClientDetailsService customClientDetailsService;
-
-	/**
-	 * token生成器，负责token的生成或获取
-	 */
-	@Autowired
-	@Qualifier("tokenStrategy")
-	private TokenStrategy tokenStrategy;
+	private ClientDetailsService clientDetailsService;
 
 	@Autowired
-	@Qualifier("tokenEndpointAuthenticationFilter")
-	private TokenEndpointAuthenticationFilter tokenEndpointAuthenticationFilter;
+	@Qualifier("tokenEndpointFilter")
+	private Filter tokenEndpointFilter;
 
 	@Autowired
-	@Qualifier("userDetailsService") 
 	private UserDetailsService userDetailsService;
 
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-		clients.withClientDetails(customClientDetailsService);
+		clients.withClientDetails(clientDetailsService);
 	}
 
 	@Override
@@ -121,29 +107,16 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 		endpoints
 			.tokenEnhancer(tokenEnhancerChain);
 		
+		
 		//配置token的生成规则
-      endpoints.tokenServices(this.addUserDetailsService(this.tokenStrategy,this.userDetailsService));
+//      endpoints.tokenServices(tokenStrategy);
+		
+      //防止刷新token时报错  UserDetailsService is required. 
+      endpoints.userDetailsService(userDetailsService);
       
       endpoints.exceptionTranslator(authWebResponseExceptionTranslator);
 		// @formatter:on
 
-	}
-
-	/**
-	 * 增加provider，否则刷新token时会出错
-	 * 
-	 * @param tokenServices
-	 * @param userDetailsService
-	 */
-	private TokenStrategy addUserDetailsService(TokenStrategy tokenStrategy, UserDetailsService userDetailsService) {
-		if (userDetailsService != null) {
-			PreAuthenticatedAuthenticationProvider provider = new PreAuthenticatedAuthenticationProvider();
-			provider.setPreAuthenticatedUserDetailsService(
-					new UserDetailsByNameServiceWrapper<PreAuthenticatedAuthenticationToken>(userDetailsService));
-			tokenStrategy
-					.setAuthenticationManager(new ProviderManager(Arrays.<AuthenticationProvider>asList(provider)));
-		}
-		return tokenStrategy;
 	}
 
 	@Override
@@ -159,7 +132,7 @@ public class Oauth2Server extends AuthorizationServerConfigurerAdapter {
 		}
 		security.authenticationEntryPoint(exceptionAuthenticationEntryPoint);
 		// Adds a new custom authentication filter for the TokenEndpoint.
-		security.addTokenEndpointAuthenticationFilter(tokenEndpointAuthenticationFilter);
+		security.addTokenEndpointAuthenticationFilter(tokenEndpointFilter);
 
 		security.allowFormAuthenticationForClients();
 	}

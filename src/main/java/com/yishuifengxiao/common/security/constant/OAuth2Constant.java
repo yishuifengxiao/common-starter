@@ -6,9 +6,9 @@ package com.yishuifengxiao.common.security.constant;
 /**
  * OAuth2相关的常量类
  * 
- * @author qingteng
- * @date 2020年11月28日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public final class OAuth2Constant {
 

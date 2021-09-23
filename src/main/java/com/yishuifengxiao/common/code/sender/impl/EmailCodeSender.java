@@ -24,13 +24,11 @@ import lombok.extern.slf4j.Slf4j;
  * 邮件验证码发送器
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class EmailCodeSender implements CodeSender {
-
-
 
 	private JavaMailSender javaMailSender;
 	/**
@@ -59,7 +57,7 @@ public class EmailCodeSender implements CodeSender {
 			helper.setText(content, true);
 			javaMailSender.send(mimeMessage);
 		} catch (Exception e) {
-			log.info("发送邮件验证码失败，失败的原因为 {}", e.getMessage());
+			log.warn("发送邮件验证码失败，失败的原因为 {}", e.getMessage());
 			throw new ValidateException(ErrorCode.CODE_SEND_ERROR, "验证码发送失败");
 		}
 

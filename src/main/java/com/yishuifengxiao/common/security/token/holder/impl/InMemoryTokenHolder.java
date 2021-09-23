@@ -18,19 +18,22 @@ import com.yishuifengxiao.common.tool.exception.ValidateException;
 /**
  * 基于内存的token存取工具类
  * 
- * @author qingteng
- * @date 2020年11月29日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class InMemoryTokenHolder implements TokenHolder {
 
 	private final Map<String, List<SecurityToken>> map = new HashMap<>();
 
 	/**
-	 * 获取所有的token
+	 * <p>
+	 * 根据用户账号获取所有的令牌
+	 * </p>
+	 * 按照令牌的过期时间点从小到到排列
 	 * 
-	 * @param key
-	 * @return
+	 * @param key 用户账号
+	 * @return 所有的令牌
 	 */
 	@Override
 	public synchronized List<SecurityToken> getAll(String key) {
@@ -39,9 +42,10 @@ public class InMemoryTokenHolder implements TokenHolder {
 	}
 
 	/**
-	 * 保存一个token<br/>
+	 * 保存一个令牌
 	 * 
-	 * @param token
+	 * @param token 令牌
+	 * @throws CustomException 保存时出现问题
 	 */
 	@Override
 	public synchronized void save(SecurityToken token) throws CustomException {
@@ -56,8 +60,8 @@ public class InMemoryTokenHolder implements TokenHolder {
 	/**
 	 * 更新一个令牌
 	 * 
-	 * @param token
-	 * @throws CustomException
+	 * @param token 令牌
+	 * @throws CustomException 更新时出现问题
 	 */
 	@Override
 	public synchronized void update(SecurityToken token) throws CustomException {
@@ -74,7 +78,7 @@ public class InMemoryTokenHolder implements TokenHolder {
 	 * 
 	 * @param username  用户账号
 	 * @param sessionId 会话id
-	 * @throws CustomException
+	 * @throws CustomException 删除时出现问题
 	 */
 	@Override
 	public synchronized void delete(String username, String sessionId) throws CustomException {
@@ -111,8 +115,8 @@ public class InMemoryTokenHolder implements TokenHolder {
 	/**
 	 * 检查令牌的内容合法性
 	 * 
-	 * @param token
-	 * @throws ValidateException
+	 * @param token 令牌
+	 * @throws ValidateException 令牌非法
 	 */
 	private void check(SecurityToken token) throws ValidateException {
 		if (null == token) {

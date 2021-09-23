@@ -14,11 +14,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * swagger属性配置文件路径
+ * swagger扩展支持属性配置
  * 
  * @author yishui
- * @date 2019年1月17日
- * @Version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @ConfigurationProperties(prefix = "yishuifengxiao.swagger")
 @Data
@@ -65,17 +65,33 @@ public class SwaggerProperties {
 	 * 项目联系邮箱
 	 */
 	private String contactEmail = "zhiyubujian@163.com";
+
+	/**
+	 * 访问swagger页面时需要输入的用户名，默认值为admin，如果该用户名为空表示则不开启认证功能。只有username和password参数均不为空时才会开启认证功能
+	 */
+	private String username = "admin";
+
+	/**
+	 * 访问swagger页面时需要输入的密码，如果该密码为空表示则不开启认证功能。只有username和password参数均不为空时才会开启认证功能
+	 */
+	private String password;
+
 	/**
 	 * 附加信息
 	 */
 	private List<AuthoriZationPar> auths = new ArrayList<>();
+	
+	/**
+	 * 是否显示加载日志，默认为false
+	 */
+	private Boolean showDeatil = false;
 
 	/**
 	 * 附加信息
 	 * 
-	 * @author qingteng
-	 * @date 2020年10月23日
+	 * @author yishui
 	 * @version 1.0.0
+	 * @since 1.0.0
 	 */
 	@Data
 	@AllArgsConstructor

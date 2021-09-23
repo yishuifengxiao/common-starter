@@ -10,8 +10,8 @@ import com.yishuifengxiao.common.social.qq.connect.QqOauth2Template;
  * 构建 QQServiceProvider 以提供给 factory 生成 connection
  * 
  * @author yishui
- * @date 2019年7月14日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class QqServiceProvider extends AbstractOAuth2ServiceProvider<QQ> {
 	/**

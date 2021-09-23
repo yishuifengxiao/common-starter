@@ -12,20 +12,20 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 /**
- * 传入的参数为 ：clientId，clientSecret，authorizeUrl，accessTokenUrl
- * 输出的响应为 ：accessToken ，expiresIn ，refreshToken
+ * <p>传入的参数为 ：clientId，clientSecret，authorizeUrl，accessTokenUrl</p>
+ * <p>输出的响应为 ：accessToken ，expiresIn ，refreshToken</p>
  * 
- * 根据 【clientId】，【clientSecret】，【authorizeUrl】，【accessTokenUrl】 构造OAuth2Template
- * <br/>
- * 生成的对象 供给 AbstractOAuth2ServiceProvider 使用 <br/>
+ * <p>根据 【clientId】，【clientSecret】，【authorizeUrl】，【accessTokenUrl】 构造OAuth2Template</p>
  * 
- * 根据传入的参数 生成 accessToken，expiresIn，refreshToken <br/>
+ * <p>生成的对象 供给 AbstractOAuth2ServiceProvider 使用 </p>
+ * 
+ * <p>根据传入的参数 生成 accessToken，expiresIn，refreshToken </p>
  * 
  * 文档API参见 https://wiki.connect.qq.com/%E5%BC%80%E5%8F%91%E6%94%BB%E7%95%A5_server-side
  * 
  * @author yishui
- * @date 2019年7月14日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class QqOauth2Template extends OAuth2Template {
 

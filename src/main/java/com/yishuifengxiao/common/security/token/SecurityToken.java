@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import org.apache.commons.lang3.BooleanUtils;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
@@ -21,9 +22,9 @@ import io.swagger.annotations.ApiModelProperty;
 /**
  * 自定义访问令牌
  * 
- * @author qingteng
- * @date 2020年11月29日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @ApiModel(value = "自定义访问令牌")
 public class SecurityToken implements Serializable {
@@ -34,7 +35,7 @@ public class SecurityToken implements Serializable {
 	private static final long serialVersionUID = -4651167209282446068L;
 
 	/**
-	 * token的值，不区分大小写<br/>
+	 * <p>token的值，不区分大小写</p>
 	 * 一般值的内容为 username:clientId:currentTimeMillis
 	 */
     @ApiModelProperty("token的值")
@@ -77,8 +78,8 @@ public class SecurityToken implements Serializable {
 	private LocalDateTime expireAt;
 
 	/**
-	 * 当前token是否处于有效状态<br/>
-	 * true表示有效，false无效<br/>
+	 * <p>当前token是否处于有效状态</p>
+	 * <p>true表示有效，false无效</p>
 	 * 例如在token数量有限时，驱逐策略下，早期的token可能就处于失效状态
 	 */
     @ApiModelProperty("当前token是否处于有效状态")
@@ -98,11 +99,12 @@ public class SecurityToken implements Serializable {
 	}
 
 	/**
-	 * 当前token是否是可用状态<br/>
+	 * <p>当前token是否是可用状态</p>
 	 * 当token的有效状态不为true或已经过期时当前token不是可用状态
 	 * 
 	 * @return true表示可用状态，false表示不可用状态
 	 */
+	@JsonIgnore
 	public boolean isAvailable() {
 		if (BooleanUtils.isFalse(this.isActive)) {
 			return false;

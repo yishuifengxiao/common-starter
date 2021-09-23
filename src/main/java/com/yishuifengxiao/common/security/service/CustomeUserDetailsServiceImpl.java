@@ -12,13 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 自定义UserDetailsService实现类，查找用户
  * 
- * @version 0.0.1
+ * 
  * @author yishui
- * @date 2018年6月23日
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 public class CustomeUserDetailsServiceImpl implements UserDetailsService {
-
 
 	private PasswordEncoder passwordEncoder;
 
@@ -26,7 +26,7 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		// 不应该在这里加密，数据库里就应该存的是的加密后的密文
 		String encodePassword = passwordEncoder.encode("12345678");
-		log.info("自定义UserDetailsService实现类中获取到的用户名为 {} ,得到的数据库密码(已加密的密码)为 {}", username, encodePassword);
+		log.trace("自定义UserDetailsService实现类中获取到的用户名为 {} ", username);
 
 		// 这里不比较密码的正确性，在返回后由spring security比较密码正确性
 		return new User(username, encodePassword, true, true, true, true,

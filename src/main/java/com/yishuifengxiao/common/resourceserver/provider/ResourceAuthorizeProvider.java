@@ -14,8 +14,8 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
  * 资源服务器授权提供器
  * 
  * @author yishui
- * @date 2019年10月29日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class ResourceAuthorizeProvider implements AuthorizeProvider {
 

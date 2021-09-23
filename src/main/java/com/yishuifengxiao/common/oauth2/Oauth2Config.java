@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
  * oauth2的相关的配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class Oauth2Config {
 

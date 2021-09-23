@@ -13,15 +13,15 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-import com.yishuifengxiao.common.oauth2.provider.TokenStrategy;
+import com.yishuifengxiao.common.oauth2.token.TokenStrategy;
 import com.yishuifengxiao.common.security.authorize.SecurityContextManager;
 
 /**
  * oauth2 资源相关的配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 
@@ -44,7 +44,6 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	private DefaultWebSecurityExpressionHandler expressionHandler;
 
 	@Autowired
-	@Qualifier("tokenExtractor")
 	private TokenExtractor tokenExtractor;
 
 	@SuppressWarnings("rawtypes")
@@ -56,7 +55,6 @@ public class Oauth2Resource extends ResourceServerConfigurerAdapter {
 	 * token生成器，负责token的生成或获取
 	 */
 	@Autowired
-	@Qualifier("tokenStrategy")
 	private TokenStrategy tokenStrategy;
 
 	@Override

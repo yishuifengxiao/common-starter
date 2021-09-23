@@ -1,14 +1,17 @@
 # Auto Configure
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.yishuifengxiao.common.aop.ValidAutoConfiguration,\
-com.yishuifengxiao.common.code.CodeAutoConfiguration,\
 com.yishuifengxiao.common.core.CommonAutoConfiguration,\
-com.yishuifengxiao.common.cors.CorsAutoConfiguration,\
-com.yishuifengxiao.common.exception.WebExceptionAutoConfiguration,\
-com.yishuifengxiao.common.oauth2.Oauth2ExtendAutoConfiguration,\
+com.yishuifengxiao.common.web.ValidAutoConfiguration,\
+com.yishuifengxiao.common.web.WebExceptionAutoConfiguration,\
+com.yishuifengxiao.common.web.WebFilterAutoConfiguration,\
+com.yishuifengxiao.common.web.CorsAutoConfiguration,\
 com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration,\
+com.yishuifengxiao.common.cache.CacheAutoConfiguration,\
+com.yishuifengxiao.common.code.CodeAutoConfiguration,\
+com.yishuifengxiao.common.oauth2.Oauth2ExtendAutoConfiguration,\
 com.yishuifengxiao.common.security.SecurityCoreAutoConfiguration,\
 com.yishuifengxiao.common.social.SpringSocialAutoConfiguration,\
-com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.resourceserver.SecurityResourceAutoConfiguration,\
+com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
+com.yishuifengxiao.common.guava.GuavaAutoConfiguration,\
 com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration

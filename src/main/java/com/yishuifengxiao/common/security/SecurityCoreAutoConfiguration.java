@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.security;
 
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
@@ -26,32 +27,37 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import com.yishuifengxiao.common.security.authorize.SecurityContextManager;
 import com.yishuifengxiao.common.security.authorize.SimpleSecurityContextManager;
 import com.yishuifengxiao.common.security.autoconfigure.HttpSecurityAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityAuthorizeProviderAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityCodeAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityHandlerAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.WebSecurityAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.encoder.impl.SimpleBasePasswordEncoder;
+import com.yishuifengxiao.common.security.extractor.SecurityExtractor;
+import com.yishuifengxiao.common.security.extractor.impl.SimpleSecurityExtractor;
+import com.yishuifengxiao.common.security.filter.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityInterceptor;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.processor.impl.SimpleHandlerProcessor;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.remerberme.InMemoryTokenRepositoryImpl;
-import com.yishuifengxiao.common.security.resource.SimplePropertyResource;
 import com.yishuifengxiao.common.security.resource.PropertyResource;
+import com.yishuifengxiao.common.security.resource.SimplePropertyResource;
 import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.session.SessionInformationExpiredStrategyImpl;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.support.SimpleSecurityHelper;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
 import com.yishuifengxiao.common.social.SocialProperties;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * spring security应用配置
+ * spring security扩展支持自动配置
  * 
  * @author yishui
- * @date 2018年6月15日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 @Configuration
@@ -60,8 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @EnableConfigurationProperties({ SecurityProperties.class, SocialProperties.class })
 @Import({ SecurityRedisAutoConfiguration.class, SecurityAuthorizeProviderAutoConfiguration.class,
-		SecurityCodeAutoConfiguration.class, SecurityHandlerAutoConfiguration.class, WebSecurityAutoConfiguration.class,
-		HttpSecurityAutoConfiguration.class })
+		SecurityHandlerAutoConfiguration.class, HttpSecurityAutoConfiguration.class })
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
 		"enable" }, havingValue = "true", matchIfMissing = true)
 public class SecurityCoreAutoConfiguration {
@@ -69,37 +74,45 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * 注入自定义密码加密类
 	 * 
-	 * @return
+	 * @param propertyResource 资源管理器
+	 * @return 加密器
 	 */
-	@Bean("passwordEncoder")
+	@Bean
 	@ConditionalOnMissingBean
-	public PasswordEncoder passwordEncoder(SecurityProperties securityProperties) {
-		return new SimpleBasePasswordEncoder(securityProperties.getSecretKey());
+	public PasswordEncoder passwordEncoder(PropertyResource propertyResource) {
+		return new SimpleBasePasswordEncoder(propertyResource);
 	}
 
 	/**
-	 * 注入用户查找配置类</br>
+	 * <p>
+	 * 注入用户查找配置类
+	 * </p>
 	 * 在系统没有注入UserDetailsService时，注册一个默认的UserDetailsService实例
 	 * 
-	 * @return
+	 * @param passwordEncoder 加密器
+	 * @return UserDetailsService
 	 */
-	@Bean("userDetailsService")
-	@ConditionalOnMissingBean(name="userDetailsService")
+	@Bean
+	@ConditionalOnMissingBean({ UserDetailsService.class })
 	public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
 		return new CustomeUserDetailsServiceImpl(passwordEncoder);
 	}
 
 	/**
-	 * 将密码加密类注入到spring security中<br/>
+	 * <p>
+	 * 将密码加密类注入到spring security中
+	 * </p>
 	 * 
 	 * <pre>
 	 * 此配置会被AbstractSecurityConfig收集，通过public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception 注入到spring security中
 	 * </pre>
 	 * 
-	 * @return
+	 * @param userDetailsService UserDetailsService
+	 * @param passwordEncoder    加密器
+	 * @return DaoAuthenticationProvider
 	 */
-	@Bean("authenticationProvider")
-	@ConditionalOnMissingBean(name = "authenticationProvider")
+	@Bean
+	@ConditionalOnMissingBean({ DaoAuthenticationProvider.class })
 	public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService,
 			PasswordEncoder passwordEncoder) {
 		DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
@@ -112,11 +125,12 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * 错误提示信息国际化
 	 * 
-	 * @return
+	 * @return ReloadableResourceBundleMessageSource
 	 */
 	@Bean("messageSource")
-	@ConditionalOnMissingBean(name = "messageSource")
+	@ConditionalOnMissingBean(name= {"messageSource"})
 	public ReloadableResourceBundleMessageSource messageSource() {
+	    Locale.setDefault(Locale.CHINA);
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 		messageSource.setBasenames("classpath*:messages_zh_CN", "classpath:messages_zh_CN",
 				"classpath*:messages_zh_CN.properties", "messages_zh_CN.properties");
@@ -126,7 +140,7 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * 错误提示国际化
 	 * 
-	 * @return
+	 * @return AcceptHeaderLocaleResolver
 	 */
 	@Bean
 	public AcceptHeaderLocaleResolver acceptHeaderLocaleResolver() {
@@ -136,10 +150,10 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * 记住密码策略【存储内存中在redis数据库中】
 	 * 
-	 * @return
+	 * @return 记住密码策略
 	 */
-	@Bean("persistentTokenRepository")
-	@ConditionalOnMissingBean(name = { "redisTemplate", "persistentTokenRepository" })
+	@Bean
+	@ConditionalOnMissingBean(name = { "redisTemplate" }, value = { PersistentTokenRepository.class })
 	public PersistentTokenRepository inMemoryTokenRepository() {
 		return new InMemoryTokenRepositoryImpl();
 	}
@@ -147,7 +161,7 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * session 失效策略，可以在此方法中记录谁把谁的登陆状态挤掉
 	 * 
-	 * @return
+	 * @return session 失效策略
 	 */
 	@Bean
 	@ConditionalOnMissingBean
@@ -158,9 +172,9 @@ public class SecurityCoreAutoConfiguration {
 	/**
 	 * 注入一个资源管理器
 	 * 
-	 * @param securityProperties
-	 * @param socialProperties
-	 * @return
+	 * @param securityProperties 安全属性配置
+	 * @param socialProperties   spring social属性配置
+	 * @return 资源管理器
 	 */
 	@Bean
 	public PropertyResource propertyResource(SecurityProperties securityProperties, SocialProperties socialProperties) {
@@ -171,44 +185,63 @@ public class SecurityCoreAutoConfiguration {
 	}
 
 	/**
-	 * 注入一个安全管理器
-	 * 
-	 * @param authorizeConfigProviders
-	 * @param interceptors
-	 * @param webSecurityProviders
-	 * @param propertyResource
-	 * @return
-	 */
-	@Bean
-	@ConditionalOnMissingBean
-	public SecurityContextManager securityContextManager(List<AuthorizeProvider> authorizeConfigProviders,
-			List<HttpSecurityInterceptor> interceptors, List<WebSecurityProvider> webSecurityProviders,
-			PropertyResource propertyResource) {
-		SimpleSecurityContextManager securityContextManager = new SimpleSecurityContextManager();
-		securityContextManager.setInterceptors(interceptors);
-		securityContextManager.setAuthorizeConfigProviders(authorizeConfigProviders);
-		securityContextManager.setWebSecurityProviders(webSecurityProviders);
-		securityContextManager.setPropertyResource(propertyResource);
-		return securityContextManager;
-	}
-
-	/**
 	 * 注入一个默认的协助处理器
 	 * 
-	 * @param objectMapper
-	 * @return
+	 * @return 协助处理器
 	 */
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnMissingBean({ HandlerProcessor.class })
 	public HandlerProcessor handlerProcessor() {
 		SimpleHandlerProcessor handlerProcessor = new SimpleHandlerProcessor();
 		return handlerProcessor;
 	}
 
+	@Bean
+	@ConditionalOnMissingBean({ SecurityExtractor.class })
+	public SecurityExtractor securityExtractor(PropertyResource propertyResource) {
+		SimpleSecurityExtractor simpleSecurityExtractor = new SimpleSecurityExtractor(propertyResource);
+		return simpleSecurityExtractor;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean({ SecurityHelper.class })
+	public SecurityHelper securityHelper(PropertyResource propertyResource, UserDetailsService userDetailsService,
+			PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
+		SecurityHelper securityHelper = new SimpleSecurityHelper(propertyResource, userDetailsService, passwordEncoder,
+				tokenBuilder);
+		return securityHelper;
+	}
+
+	@Bean
+	@ConditionalOnMissingBean({ TokenUtil.class })
+	public TokenUtil tokenUtil(SecurityHelper securityHelper, SecurityExtractor securityExtractor) {
+		return new TokenUtil(securityHelper, securityExtractor);
+	}
+
+	/**
+	 * 注入一个安全管理器
+	 * 
+	 * @param authorizeConfigProviders 系统中所有的授权提供器实例
+	 * @param interceptors             系统中所有的资源授权拦截器实例
+	 * @param webSecurityProviders     系统中所有的 web安全授权器实例
+	 * @param securityRequestFilters   系统中所有的 web安全授权器实例
+	 * @param propertyResource         资源管理器
+	 * @return 安全管理器
+	 */
+	@Bean
+	@ConditionalOnMissingBean({ SecurityContextManager.class })
+	public SecurityContextManager securityContextManager(List<AuthorizeProvider> authorizeConfigProviders,
+			List<HttpSecurityInterceptor> interceptors, List<WebSecurityProvider> webSecurityProviders,
+			List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+		SimpleSecurityContextManager securityContextManager = new SimpleSecurityContextManager(authorizeConfigProviders,
+				interceptors, webSecurityProviders, propertyResource, securityRequestFilters);
+		return securityContextManager;
+	}
+
 	@PostConstruct
 	public void checkConfig() {
 
-		log.debug("【易水组件】: 开启 <Security相关配置> 相关的配置");
+		log.trace("【易水组件】: 开启 <安全支持> 相关的配置");
 	}
 
 }

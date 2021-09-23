@@ -1,11 +1,11 @@
 package com.yishuifengxiao.common.code.constant;
 
 /**
- * 验证码模块错误码常量类
+ * 验证码模块错误码常量
  * 
  * @author yishui
- * @date 2019年1月22日
- * @version v1.0.0
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class ErrorCode {
 
@@ -38,16 +38,15 @@ public final class ErrorCode {
 	 * 验证码不匹配
 	 */
 	public final static int CODE_NO_MATCH = 105;
-	
+
 	/**
 	 * 发送器生成器不存在
 	 */
 	public final static int SENDER_NO_EXTIS = 106;
-	
+
 	/**
 	 * 验证码发送异常
 	 */
-	public final static int CODE_SEND_ERROR=107;
-	
+	public final static int CODE_SEND_ERROR = 107;
 
 }

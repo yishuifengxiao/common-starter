@@ -14,9 +14,9 @@ import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
 /**
  * 自定义SocialUserDetailsService实现类，查找用户
  * 
- * @version 0.0.1
  * @author yishui
- * @date 2018年6月23日
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class SocialUserDetailsServiceImpl implements SocialUserDetailsService {
 

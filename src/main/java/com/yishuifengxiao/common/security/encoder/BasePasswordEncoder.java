@@ -5,7 +5,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 /**
  * 自定义加密类
  * 
- * @author admin
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
  *
  */
 public abstract class BasePasswordEncoder implements PasswordEncoder {

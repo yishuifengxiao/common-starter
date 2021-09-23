@@ -12,8 +12,8 @@ import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
-import com.yishuifengxiao.common.jdbc.sql.QuerySqlBuilder;
-import com.yishuifengxiao.common.jdbc.sql.impl.SimpleQuerySqlBuilder;
+import com.yishuifengxiao.common.jdbc.sql.QueryBuilder;
+import com.yishuifengxiao.common.jdbc.sql.impl.SimpleQueryBuilder;
 import com.yishuifengxiao.common.jdbc.translator.QueryTranslator;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
@@ -21,19 +21,19 @@ import com.yishuifengxiao.common.tool.entity.Page;
 /**
  * 简单实现的查询动作解释器
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class SimpleQueryTranslator implements QueryTranslator {
 
-	private final QuerySqlBuilder querySqlBuilder = new SimpleQuerySqlBuilder();
+	private final QueryBuilder queryBuilder = new SimpleQueryBuilder();
 
 	/**
 	 * 根据主键查询一条记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -43,16 +43,15 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	@Override
 	public <T> T findByPrimaryKey(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
 			ExecuteExecutor executeExecutor, Class<T> clazz, Object primaryKey) {
-		SqlData sqlData = querySqlBuilder.findByPrimaryKey(fieldExtractor, clazz, primaryKey);
-		return DataUtil
-				.first(executeExecutor.findAll(jdbcTemplate, clazz, sqlData.getSqlString(), sqlData.getSqlArgs()));
+		SqlData sqlData = queryBuilder.findByPrimaryKey(fieldExtractor, clazz, primaryKey);
+		return DataUtil.first(executeExecutor.findAll(jdbcTemplate, clazz, sqlData.getSqlString(), sqlData.getArgs()));
 	}
 
 	/**
 	 * 根据条件查询全部符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -64,17 +63,16 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	public <T> List<T> findAll(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
 			ExecuteExecutor executeExecutor, T t, Order order) {
 
-		SqlData sqlData = querySqlBuilder.findAll(fieldExtractor, t, order);
+		SqlData sqlData = queryBuilder.findAll(fieldExtractor, t, order);
 
-		return (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sqlData.getSqlString(),
-				sqlData.getSqlArgs());
+		return (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sqlData.getSqlString(), sqlData.getArgs());
 	}
 
 	/**
 	 * 根据条件查询全部符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -86,64 +84,63 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	public <T> List<T> findAll(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
 			ExecuteExecutor executeExecutor, Class<T> clazz, List<Condition> conditions, Order order) {
 
-		SqlData sqlData = querySqlBuilder.findAll(fieldExtractor, clazz, order, this.collect(conditions));
+		SqlData sqlData = queryBuilder.findAll(fieldExtractor, clazz, order, this.collect(conditions));
 
 		String sql = sqlData.getSqlString();
-		Object[] args = sqlData.getSqlArgs();
 
-		return (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql, args);
+		return (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql, sqlData.getArgs());
 
 	}
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
 	 * @param order           排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param topNum          查询出的记录的数量
 	 * @return 查询出来的记录
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> List<T> findTop(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
-			ExecuteExecutor executeExecutor, T t, Order order, Integer topNum) {
+			ExecuteExecutor executeExecutor, T t, Order order, int topNum) {
 		// 查询出该分页的数据
-		SqlData sql = querySqlBuilder.findPage(fieldExtractor, t, order, topNum, 1);
+		SqlData sql = queryBuilder.findPage(fieldExtractor, t, order, topNum, 1);
 
-		return (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sql.getSqlString(), sql.getSqlArgs());
+		return (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sql.getSqlString(), sql.getArgs());
 	}
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
 	 * @param conditions      筛选条件
 	 * @param order           排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param topNum          查询出的记录的数量
 	 * @return 查询出来的记录
 	 */
 	@Override
 	public <T> List<T> findTop(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
-			ExecuteExecutor executeExecutor, Class<T> clazz, List<Condition> conditions, Order order, Integer topNum) {
+			ExecuteExecutor executeExecutor, Class<T> clazz, List<Condition> conditions, Order order, int topNum) {
 
 		// 查询出该分页的数据
-		SqlData sql = querySqlBuilder.findPage(fieldExtractor, clazz, order, this.collect(conditions), topNum, 1);
-		return (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql.getSqlString(), sql.getSqlArgs());
+		SqlData sql = queryBuilder.findPage(fieldExtractor, clazz, order, this.collect(conditions), topNum, 1);
+		return (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql.getSqlString(), sql.getArgs());
 	}
 
 	/**
 	 * 根据条件分页查询符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -155,17 +152,16 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	@SuppressWarnings("unchecked")
 	@Override
 	public <T> Page<T> findPage(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
-			ExecuteExecutor executeExecutor, T t, Order order, Integer pageSize, Integer pageNum) {
+			ExecuteExecutor executeExecutor, T t, Order order, int pageSize, int pageNum) {
 
 		// 查询出该分页的数据
-		SqlData sql = querySqlBuilder.findPage(fieldExtractor, t, order, pageSize, pageNum);
+		SqlData sql = queryBuilder.findPage(fieldExtractor, t, order, pageSize, pageNum);
 
-		List<T> data = (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sql.getSqlString(),
-				sql.getSqlArgs());
+		List<T> data = (List<T>) executeExecutor.findAll(jdbcTemplate, t.getClass(), sql.getSqlString(), sql.getArgs());
 
 		// 查询出总的记录数量
-		SqlData countSql = querySqlBuilder.countAll(fieldExtractor, t);
-		Long total = executeExecutor.countAll(jdbcTemplate, countSql.getSqlString(), countSql.getSqlArgs());
+		SqlData countSql = queryBuilder.countAll(fieldExtractor, t);
+		Long total = executeExecutor.countAll(jdbcTemplate, countSql.getSqlString(), countSql.getArgs());
 
 		return Page.of(data, total, pageSize, pageNum);
 	}
@@ -173,8 +169,8 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	/**
 	 * 根据条件分页查询符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -186,17 +182,16 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	 */
 	@Override
 	public <T> Page<T> findPage(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor,
-			ExecuteExecutor executeExecutor, Class<T> clazz, List<Condition> conditions, Order order, Integer pageSize,
-			Integer pageNum) {
+			ExecuteExecutor executeExecutor, Class<T> clazz, List<Condition> conditions, Order order, int pageSize,
+			int pageNum) {
 
 		// 查询出该分页的数据
-		SqlData sql = querySqlBuilder.findPage(fieldExtractor, clazz, order, this.collect(conditions), pageSize,
-				pageNum);
-		List<T> data = (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql.getSqlString(), sql.getSqlArgs());
+		SqlData sql = queryBuilder.findPage(fieldExtractor, clazz, order, this.collect(conditions), pageSize, pageNum);
+		List<T> data = (List<T>) executeExecutor.findAll(jdbcTemplate, clazz, sql.getSqlString(), sql.getArgs());
 
 		// 查询出总的记录数量
-		SqlData countSql = querySqlBuilder.countAll(fieldExtractor, clazz, this.collect(conditions));
-		Long total = executeExecutor.countAll(jdbcTemplate, countSql.getSqlString(), countSql.getSqlArgs());
+		SqlData countSql = queryBuilder.countAll(fieldExtractor, clazz, this.collect(conditions));
+		Long total = executeExecutor.countAll(jdbcTemplate, countSql.getSqlString(), countSql.getArgs());
 
 		return Page.of(data, total, pageSize, pageNum);
 
@@ -205,8 +200,8 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	/**
 	 * 查询符合条件的记录的数量
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -215,15 +210,15 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	@Override
 	public <T> Long countAll(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor,
 			T t) {
-		SqlData sqlData = querySqlBuilder.countAll(fieldExtractor, t);
-		return executeExecutor.countAll(jdbcTemplate, sqlData.getSqlString(), sqlData.getSqlArgs());
+		SqlData sqlData = queryBuilder.countAll(fieldExtractor, t);
+		return executeExecutor.countAll(jdbcTemplate, sqlData.getSqlString(), sqlData.getArgs());
 	}
 
 	/**
 	 * 查询符合条件的记录的数量
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -233,8 +228,8 @@ public class SimpleQueryTranslator implements QueryTranslator {
 	@Override
 	public <T> Long countAll(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor,
 			Class<T> clazz, List<Condition> conditions) {
-		SqlData sqlData = querySqlBuilder.countAll(fieldExtractor, clazz, this.collect(conditions));
-		return executeExecutor.countAll(jdbcTemplate, sqlData.getSqlString(), sqlData.getSqlArgs());
+		SqlData sqlData = queryBuilder.countAll(fieldExtractor, clazz, this.collect(conditions));
+		return executeExecutor.countAll(jdbcTemplate, sqlData.getSqlString(), sqlData.getArgs());
 	}
 
 	/**

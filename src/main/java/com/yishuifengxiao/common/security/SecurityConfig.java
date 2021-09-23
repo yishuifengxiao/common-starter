@@ -3,8 +3,8 @@ package com.yishuifengxiao.common.security;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
- * 核心的spring security配置 <br/>
- * <strong>此配置为示例配置，在使用的项目中，需要进入如下配置</strong><br/>
+ * <p>核心的spring security配置 </p>
+ * <p>此配置为示例配置，在使用的项目中，需要进入如下配置</p>
  * 并在类接口上配置 注解
  * 
  * <pre>
@@ -25,8 +25,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
  * </pre>
  * 
  * @author yishui
- * @date 2019年2月27日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class SecurityConfig extends AbstractSecurityConfig {
 

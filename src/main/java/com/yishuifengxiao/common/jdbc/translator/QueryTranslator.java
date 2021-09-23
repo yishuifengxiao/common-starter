@@ -11,20 +11,22 @@ import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.tool.entity.Page;
 
 /**
- * 查询动作解释器<br/>
+ * <p>
+ * 查询动作解释器
+ * </p>
  * 负责执行查询相关的操作
  * 
- * @author qingteng
- * @date 2020年12月5日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 public interface QueryTranslator extends ExecuteTranslator {
 
 	/**
 	 * 根据主键查询一条记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -37,8 +39,8 @@ public interface QueryTranslator extends ExecuteTranslator {
 	/**
 	 * 根据条件查询全部符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -51,8 +53,8 @@ public interface QueryTranslator extends ExecuteTranslator {
 	/**
 	 * 根据条件查询全部符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -66,39 +68,39 @@ public interface QueryTranslator extends ExecuteTranslator {
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
 	 * @param order           排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param topNum          查询出的记录的数量
 	 * @return 查询出来的记录
 	 */
 	<T> List<T> findTop(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor, T t,
-			Order order, Integer topNum);
+			Order order, int topNum);
 
 	/**
 	 * 根据条件查询前几条符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
 	 * @param conditions      筛选条件
 	 * @param order           排序条件
-	 * @topNum 查询出的记录的数量
+	 * @param topNum          查询出的记录的数量
 	 * @return 查询出来的记录
 	 */
 	<T> List<T> findTop(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor,
-			Class<T> clazz, List<Condition> conditions, Order order, Integer topNum);
+			Class<T> clazz, List<Condition> conditions, Order order, int topNum);
 
 	/**
 	 * 根据条件分页查询符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -108,13 +110,13 @@ public interface QueryTranslator extends ExecuteTranslator {
 	 * @return 查询出来的记录
 	 */
 	<T> Page<T> findPage(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor, T t,
-			Order order, Integer pageSize, Integer pageNum);
+			Order order, int pageSize, int pageNum);
 
 	/**
 	 * 根据条件分页查询符合条件的记录
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象
@@ -125,13 +127,13 @@ public interface QueryTranslator extends ExecuteTranslator {
 	 * @return 查询出来的记录
 	 */
 	<T> Page<T> findPage(JdbcTemplate jdbcTemplate, FieldExtractor fieldExtractor, ExecuteExecutor executeExecutor,
-			Class<T> clazz, List<Condition> conditions, Order order, Integer pageSize, Integer pageNum);
+			Class<T> clazz, List<Condition> conditions, Order order, int pageSize, int pageNum);
 
 	/**
 	 * 查询符合条件的记录的数量
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param t               查询条件
@@ -142,8 +144,8 @@ public interface QueryTranslator extends ExecuteTranslator {
 	/**
 	 * 查询符合条件的记录的数量
 	 * 
-	 * @param <T>
-	 * @param jdbcTemplate
+	 * @param <T>             操作对象的类型
+	 * @param jdbcTemplate    JdbcTemplate
 	 * @param fieldExtractor  属性提取器
 	 * @param executeExecutor 语句执行器
 	 * @param clazz           操作对象

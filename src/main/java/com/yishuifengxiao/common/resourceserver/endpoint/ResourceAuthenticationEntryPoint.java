@@ -8,53 +8,38 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
-import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 
 import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
-import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
-
-import lombok.extern.slf4j.Slf4j;
+import com.yishuifengxiao.common.security.resource.PropertyResource;
 
 /**
- * 异常处理<br/>
- * <br/>
+ * <p>
+ * 异常处理
+ * </p>
+ * 
  * 
  * 在<code>ResourceAuthorizeProvider</code>中被配置为资源异常处理方式
  * 
  * @see ResourceAuthorizeProvider
  * @author yishui
  * @version 1.0.0
- * @date 2019-10-29
+ * @since 1.0.0
  */
-@Slf4j
 public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoint {
-
-	/**
-	 * 声明了缓存与恢复操作
-	 */
-	private final RequestCache cache = new HttpSessionRequestCache();
 
 	/**
 	 * 协助处理器
 	 */
 	private HandlerProcessor handlerProcessor;
 
+	private PropertyResource propertyResource;
+
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException, ServletException {
-		// 引起跳转的uri
-		SavedRequest savedRequest = cache.getRequest(request, response);
-		String url = savedRequest != null ? savedRequest.getRedirectUrl() : request.getRequestURL().toString();
-		
-		request.getSession().setAttribute(SecurityConstant.HISTORY_REDIRECT_URL, savedRequest.getRedirectUrl());
-		request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, request.getRequestURL().toString());
 
-		log.debug("【易水组件】获取资源{}失败, 失败的原因为 {}", url, authException);
-
-		handlerProcessor.exception(request, response, authException);
+		handlerProcessor.exception(propertyResource, request, response, authException);
 
 	}
 
@@ -64,6 +49,14 @@ public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoin
 
 	public void setHandlerProcessor(HandlerProcessor handlerProcessor) {
 		this.handlerProcessor = handlerProcessor;
+	}
+
+	public PropertyResource getPropertyResource() {
+		return propertyResource;
+	}
+
+	public void setPropertyResource(PropertyResource propertyResource) {
+		this.propertyResource = propertyResource;
 	}
 
 }

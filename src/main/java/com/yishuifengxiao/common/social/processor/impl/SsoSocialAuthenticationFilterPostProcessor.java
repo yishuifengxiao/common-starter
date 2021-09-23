@@ -9,8 +9,8 @@ import com.yishuifengxiao.common.social.processor.SocialAuthenticationFilterPost
  * spring social认证过滤器
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 public class SsoSocialAuthenticationFilterPostProcessor implements SocialAuthenticationFilterPostProcessor {
 

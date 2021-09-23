@@ -7,8 +7,8 @@ package com.yishuifengxiao.common.security.constant;
  * 安全相关的常量类
  * 
  * @author yishui
- * @date 2019年1月5日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public final class SecurityConstant {
 

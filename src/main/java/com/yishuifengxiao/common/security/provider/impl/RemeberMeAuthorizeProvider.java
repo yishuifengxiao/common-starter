@@ -14,9 +14,10 @@ import com.yishuifengxiao.common.security.resource.PropertyResource;
 /**
  * spring security记住我功能而定相关配置
  * 
+ * 
  * @author yishui
- * @date 2019年1月9日
- * @version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 

@@ -22,11 +22,14 @@ import com.yishuifengxiao.common.resourceserver.resolver.CustomBearerTokenResolv
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.resource.PropertyResource;
 
 /**
+ * 资源服务器自动配置
+ * 
  * @author yishui
  * @version 1.0.0
- * @date 2019-10-29
+ * @since 1.0.0
  */
 
 @Configuration(proxyBeanMethods = false)
@@ -40,9 +43,11 @@ public class SecurityResourceAutoConfiguration {
 
 	@Bean("resourceAuthenticationEntryPoint")
 	@ConditionalOnMissingBean(name = { "resourceAuthenticationEntryPoint" })
-	public AuthenticationEntryPoint resourceAuthenticationEntryPoint(HandlerProcessor handlerProcessor) {
+	public AuthenticationEntryPoint resourceAuthenticationEntryPoint(HandlerProcessor handlerProcessor,
+			PropertyResource propertyResource) {
 		ResourceAuthenticationEntryPoint resourceAuthenticationEntryPoint = new ResourceAuthenticationEntryPoint();
 		resourceAuthenticationEntryPoint.setHandlerProcessor(handlerProcessor);
+		resourceAuthenticationEntryPoint.setPropertyResource(propertyResource);
 		return resourceAuthenticationEntryPoint;
 	}
 
@@ -64,7 +69,7 @@ public class SecurityResourceAutoConfiguration {
 			@Qualifier("resourceAuthenticationEntryPoint") AuthenticationEntryPoint resourceAuthenticationEntryPoint,
 			@Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver,
 			@Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector,
-			@Qualifier("accessDeniedHandler") AccessDeniedHandler accessDeniedHandler) {
+			AccessDeniedHandler accessDeniedHandler) {
 		ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
 		resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
 		resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);

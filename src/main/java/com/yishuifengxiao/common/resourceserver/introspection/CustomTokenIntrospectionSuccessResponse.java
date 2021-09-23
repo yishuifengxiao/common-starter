@@ -54,14 +54,14 @@ import net.minidev.json.JSONObject;
  * </ul>
  */
 /**
- * token探寻响应 <br/>
- * <br/>
+ * <p>token探寻响应 </p>
+
  * 在<code>CustomOpaqueTokenIntrospector</code>中被配置
  * 
  * @see CustomOpaqueTokenIntrospector
- * @author qingteng
- * @date 2020年10月31日
+ * @author yishui
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Immutable
 public class CustomTokenIntrospectionSuccessResponse extends TokenIntrospectionResponse implements SuccessResponse {

@@ -35,11 +35,11 @@ import com.yishuifengxiao.common.social.weixin.WechatAutoConfigurerAdapter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 注入spring social相关的配置
+ * spring social自动配置
  * 
  * @author yishui
- * @date 2019年10月18日
  * @version 1.0.0
+ * @since 1.0.0
  */
 @Slf4j
 @Configuration
@@ -82,8 +82,8 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	/**
 	 * QQ登陆连接工厂
 	 * 
-	 * @param socialProperties
-	 * @return
+	 * @param socialProperties spring social属性配置
+	 * @return QQ登陆连接工厂配置
 	 */
 	@Bean("qqSocialAutoConfigurerAdapter")
 	public BaseSocialAutoConfigurerAdapter qqSocialAutoConfigurerAdapter(SocialProperties socialProperties) {
@@ -96,16 +96,17 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	}
 
 	/**
-	 * 用于在回调时获取到信息<br/>
+	 * <p>
+	 * 用于在回调时获取到信息
+	 * </p>
 	 * 
-	 * 【作用】在注册过程中获取到spring social的用户信息 <br/>
+	 * 【作用】在注册过程中获取到spring social的用户信息 ,
 	 * 
-	 * 通过以下方法 实现 个人用户 和spring social用户 关系绑定 <br/>
-	 * providerSignInUtils.doPostSignUp(个人用户 id , new ServletWebRequest(request,
-	 * response));
+	 * 通过以下方法 实现 个人用户 和spring social用户 关系绑定 , providerSignInUtils.doPostSignUp(个人用户
+	 * id , new ServletWebRequest(request, response));
 	 * 
-	 * @param connectionFactoryLocator
-	 * @return
+	 * @param connectionFactoryLocator ConnectionFactoryLocator
+	 * @return 注册操作工具
 	 */
 	@Bean
 	public ProviderSignInUtils providerSignInUtils(ConnectionFactoryLocator connectionFactoryLocator) {
@@ -116,8 +117,8 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	/**
 	 * 注入一个缺省的SocialUserDetailsService
 	 * 
-	 * @param passwordEncoder
-	 * @return
+	 * @param passwordEncoder 密码加密实例
+	 * @return SocialUserDetailsService
 	 */
 	@Bean
 	@ConditionalOnMissingBean
@@ -130,8 +131,8 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	/**
 	 * spring social QQ处理器
 	 * 
-	 * @param jsAuthenticationSuccessHandler
-	 * @return
+	 * @param jsAuthenticationSuccessHandler 登陆成功处理器
+	 * @return SocialAuthenticationFilterPostProcessor
 	 */
 	@Bean
 	public SocialAuthenticationFilterPostProcessor socialAuthenticationFilterPostProcessor(
@@ -145,7 +146,9 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	 * 自定义qq登录路径和注册路径【此服务需要注册spring security过滤器链中】 【注意研读】
 	 * SocialAuthenticationProvider 源码
 	 * 
-	 * @return
+	 * @param socialAuthenticationFilterPostProcessor spring social 认证过滤器
+	 * @param socialProperties                        spring social属性配置
+	 * @return SpringSocialConfigurer
 	 */
 	@Bean
 	@Autowired
@@ -171,8 +174,8 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	/**
 	 * 构建一个微信连接工厂
 	 * 
-	 * @param socialProperties
-	 * @return
+	 * @param socialProperties spring social属性配置
+	 * @return 微信连接工厂配置
 	 */
 	@Bean
 	@ConditionalOnProperty(prefix = "yishuifengxiao.social.weixin", name = { "appId", "appSecret" })
@@ -181,12 +184,11 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 		wechatAutoConfigurerAdapter.setSocialProperties(socialProperties);
 		return wechatAutoConfigurerAdapter;
 	}
-	
+
 	@PostConstruct
 	public void checkConfig() {
 
 		log.debug("【易水组件】: 开启 <Spring Socail 相关配置> 相关的配置");
 	}
-
 
 }

@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.Set;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -14,9 +15,10 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 /**
  * 实现记住我功能
  * 
+ * 
  * @author yishui
- * @date 2018年11月23日
- * @Version 0.0.1
+ * @version 1.0.0
+ * @since 1.0.0
  */
 public class RedisTokenRepository implements PersistentTokenRepository {
 
@@ -55,23 +57,19 @@ public class RedisTokenRepository implements PersistentTokenRepository {
 
 	@Override
 	public void removeUserTokens(String username) {
-		Set<Object> hashKeys = redisTemplate.opsForHash().keys(KEY);
-		if (hashKeys != null) {
-			hashKeys.parallelStream().filter(t -> t != null).map(t -> t.toString()).forEach(t -> {
-				PersistentRememberMeToken token =getTokenForSeries(t);
-				if(token!=null&&username.equals(token.getUsername())) {
-					redisTemplate.opsForHash().delete(KEY, t);
-				}
-			});
+		HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+		if (null != hashOperations) {
+			Set<Object> hashKeys = hashOperations.keys(KEY);
+			if (hashKeys != null) {
+				hashKeys.parallelStream().filter(t -> t != null).map(t -> t.toString()).forEach(t -> {
+					PersistentRememberMeToken token = getTokenForSeries(t);
+					if (token != null && username.equals(token.getUsername())) {
+						redisTemplate.opsForHash().delete(KEY, t);
+					}
+				});
+			}
 		}
-	}
 
-	public RedisTemplate<String, Object> getRedisTemplate() {
-		return redisTemplate;
-	}
-
-	public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
-		this.redisTemplate = redisTemplate;
 	}
 
 	public RedisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
