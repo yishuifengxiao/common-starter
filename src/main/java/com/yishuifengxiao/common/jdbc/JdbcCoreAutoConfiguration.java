@@ -12,8 +12,6 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.yishuifengxiao.common.jdbc.util.JdbcUtil;
-
 import lombok.extern.slf4j.Slf4j;
 
 /**

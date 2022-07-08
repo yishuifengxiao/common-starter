@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
- * 用户认证逻辑
+ * 校验token的合法性
  * </p>
  * 
  * <p>
@@ -47,7 +47,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0.0
  */
 @Slf4j
-public class UserAuthServiceFilter extends SecurityRequestFilter implements InitializingBean {
+public class TokenValidateFilter extends SecurityRequestFilter implements InitializingBean {
 
 	private Map<String, AntPathRequestMatcher> map = new HashMap<>();
 
@@ -74,7 +74,7 @@ public class UserAuthServiceFilter extends SecurityRequestFilter implements Init
 			log.info("【易水组件】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), requiresAuthentication);
 		}
 
-		if (requiresAuthentication) {
+		if (propertyResource.security().isOpenTokenFilter() && requiresAuthentication) {
 
 			try {
 				// 从请求中获取到携带的认证
@@ -156,7 +156,7 @@ public class UserAuthServiceFilter extends SecurityRequestFilter implements Init
 
 	}
 
-	public UserAuthServiceFilter(PropertyResource propertyResource, HandlerProcessor handlerProcessor,
+	public TokenValidateFilter(PropertyResource propertyResource, HandlerProcessor handlerProcessor,
 			SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
 		this.propertyResource = propertyResource;
 		this.handlerProcessor = handlerProcessor;

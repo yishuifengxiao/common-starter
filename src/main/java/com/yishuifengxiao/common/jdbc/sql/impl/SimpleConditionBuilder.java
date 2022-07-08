@@ -9,14 +9,14 @@ import org.apache.commons.lang3.StringUtils;
 import com.yishuifengxiao.common.jdbc.entity.Condition;
 import com.yishuifengxiao.common.jdbc.entity.Condition.Link;
 import com.yishuifengxiao.common.jdbc.entity.Condition.Type;
-import com.yishuifengxiao.common.jdbc.entity.Order.Direction;
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.entity.Order;
+import com.yishuifengxiao.common.jdbc.entity.Order.Direction;
 import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
 import com.yishuifengxiao.common.tool.collections.EmptyUtil;
-import com.yishuifengxiao.common.tool.utils.NumberUtil;
+import com.yishuifengxiao.common.tool.lang.NumberUtil;
 
 /**
  * 系统筛选条件生成器

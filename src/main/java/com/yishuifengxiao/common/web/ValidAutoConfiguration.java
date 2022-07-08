@@ -32,7 +32,7 @@ public class ValidAutoConfiguration {
 	/**
 	 * 定义切入点
 	 */
-	@Pointcut("@annotation(org.springframework.web.bind.annotation.ResponseBody)")
+	@Pointcut("@annotation(org.springframework.web.bind.annotation.ResponseBody) || @annotation(com.yishuifengxiao.common.web.annotation.DataValid)")
 	public void pointCut() {
 	}
 

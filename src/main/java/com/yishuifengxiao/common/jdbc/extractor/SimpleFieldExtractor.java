@@ -1,8 +1,6 @@
 package com.yishuifengxiao.common.jdbc.extractor;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,14 +10,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
-import com.yishuifengxiao.common.tool.utils.HumpUtil;
-
-import lombok.extern.slf4j.Slf4j;
+import com.yishuifengxiao.common.tool.bean.ClassUtil;
+import com.yishuifengxiao.common.tool.lang.HumpUtil;
 
 /**
  * 系统属性提取器
@@ -28,7 +24,6 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
 public class SimpleFieldExtractor implements FieldExtractor {
 
 	/**
@@ -83,12 +78,8 @@ public class SimpleFieldExtractor implements FieldExtractor {
 					return list;
 				}
 				list = new ArrayList<>();
-				Field[] fields = clazz.getDeclaredFields();
+				List<Field> fields = ClassUtil.fields(clazz, true);
 				for (Field field : fields) {
-
-					if (this.isExclude(field)) {
-						continue;
-					}
 					FieldValue filedValue = new FieldValue();
 					// 属性的名字
 					String name = field.getName();
@@ -116,51 +107,6 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	}
 
 	/**
-	 * 该字段是否不被提取数据信息
-	 * 
-	 * @param field 字段
-	 * @return true表示不被提取，false表示会被提取
-	 */
-	private boolean isExclude(Field field) {
-		Transient sient = field.getAnnotation(Transient.class);
-		// 如果被@Transient修饰了就不处理
-		if (null != sient) {
-			return true;
-		}
-		// 被Transient 修饰的不处理
-		if (Modifier.isTransient(field.getModifiers())) {
-			return true;
-		}
-
-		// 被final修饰的不处理
-		if (Modifier.isFinal(field.getModifiers())) {
-			return true;
-		}
-
-		// 被static 修饰的不处理
-		if (Modifier.isStatic(field.getModifiers())) {
-			return true;
-		}
-
-		// 被native 修饰的不处理
-		if (Modifier.isNative(field.getModifiers())) {
-			return true;
-		}
-
-		// 被abstract 修饰的不处理
-		if (Modifier.isAbstract(field.getModifiers())) {
-			return true;
-		}
-
-		// 属性为接口
-		if (Modifier.isInterface(field.getModifiers())) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * <p>
 	 * 提取一个POJO类的主键字段信息
 	 * </p>
@@ -181,7 +127,7 @@ public class SimpleFieldExtractor implements FieldExtractor {
 					return primaryKey;
 				}
 
-				Field[] fields = clazz.getDeclaredFields();
+				List<Field> fields = ClassUtil.fields(clazz, true);
 				for (Field field : fields) {
 					Id idCol = field.getAnnotation(Id.class);
 					// 查找 @Id 注解的属性
@@ -222,7 +168,7 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	 * <li>最后使用当前类的名字，然后将其转化为驼峰命名</li>
 	 * </ul>
 	 * 
-	 * @param <T> POJO类的类型
+	 * @param <T>   POJO类的类型
 	 * @param clazz POJO类
 	 * @return OJO类的对应的数据表的名字
 	 */
@@ -301,17 +247,8 @@ public class SimpleFieldExtractor implements FieldExtractor {
 		if (null == data || null == fieldName) {
 			return null;
 		}
-		try {
-			String firstLetter = fieldName.substring(0, 1).toUpperCase();
-			String getter = "get" + firstLetter + fieldName.substring(1);
-			Method method = data.getClass().getMethod(getter, new Class[] {});
-			method.setAccessible(true);
-			Object value = method.invoke(data, new Object[] {});
-			return value;
-		} catch (Exception e) {
-			log.warn("根据属性名获取属性值时出现问题，出现问题的原因为 {}", e.getMessage());
-		}
-		return null;
+
+		return ClassUtil.extractValue(data, fieldName);
 	}
 
 	/**

@@ -1,12 +1,10 @@
 package com.yishuifengxiao.common.guava;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -65,15 +63,14 @@ public class GuavaAutoConfiguration {
 	 * }
 	 * </pre>
 	 * 
+	 * @param customThreadPoolExecutor 自定义线程池
 	 * @return guava异步消息总线
 	 */
 	@Bean
 	@ConditionalOnMissingBean({ EventBus.class })
-	public EventBus asyncEventBus() {
-		BlockingQueue<Runnable> queue = new LinkedBlockingDeque<>(100);
-		ThreadPoolExecutor executor = new ThreadPoolExecutor(2, 5, 5, TimeUnit.SECONDS, queue,
-				new ThreadPoolExecutor.CallerRunsPolicy());
-		return new AsyncEventBus(executor);
+	public EventBus asyncEventBus(@Qualifier("customThreadPoolExecutor") ThreadPoolExecutor customThreadPoolExecutor) {
+
+		return new AsyncEventBus(customThreadPoolExecutor);
 	}
 
 	/**

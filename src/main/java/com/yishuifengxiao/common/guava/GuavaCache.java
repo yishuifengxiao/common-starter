@@ -20,7 +20,7 @@ import com.google.common.cache.CacheBuilder;
 public class GuavaCache {
 
 	private static final Cache<String, Object> GUAVA_CACHE = CacheBuilder.newBuilder().maximumSize(1000)
-			.expireAfterAccess(10, TimeUnit.HOURS).build();
+			.expireAfterAccess(24, TimeUnit.HOURS).build();
 
 	/**
 	 * 在当前线程里存储一组键值对
@@ -32,7 +32,7 @@ public class GuavaCache {
 		if (null == key || null == value) {
 			return;
 		}
-		put(new StringBuffer(key).append(Thread.currentThread().getId()).toString(), value);
+		put(new StringBuffer(key.trim()).append(Thread.currentThread().getId()).toString(), value);
 	}
 
 	/**
@@ -45,7 +45,7 @@ public class GuavaCache {
 		if (null == key) {
 			return null;
 		}
-		return get(new StringBuffer(key).append(Thread.currentThread().getId()).toString());
+		return get(new StringBuffer(key.trim()).append(Thread.currentThread().getId()).toString());
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class GuavaCache {
 		if (null == key || null == value) {
 			return;
 		}
-		GUAVA_CACHE.put(key, value);
+		GUAVA_CACHE.put(key.trim(), value);
 	}
 
 	/**
@@ -71,7 +71,26 @@ public class GuavaCache {
 		if (null == key) {
 			return null;
 		}
-		return GUAVA_CACHE.getIfPresent(key);
+		return GUAVA_CACHE.getIfPresent(key.trim());
+	}
+
+	/**
+	 * 清空所有的缓存数据
+	 */
+	public synchronized static void clearAll() {
+		GUAVA_CACHE.invalidateAll();
+	}
+
+	/**
+	 * 根据存储的键移除指定的数据
+	 * 
+	 * @param key 存储的键
+	 */
+	public synchronized static void remove(String key) {
+		if (null == key) {
+			return;
+		}
+		GUAVA_CACHE.invalidate(key.trim());
 	}
 
 }

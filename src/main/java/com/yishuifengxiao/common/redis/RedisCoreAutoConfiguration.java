@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,12 +44,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
-@AutoConfigureBefore(value = { CodeAutoConfiguration.class })
+@AutoConfigureBefore(value = { CodeAutoConfiguration.class, RedisAutoConfiguration.class })
 @EnableConfigurationProperties(RedisProperties.class)
 @ConditionalOnProperty(prefix = "yishuifengxiao.redis", name = {
 		"enable" }, havingValue = "true", matchIfMissing = true)
 public class RedisCoreAutoConfiguration {
-	
+
 	@Autowired
 	private RedisProperties redisProperties;
 
@@ -92,7 +93,7 @@ public class RedisCoreAutoConfiguration {
 	 * @return Redis操作工具
 	 * @throws UnknownHostException 创建Redis操作工具时出现异常
 	 */
-	@Bean
+	@Bean("redisTemplate")
 	@ConditionalOnMissingBean(name = "redisTemplate")
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
 			RedisSerializer<Object> redisValueSerializer) throws UnknownHostException {
@@ -110,7 +111,9 @@ public class RedisCoreAutoConfiguration {
 	}
 
 	/**
-	 * <p>自定义一个名字为springSessionDefaultRedisSerializer 的序列化器</p>
+	 * <p>
+	 * 自定义一个名字为springSessionDefaultRedisSerializer 的序列化器
+	 * </p>
 	 * 参见
 	 * org.springframework.session.data.redis.config.annotation.web.http.RedisHttpSessionConfiguration
 	 * 的188行
@@ -132,17 +135,16 @@ public class RedisCoreAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public RedisCacheConfiguration redisCacheConfiguration(RedisSerializer<Object> redisValueSerializer) {
-		//@formatter:off  
+		// @formatter:off
 		// 配置序列化（解决乱码的问题）
 		RedisCacheConfiguration configuration = RedisCacheConfiguration.defaultCacheConfig();
-		configuration = configuration
-				.serializeValuesWith(RedisSerializationContext.SerializationPair
+		configuration = configuration.serializeValuesWith(RedisSerializationContext.SerializationPair
 				// spring Security 默认不支持 jackson的序列化
 				.fromSerializer(redisValueSerializer))
 				.serializeKeysWith(
 						RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
 				.entryTtl(redisProperties.getTtl());
-		//@formatter:on
+		// @formatter:on
 		return configuration;
 	}
 

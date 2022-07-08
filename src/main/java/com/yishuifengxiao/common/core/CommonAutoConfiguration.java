@@ -1,15 +1,24 @@
 package com.yishuifengxiao.common.core;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.yishuifengxiao.common.support.ErrorUtil;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.web.WebExceptionProperties;
+import com.yishuifengxiao.common.web.error.ErrorHandler;
+import com.yishuifengxiao.common.web.error.ExceptionHelper;
+import com.yishuifengxiao.common.web.error.SimpleExceptionHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,12 +52,41 @@ public class CommonAutoConfiguration {
 	 * 
 	 * @param exceptionProperties 异常信息配置规则
 	 * @return 异常信息提取工具
+	 * @throws Exception
 	 */
-	@Bean
-	public ErrorUtil errorUtil(WebExceptionProperties exceptionProperties) {
-		ErrorUtil errorUtil = new ErrorUtil();
-		errorUtil.init(exceptionProperties);
-		return errorUtil;
+	@Bean("customExceptionHelper")
+	@ConditionalOnMissingBean(name = "customExceptionHelper")
+	public ExceptionHelper exceptionHelper(@Autowired(required = false) ErrorHandler errorHandler,
+			WebExceptionProperties exceptionProperties) throws Exception {
+		SimpleExceptionHelper exceptionHelper = new SimpleExceptionHelper();
+		exceptionHelper.setErrorHandler(errorHandler);
+		exceptionHelper.setExceptionProperties(exceptionProperties);
+		exceptionHelper.afterPropertiesSet();
+		return exceptionHelper;
+	}
+
+	/**
+	 * 生成一个全局线程池
+	 * 
+	 * <p>
+	 * IO密集型=2Ncpu（可以测试后自己控制大小，2Ncpu一般没问题） （常出现于线程中：数据库数据交互、文件上传下载、网络数据传输等等）
+	 * </p>
+	 * <p>
+	 * 计算密集型=Ncpu（常出现于线程中：复杂算法）
+	 * </p>
+	 * <p>
+	 * java中：Ncpu=Runtime.getRuntime().availableProcessors()
+	 * </p>
+	 * 
+	 * @return 线程池
+	 */
+	@Bean("customThreadPoolExecutor")
+	@ConditionalOnMissingBean(name = "customThreadPoolExecutor")
+	public ThreadPoolExecutor threadPoolExecutor() {
+		BlockingQueue<Runnable> queue = new LinkedBlockingDeque<>();
+		ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+				Integer.MAX_VALUE, 60, TimeUnit.SECONDS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
+		return executor;
 	}
 
 	/**

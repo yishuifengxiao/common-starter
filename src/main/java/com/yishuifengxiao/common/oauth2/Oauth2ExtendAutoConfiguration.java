@@ -48,6 +48,7 @@ import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.resource.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.web.error.ExceptionHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -172,8 +173,8 @@ public class Oauth2ExtendAutoConfiguration {
 	@Bean("auth2ResponseExceptionTranslator")
 	@ConditionalOnMissingBean(name = "auth2ResponseExceptionTranslator")
 	@SuppressWarnings("rawtypes")
-	public WebResponseExceptionTranslator auth2ResponseExceptionTranslator() {
-		return new Auth2ResponseExceptionTranslator();
+	public WebResponseExceptionTranslator auth2ResponseExceptionTranslator(ExceptionHelper exceptionHelper) {
+		return new Auth2ResponseExceptionTranslator(exceptionHelper);
 	}
 
 	/**
@@ -215,8 +216,8 @@ public class Oauth2ExtendAutoConfiguration {
 	 */
 	@Bean("authWebResponseExceptionTranslator")
 	@ConditionalOnMissingBean(name = "authWebResponseExceptionTranslator")
-	public WebResponseExceptionTranslator<OAuth2Exception> authWebResponseExceptionTranslator() {
-		AuthWebResponseExceptionTranslator authWebResponseExceptionTranslator = new AuthWebResponseExceptionTranslator();
+	public WebResponseExceptionTranslator<OAuth2Exception> authWebResponseExceptionTranslator(ExceptionHelper exceptionHelper) {
+		AuthWebResponseExceptionTranslator authWebResponseExceptionTranslator = new AuthWebResponseExceptionTranslator(exceptionHelper);
 		return authWebResponseExceptionTranslator;
 	}
 

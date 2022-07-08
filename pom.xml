@@ -61,9 +61,8 @@
 		<spring-social.version>1.1.6.RELEASE</spring-social.version>
 		<spring-security-oauth2-autoconfigure.version>2.1.6.RELEASE</spring-security-oauth2-autoconfigure.version>
 		<oauth2-oidc-sdk.version>6.17</oauth2-oidc-sdk.version>
-		<pagehelper.version>1.2.12</pagehelper.version>
-		<yishuifengxiao.tool.version>3.7.2</yishuifengxiao.tool.version>
-		<fastjson.version>1.2.75</fastjson.version>
+		<pagehelper.version>1.4.1</pagehelper.version>
+		<yishuifengxiao.tool.version>3.13.0</yishuifengxiao.tool.version>
 		<build.finalName>common-spring-boot-starter</build.finalName>
 	</properties>
 
@@ -99,14 +98,6 @@
 			<artifactId>common-tool</artifactId>
 			<version>${yishuifengxiao.tool.version}</version>
 		</dependency>
-
-
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>${fastjson.version}</version>
-		</dependency>
-
 
 		<!-- swagger2 -->
 		<dependency>
@@ -147,11 +138,13 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jstl</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- web -->

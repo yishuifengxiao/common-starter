@@ -11,7 +11,7 @@ import org.springframework.security.oauth2.common.exceptions.RedirectMismatchExc
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
 import com.yishuifengxiao.common.oauth2.Oauth2Server;
-import com.yishuifengxiao.common.support.ErrorUtil;
+import com.yishuifengxiao.common.web.error.ExceptionHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,6 +36,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AuthWebResponseExceptionTranslator implements WebResponseExceptionTranslator<OAuth2Exception> {
 
+	private final ExceptionHelper exceptionHelper;
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
@@ -64,9 +66,15 @@ public class AuthWebResponseExceptionTranslator implements WebResponseExceptionT
 		log.debug("【Oauth2服务】 Auth2认证异常，异常的原因为 {}", e);
 
 		// 获取配置的提示信息
-		String msg = ErrorUtil.getErrorMsg(e, defaultMsg);
+		String msg = exceptionHelper.extract(e, defaultMsg).getMsg();
 		OAuth2Exception exception = new OAuth2Exception(msg);
 		return new ResponseEntity<OAuth2Exception>(exception, responseHeaders, HttpStatus.OK);
 	}
 
+	public AuthWebResponseExceptionTranslator(ExceptionHelper exceptionHelper) {
+		this.exceptionHelper = exceptionHelper;
+	}
+
+	
+	
 }

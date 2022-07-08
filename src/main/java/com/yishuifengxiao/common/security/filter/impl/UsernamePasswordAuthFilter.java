@@ -75,6 +75,7 @@ public class UsernamePasswordAuthFilter extends SecurityRequestFilter {
 				try {
 					// 生成token
 					String sessionId = securityExtractor.extractUserUniqueIdentitier(request, response);
+					// 生成token,这一步操作中已经产生了Authentication并放入上下文中
 					SecurityToken token = securityHelper.create(username, password, sessionId);
 					// 获取认证信息
 					Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

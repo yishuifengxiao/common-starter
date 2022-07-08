@@ -1,8 +1,6 @@
-package com.yishuifengxiao.common.jdbc.util;
+package com.yishuifengxiao.common.jdbc;
 
 import org.springframework.util.Assert;
-
-import com.yishuifengxiao.common.jdbc.JdbcHelper;
 
 /**
  * <p>

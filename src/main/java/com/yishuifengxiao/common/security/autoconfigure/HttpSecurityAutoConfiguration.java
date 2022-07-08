@@ -23,7 +23,7 @@ import com.yishuifengxiao.common.security.extractor.SecurityExtractor;
 import com.yishuifengxiao.common.security.extractor.SecurityTokenExtractor;
 import com.yishuifengxiao.common.security.extractor.impl.SimpleSecurityTokenExtractor;
 import com.yishuifengxiao.common.security.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.filter.impl.UserAuthServiceFilter;
+import com.yishuifengxiao.common.security.filter.impl.TokenValidateFilter;
 import com.yishuifengxiao.common.security.filter.impl.UsernamePasswordAuthFilter;
 import com.yishuifengxiao.common.security.filter.impl.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityInterceptor;
@@ -113,16 +113,16 @@ public class HttpSecurityAutoConfiguration {
 		return new SimpleSecurityTokenExtractor();
 	}
 
-	@Bean("userAuthServiceFilter")
-	@ConditionalOnMissingBean(name = { "userAuthServiceFilter" })
-	public SecurityRequestFilter userAuthServiceFilter(PropertyResource propertyResource,
+	@Bean("securityTokenValidateFilter")
+	@ConditionalOnMissingBean(name = { "securityTokenValidateFilter" })
+	public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource,
 			HandlerProcessor handlerProcessor, SecurityTokenExtractor securityTokenExtractor,
 			SecurityHelper securityHelper) throws ServletException {
 
-		UserAuthServiceFilter userAuthServiceFilter = new UserAuthServiceFilter(propertyResource, handlerProcessor,
+		TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, handlerProcessor,
 				securityTokenExtractor, securityHelper);
-		userAuthServiceFilter.afterPropertiesSet();
-		return userAuthServiceFilter;
+		tokenValidateFilter.afterPropertiesSet();
+		return tokenValidateFilter;
 	}
 
 	/**

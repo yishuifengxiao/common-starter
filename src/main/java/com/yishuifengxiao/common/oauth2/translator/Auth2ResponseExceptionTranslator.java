@@ -6,14 +6,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
-import com.yishuifengxiao.common.support.ErrorUtil;
 import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.web.error.ExceptionHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * <p>自定义异常转换类 </p>
- * <p>主要解决失效的token导致401的问题</p>
+ * <p>
+ * 自定义异常转换类
+ * </p>
+ * <p>
+ * 主要解决失效的token导致401的问题
+ * </p>
  * 
  * <pre>
  *  传递失效access_token，返回401状态，期望是200同时以错误码方式提示token失效。
@@ -42,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Auth2ResponseExceptionTranslator implements WebResponseExceptionTranslator<Response<Object>> {
 
-
+	private final ExceptionHelper exceptionHelper;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -58,10 +62,13 @@ public class Auth2ResponseExceptionTranslator implements WebResponseExceptionTra
 		log.debug("【资源服务】 Auth2异常，造成改异常的真实原因为 {}", e.getCause());
 
 		// 获取配置的提示信息
-		String msg = ErrorUtil.getErrorMsg(e.getCause(), "token信息错误或已过期");
+		// "token信息错误或已过期"
+		String msg = exceptionHelper.extract(e.getCause(), "token信息错误或已过期").getMsg();
 		return new ResponseEntity<>(Response.unAuth(msg).setData(e), responseHeaders, HttpStatus.OK);
 	}
 
-
+	public Auth2ResponseExceptionTranslator(ExceptionHelper exceptionHelper) {
+		this.exceptionHelper = exceptionHelper;
+	}
 
 }

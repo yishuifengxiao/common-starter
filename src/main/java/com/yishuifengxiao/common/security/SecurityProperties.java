@@ -55,7 +55,12 @@ public class SecurityProperties {
 	 * 资源名称,默认为yishuifengxiao
 	 */
 	private String realmName = OAuth2Constant.REAL_NAME;
-    
+
+	/**
+	 * 是否开启token合法行校验,默认为开启
+	 */
+	private boolean openTokenFilter = true;
+
 	/**
 	 * 是否显示加载日志，默认为false
 	 */

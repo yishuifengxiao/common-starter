@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.code.autoconfigure;
 
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -12,6 +13,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.yishuifengxiao.common.code.CodeProperties;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
+import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 
 /**
  * 基于Redis的验证码存储器自动配置
@@ -21,7 +23,8 @@ import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
  * @since 1.0.0
  */
 @Configuration
-@ConditionalOnClass(RedisOperations.class)
+@AutoConfigureAfter(value = { RedisCoreAutoConfiguration.class })
+@ConditionalOnClass({ RedisOperations.class, RedisTemplate.class })
 @ConditionalOnProperty(prefix = "yishuifengxiao.code", name = { "enable" }, havingValue = "true", matchIfMissing = true)
 public class RedisExtendAutoConfiguration {
 
@@ -32,10 +35,11 @@ public class RedisExtendAutoConfiguration {
 	 * @param codeProperties 验证码属性配置
 	 * @return 名字为codeRepository验证码存储器
 	 */
-	@ConditionalOnBean(name = "redisTemplate")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@ConditionalOnBean(value = { RedisTemplate.class }, name = "redisTemplate")
 	@ConditionalOnMissingBean({ CodeRepository.class })
 	@Bean
-	public CodeRepository redisRepository(RedisTemplate<String, Object> redisTemplate, CodeProperties codeProperties) {
+	public CodeRepository redisRepository(RedisTemplate redisTemplate, CodeProperties codeProperties) {
 		return new RedisCodeRepository(redisTemplate, codeProperties);
 	}
 

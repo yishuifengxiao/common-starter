@@ -18,9 +18,8 @@ import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.context.SessionStorage;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.TokenException;
 import com.yishuifengxiao.common.tool.exception.ValidateException;
-import com.yishuifengxiao.common.tool.utils.NumberUtil;
+import com.yishuifengxiao.common.tool.lang.NumberUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -119,7 +118,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 			int maxSessions) throws CustomException {
 
 		if (null == userDetails) {
-			throw new TokenException(ErrorCode.NO_USERDETAILS,
+			throw new CustomException(ErrorCode.NO_USERDETAILS,
 					propertyResource.security().getMsg().getUserDetailsIsNull());
 		}
 
@@ -127,11 +126,11 @@ public class SimpleSecurityHelper implements SecurityHelper {
 			sessionId = userDetails.getUsername();
 		}
 
-		if (!NumberUtil.greaterZero(validSeconds)) {
+		if (!NumberUtil.gtZero(validSeconds)) {
 			validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
 		}
 
-		if (!NumberUtil.greaterZero(maxSessions)) {
+		if (!NumberUtil.gtZero(maxSessions)) {
 			maxSessions = TokenConstant.MAX_SESSION_NUM;
 		}
 
@@ -218,7 +217,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 		UserDetails userDetails = this.loadUserByUsername(username);
 
 		if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-			throw new TokenException(ErrorCode.PASSWORD_ERROR,
+			throw new CustomException(ErrorCode.PASSWORD_ERROR,
 					propertyResource.security().getMsg().getPasswordIsError());
 		}
 
@@ -234,26 +233,26 @@ public class SimpleSecurityHelper implements SecurityHelper {
 		UserDetails userDetails = userDetailsService.loadUserByUsername(username.trim());
 
 		if (null == userDetails) {
-			throw new TokenException(ErrorCode.USERNAME_NO_EXTIS,
+			throw new CustomException(ErrorCode.USERNAME_NO_EXTIS,
 					propertyResource.security().getMsg().getAccountNoExtis());
 		}
 
 		if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
-			throw new TokenException(ErrorCode.ACCOUNT_EXPIRED,
+			throw new CustomException(ErrorCode.ACCOUNT_EXPIRED,
 					propertyResource.security().getMsg().getAccountExpired());
 		}
 
 		if (BooleanUtils.isFalse(userDetails.isAccountNonLocked())) {
-			throw new TokenException(ErrorCode.ACCOUNT_LOCKED, propertyResource.security().getMsg().getAccountLocked());
+			throw new CustomException(ErrorCode.ACCOUNT_LOCKED, propertyResource.security().getMsg().getAccountLocked());
 		}
 
 		if (BooleanUtils.isFalse(userDetails.isCredentialsNonExpired())) {
-			throw new TokenException(ErrorCode.PASSWORD_EXPIRED,
+			throw new CustomException(ErrorCode.PASSWORD_EXPIRED,
 					propertyResource.security().getMsg().getPasswordExpired());
 		}
 
 		if (BooleanUtils.isFalse(userDetails.isEnabled())) {
-			throw new TokenException(ErrorCode.ACCOUNT_UNENABLE,
+			throw new CustomException(ErrorCode.ACCOUNT_UNENABLE,
 					propertyResource.security().getMsg().getAccountNoEnable());
 		}
 		return userDetails;

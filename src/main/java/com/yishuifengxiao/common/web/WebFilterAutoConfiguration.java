@@ -1,13 +1,7 @@
 package com.yishuifengxiao.common.web;
 
-import java.io.IOException;
-
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -49,17 +43,12 @@ public class WebFilterAutoConfiguration {
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	@ConditionalOnMissingBean(name = "requestTrackingFilter")
 	public Filter requestTrackingFilter(WebFilterProperties webProperties) {
-		return new Filter() {
-
-			@Override
-			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-					throws IOException, ServletException {
-				String ssid = UID.uuid();
-				request.setAttribute(webProperties.getSsidName(), ssid);
-				chain.doFilter(request, response);
-			}
-
+		return (request, response, chain) -> {
+			String ssid = UID.uuid();
+			request.setAttribute(webProperties.getSsidName(), ssid);
+			chain.doFilter(request, response);
 		};
+
 	}
 
 	/**
