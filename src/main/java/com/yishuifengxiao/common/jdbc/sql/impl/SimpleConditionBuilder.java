@@ -16,7 +16,6 @@ import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
 import com.yishuifengxiao.common.tool.collections.EmptyUtil;
-import com.yishuifengxiao.common.tool.lang.NumberUtil;
 
 /**
  * 系统筛选条件生成器
@@ -232,8 +231,8 @@ public class SimpleConditionBuilder implements ConditionBuilder {
 	@Override
 	public StringBuilder createLimit(int pageSize, int pageNum) {
 
-		pageSize = NumberUtil.get(pageSize) <= 0 ? 20 : pageSize;
-		pageNum = NumberUtil.get(pageNum) <= 0 ? 1 : pageNum;
+		pageSize = pageSize <= 0 ? 20 : pageSize;
+		pageNum = pageNum <= 0 ? 1 : pageNum;
 
 		return new StringBuilder(" limit  ").append((pageNum - 1) * pageSize).append(" , ").append(pageSize)
 				.append("  ");
