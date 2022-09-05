@@ -1,22 +1,19 @@
 package com.yishuifengxiao.common.guava;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.google.common.eventbus.AsyncEventBus;
+import com.google.common.eventbus.EventBus;
+import com.yishuifengxiao.common.core.ThreadPool;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.google.common.eventbus.AsyncEventBus;
-import com.google.common.eventbus.EventBus;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
 
 /**
  * guava增强组件自动配置
- * 
+ *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -25,61 +22,62 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class GuavaAutoConfiguration {
 
-	/**
-	 * <p>
-	 * 注入一个guava异步消息总线
-	 * </p>
-	 * 
-	 * 使用该异步消息总线的示例如下：
-	 * 
-	 * <pre>
-	 * &#64;Component
-	 * public class DemoEventBus {
-	 * 	&#64;Resource
-	 * 	private EventBus asyncEventBus;
-	 * 
-	 * 	&#64;PostConstruct
-	 * 	public void init() {
-	 * 		asyncEventBus.register(this);
-	 * 	}
-	 * }
-	 * 
-	 * </pre>
-	 * 
-	 * 
-	 * 发送消息
-	 * 
-	 * <pre>
-	 * asyncEventBus.post("需要发送的数据");
-	 * </pre>
-	 * 
-	 * 接收消息
-	 * 
-	 * <pre>
-	 * &#64;Subscribe
-	 * public void recieve(Object data) {
-	 * 	// 注意guava是根据入参的数据类型进行接收的
-	 * 	// 发送的数据可以被多个接收者同时接收
-	 * }
-	 * </pre>
-	 * 
-	 * @param customThreadPoolExecutor 自定义线程池
-	 * @return guava异步消息总线
-	 */
-	@Bean
-	@ConditionalOnMissingBean({ EventBus.class })
-	public EventBus asyncEventBus(@Qualifier("customThreadPoolExecutor") ThreadPoolExecutor customThreadPoolExecutor) {
+    /**
+     * <p>
+     * 注入一个guava异步消息总线
+     * </p>
+     * <p>
+     * 使用该异步消息总线的示例如下：
+     *
+     * <pre>
+     * &#64;Component
+     * public class DemoEventBus {
+     * 	&#64;Resource
+     * 	private EventBus asyncEventBus;
+     *
+     * 	&#64;PostConstruct
+     * 	public void init() {
+     * 		asyncEventBus.register(this);
+     *    }
+     * }
+     *
+     * </pre>
+     * <p>
+     * <p>
+     * 发送消息
+     *
+     * <pre>
+     * asyncEventBus.post("需要发送的数据");
+     * </pre>
+     * <p>
+     * 接收消息
+     *
+     * <pre>
+     * &#64;Subscribe
+     * public void recieve(Object data) {
+     * 	// 注意guava是根据入参的数据类型进行接收的
+     * 	// 发送的数据可以被多个接收者同时接收
+     * }
+     * </pre>
+     *
+     * @param threadPool 自定义线程池
+     * @return guava异步消息总线
+     */
+    @Bean
+    @ConditionalOnMissingBean({EventBus.class})
+    @ConditionalOnBean({ThreadPool.class})
+    public EventBus asyncEventBus(ThreadPool threadPool) {
 
-		return new AsyncEventBus(customThreadPoolExecutor);
-	}
+        return new AsyncEventBus(threadPool.executor());
+    }
 
-	/**
-	 * 配置检查
-	 */
-	@PostConstruct
-	public void checkConfig() {
+    /**
+     * 配置检查
+     */
+    @PostConstruct
+    public void checkConfig() {
 
-		log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
-	}
+        log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
+    }
 
 }
