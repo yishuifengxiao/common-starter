@@ -29,65 +29,66 @@ import javax.annotation.Priority;
 @Priority(1)
 public class CommonAutoConfiguration {
 
-    /**
-     * 注入一个spring 上下文工具类
-     *
-     * @param applicationContext spring上下文
-     * @return spring 上下文工具类
-     */
-    @Bean
-    public SpringContext springContext(ApplicationContext applicationContext) {
-        SpringContext springContext = new SpringContext();
-        springContext.setApplicationContext(applicationContext);
-        return springContext;
-    }
+	/**
+	 * 注入一个spring 上下文工具类
+	 *
+	 * @param applicationContext spring上下文
+	 * @return spring 上下文工具类
+	 */
+	@Bean
+	public SpringContext springContext(ApplicationContext applicationContext) {
+		SpringContext springContext = new SpringContext();
+		springContext.setApplicationContext(applicationContext);
+		return springContext;
+	}
 
-    /**
-     * 异常信息提取工具
-     *
-     * @param exceptionProperties 异常信息配置规则
-     * @return 异常信息提取工具
-     * @throws Exception
-     */
-    @Bean("customExceptionHelper")
-    @ConditionalOnMissingBean(name = "customExceptionHelper")
-    public ExceptionHelper exceptionHelper(@Autowired(required = false) ErrorHandler errorHandler, WebExceptionProperties exceptionProperties) throws Exception {
-        SimpleExceptionHelper exceptionHelper = new SimpleExceptionHelper();
-        exceptionHelper.setErrorHandler(errorHandler);
-        exceptionHelper.setExceptionProperties(exceptionProperties);
-        exceptionHelper.afterPropertiesSet();
-        return exceptionHelper;
-    }
+	/**
+	 * 异常信息提取工具
+	 *
+	 * @param exceptionProperties 异常信息配置规则
+	 * @return 异常信息提取工具
+	 * @throws Exception
+	 */
+	@Bean("customExceptionHelper")
+	@ConditionalOnMissingBean(name = "customExceptionHelper")
+	public ExceptionHelper exceptionHelper(@Autowired(required = false) ErrorHandler errorHandler,
+			WebExceptionProperties exceptionProperties) throws Exception {
+		SimpleExceptionHelper exceptionHelper = new SimpleExceptionHelper();
+		exceptionHelper.setErrorHandler(errorHandler);
+		exceptionHelper.setExceptionProperties(exceptionProperties);
+		exceptionHelper.afterPropertiesSet();
+		return exceptionHelper;
+	}
 
-    /**
-     * 生成一个全局线程池
-     *
-     * <p>
-     * IO密集型=2Ncpu（可以测试后自己控制大小，2Ncpu一般没问题） （常出现于线程中：数据库数据交互、文件上传下载、网络数据传输等等）
-     * </p>
-     * <p>
-     * 计算密集型=Ncpu（常出现于线程中：复杂算法）
-     * </p>
-     * <p>
-     * java中：Ncpu=Runtime.getRuntime().availableProcessors()
-     * </p>
-     *
-     * @return 线程池
-     */
-    @Bean
-    @ConditionalOnMissingBean({ThreadPool.class})
-    public ThreadPool threadPool() {
+	/**
+	 * 生成一个全局线程池
+	 *
+	 * <p>
+	 * IO密集型=2Ncpu（可以测试后自己控制大小，2Ncpu一般没问题） （常出现于线程中：数据库数据交互、文件上传下载、网络数据传输等等）
+	 * </p>
+	 * <p>
+	 * 计算密集型=Ncpu（常出现于线程中：复杂算法）
+	 * </p>
+	 * <p>
+	 * java中：Ncpu=Runtime.getRuntime().availableProcessors()
+	 * </p>
+	 *
+	 * @return 线程池
+	 */
+	@Bean
+	@ConditionalOnMissingBean({ ThreadPool.class })
+	public ThreadPool threadPool() {
 
-        return new SimpleThreadPool();
-    }
+		return new SimpleThreadPool();
+	}
 
-    /**
-     * 配置检查
-     */
-    @PostConstruct
-    public void checkConfig() {
+	/**
+	 * 配置检查
+	 */
+	@PostConstruct
+	public void checkConfig() {
 
-        log.trace("【易水组件】: 开启 <全局通用支持> 相关的配置");
-    }
+		log.trace("【易水组件】: 开启 <全局通用支持> 相关的配置");
+	}
 
 }

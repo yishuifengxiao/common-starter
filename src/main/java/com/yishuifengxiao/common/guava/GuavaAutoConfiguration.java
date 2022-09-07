@@ -22,62 +22,62 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class GuavaAutoConfiguration {
 
-    /**
-     * <p>
-     * 注入一个guava异步消息总线
-     * </p>
-     * <p>
-     * 使用该异步消息总线的示例如下：
-     *
-     * <pre>
-     * &#64;Component
-     * public class DemoEventBus {
-     * 	&#64;Resource
-     * 	private EventBus asyncEventBus;
-     *
-     * 	&#64;PostConstruct
-     * 	public void init() {
-     * 		asyncEventBus.register(this);
-     *    }
-     * }
-     *
-     * </pre>
-     * <p>
-     * <p>
-     * 发送消息
-     *
-     * <pre>
-     * asyncEventBus.post("需要发送的数据");
-     * </pre>
-     * <p>
-     * 接收消息
-     *
-     * <pre>
-     * &#64;Subscribe
-     * public void recieve(Object data) {
-     * 	// 注意guava是根据入参的数据类型进行接收的
-     * 	// 发送的数据可以被多个接收者同时接收
-     * }
-     * </pre>
-     *
-     * @param threadPool 自定义线程池
-     * @return guava异步消息总线
-     */
-    @Bean
-    @ConditionalOnMissingBean({EventBus.class})
-    @ConditionalOnBean({ThreadPool.class})
-    public EventBus asyncEventBus(ThreadPool threadPool) {
+	/**
+	 * <p>
+	 * 注入一个guava异步消息总线
+	 * </p>
+	 * <p>
+	 * 使用该异步消息总线的示例如下：
+	 *
+	 * <pre>
+	 * &#64;Component
+	 * public class DemoEventBus {
+	 * 	&#64;Resource
+	 * 	private EventBus asyncEventBus;
+	 *
+	 * 	&#64;PostConstruct
+	 * 	public void init() {
+	 * 		asyncEventBus.register(this);
+	 * 	}
+	 * }
+	 *
+	 * </pre>
+	 * <p>
+	 * <p>
+	 * 发送消息
+	 *
+	 * <pre>
+	 * asyncEventBus.post("需要发送的数据");
+	 * </pre>
+	 * <p>
+	 * 接收消息
+	 *
+	 * <pre>
+	 * &#64;Subscribe
+	 * public void recieve(Object data) {
+	 * 	// 注意guava是根据入参的数据类型进行接收的
+	 * 	// 发送的数据可以被多个接收者同时接收
+	 * }
+	 * </pre>
+	 *
+	 * @param threadPool 自定义线程池
+	 * @return guava异步消息总线
+	 */
+	@Bean
+	@ConditionalOnMissingBean({ EventBus.class })
+	@ConditionalOnBean({ ThreadPool.class })
+	public EventBus asyncEventBus(ThreadPool threadPool) {
 
-        return new AsyncEventBus(threadPool.executor());
-    }
+		return new AsyncEventBus(threadPool.executor());
+	}
 
-    /**
-     * 配置检查
-     */
-    @PostConstruct
-    public void checkConfig() {
+	/**
+	 * 配置检查
+	 */
+	@PostConstruct
+	public void checkConfig() {
 
-        log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
-    }
+		log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
+	}
 
 }

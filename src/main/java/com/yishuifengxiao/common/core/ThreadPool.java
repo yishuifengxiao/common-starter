@@ -11,11 +11,11 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public interface ThreadPool {
 
-    /**
-     * 获取一个自定义ThreadPoolExecutor
-     *
-     * @return 自定义ThreadPoolExecutor
-     */
-    ThreadPoolExecutor executor();
+	/**
+	 * 获取一个自定义ThreadPoolExecutor
+	 *
+	 * @return 自定义ThreadPoolExecutor
+	 */
+	ThreadPoolExecutor executor();
 
 }

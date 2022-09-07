@@ -13,21 +13,22 @@ import java.util.concurrent.TimeUnit;
  */
 public class SimpleThreadPool implements ThreadPool {
 
-    /**
-     * 默认的线程池
-     */
-    private ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
-            //
-            Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(), new ThreadPoolExecutor.CallerRunsPolicy());
+	/**
+	 * 默认的线程池
+	 */
+	private ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+			//
+			Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(),
+			new ThreadPoolExecutor.CallerRunsPolicy());
 
-    /**
-     * 获取线程池
-     *
-     * @return 内置的线程池
-     */
-    @Override
-    public ThreadPoolExecutor executor() {
-        return this.executor;
-    }
+	/**
+	 * 获取线程池
+	 *
+	 * @return 内置的线程池
+	 */
+	@Override
+	public ThreadPoolExecutor executor() {
+		return this.executor;
+	}
 
 }
