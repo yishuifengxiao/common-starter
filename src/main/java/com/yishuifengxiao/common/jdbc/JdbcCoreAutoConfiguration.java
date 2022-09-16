@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @ConditionalOnClass({ DataSource.class, JdbcTemplate.class })
 @ConditionalOnSingleCandidate(DataSource.class)
-@AutoConfigureAfter({ JdbcTemplateAutoConfiguration.class, JdbcTemplateAutoConfiguration.class })
+@AutoConfigureAfter({ JdbcTemplateAutoConfiguration.class})
 public class JdbcCoreAutoConfiguration {
 
 	/**
