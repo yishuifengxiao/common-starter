@@ -29,7 +29,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0.0
  */
 @Slf4j
-public class HttpUtil {
+public class HttpUtils {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

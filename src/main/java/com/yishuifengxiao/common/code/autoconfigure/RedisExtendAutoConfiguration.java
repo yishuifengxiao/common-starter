@@ -25,7 +25,7 @@ import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 @Configuration
 @AutoConfigureAfter(value = { RedisCoreAutoConfiguration.class })
 @ConditionalOnClass({ RedisOperations.class, RedisTemplate.class })
-@ConditionalOnProperty(prefix = "yishuifengxiao.code", name = { "enable" }, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.code", name = { "enable" }, havingValue = "true", matchIfMissing = false)
 public class RedisExtendAutoConfiguration {
 
 	/**

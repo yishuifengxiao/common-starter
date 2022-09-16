@@ -30,7 +30,7 @@ import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.utils.HttpUtil;
+import com.yishuifengxiao.common.utils.HttpUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,7 +84,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 			return;
 		}
 
-		HttpUtil.out(response, Response.suc(token).setMsg("登陆成功"));
+		HttpUtils.out(response, Response.suc(token).setMsg("登陆成功"));
 	}
 
 	/**
@@ -111,7 +111,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 			msg = e.getMessage();
 		}
 
-		HttpUtil.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
+		HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
 				exception.getMessage()));
 	}
 
@@ -131,7 +131,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 		// 发布事件
 		SpringContext.publishEvent(new LogoutSuccessEvent(this, request, authentication));
 
-		HttpUtil.out(response, Response.suc(authentication).setMsg("退出成功"));
+		HttpUtils.out(response, Response.suc(authentication).setMsg("退出成功"));
 	}
 
 	/**
@@ -156,7 +156,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 		SpringContext.publishEvent(new AccessDeniedEvent(this, request, exception));
 
 		// 发布事件
-		HttpUtil.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
+		HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
 				propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
 	}
 
@@ -180,7 +180,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 
 		log.trace("【易水组件】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", this.getReferer(request, response), exception);
 
-		HttpUtil.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
+		HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
 				propertyResource.security().getMsg().getVisitOnError(), exception));
 	}
 
@@ -199,7 +199,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 	public void preAuth(HttpServletRequest request, HttpServletResponse response, Response<CustomException> data)
 			throws IOException {
 		log.trace("【易水组件】==============》 自定义权限检查时发现问题 {}", data);
-		HttpUtil.out(response, data);
+		HttpUtils.out(response, data);
 
 	}
 

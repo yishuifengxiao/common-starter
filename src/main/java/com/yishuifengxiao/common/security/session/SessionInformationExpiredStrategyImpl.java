@@ -8,7 +8,7 @@ import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.utils.HttpUtil;
+import com.yishuifengxiao.common.utils.HttpUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -26,7 +26,7 @@ public class SessionInformationExpiredStrategyImpl implements SessionInformation
 	@Override
 	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
 		log.info("【易水组件】session失效-并发登陆");
-		HttpUtil.out(event.getResponse(), Response.error("并发登陆"));
+		HttpUtils.out(event.getResponse(), Response.error("并发登陆"));
 
 	}
 
