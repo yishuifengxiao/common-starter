@@ -22,7 +22,8 @@ public class RedisCodeRepository implements CodeRepository {
 	/**
 	 * 简化Redis数据访问代码的Helper类。
 	 */
-	private RedisTemplate<String, Object> redisTemplate;
+	@SuppressWarnings("rawtypes")
+	private RedisTemplate redisTemplate;
 
 	/**
 	 * 验证码属性配置
@@ -35,6 +36,7 @@ public class RedisCodeRepository implements CodeRepository {
 	 * @param key  验证码的唯一标识符
 	 * @param code 需要存储的验证码
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void save(String key, ValidateCode code) {
 
@@ -63,6 +65,7 @@ public class RedisCodeRepository implements CodeRepository {
 	 * 
 	 * @param key 验证码的唯一标识符
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void remove(String key) {
 		redisTemplate.delete(this.getKey(key));
@@ -86,11 +89,13 @@ public class RedisCodeRepository implements CodeRepository {
 		return new StringBuilder(this.codeProperties.getPrefix()).append(":").append(key).toString();
 	}
 
-	public RedisTemplate<String, Object> getRedisTemplate() {
+	@SuppressWarnings("rawtypes")
+	public RedisTemplate getRedisTemplate() {
 		return redisTemplate;
 	}
 
-	public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
+	@SuppressWarnings({ "rawtypes" })
+	public void setRedisTemplate(RedisTemplate redisTemplate) {
 		this.redisTemplate = redisTemplate;
 	}
 
@@ -98,7 +103,8 @@ public class RedisCodeRepository implements CodeRepository {
 
 	}
 
-	public RedisCodeRepository(RedisTemplate<String, Object> redisTemplate, CodeProperties codeProperties) {
+	@SuppressWarnings({ "rawtypes" })
+	public RedisCodeRepository(RedisTemplate redisTemplate, CodeProperties codeProperties) {
 		this.redisTemplate = redisTemplate;
 		this.codeProperties = codeProperties;
 	}
