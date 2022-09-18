@@ -35,7 +35,7 @@ public class RedisExtendAutoConfiguration {
 	 * @param codeProperties 验证码属性配置
 	 * @return 名字为codeRepository验证码存储器
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@ConditionalOnBean(value = { RedisTemplate.class }, name = "redisTemplate")
 	@ConditionalOnMissingBean({ CodeRepository.class })
 	@Bean

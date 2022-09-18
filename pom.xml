@@ -62,7 +62,7 @@
 		<spring-security-oauth2-autoconfigure.version>2.1.6.RELEASE</spring-security-oauth2-autoconfigure.version>
 		<oauth2-oidc-sdk.version>6.17</oauth2-oidc-sdk.version>
 		<pagehelper.version>1.4.1</pagehelper.version>
-		<yishuifengxiao.tool.version>3.15.1</yishuifengxiao.tool.version>
+		<yishuifengxiao.tool.version>3.15.2</yishuifengxiao.tool.version>
 		<build.finalName>common-spring-boot-starter</build.finalName>
 	</properties>
 
