@@ -3,12 +3,11 @@
  */
 package com.yishuifengxiao.common.security.token.holder;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * token存取工具类
@@ -69,8 +68,8 @@ public interface TokenHolder {
 	 * 
 	 * @param username 用户账号
 	 * @param expireAt 过期时间点
-	 * @throws ValidateException 处理时出现问题
+	 * @throws CustomException  处理时出现问题
 	 */
-	void setExpireAt(String username, LocalDateTime expireAt) throws ValidateException;
+	void setExpireAt(String username, LocalDateTime expireAt) throws CustomException ;
 
 }

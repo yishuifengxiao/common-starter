@@ -1,26 +1,19 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-
 import com.alibaba.fastjson.JSONObject;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.datetime.DateTimeUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 基于redis的token存取工具类
@@ -135,12 +128,12 @@ public class RedisTokenHolder implements TokenHolder {
 	 * 
 	 * @param username 用户账号
 	 * @param expireAt 过期时间点
-	 * @throws ValidateException 处理时出现问题
+	 * @throws CustomException  处理时出现问题
 	 */
 	@Override
-	public synchronized void setExpireAt(String username, LocalDateTime expireAt) throws ValidateException {
+	public synchronized void setExpireAt(String username, LocalDateTime expireAt) throws CustomException  {
 		if (null == expireAt) {
-			throw new ValidateException("过期时间点不能为空");
+			throw new CustomException ("过期时间点不能为空");
 		}
 		this.get(username).expireAt(DateTimeUtil.localDateTime2Date(expireAt));
 	}
@@ -153,23 +146,23 @@ public class RedisTokenHolder implements TokenHolder {
 	 * 检查令牌的内容合法性
 	 * 
 	 * @param token 令牌
-	 * @throws ValidateException 令牌非法
+	 * @throws CustomException  令牌非法
 	 */
-	private void check(SecurityToken token) throws ValidateException {
+	private void check(SecurityToken token) throws CustomException  {
 		if (null == token) {
-			throw new ValidateException("令牌不能为空");
+			throw new CustomException ("令牌不能为空");
 		}
 		if (StringUtils.isBlank(token.getUsername())) {
-			throw new ValidateException("令牌中必须包含用户账号信息");
+			throw new CustomException ("令牌中必须包含用户账号信息");
 		}
 		if (StringUtils.isBlank(token.getSessionId())) {
-			throw new ValidateException("令牌中必须包含请求识别信息");
+			throw new CustomException ("令牌中必须包含请求识别信息");
 		}
 		if (null == token.getExpireAt()) {
-			throw new ValidateException("令牌中必须包含过期时间信息");
+			throw new CustomException ("令牌中必须包含过期时间信息");
 		}
 		if (null == token.getValidSeconds()) {
-			throw new ValidateException("令牌中必须包含有效时间信息");
+			throw new CustomException ("令牌中必须包含有效时间信息");
 		}
 	}
 

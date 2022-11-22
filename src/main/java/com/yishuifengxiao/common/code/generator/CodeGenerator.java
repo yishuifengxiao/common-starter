@@ -3,11 +3,10 @@
  */
 package com.yishuifengxiao.common.code.generator;
 
-import org.springframework.web.context.request.ServletWebRequest;
-
 import com.yishuifengxiao.common.code.CodeProperties;
 import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import org.springframework.web.context.request.ServletWebRequest;
 
 /**
  * <p>
@@ -35,9 +34,9 @@ public interface CodeGenerator {
 	 * @param request        用户请求
 	 * @param codeProperties 验证码属性配置
 	 * @return 验证码的唯一标识符
-	 * @throws ValidateException 提取时出现问题
+	 * @throws CustomException  提取时出现问题
 	 */
-	String generateKey(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException;
+	String generateKey(ServletWebRequest request, CodeProperties codeProperties) throws CustomException ;
 
 	/**
 	 * 获取请求中携带的验证码的内容
@@ -45,7 +44,7 @@ public interface CodeGenerator {
 	 * @param request        用户请求
 	 * @param codeProperties 验证码属性配置
 	 * @return 验证码的内容
-	 * @throws ValidateException 提取时出现问题
+	 * @throws CustomException  提取时出现问题
 	 */
-	String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException;
+	String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws CustomException ;
 }

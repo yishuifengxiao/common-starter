@@ -1,11 +1,5 @@
 package com.yishuifengxiao.common.jdbc.sql.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.yishuifengxiao.common.jdbc.entity.Condition;
 import com.yishuifengxiao.common.jdbc.entity.Condition.Link;
 import com.yishuifengxiao.common.jdbc.entity.Condition.Type;
@@ -15,7 +9,13 @@ import com.yishuifengxiao.common.jdbc.entity.Order.Direction;
 import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
-import com.yishuifengxiao.common.tool.collections.EmptyUtil;
+
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 系统筛选条件生成器
@@ -280,7 +280,7 @@ public class SimpleConditionBuilder implements ConditionBuilder {
 
 		StringBuilder sql = new StringBuilder("select ");
 
-		if (EmptyUtil.isEmpty(list)) {
+		if (SizeUtil.isEmpty(list)) {
 			sql.append(" * ");
 		} else {
 			for (FieldValue field : list) {

@@ -15,7 +15,7 @@ import com.yishuifengxiao.common.code.eunm.CodeType;
 import com.yishuifengxiao.common.code.generator.CodeGenerator;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.code.sender.CodeSender;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
+import com.yishuifengxiao.common.tool.exception.CustomException ;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -58,10 +58,10 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * @param request  用户请求
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
 	@Override
-	public ValidateCode create(ServletWebRequest request, CodeType codeType) throws ValidateException {
+	public ValidateCode create(ServletWebRequest request, CodeType codeType) throws CustomException  {
 
 		// 验证码的唯一标识符
 		String key = generator(codeType).generateKey(request, codeProperties);
@@ -84,10 +84,10 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * @param key      验证码的发送目标
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
 	@Override
-	public ValidateCode create(ServletWebRequest request, String key, CodeType codeType) throws ValidateException {
+	public ValidateCode create(ServletWebRequest request, String key, CodeType codeType) throws CustomException  {
 
 		// 生成验证码
 		ValidateCode validateCode = generator(codeType).generate(request, codeProperties);
@@ -108,10 +108,10 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * @param request  用户请求
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
 	@Override
-	public ValidateCode createAndSend(ServletWebRequest request, CodeType codeType) throws ValidateException {
+	public ValidateCode createAndSend(ServletWebRequest request, CodeType codeType) throws CustomException  {
 
 		// 验证码的唯一标识符
 		String key = generator(codeType).generateKey(request, codeProperties);
@@ -134,11 +134,11 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * @param key      验证码的发送目标
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
 	@Override
 	public ValidateCode createAndSend(ServletWebRequest request, String key, CodeType codeType)
-			throws ValidateException {
+			throws CustomException  {
 		ValidateCode validateCode = this.create(request, key, codeType);
 		// 发送验证码
 		this.codeSender(codeType).send(request, key, validateCode);
@@ -150,15 +150,15 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * 
 	 * @param codeType 验证码的类型
 	 * @return 验证码生成器
-	 * @throws ValidateException 获取对应的验证码生成器时发生问题
+	 * @throws CustomException  获取对应的验证码生成器时发生问题
 	 */
-	private CodeGenerator generator(CodeType codeType) throws ValidateException {
+	private CodeGenerator generator(CodeType codeType) throws CustomException  {
 		// 根据请求的url获取校验码的类型
 		String generatorName = codeType.getCode() + "CodeGenerator";
 		// 获取到对应的验证码生成器
 		CodeGenerator codeGenerator = codeGenerators.get(generatorName);
 		if (codeGenerator == null) {
-			throw new ValidateException(ErrorCode.GENERATOR_NO_EXTIS, codeType.getName() + "生成器不存在");
+			throw new CustomException (ErrorCode.GENERATOR_NO_EXTIS, codeType.getName() + "生成器不存在");
 		}
 		return codeGenerator;
 	}
@@ -168,14 +168,14 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * 
 	 * @param codeType 验证码的类型
 	 * @return 验证码发送器
-	 * @throws ValidateException 获取对应的验证码生成器时发生问题
+	 * @throws CustomException  获取对应的验证码生成器时发生问题
 	 */
-	private CodeSender codeSender(CodeType codeType) throws ValidateException {
+	private CodeSender codeSender(CodeType codeType) throws CustomException  {
 
 		String senderName = codeType.getCode() + "CodeSender";
 		CodeSender codeSender = codeSenders.get(senderName);
 		if (null == codeSender) {
-			throw new ValidateException(ErrorCode.SENDER_NO_EXTIS, codeType.getName() + "发送器不存在");
+			throw new CustomException (ErrorCode.SENDER_NO_EXTIS, codeType.getName() + "发送器不存在");
 		}
 
 		return codeSender;
@@ -194,10 +194,10 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * 
 	 * @param request  用户请求
 	 * @param codeType 验证码类型
-	 * @throws ValidateException 验证码不匹配或已过期等未通过验证时
+	 * @throws CustomException  验证码不匹配或已过期等未通过验证时
 	 */
 	@Override
-	public void validate(ServletWebRequest request, CodeType codeType) throws ValidateException {
+	public void validate(ServletWebRequest request, CodeType codeType) throws CustomException  {
 		// 验证码生成器
 		CodeGenerator codeGenerator = generator(codeType);
 		// 验证码的唯一标识符
@@ -221,17 +221,17 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	 * 
 	 * @param key           验证码的唯一标识符
 	 * @param codeInRequest 给定的验证码
-	 * @throws ValidateException 验证码不匹配或已过期等未通过验证时
+	 * @throws CustomException  验证码不匹配或已过期等未通过验证时
 	 */
 	@Override
-	public void validate(String key, String codeInRequest) throws ValidateException {
+	public void validate(String key, String codeInRequest) throws CustomException  {
 
 		if (show) {
 			log.info("【易水组件】从请求中获取的验证码的内容的为 {} ", codeInRequest);
 		}
 
 		if (StringUtils.isBlank(codeInRequest)) {
-			throw new ValidateException(ErrorCode.REQUEST_CODE_NO_EXTIS, "验证码不能为空");
+			throw new CustomException (ErrorCode.REQUEST_CODE_NO_EXTIS, "验证码不能为空");
 		}
 		/**
 		 * 获取到存储的验证码
@@ -243,16 +243,16 @@ public class SimpleCodeProcessor implements CodeProcessor {
 		}
 
 		if (codeInSession == null) {
-			throw new ValidateException(ErrorCode.SESSION_CODE_NO_EXTIS, "验证码不存在");
+			throw new CustomException (ErrorCode.SESSION_CODE_NO_EXTIS, "验证码不存在");
 		}
 
 		if (codeInSession.isExpired()) {
 			repository.remove(key);
-			throw new ValidateException(ErrorCode.CODE_EXPIRED, "验证码已过期");
+			throw new CustomException (ErrorCode.CODE_EXPIRED, "验证码已过期");
 		}
 
 		if (!StringUtils.equalsIgnoreCase(codeInSession.getCode(), codeInRequest)) {
-			throw new ValidateException(ErrorCode.CODE_NO_MATCH, "验证码不匹配");
+			throw new CustomException (ErrorCode.CODE_NO_MATCH, "验证码不匹配");
 		}
 		if (BooleanUtils.isNotFalse(codeProperties.getDeleteOnSuccess())) {
 			// 移除验证码

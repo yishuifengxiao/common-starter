@@ -11,7 +11,8 @@ import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
 import com.yishuifengxiao.common.jdbc.sql.QueryBuilder;
-import com.yishuifengxiao.common.tool.collections.EmptyUtil;
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
+
 
 /**
  * 系统查询条件生成器
@@ -74,7 +75,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(fieldExtractor, t, true);
 		sql.append(condtion.getSql());
 
-		if (EmptyUtil.notEmpty(condtion.getArgs())) {
+		if (SizeUtil.notEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 
@@ -108,7 +109,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(clazz, fieldExtractor, true, conditions);
 		sql.append(condtion.getSql());
 
-		if (EmptyUtil.notEmpty(condtion.getArgs())) {
+		if (SizeUtil.notEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 

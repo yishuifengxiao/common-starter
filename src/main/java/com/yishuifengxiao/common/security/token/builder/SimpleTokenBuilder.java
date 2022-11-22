@@ -3,13 +3,6 @@
  */
 package com.yishuifengxiao.common.security.token.builder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.token.SecurityToken;
@@ -17,9 +10,13 @@ import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.encoder.DES;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * 基于Redis实现的token生成器
@@ -54,11 +51,11 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	public synchronized SecurityToken creatNewToken(String username, String sessionId, Integer validSeconds,
 			boolean preventsLogin, int maxSessions) throws CustomException {
 		if (StringUtils.isBlank(username)) {
-			throw new ValidateException(ErrorCode.USERNAME_NULL, "用户名不能为空");
+			throw new CustomException (ErrorCode.USERNAME_NULL, "用户名不能为空");
 		}
 
 		if (StringUtils.isBlank(sessionId)) {
-			throw new ValidateException(ErrorCode.SESSION_ID_NULL, "会话id不能为空");
+			throw new CustomException (ErrorCode.SESSION_ID_NULL, "会话id不能为空");
 		}
 		if (maxSessions <= 0) {
 			maxSessions = TokenConstant.MAX_SESSION_NUM;
@@ -97,11 +94,11 @@ public class SimpleTokenBuilder implements TokenBuilder {
 	 * @param preventsLogin 是否阻止后面的用户登陆
 	 * @param maxSessions   最大登陆数量限制
 	 * @return
-	 * @throws ValidateException
+	 * @throws CustomException 
 	 * @throws CustomException
 	 */
 	private SecurityToken createNewToken(String username, String sessionId, Integer validSeconds, boolean preventsLogin,
-			int maxSessions) throws ValidateException, CustomException {
+			int maxSessions) throws CustomException , CustomException {
 		// 先取出该用户所有可用的token
 		List<SecurityToken> list = this.loadAllToken(username, true);
 
@@ -117,7 +114,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
 
 		if (list.size() >= maxSessions) {
 			if (preventsLogin) {
-				throw new ValidateException(ErrorCode.MAX_USER_LIMT, "已达到最大登陆用户数量限制");
+				throw new CustomException (ErrorCode.MAX_USER_LIMT, "已达到最大登陆用户数量限制");
 			}
 			// 将第一个token设置为失效状态
 			SecurityToken extisToken = list.get(0);

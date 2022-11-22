@@ -7,7 +7,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 
 import com.yishuifengxiao.common.code.entity.ValidateCode;
 import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
+import com.yishuifengxiao.common.tool.exception.CustomException ;
 
 /**
  * 验证码处理器
@@ -23,9 +23,9 @@ public interface CodeProcessor {
 	 * @param request  用户请求
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
-	ValidateCode create(ServletWebRequest request, CodeType codeType) throws ValidateException;
+	ValidateCode create(ServletWebRequest request, CodeType codeType) throws CustomException ;
 
 	/**
 	 * <p>
@@ -43,18 +43,18 @@ public interface CodeProcessor {
 	 * @param key      验证码的发送目标
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
-	ValidateCode create(ServletWebRequest request, String key, CodeType codeType) throws ValidateException;
+	ValidateCode create(ServletWebRequest request, String key, CodeType codeType) throws CustomException ;
 	/**
 	 * 创建校验码并发送验证码
 	 * 
 	 * @param request  用户请求
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
-	ValidateCode createAndSend(ServletWebRequest request, CodeType codeType) throws ValidateException;
+	ValidateCode createAndSend(ServletWebRequest request, CodeType codeType) throws CustomException ;
 
 	/**
 	 * <p>
@@ -72,9 +72,9 @@ public interface CodeProcessor {
 	 * @param key      验证码的发送目标
 	 * @param codeType 验证码的类型
 	 * @return 创建并发送的验证码
-	 * @throws ValidateException 创建或发送验证码时出现问题
+	 * @throws CustomException  创建或发送验证码时出现问题
 	 */
-	ValidateCode createAndSend(ServletWebRequest request, String key, CodeType codeType) throws ValidateException;
+	ValidateCode createAndSend(ServletWebRequest request, String key, CodeType codeType) throws CustomException ;
 
 	/**
 	 * <p>
@@ -89,9 +89,9 @@ public interface CodeProcessor {
 	 * 
 	 * @param request  用户请求
 	 * @param codeType 验证码类型
-	 * @throws ValidateException 验证码不匹配或已过期等未通过验证时
+	 * @throws CustomException  验证码不匹配或已过期等未通过验证时
 	 */
-	void validate(ServletWebRequest request, CodeType codeType) throws ValidateException;
+	void validate(ServletWebRequest request, CodeType codeType) throws CustomException ;
 
 	/**
 	 * <p>
@@ -106,7 +106,7 @@ public interface CodeProcessor {
 	 * 
 	 * @param key           验证码的唯一标识符
 	 * @param codeInRequest 给定的验证码
-	 * @throws ValidateException 验证码不匹配或已过期等未通过验证时
+	 * @throws CustomException  验证码不匹配或已过期等未通过验证时
 	 */
-	void validate(String key, String codeInRequest) throws ValidateException;
+	void validate(String key, String codeInRequest) throws CustomException ;
 }

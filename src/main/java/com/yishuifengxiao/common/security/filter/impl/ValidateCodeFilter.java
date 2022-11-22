@@ -1,15 +1,13 @@
 package com.yishuifengxiao.common.security.filter.impl;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.yishuifengxiao.common.code.CodeProcessor;
+import com.yishuifengxiao.common.code.eunm.CodeType;
+import com.yishuifengxiao.common.security.SecurityProperties;
+import com.yishuifengxiao.common.security.filter.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.processor.HandlerProcessor;
+import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -18,15 +16,14 @@ import org.springframework.security.web.authentication.preauth.AbstractPreAuthen
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
 
-import com.yishuifengxiao.common.code.CodeProcessor;
-import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.processor.HandlerProcessor;
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 验证码过滤器
@@ -107,7 +104,7 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
 				}
 
 				codeProcessor.validate(new ServletWebRequest(request, response), validateCodeType);
-			} catch (ValidateException exception) {
+			} catch (CustomException  exception) {
 				if (show) {
 					log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
 				}

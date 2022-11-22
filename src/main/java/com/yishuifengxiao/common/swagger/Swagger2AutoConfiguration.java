@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.servlet.Filter;
 
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
-import com.yishuifengxiao.common.tool.collections.EmptyUtil;
+
 
 import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -125,7 +126,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 		}
 
 		List<Parameter> pars = new ArrayList<>();
-		if(EmptyUtil.notEmpty(this.swaggerProperties.getAuths())) {
+		if(SizeUtil.notEmpty(this.swaggerProperties.getAuths())) {
 			this.swaggerProperties.getAuths().forEach(t->{
 				pars.add(new ParameterBuilder()
 							.name(t.getName())

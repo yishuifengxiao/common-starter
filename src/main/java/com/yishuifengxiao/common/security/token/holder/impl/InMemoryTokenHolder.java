@@ -1,19 +1,18 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
+import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.holder.TokenHolder;
+import com.yishuifengxiao.common.tool.collections.DataUtil;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.exception.CustomException ;
+import org.apache.commons.lang3.StringUtils;
+
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
-import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
 
 /**
  * 基于内存的token存取工具类
@@ -116,23 +115,23 @@ public class InMemoryTokenHolder implements TokenHolder {
 	 * 检查令牌的内容合法性
 	 * 
 	 * @param token 令牌
-	 * @throws ValidateException 令牌非法
+	 * @throws CustomException  令牌非法
 	 */
-	private void check(SecurityToken token) throws ValidateException {
+	private void check(SecurityToken token) throws CustomException  {
 		if (null == token) {
-			throw new ValidateException("令牌不能为空");
+			throw new CustomException ("令牌不能为空");
 		}
 		if (StringUtils.isBlank(token.getUsername())) {
-			throw new ValidateException("令牌中必须包含用户账号信息");
+			throw new CustomException ("令牌中必须包含用户账号信息");
 		}
 		if (StringUtils.isBlank(token.getSessionId())) {
-			throw new ValidateException("令牌中必须包含请求识别信息");
+			throw new CustomException ("令牌中必须包含请求识别信息");
 		}
 		if (null == token.getExpireAt()) {
-			throw new ValidateException("令牌中必须包含过期时间信息");
+			throw new CustomException ("令牌中必须包含过期时间信息");
 		}
 		if (null == token.getValidSeconds()) {
-			throw new ValidateException("令牌中必须包含有效时间信息");
+			throw new CustomException ("令牌中必须包含有效时间信息");
 		}
 	}
 

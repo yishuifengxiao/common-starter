@@ -1,14 +1,5 @@
 package com.yishuifengxiao.common.security.support;
 
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.event.TokenExpireEvnet;
@@ -18,10 +9,16 @@ import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.context.SessionStorage;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
 import com.yishuifengxiao.common.tool.lang.NumberUtil;
-
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * 系统安全信息处理器
@@ -58,7 +55,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 	@Override
 	public SecurityToken createUnsafe(String username, String sessionId, int validSeconds) throws CustomException {
 		if (StringUtils.isBlank(username)) {
-			throw new ValidateException("账号不能为空");
+			throw new CustomException ("账号不能为空");
 		}
 
 		UserDetails userDetails = this.loadUserByUsername(username.trim());
@@ -71,7 +68,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 	@Override
 	public SecurityToken create(String username, String password, String sessionId) throws CustomException {
 		if (StringUtils.isBlank(username)) {
-			throw new ValidateException("账号不能为空");
+			throw new CustomException ("账号不能为空");
 		}
 
 		if (StringUtils.isBlank(password)) {
@@ -152,7 +149,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 	@Override
 	public Authentication authorize(String tokenValue) throws CustomException {
 		if (StringUtils.isBlank(tokenValue)) {
-			throw new ValidateException(propertyResource.security().getMsg().getTokenValueIsNull());
+			throw new CustomException (propertyResource.security().getMsg().getTokenValueIsNull());
 		}
 
 		// 解析token
@@ -227,7 +224,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws CustomException {
 		if (StringUtils.isBlank(username)) {
-			throw new ValidateException("账号不能为空");
+			throw new CustomException ("账号不能为空");
 		}
 		// 获取认证信息
 		UserDetails userDetails = userDetailsService.loadUserByUsername(username.trim());

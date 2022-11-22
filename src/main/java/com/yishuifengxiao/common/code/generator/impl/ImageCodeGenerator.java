@@ -3,24 +3,20 @@
  */
 package com.yishuifengxiao.common.code.generator.impl;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.util.Random;
-
+import com.yishuifengxiao.common.code.CodeProperties;
+import com.yishuifengxiao.common.code.entity.ImageCode;
+import com.yishuifengxiao.common.code.generator.BaseCodeGenerator;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
-import com.yishuifengxiao.common.code.CodeProperties;
-import com.yishuifengxiao.common.code.entity.ImageCode;
-import com.yishuifengxiao.common.code.generator.BaseCodeGenerator;
-import com.yishuifengxiao.common.tool.exception.ValidateException;
-
-import lombok.extern.slf4j.Slf4j;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.Random;
 
 /**
  * <p>
@@ -54,7 +50,7 @@ public class ImageCodeGenerator  extends BaseCodeGenerator  {
 
 	@Override
 	public String generateKey(ServletWebRequest request, CodeProperties codeProperties)
-			throws ValidateException {
+			throws CustomException  {
 
 		String value =  this.extract(request.getRequest(), codeProperties.getImage().getCodeKey());
 		if (StringUtils.isBlank(value)) {
@@ -65,7 +61,7 @@ public class ImageCodeGenerator  extends BaseCodeGenerator  {
 	}
 
 	@Override
-	public String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws ValidateException {
+	public String getCodeInRequest(ServletWebRequest request, CodeProperties codeProperties) throws CustomException  {
 
 		return  this.extract(request.getRequest(), codeProperties.getImage().getCodeValue());
 
