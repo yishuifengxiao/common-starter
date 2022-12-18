@@ -95,6 +95,7 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 		return convertClaimsSet(introspectionSuccessResponse);
 	}
 
+	@SuppressWarnings("deprecation")
 	private OAuth2AuthenticatedPrincipal convertClaimsSet(CustomTokenIntrospectionSuccessResponse response) {
 		Collection<GrantedAuthority> authorities = new ArrayList<>();
 		Map<String, Object> claims = response.toJSONObject();

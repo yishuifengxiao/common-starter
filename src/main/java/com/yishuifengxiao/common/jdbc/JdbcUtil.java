@@ -33,7 +33,7 @@ public class JdbcUtil {
 	 * 
 	 * @return JdbcTemplate操作器
 	 */
-	public static JdbcHelper jdbc() {
+	public synchronized static JdbcHelper jdbc() {
 		Assert.notNull(jdbcHelper, "jdbc工具初始化失败");
 		return JdbcUtil.jdbcHelper;
 	}
