@@ -15,7 +15,7 @@ import javax.annotation.PostConstruct;
  * <p>
  * guava增强组件自动配置
  * </p>
- * 
+ *
  * <p>
  * 使用该异步消息总线的示例如下：
  *
@@ -28,7 +28,7 @@ import javax.annotation.PostConstruct;
  * 	&#64;PostConstruct
  * 	public void init() {
  * 		asyncEventBus.register(this);
- * 	}
+ *    }
  * }
  *
  * </pre>
@@ -58,29 +58,37 @@ import javax.annotation.PostConstruct;
 @Configuration
 public class GuavaAutoConfiguration {
 
-	/**
-	 * <p>
-	 * 注入一个guava异步消息总线
-	 * </p>
-	 *
-	 * @param threadPool 自定义线程池
-	 * @return guava异步消息总线
-	 */
-	@Bean
-	@ConditionalOnMissingBean({ EventBus.class })
-	@ConditionalOnBean({ ThreadPool.class })
-	public EventBus asyncEventBus(ThreadPool threadPool) {
+    /**
+     * <p>
+     * 注入一个guava异步消息总线
+     * </p>
+     *
+     * @param threadPool 自定义线程池
+     * @return guava异步消息总线
+     */
+    @Bean
+    @ConditionalOnMissingBean({EventBus.class})
+    @ConditionalOnBean({ThreadPool.class})
+    public EventBus asyncEventBus(ThreadPool threadPool) {
 
-		return new AsyncEventBus(threadPool.executor());
-	}
+        return new AsyncEventBus(threadPool.executor());
+    }
 
-	/**
-	 * 配置检查
-	 */
-	@PostConstruct
-	public void checkConfig() {
+    /**
+     * 配置检查
+     */
+    @PostConstruct
+    public void checkConfig() {
 
-		log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
-	}
+        log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
+    }
+
+    @Bean
+    public EventPublisher eventPublisher(EventBus asyncEventBus) throws Exception {
+        EventPublisher eventPublisher = new EventPublisher();
+        eventPublisher.setAsyncEventBus(asyncEventBus);
+        eventPublisher.afterPropertiesSet();
+        return eventPublisher;
+    }
 
 }
