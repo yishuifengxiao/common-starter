@@ -74,6 +74,14 @@ public class GuavaAutoConfiguration {
         return new AsyncEventBus(threadPool.executor());
     }
 
+    @Bean
+    public EventPublisher eventPublisher(EventBus asyncEventBus) throws Exception {
+        EventPublisher eventPublisher = new EventPublisher();
+        eventPublisher.setAsyncEventBus(asyncEventBus);
+        eventPublisher.afterPropertiesSet();
+        return eventPublisher;
+    }
+
     /**
      * 配置检查
      */
@@ -83,12 +91,5 @@ public class GuavaAutoConfiguration {
         log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
     }
 
-    @Bean
-    public EventPublisher eventPublisher(EventBus asyncEventBus) throws Exception {
-        EventPublisher eventPublisher = new EventPublisher();
-        eventPublisher.setAsyncEventBus(asyncEventBus);
-        eventPublisher.afterPropertiesSet();
-        return eventPublisher;
-    }
 
 }
