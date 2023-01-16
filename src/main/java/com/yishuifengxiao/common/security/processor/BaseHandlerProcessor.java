@@ -72,7 +72,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 	@Override
 	public void login(HttpServletRequest request, HttpServletResponse response, Authentication authentication,
 			SecurityToken token) throws IOException {
-		log.trace("【易水组件】==============》 登陆成功,登陆的用户信息为 {}", token);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
 		// 发布事件
 		SpringContext.publishEvent(new AuthenticationSuccessEvent(this, request, authentication));
 
@@ -100,7 +100,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 	public void failure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
 			Exception exception) throws IOException {
 
-		log.trace("【易水组件】登录失败，失败的原因为 {}", exception.getMessage());
+		log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 		// 发布登录失败事件
 		SpringContext.publishEvent(new AuthenticationFailureEvent(this, request, exception));
 
@@ -126,7 +126,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 	@Override
 	public void exit(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
 			throws IOException {
-		log.trace("【易水组件】退出成功，此用户的信息为 {}", authentication);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
 		// 发布事件
 		SpringContext.publishEvent(new LogoutSuccessEvent(this, request, authentication));
@@ -151,7 +151,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 			AccessDeniedException exception) throws IOException {
 
 		// 引起跳转的uri
-		log.trace("【易水组件】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", this.getReferer(request, response), exception);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", this.getReferer(request, response), exception);
 		// 发布事件
 		SpringContext.publishEvent(new AccessDeniedEvent(this, request, exception));
 
@@ -178,7 +178,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 		// 发布信息
 		SpringContext.publishEvent(new ExceptionAuthenticationEntryPointEvent(this, request, exception));
 
-		log.trace("【易水组件】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", this.getReferer(request, response), exception);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", this.getReferer(request, response), exception);
 
 		HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
 				propertyResource.security().getMsg().getVisitOnError(), exception));
@@ -198,7 +198,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
 	@Override
 	public void preAuth(HttpServletRequest request, HttpServletResponse response, Response<CustomException> data)
 			throws IOException {
-		log.trace("【易水组件】==============》 自定义权限检查时发现问题 {}", data);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 自定义权限检查时发现问题 {}", data);
 		HttpUtils.out(response, data);
 
 	}

@@ -25,7 +25,7 @@ public class SessionInformationExpiredStrategyImpl implements SessionInformation
 
 	@Override
 	public void onExpiredSessionDetected(SessionInformationExpiredEvent event) throws IOException, ServletException {
-		log.info("【易水组件】session失效-并发登陆");
+		log.info("【yishuifengxiao-common-spring-boot-starter】session失效-并发登陆");
 		HttpUtils.out(event.getResponse(), Response.error("并发登陆"));
 
 	}

@@ -71,7 +71,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 		// 先判断请求是否需要经过授权校验
 		boolean requiresAuthentication = this.requiresAuth(request);
 		if (show) {
-			log.info("【易水组件】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), requiresAuthentication);
+			log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), requiresAuthentication);
 		}
 
 		if (propertyResource.security().isOpenTokenFilter() && requiresAuthentication) {
@@ -81,7 +81,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 				String tokenValue = securityTokenExtractor.extractTokenValue(request, response, propertyResource);
 
 				if (show) {
-					log.info("【易水组件】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
+					log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
 				}
 
 				if (StringUtils.isNotBlank(tokenValue)) {
@@ -121,7 +121,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 			}
 		} catch (Exception e) {
 			if (show) {
-				log.info("【易水组件】判断请求是否需要授权认证时出现问题，出现问题的原因为 {}", e.getMessage());
+				log.info("【yishuifengxiao-common-spring-boot-starter】判断请求是否需要授权认证时出现问题，出现问题的原因为 {}", e.getMessage());
 			}
 		}
 

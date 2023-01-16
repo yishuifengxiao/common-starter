@@ -1,12 +1,5 @@
 package com.yishuifengxiao.common.guava;
 
-import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
-
-import java.util.function.Consumer;
-
 /**
  * 事件发布者
  *
@@ -14,13 +7,8 @@ import java.util.function.Consumer;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
-public class EventPublisher implements InitializingBean {
+public interface EventPublisher {
 
-    /**
-     * 消息总线
-     */
-    private EventBus asyncEventBus;
 
     /**
      * Posts an event to all registered subscribers.
@@ -31,25 +19,5 @@ public class EventPublisher implements InitializingBean {
      *
      * @param event event to post.
      */
-    public synchronized void post(Object event) {
-        if (null == this.asyncEventBus) {
-            log.debug("The event publisher did not initialize successfully, but received a message call," +
-                    " so the message was discarded. The discarded message is {}", event);
-        }
-        asyncEventBus.post(event);
-    }
-
-
-    public EventBus getAsyncEventBus() {
-        return asyncEventBus;
-    }
-
-    public void setAsyncEventBus(EventBus asyncEventBus) {
-        this.asyncEventBus = asyncEventBus;
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        asyncEventBus.register(this);
-    }
+    void post(Object event);
 }

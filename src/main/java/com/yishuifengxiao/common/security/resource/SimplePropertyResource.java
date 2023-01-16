@@ -99,7 +99,7 @@ public class SimplePropertyResource implements PropertyResource {
 
 		));
 		if (show) {
-			log.info("【易水组件】所有直接放行的资源的为 {}", StringUtils.join(urls, " ; "));
+			log.info("【yishuifengxiao-common-spring-boot-starter】所有直接放行的资源的为 {}", StringUtils.join(urls, " ; "));
 		}
 
 		return urls;
@@ -125,7 +125,7 @@ public class SimplePropertyResource implements PropertyResource {
 	public Set<String> getAllCustomUrls() {
 		Set<String> urls = this.getUrls(this.securityProperties.getCustoms());
 		if (show) {
-			log.info("【易水组件】需要自定义权限的路径为 {}", StringUtils.join(urls, " ; "));
+			log.info("【yishuifengxiao-common-spring-boot-starter】需要自定义权限的路径为 {}", StringUtils.join(urls, " ; "));
 		}
 		return urls;
 	}
@@ -170,7 +170,7 @@ public class SimplePropertyResource implements PropertyResource {
 		set.addAll(this.getUrls(this.securityProperties.getIgnore().getUrls()));
 
 		if (show) {
-			log.info("【易水组件】所有忽视管理的资源的为 {}", StringUtils.join(set, " ; "));
+			log.info("【yishuifengxiao-common-spring-boot-starter】所有忽视管理的资源的为 {}", StringUtils.join(set, " ; "));
 		}
 		return set.toArray(new String[] {});
 	}

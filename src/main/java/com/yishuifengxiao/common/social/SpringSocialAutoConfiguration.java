@@ -188,7 +188,7 @@ public class SpringSocialAutoConfiguration extends SocialConfigurerAdapter {
 	@PostConstruct
 	public void checkConfig() {
 
-		log.debug("【易水组件】: 开启 <Spring Socail 相关配置> 相关的配置");
+		log.debug("【yishuifengxiao-common-spring-boot-starter】: 开启 <Spring Socail 相关配置> 相关的配置");
 	}
 
 }

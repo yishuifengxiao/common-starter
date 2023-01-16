@@ -55,7 +55,7 @@ public class ImageCodeGenerator  extends BaseCodeGenerator  {
 		String value =  this.extract(request.getRequest(), codeProperties.getImage().getCodeKey());
 		if (StringUtils.isBlank(value)) {
 			value = request.getSessionId();
-			log.debug("【易水组件】未获取系统配置的图形验证码标识符,使用系统默认的验证码标识符 {}", value);
+			log.debug("【yishuifengxiao-common-spring-boot-starter】未获取系统配置的图形验证码标识符,使用系统默认的验证码标识符 {}", value);
 		}
 		return value;
 	}

@@ -70,7 +70,7 @@ public class RedisTokenHolder implements TokenHolder {
 		try {
 			this.get(token.getUsername()).put(token.getSessionId(), JSONObject.toJSONString(token));
 		} catch (Exception e) {
-			log.info("【易水组件】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
+			log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
 			throw new CustomException(e.getMessage());
 		}
 
@@ -118,7 +118,7 @@ public class RedisTokenHolder implements TokenHolder {
 		try {
 			return JSONObject.parseObject(data.toString(), SecurityToken.class);
 		} catch (Exception e) {
-			log.info("【易水组件】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, sessionId, e.getMessage());
+			log.info("【yishuifengxiao-common-spring-boot-starter】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, sessionId, e.getMessage());
 		}
 		return null;
 	}

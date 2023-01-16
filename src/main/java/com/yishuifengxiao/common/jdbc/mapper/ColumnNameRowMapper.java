@@ -40,7 +40,7 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
 	private List<FieldValue> fieldValues = null;
 
 	public ColumnNameRowMapper(Class<T> clazz) {
-		Assert.notNull(clazz, "【易水组件】转换目标对象不能为空");
+		Assert.notNull(clazz, "【yishuifengxiao-common-spring-boot-starter】转换目标对象不能为空");
 		this.clazz = clazz;
 		init();
 	}
@@ -68,7 +68,7 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
 			}
 			return instance;
 		} catch (Exception e) {
-			log.warn("【易水组件】将 ResultSet转换成javabean时出现问题，出现问题的原因为 {}", e.getMessage());
+			log.warn("【yishuifengxiao-common-spring-boot-starter】将 ResultSet转换成javabean时出现问题，出现问题的原因为 {}", e.getMessage());
 		}
 		return null;
 	}

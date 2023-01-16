@@ -48,7 +48,7 @@ public class CustomLogoutSuccessHandler extends SimpleUrlLogoutSuccessHandler {
 				tokenBuilder.remove(token.getValue());
 			}
 		} catch (Exception e) {
-			log.debug("【易水组件】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
+			log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
 
 			handlerProcessor.exception(propertyResource, request, response, e);
 		}

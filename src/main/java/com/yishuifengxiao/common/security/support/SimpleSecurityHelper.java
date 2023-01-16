@@ -9,6 +9,7 @@ import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.context.SessionStorage;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import com.yishuifengxiao.common.tool.lang.NumberUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -123,11 +124,11 @@ public class SimpleSecurityHelper implements SecurityHelper {
 			sessionId = userDetails.getUsername();
 		}
 
-		if (!NumberUtil.gtZero(validSeconds)) {
+		if (!CompareUtil.gtZero(validSeconds)) {
 			validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
 		}
 
-		if (!NumberUtil.gtZero(maxSessions)) {
+		if (!CompareUtil.gtZero(maxSessions)) {
 			maxSessions = TokenConstant.MAX_SESSION_NUM;
 		}
 
@@ -156,7 +157,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 		SecurityToken token = tokenBuilder.loadByTokenValue(tokenValue);
 
 		if (show) {
-			log.info("【易水组件】根据访问令牌 {} 获取到的认证信息为 {}", tokenValue, token);
+			log.info("【yishuifengxiao-common-spring-boot-starter】根据访问令牌 {} 获取到的认证信息为 {}", tokenValue, token);
 		}
 
 		CustomException e = null;
@@ -171,7 +172,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
 		if (token.isExpired()) {
 			if (show) {
-				log.info("【易水组件】访问令牌 {} 已过期 ", token);
+				log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已过期 ", token);
 			}
 			// 删除失效的token
 			tokenBuilder.remove(tokenValue);
@@ -184,7 +185,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
 		if (!token.isActive()) {
 			if (show) {
-				log.info("【易水组件】访问令牌 {} 已失效 ", token);
+				log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已失效 ", token);
 			}
 			// 删除失效的token
 			tokenBuilder.remove(tokenValue);

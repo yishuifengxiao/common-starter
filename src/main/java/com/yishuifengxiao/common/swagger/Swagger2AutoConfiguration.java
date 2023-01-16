@@ -122,7 +122,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 	 */
 	private List<Parameter>  buildParameter(){
 		if(BooleanUtils.isTrue(this.swaggerProperties.getShowDeatil())) {
-			log.info("【易水组件】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
+			log.info("【yishuifengxiao-common-spring-boot-starter】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
 		}
 
 		List<Parameter> pars = new ArrayList<>();
@@ -161,7 +161,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 	@PostConstruct
 	public void checkConfig() {
 
-		log.trace("【易水组件】: 开启 <Swagger-ui扩展支持> 相关的配置");
+		log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <Swagger-ui扩展支持> 相关的配置");
 	}
 
 }

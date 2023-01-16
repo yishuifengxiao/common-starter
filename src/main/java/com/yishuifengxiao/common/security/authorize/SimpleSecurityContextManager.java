@@ -60,7 +60,7 @@ public class SimpleSecurityContextManager implements SecurityContextManager {
 		if (null != this.securityRequestFilters) {
 			for (SecurityRequestFilter securityRequestFilter : this.securityRequestFilters) {
 				if (this.show) {
-					log.info("【易水组件】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}", securityRequestFilter);
+					log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}", securityRequestFilter);
 				}
 
 				securityRequestFilter.configure(http);
@@ -71,7 +71,7 @@ public class SimpleSecurityContextManager implements SecurityContextManager {
 		if (null != this.interceptors) {
 			for (HttpSecurityInterceptor interceptor : this.interceptors) {
 				if (this.show) {
-					log.info("【易水组件】 系统中当前加载的 ( 资源授权拦截器 ) 实例为 {}", interceptor);
+					log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 资源授权拦截器 ) 实例为 {}", interceptor);
 				}
 
 				http.apply(interceptor);
@@ -85,7 +85,7 @@ public class SimpleSecurityContextManager implements SecurityContextManager {
 
 			for (AuthorizeProvider authorizeConfigProvider : authorizeConfigProviders) {
 				if (this.show) {
-					log.info("【易水组件】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.getOrder(),
+					log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.getOrder(),
 							authorizeConfigProvider);
 				}
 
@@ -103,7 +103,7 @@ public class SimpleSecurityContextManager implements SecurityContextManager {
 		if (null != this.webSecurityProviders) {
 			for (WebSecurityProvider webSecurityProvider : webSecurityProviders) {
 				if (this.show) {
-					log.info("【易水组件】 系统中当前加载的 ( web安全授权器 ) 实例为 {}", webSecurityProvider);
+					log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( web安全授权器 ) 实例为 {}", webSecurityProvider);
 				}
 				webSecurityProvider.configure(propertyResource, web);
 			}

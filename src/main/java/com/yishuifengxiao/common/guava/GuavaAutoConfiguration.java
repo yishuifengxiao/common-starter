@@ -74,9 +74,10 @@ public class GuavaAutoConfiguration {
         return new AsyncEventBus(threadPool.executor());
     }
 
-    @Bean
+    @Bean("dataEventPublisher")
+    @ConditionalOnMissingBean({EventPublisher.class})
     public EventPublisher eventPublisher(EventBus asyncEventBus) throws Exception {
-        EventPublisher eventPublisher = new EventPublisher();
+        SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
         eventPublisher.setAsyncEventBus(asyncEventBus);
         eventPublisher.afterPropertiesSet();
         return eventPublisher;
@@ -88,7 +89,7 @@ public class GuavaAutoConfiguration {
     @PostConstruct
     public void checkConfig() {
 
-        log.trace("【易水组件】: 开启 <guava增强支持> 相关的配置");
+        log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <guava增强支持> 相关的配置");
     }
 
 

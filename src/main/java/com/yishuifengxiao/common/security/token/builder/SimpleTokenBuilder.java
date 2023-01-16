@@ -152,7 +152,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
 		try {
 			tokenValue = DES.decrypt(tokenValue);
 		} catch (Exception e) {
-			log.info("【易水组件】解密tokenValue时出现问题，出现问题的原因为{}", e.getMessage());
+			log.info("【yishuifengxiao-common-spring-boot-starter】解密tokenValue时出现问题，出现问题的原因为{}", e.getMessage());
 			throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
 		}
 
@@ -181,7 +181,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
 			return tokenHolder.get(tokens[0], tokens[1]);
 
 		} catch (Exception e) {
-			log.info("【易水组件】根据tokenValue获取token时出现问题，出现问题的原因为{}", e.getMessage());
+			log.info("【yishuifengxiao-common-spring-boot-starter】根据tokenValue获取token时出现问题，出现问题的原因为{}", e.getMessage());
 		}
 
 		return null;

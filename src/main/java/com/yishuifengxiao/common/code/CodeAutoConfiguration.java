@@ -133,7 +133,7 @@ public class CodeAutoConfiguration {
     @PostConstruct
     public void checkConfig() {
 
-        log.trace("【易水组件】: 开启 <验证码支持> 相关的配置");
+        log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <验证码支持> 相关的配置");
     }
 
 }

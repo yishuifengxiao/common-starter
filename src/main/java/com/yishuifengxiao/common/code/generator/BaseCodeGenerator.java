@@ -60,7 +60,7 @@ public abstract class BaseCodeGenerator implements CodeGenerator {
 				value = (String) request.getSession().getAttribute(key);
 			}
 		} catch (Exception e) {
-			log.warn("【易水组件】验证码信息提取器中提取信息{}对应的值时出现问题，出现问题的原因为 {}", e.getMessage());
+			log.warn("【yishuifengxiao-common-spring-boot-starter】验证码信息提取器中提取信息{}对应的值时出现问题，出现问题的原因为 {}", e.getMessage());
 		}
 
 		if (StringUtils.isBlank(value)) {

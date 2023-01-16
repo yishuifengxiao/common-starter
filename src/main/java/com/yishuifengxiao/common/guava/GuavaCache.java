@@ -19,7 +19,7 @@ import com.google.common.cache.CacheBuilder;
  */
 public class GuavaCache {
 
-	private static final Cache<String, Object> GUAVA_CACHE = CacheBuilder.newBuilder().maximumSize(1000)
+	private static final Cache<String, Object> GUAVA_CACHE = CacheBuilder.newBuilder().maximumSize(10000)
 			.expireAfterAccess(24, TimeUnit.HOURS).build();
 
 	/**

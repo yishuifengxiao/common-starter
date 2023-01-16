@@ -27,6 +27,6 @@ public class WebFilterProperties {
 	/**
 	 * 请求追踪标识符的名字
 	 */
-	private String ssidName = "request-ssid";
+	private String ssidName = "request-traced-ssid";
 
 }

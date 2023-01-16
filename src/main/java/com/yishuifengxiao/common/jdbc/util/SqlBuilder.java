@@ -248,7 +248,7 @@ public class SqlBuilder {
 			sql = sql.append(conditionBuilder.createLimit(this.pageSize, this.pageNum));
 		}
 
-		log.trace("【易水组件】生成的sql语句为 {} ", sql);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】生成的sql语句为 {} ", sql);
 		return sql.toString();
 
 	}
@@ -320,7 +320,7 @@ public class SqlBuilder {
 	public String countSql() {
 		String fragment = StringUtils.substringAfter(this.sql, "from");
 		StringBuilder sql = new StringBuilder("select count(*) from ").append(fragment).append(this.build().getSql());
-		log.trace("【易水组件】生成的sql语句为 {} ", sql);
+		log.trace("【yishuifengxiao-common-spring-boot-starter】生成的sql语句为 {} ", sql);
 		return sql.toString();
 	}
 

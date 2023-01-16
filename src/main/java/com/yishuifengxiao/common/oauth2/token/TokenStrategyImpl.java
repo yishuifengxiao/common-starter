@@ -43,17 +43,17 @@ public class TokenStrategyImpl extends TokenStrategy {
 
 		OAuth2AccessToken accessToken = tokenStore.readAccessToken(accessTokenValue);
 		if (accessToken == null) {
-			log.debug("【易水组件】(OAuth2AccessToken新请求) 无效的token {}", accessTokenValue);
+			log.debug("【yishuifengxiao-common-spring-boot-starter】(OAuth2AccessToken新请求) 无效的token {}", accessTokenValue);
 			throw new InvalidTokenException("Invalid access token: " + accessTokenValue);
 		} else if (accessToken.isExpired()) {
-			log.debug("【易水组件】(OAuth2AccessToken新请求) 过期的token {}", accessTokenValue);
+			log.debug("【yishuifengxiao-common-spring-boot-starter】(OAuth2AccessToken新请求) 过期的token {}", accessTokenValue);
 			tokenStore.removeAccessToken(accessToken);
 			throw new InvalidTokenException("Access token expired: " + accessTokenValue);
 		}
 
 		OAuth2Authentication result = tokenStore.readAuthentication(accessToken);
 		if (result == null) {
-			log.debug("【易水组件】(OAuth2AccessToken新请求) 认证无效导致token {} 无效", accessTokenValue);
+			log.debug("【yishuifengxiao-common-spring-boot-starter】(OAuth2AccessToken新请求) 认证无效导致token {} 无效", accessTokenValue);
 			// in case of race condition
 			throw new InvalidTokenException("Invalid access token: " + accessTokenValue);
 		}
