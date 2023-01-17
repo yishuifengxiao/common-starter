@@ -85,7 +85,7 @@ public class WebExceptionAutoConfiguration {
      * @return 请求的ID
      */
     private String getRequestId(HttpServletRequest request) {
-        String ssid = (String) request.getAttribute(webProperties.getSsidName());
+        String ssid = (String) request.getAttribute(webProperties.getTrackingIdentifier());
         return StringUtils.isBlank(ssid) ? TraceContext.get() : ssid;
     }
 

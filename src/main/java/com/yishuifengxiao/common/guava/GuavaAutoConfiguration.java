@@ -74,8 +74,9 @@ public class GuavaAutoConfiguration {
         return new AsyncEventBus(threadPool.executor());
     }
 
-    @Bean("dataEventPublisher")
+    @Bean("globalEventPublisher")
     @ConditionalOnMissingBean({EventPublisher.class})
+    @ConditionalOnBean({EventBus.class})
     public EventPublisher eventPublisher(EventBus asyncEventBus) throws Exception {
         SimpleEventPublisher eventPublisher = new SimpleEventPublisher();
         eventPublisher.setAsyncEventBus(asyncEventBus);

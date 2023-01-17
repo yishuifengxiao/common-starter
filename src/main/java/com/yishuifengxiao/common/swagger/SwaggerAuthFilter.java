@@ -89,7 +89,7 @@ public class SwaggerAuthFilter implements Filter {
 		if (!StringUtils.isNoneBlank(swaggerProperties.getUsername(), swaggerProperties.getPassword())) {
 			return false;
 		}
-		String uri = request.getRequestURI().toString();
+		String uri = request.getRequestURI();
 		if (StringUtils.isBlank(uri)) {
 			return false;
 		}
