@@ -63,30 +63,35 @@ public class WebFilterAutoConfiguration implements ResponseBodyAdvice {
     public Filter requestTrackingFilter() {
         return (request, response, chain) -> {
             try {
-                String ssid = UID.uuid();
-                request.setAttribute(webProperties.getTrackingIdentifier(), ssid);
-                TraceContext.set(ssid);
-                // 动态设置日志
-                String dynamicLogLevel = webProperties.getDynamicLogLevel();
-                if (StringUtils.isNotBlank(dynamicLogLevel)) {
-                    // 开启动态日志功能
-                    HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                    String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webProperties.getDynamicLogParameter()));
-                    if (null == tokens) {
-                        dynamicLogLevel(httpServerHttpRequest.getParameter(webProperties.getDynamicLogParameter()));
+                try {
+                    String ssid = UID.uuid();
+                    request.setAttribute(webProperties.getTrackingIdentifier(), ssid);
+                    TraceContext.set(ssid);
+                    // 动态设置日志
+                    String dynamicLogLevel = webProperties.getDynamicLogLevel();
+                    if (StringUtils.isNotBlank(dynamicLogLevel)) {
+                        // 开启动态日志功能
+                        HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
+                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webProperties.getDynamicLogParameter()));
+                        if (null == tokens) {
+                            dynamicLogLevel(httpServerHttpRequest.getParameter(webProperties.getDynamicLogParameter()));
+                        }
+                        if (null != tokens) {
+                            LogLevelUtil.setLevel(tokens[0], tokens[1]);
+                        }
                     }
-                    if (null != tokens) {
-                        LogLevelUtil.setLevel(tokens[0], tokens[1]);
-                    }
+                } catch (Exception e) {
+                    log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem when setting the tracking log and dynamic modification log level. The problem is {}", e);
                 }
-            } catch (Exception e) {
+
+                chain.doFilter(request, response);
+            } finally {
+                TraceContext.clear();
             }
 
-            chain.doFilter(request, response);
         };
 
     }
-
 
 
     /**

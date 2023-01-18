@@ -31,5 +31,12 @@ public class TraceContext {
         return localVar.get();
     }
 
+    /**
+     * 清空数据
+     */
+    public static synchronized void clear() {
+        localVar.remove();
+    }
+
 
 }

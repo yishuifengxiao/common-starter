@@ -18,6 +18,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -135,6 +137,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      * @return swagger文档访问权限认证过滤器
      */
     @Bean
+    @Order()
     public Filter swaggerAuthFilter(SwaggerProperties swaggerProperties) {
         SwaggerAuthFilter swaggerAuthFilter = new SwaggerAuthFilter();
         swaggerAuthFilter.setSwaggerProperties(swaggerProperties);
