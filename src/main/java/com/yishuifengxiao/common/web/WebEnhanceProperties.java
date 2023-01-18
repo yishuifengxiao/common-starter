@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "yishuifengxiao.web")
-public class WebFilterProperties {
+public class WebEnhanceProperties {
 
     /**
      * 是否开启增强支持,默认开启
@@ -54,10 +54,14 @@ public class WebFilterProperties {
     private String dynamicLogParameter = "dynamicLogLevel";
 
     /**
-     * 跨域支持属性配置
+     * 跨域支持功能配置
      */
     private CorsProperties cors = new CorsProperties();
 
+    /**
+     * 全局异常增强功能配置
+     */
+    private WebExceptionProperties error = new WebExceptionProperties();
 
     /**
      * 跨域支持属性配置
@@ -109,6 +113,30 @@ public class WebFilterProperties {
             return DataUtil.asList(StringUtils.splitByWholeSeparator(this.url, ",")).stream()
                     .filter(StringUtils::isNotBlank).map(StringUtils::trim).collect(Collectors.toList());
         }
+
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class WebExceptionProperties {
+        /**
+         * 是否开启全局异常拦截功能，默认为开启
+         */
+        private Boolean enable = true;
+        /**
+         * 简单异常提示信息存储 <br/>
+         * key：异常类型的名字，如 ConstraintViolationException <br/>
+         * value：提示信息
+         */
+        private Map<String, String> map = new HashMap<>();
+        /**
+         * 完整异常信息提示<br/>
+         * key：异常类型的完整名字，如 com.yishuifengxiao.common.tool.exception.ServiceException
+         * <br/>
+         * value：提示信息，例如 用户信息不能为空
+         */
+        private Map<String, String> full = new HashMap<>();
 
     }
 

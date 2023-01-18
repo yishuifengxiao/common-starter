@@ -55,12 +55,12 @@ import java.io.IOException;
  */
 @Slf4j
 @Configuration
-@EnableConfigurationProperties({WebFilterProperties.class})
+@EnableConfigurationProperties({WebEnhanceProperties.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class WebEnhanceAutoConfiguration {
 
     @Autowired
-    private WebFilterProperties webFilterProperties;
+    private WebEnhanceProperties webEnhanceProperties;
 
     /**
      * 注入一个跨域支持过滤器
@@ -71,10 +71,10 @@ public class WebEnhanceAutoConfiguration {
     @ConditionalOnMissingBean(name = "corsAllowedFilter")
     @ConditionalOnProperty(prefix = "yishuifengxiao.web.cors", name = {"enable"}, havingValue = "true", matchIfMissing = true)
     public FilterRegistrationBean<CustomCorsFilter> corsAllowedFilter() {
-        CustomCorsFilter corsFilter = new CustomCorsFilter(webFilterProperties.getCors());
+        CustomCorsFilter corsFilter = new CustomCorsFilter(webEnhanceProperties.getCors());
         FilterRegistrationBean<CustomCorsFilter> registration = new FilterRegistrationBean<>(corsFilter);
         registration.setName("corsAllowedFilter");
-        registration.setUrlPatterns(webFilterProperties.getCors().getUrlPatterns());
+        registration.setUrlPatterns(webEnhanceProperties.getCors().getUrlPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return registration;
     }
@@ -90,7 +90,7 @@ public class WebEnhanceAutoConfiguration {
     @ConditionalOnMissingBean(name = "requestTrackingFilter")
     @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"tracked"}, matchIfMissing = true)
     public Filter requestTrackingFilter() {
-        return new TracedFilter(webFilterProperties);
+        return new TracedFilter(webEnhanceProperties);
     }
 
 
@@ -166,7 +166,7 @@ public class WebEnhanceAutoConfiguration {
                 if (null != body && body instanceof Response) {
                     Response result = (Response) body;
                     HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                    Object attribute = httpServerHttpRequest.getAttribute(webFilterProperties.getTracked());
+                    Object attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
                     if (null == attribute || StringUtils.isBlank(attribute.toString())) {
                         attribute = TraceContext.get();
 
@@ -210,10 +210,10 @@ public class WebEnhanceAutoConfiguration {
      */
     static class TracedFilter extends OncePerRequestFilter {
 
-        private WebFilterProperties webFilterProperties;
+        private WebEnhanceProperties webEnhanceProperties;
 
-        public TracedFilter(WebFilterProperties webFilterProperties) {
-            this.webFilterProperties = webFilterProperties;
+        public TracedFilter(WebEnhanceProperties webEnhanceProperties) {
+            this.webEnhanceProperties = webEnhanceProperties;
         }
 
         @Override
@@ -221,16 +221,16 @@ public class WebEnhanceAutoConfiguration {
             try {
                 try {
                     String ssid = UID.uuid();
-                    request.setAttribute(webFilterProperties.getTracked(), ssid);
+                    request.setAttribute(webEnhanceProperties.getTracked(), ssid);
                     TraceContext.set(ssid);
                     // 动态设置日志
-                    String dynamicLogLevel = webFilterProperties.getDynamicLogLevel();
+                    String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
                     if (StringUtils.isNotBlank(dynamicLogLevel)) {
                         // 开启动态日志功能
                         HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webFilterProperties.getDynamicLogParameter()));
+                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webEnhanceProperties.getDynamicLogParameter()));
                         if (null == tokens) {
-                            dynamicLogLevel(httpServerHttpRequest.getParameter(webFilterProperties.getDynamicLogParameter()));
+                            dynamicLogLevel(httpServerHttpRequest.getParameter(webEnhanceProperties.getDynamicLogParameter()));
                         }
                         if (null != tokens) {
                             LogLevelUtil.setLevel(tokens[0], tokens[1]);
@@ -259,7 +259,7 @@ public class WebEnhanceAutoConfiguration {
             if (null == tokens || tokens.length != 2) {
                 return null;
             }
-            if (!StringUtils.equals(tokens[0], webFilterProperties.getDynamicLogParameter())) {
+            if (!StringUtils.equals(tokens[0], webEnhanceProperties.getDynamicLogParameter())) {
                 return null;
             }
             if (StringUtils.isBlank(tokens[1])) {
@@ -283,7 +283,7 @@ public class WebEnhanceAutoConfiguration {
      */
     static class CustomCorsFilter implements Filter {
 
-        private WebFilterProperties.CorsProperties corsProperties;
+        private WebEnhanceProperties.CorsProperties corsProperties;
 
         @Override
         public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -316,7 +316,7 @@ public class WebEnhanceAutoConfiguration {
             chain.doFilter(request, response);
         }
 
-        public CustomCorsFilter(WebFilterProperties.CorsProperties corsProperties) {
+        public CustomCorsFilter(WebEnhanceProperties.CorsProperties corsProperties) {
             this.corsProperties = corsProperties;
         }
 

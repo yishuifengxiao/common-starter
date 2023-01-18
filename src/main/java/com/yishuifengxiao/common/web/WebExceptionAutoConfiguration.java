@@ -4,7 +4,8 @@ import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
-import com.yishuifengxiao.common.web.error.ExceptionHelper;
+import com.yishuifengxiao.common.web.error.ErrorHelper;
+import com.yishuifengxiao.common.web.error.ProxyErrorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +30,14 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @ControllerAdvice
 @ResponseBody
-@ConditionalOnProperty(prefix = "yishuifengxiao.error", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 @Priority(1)
 public class WebExceptionAutoConfiguration {
     @Autowired
-    private WebFilterProperties webProperties;
-    @Autowired
-    private ExceptionHelper exceptionHelper;
+    private WebEnhanceProperties webProperties;
+
+    @Autowired(required = false)
+    private ErrorHelper errorHelper;
 
     /**
      * 500 - 自定义异常
@@ -69,7 +71,10 @@ public class WebExceptionAutoConfiguration {
     public Object catchThrowable(HttpServletRequest request, Throwable e) {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
-        Response<Object> response = exceptionHelper.extract(e, null).setId(ssid);
+
+        ErrorHelper handler = ProxyErrorHelper.instance(errorHelper, webProperties);
+
+        Response<?> response = handler.extract(e).setId(ssid);
         if (log.isWarnEnabled()) {
             log.warn("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, unknown exception {} was intercepted", ssid, uri, e);
         }

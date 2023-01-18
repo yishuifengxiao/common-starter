@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.oauth2.translator;
 
+import com.yishuifengxiao.common.web.error.ErrorHelper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -7,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.web.error.ExceptionHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class Auth2ResponseExceptionTranslator implements WebResponseExceptionTranslator<Response<Object>> {
 
-	private final ExceptionHelper exceptionHelper;
+	private final ErrorHelper errorHelper;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -63,12 +63,12 @@ public class Auth2ResponseExceptionTranslator implements WebResponseExceptionTra
 
 		// 获取配置的提示信息
 		// "token信息错误或已过期"
-		String msg = exceptionHelper.extract(e.getCause(), "token信息错误或已过期").getMsg();
-		return new ResponseEntity<>(Response.unAuth(msg).setData(e), responseHeaders, HttpStatus.OK);
+		final Response extract = errorHelper.extract(e);
+		return new ResponseEntity<>(extract, responseHeaders, HttpStatus.OK);
 	}
 
-	public Auth2ResponseExceptionTranslator(ExceptionHelper exceptionHelper) {
-		this.exceptionHelper = exceptionHelper;
+	public Auth2ResponseExceptionTranslator(ErrorHelper errorHelper) {
+		this.errorHelper = errorHelper;
 	}
 
 }

@@ -1,14 +1,8 @@
 package com.yishuifengxiao.common.core;
 
 import com.yishuifengxiao.common.support.SpringContext;
-import com.yishuifengxiao.common.web.WebExceptionProperties;
-import com.yishuifengxiao.common.web.error.ErrorHandler;
-import com.yishuifengxiao.common.web.error.ExceptionHelper;
-import com.yishuifengxiao.common.web.error.SimpleExceptionHelper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,7 +19,6 @@ import javax.annotation.Priority;
  */
 @Slf4j
 @Configuration
-@EnableConfigurationProperties(WebExceptionProperties.class)
 @Priority(1)
 public class CommonAutoConfiguration {
 
@@ -40,24 +33,6 @@ public class CommonAutoConfiguration {
         SpringContext springContext = new SpringContext();
         springContext.setApplicationContext(applicationContext);
         return springContext;
-    }
-
-    /**
-     * 异常信息提取工具
-     *
-     * @param exceptionProperties 异常信息配置规则
-     * @return 异常信息提取工具
-     * @throws Exception
-     */
-    @Bean("customExceptionHelper")
-    @ConditionalOnMissingBean(name = "customExceptionHelper")
-    public ExceptionHelper exceptionHelper(@Autowired(required = false) ErrorHandler errorHandler,
-                                           WebExceptionProperties exceptionProperties) throws Exception {
-        SimpleExceptionHelper exceptionHelper = new SimpleExceptionHelper();
-        exceptionHelper.setErrorHandler(errorHandler);
-        exceptionHelper.setExceptionProperties(exceptionProperties);
-        exceptionHelper.afterPropertiesSet();
-        return exceptionHelper;
     }
 
     /**
