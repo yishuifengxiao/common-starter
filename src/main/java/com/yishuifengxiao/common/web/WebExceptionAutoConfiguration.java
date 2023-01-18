@@ -1,10 +1,11 @@
 package com.yishuifengxiao.common.web;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Priority;
-import javax.servlet.http.HttpServletRequest;
-
 import com.yishuifengxiao.common.support.TraceContext;
+import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
+import com.yishuifengxiao.common.web.error.ExceptionHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -14,12 +15,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.UncheckedException;
-import com.yishuifengxiao.common.web.error.ExceptionHelper;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import javax.annotation.Priority;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 全局异常捕获自动配置
@@ -85,7 +83,7 @@ public class WebExceptionAutoConfiguration {
      * @return 请求的ID
      */
     private String getRequestId(HttpServletRequest request) {
-        String ssid = (String) request.getAttribute(webProperties.getTrackingIdentifier());
+        String ssid = (String) request.getAttribute(webProperties.getTracked());
         return StringUtils.isBlank(ssid) ? TraceContext.get() : ssid;
     }
 
