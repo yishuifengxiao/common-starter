@@ -9,7 +9,7 @@ import org.springframework.social.security.SocialUser;
 import org.springframework.social.security.SocialUserDetails;
 import org.springframework.social.security.SocialUserDetailsService;
 
-import com.yishuifengxiao.common.security.service.CustomeUserDetailsServiceImpl;
+import com.yishuifengxiao.common.security.authentication.userdetails.CustomeUserDetailsServiceImpl;
 
 /**
  * 自定义SocialUserDetailsService实现类，查找用户

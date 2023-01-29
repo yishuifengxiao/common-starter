@@ -3,14 +3,12 @@ package com.yishuifengxiao.common.social.weixin.api.impl;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.social.oauth2.AbstractOAuth2ApiBinding;
 import org.springframework.social.oauth2.TokenStrategy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yishuifengxiao.common.oauth2.constant.OAuth2Constant;
 import com.yishuifengxiao.common.social.weixin.api.Wechat;
 import com.yishuifengxiao.common.social.weixin.entity.WechatUserInfo;
 
@@ -48,10 +46,7 @@ public class WechatImpl extends AbstractOAuth2ApiBinding implements Wechat {
 	@Override
 	public WechatUserInfo getUserInfo(String openId) {
 		String url = URL_GET_USER_INFO + openId;
-		String response = getRestTemplate().getForObject(url, String.class);
-		if (StringUtils.contains(response, OAuth2Constant.ERROR_CODE)) {
-			return null;
-		}
+		String response = getRestTemplate().getForObject(url, String.class);	
 		WechatUserInfo profile = null;
 		try {
 			profile = objectMapper.readValue(response, WechatUserInfo.class);

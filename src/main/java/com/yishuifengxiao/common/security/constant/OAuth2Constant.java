@@ -19,12 +19,12 @@ public final class OAuth2Constant {
 	/**
 	 * oauth中token地址
 	 */
-	public static final String OAUTH_TOKEN = "/oauth/token";
+	public static final String OAUTH_TOKEN = "/oauth2/token";
 
 	/**
 	 * oauth中检查token地址
 	 */
-	public static final String OAUTH_CHECK_TOKEN = "/oauth/check_token";
+	public static final String OAUTH_CHECK_TOKEN = "/oauth2/check_token";
 
 	/**
 	 * 资源默认名字
@@ -35,6 +35,6 @@ public final class OAuth2Constant {
 	/**
 	 * 获取token的地址
 	 */
-	public final static String AUTHORIZE_URL = "/oauth/authorize";
+	public final static String AUTHORIZE_URL = "/oauth2/authorize";
 
 }

@@ -7,8 +7,8 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
-import com.yishuifengxiao.common.security.provider.AuthorizeProvider;
-import com.yishuifengxiao.common.security.resource.PropertyResource;
+import com.yishuifengxiao.common.security.httpsecurity.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
  * 资源服务器授权提供器

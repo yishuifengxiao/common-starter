@@ -25,7 +25,7 @@ public class ResourceProperties {
 	 */
 	private Boolean enable = false;
 	/**
-	 * 指向认证服务器里token校验地址,一般默认的uri为/oauth/check_token
+	 * 指向认证服务器里token校验地址,一般默认的uri为/oauth2/check_token
 	 */
 	private String tokenCheckUrl;
 
