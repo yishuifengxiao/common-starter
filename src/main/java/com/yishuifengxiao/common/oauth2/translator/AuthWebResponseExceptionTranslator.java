@@ -1,8 +1,5 @@
 package com.yishuifengxiao.common.oauth2.translator;
 
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.web.error.ErrorHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,6 +11,8 @@ import org.springframework.security.oauth2.common.exceptions.RedirectMismatchExc
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
 import com.yishuifengxiao.common.oauth2.Oauth2Server;
+import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.web.error.ErrorHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +38,7 @@ public class AuthWebResponseExceptionTranslator implements WebResponseExceptionT
 
     private final ErrorHelper errorHelper;
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({ "deprecation", "unused" })
     @Override
     public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
         HttpHeaders responseHeaders = new HttpHeaders();

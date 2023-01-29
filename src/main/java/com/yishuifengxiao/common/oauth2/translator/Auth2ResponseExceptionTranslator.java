@@ -48,7 +48,7 @@ public class Auth2ResponseExceptionTranslator implements WebResponseExceptionTra
 
 	private final ErrorHelper errorHelper;
 
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "rawtypes", "unchecked" })
 	@Override
 	public ResponseEntity<Response<Object>> translate(Exception e) {
 		HttpHeaders responseHeaders = new HttpHeaders();

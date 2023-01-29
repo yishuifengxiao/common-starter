@@ -37,6 +37,7 @@ public class QqOauth2Template extends OAuth2Template {
 		setUseParametersForClientAuthentication(true);
 	}
 
+	@SuppressWarnings("removal")
 	@Override
 	protected AccessGrant postForAccessGrant(String accessTokenUrl, MultiValueMap<String, String> parameters) {
 		String responseStr = getRestTemplate().postForObject(accessTokenUrl, parameters, String.class);

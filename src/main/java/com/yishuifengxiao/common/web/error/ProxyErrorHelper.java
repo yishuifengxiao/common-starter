@@ -35,7 +35,8 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
 
     private WebEnhanceProperties.WebExceptionProperties exceptionProperties;
 
-    @Override
+    @SuppressWarnings("rawtypes")
+	@Override
     public Response extract(Throwable e) {
         Response<?> response = null;
         if (null != this.errorHelper) {

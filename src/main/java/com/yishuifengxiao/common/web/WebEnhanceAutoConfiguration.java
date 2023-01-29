@@ -147,7 +147,8 @@ public class WebEnhanceAutoConfiguration {
 
     }
 
-    @ControllerAdvice
+    @SuppressWarnings("rawtypes")
+	@ControllerAdvice
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(DispatcherServlet.class)

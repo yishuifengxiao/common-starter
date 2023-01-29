@@ -20,6 +20,7 @@ public interface ErrorHelper {
      * @param e                   异常信息
      * @return 响应数据
      */
-    Response extract(Throwable e);
+    @SuppressWarnings("rawtypes")
+	Response extract(Throwable e);
 
 }
