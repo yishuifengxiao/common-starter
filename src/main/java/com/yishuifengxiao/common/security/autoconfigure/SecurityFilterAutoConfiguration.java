@@ -1,20 +1,7 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import com.yishuifengxiao.common.code.CodeProcessor;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityTokenExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.TokenValidateFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.UsernamePasswordAuthFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.ValidateCodeFilter;
-import com.yishuifengxiao.common.security.httpsecurity.provider.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
+import javax.servlet.ServletException;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -25,8 +12,28 @@ import org.springframework.security.authentication.DefaultAuthenticationEventPub
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import javax.servlet.ServletException;
+import com.yishuifengxiao.common.code.CodeProcessor;
+import com.yishuifengxiao.common.code.repository.CodeRepository;
+import com.yishuifengxiao.common.security.AbstractSecurityConfig;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityContextExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityTokenExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.impl.TokenValidateFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.impl.UsernamePasswordAuthFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.impl.ValidateCodeFilter;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
 
+/**
+ * spring security扩展支持自动配置
+ *
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 @Configuration
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
@@ -68,9 +75,9 @@ public class SecurityFilterAutoConfiguration {
     /**
      * 注入一个验证码过滤器
      *
-     * @param codeProcessor      验证码处理器
+     * @param codeProcessor    验证码处理器
      * @param propertyResource 安全属性配置
-     * @param handlerProcessor   协助处理器
+     * @param handlerProcessor 协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")

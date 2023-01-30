@@ -9,12 +9,12 @@ import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfigu
 import com.yishuifengxiao.common.security.exception.ExceptionAuthenticationEntryPoint;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
-import com.yishuifengxiao.common.security.httpsecurity.provider.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.provider.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.remerberme.InMemoryTokenRepositoryImpl;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
@@ -130,7 +130,7 @@ public class SecurityCoreAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {PersistentTokenRepository.class})
     public PersistentTokenRepository inMemoryTokenRepository() {
-        return new InMemoryTokenRepositoryImpl();
+        return new InMemoryTokenRepository();
     }
 
 

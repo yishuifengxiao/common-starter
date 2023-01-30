@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.resourceserver.endpoint;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.handler;
 
 import java.io.IOException;
 
@@ -6,27 +6,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
-import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
- * <p>
- * 异常处理
- * </p>
+ * 权限拒绝处理器
  * 
- * 
- * 在<code>ResourceAuthorizeProvider</code>中被配置为资源异常处理方式
- * 
- * @see ResourceAuthorizeProvider
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 
 	/**
 	 * 协助处理器
@@ -36,10 +29,10 @@ public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoin
 	private PropertyResource propertyResource;
 
 	@Override
-	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 
-		handlerProcessor.exception(propertyResource, request, response, authException);
+		handlerProcessor.deney(propertyResource, request, response, accessDeniedException);
 
 	}
 

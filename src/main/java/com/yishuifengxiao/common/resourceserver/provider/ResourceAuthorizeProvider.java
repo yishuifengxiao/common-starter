@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
-import com.yishuifengxiao.common.security.httpsecurity.provider.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -45,7 +45,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 	}
 
 	@Override
-	public int getOrder() {
+	public int order() {
 		return 2000;
 	}
 

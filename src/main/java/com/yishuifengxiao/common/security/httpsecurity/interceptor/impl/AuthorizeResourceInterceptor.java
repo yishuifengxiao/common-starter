@@ -1,10 +1,9 @@
 package com.yishuifengxiao.common.security.httpsecurity.interceptor.impl;
 
 import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
-import com.yishuifengxiao.common.security.matcher.ExcludeRequestMatcher;
+import com.yishuifengxiao.common.security.httpsecurity.interceptor.matcher.ExcludeRequestMatcher;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
  * <p>授权资源拦截器</p>

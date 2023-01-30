@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.resourceserver.endpoint;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.handler;
 
 import java.io.IOException;
 
@@ -7,26 +7,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
-import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
- * <p>
- * 异常处理
- * </p>
+ * <p>登陆失败处理器</p>
  * 
+ * 1 采用实现AuthenticationFailureHandler接口的方法,
+ * 2 采用继承 SimpleUrlAuthenticationFailureHandler 的方法
  * 
- * 在<code>ResourceAuthorizeProvider</code>中被配置为资源异常处理方式
- * 
- * @see ResourceAuthorizeProvider
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
 	/**
 	 * 协助处理器
@@ -36,10 +32,10 @@ public class ResourceAuthenticationEntryPoint implements AuthenticationEntryPoin
 	private PropertyResource propertyResource;
 
 	@Override
-	public void commence(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authException) throws IOException, ServletException {
+	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+			AuthenticationException authenticationException) throws IOException, ServletException {
 
-		handlerProcessor.exception(propertyResource, request, response, authException);
+		handlerProcessor.failure(propertyResource, request, response, authenticationException);
 
 	}
 

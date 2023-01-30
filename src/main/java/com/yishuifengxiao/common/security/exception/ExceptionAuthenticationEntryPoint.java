@@ -11,10 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 
-
-import com.yishuifengxiao.common.security.httpsecurity.provider.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.provider.impl.ExceptionAuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.provider.impl.HttpBasicAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.ExceptionAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.HttpBasicAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**

@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
+import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
-import com.yishuifengxiao.common.security.httpsecurity.provider.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +70,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
         if (null != this.authorizeProviders) {
             for (AuthorizeProvider authorizeConfigProvider : authorizeProviders) {
                 if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.getOrder(), authorizeConfigProvider);
+                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.order(), authorizeConfigProvider);
                 }
 
                 authorizeConfigProvider.config(propertyResource, http.authorizeRequests());
@@ -92,6 +92,6 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
     @Override
     public void afterPropertiesSet() {
-        this.authorizeProviders = this.authorizeProviders.stream().filter(Objects::nonNull).sorted(Comparator.comparing(AuthorizeProvider::getOrder)).collect(Collectors.toList());
+        this.authorizeProviders = this.authorizeProviders.stream().filter(Objects::nonNull).sorted(Comparator.comparing(AuthorizeProvider::order)).collect(Collectors.toList());
     }
 }

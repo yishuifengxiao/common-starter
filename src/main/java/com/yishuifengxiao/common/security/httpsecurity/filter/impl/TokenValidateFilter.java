@@ -1,8 +1,8 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter.impl;
 
+import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.provider.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.tool.entity.Response;

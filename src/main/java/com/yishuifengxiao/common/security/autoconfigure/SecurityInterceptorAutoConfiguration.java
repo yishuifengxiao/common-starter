@@ -19,6 +19,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
+/**
+ * spring security扩展支持自动配置
+ *
+ * @author yishui
+ * @version 1.0.0
+ * @since 1.0.0
+ */
 @Configuration
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,

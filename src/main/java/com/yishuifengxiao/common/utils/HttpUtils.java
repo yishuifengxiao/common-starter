@@ -34,6 +34,11 @@ public class HttpUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
+     * json请求标志
+     */
+    private final static String JSON_FLAG = "json";
+
+    /**
      * 携带指定的信息重定向到指定的地址
      *
      * @param request  HttpServletRequest
@@ -123,4 +128,33 @@ public class HttpUtils {
         }
     }
 
+    /**
+     * 是否为json请求
+     *
+     * @param request HttpServletRequest
+     * @return true标识为json请求，false不是json请求
+     */
+    public static boolean isJsonRequest(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        if (StringUtils.containsIgnoreCase(contentType, JSON_FLAG)) {
+            return true;
+        }
+        String accept = null;
+        Enumeration<String> headerNames = request.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String nextElement = headerNames.nextElement();
+            if (StringUtils.equalsIgnoreCase(nextElement, "Accept")) {
+                accept = nextElement;
+                break;
+            }
+        }
+        if (StringUtils.isBlank(accept)) {
+            return false;
+        }
+        final String acceptVal = request.getHeader(accept);
+        if (StringUtils.containsIgnoreCase(acceptVal, JSON_FLAG)) {
+            return true;
+        }
+        return false;
+    }
 }
