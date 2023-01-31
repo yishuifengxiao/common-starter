@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.FileCopyUtils;
 
@@ -135,6 +136,11 @@ public class HttpUtils {
      * @return true标识为json请求，false不是json请求
      */
     public static boolean isJsonRequest(HttpServletRequest request) {
+        String method = request.getMethod();
+        if (!StringUtils.equalsIgnoreCase(HttpMethod.GET.toString(), method)) {
+            // 不是get请求
+            return true;
+        }
         String contentType = request.getContentType();
         if (StringUtils.containsIgnoreCase(contentType, JSON_FLAG)) {
             return true;

@@ -88,7 +88,7 @@ public class SimplePropertyResource implements PropertyResource {
         // 需要增加的资源
         urls.addAll(Arrays.asList(
                 // 获取token的地址
-                OAuth2Constant.OAUTH_TOKEN,
+//                OAuth2Constant.OAUTH_TOKEN,
                 // 校验token的地址
                 OAuth2Constant.OAUTH_CHECK_TOKEN,
                 // 权限拦截时默认的跳转地址

@@ -304,10 +304,7 @@ public class WebEnhanceAutoConfiguration {
                         httpServletResponse.addHeader(k, v);
                     }
                 });
-            } catch (Exception e) {
-                if (e instanceof IOException || e instanceof ServletException) {
-                    throw e;
-                }
+            } catch (Throwable e) {
                 if (log.isInfoEnabled()) {
                     log.info("[unkown] 跨域支持捕获到未知异常 {}", e.getMessage());
                 }
