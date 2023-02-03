@@ -1,15 +1,14 @@
 package com.yishuifengxiao.common.security.thirdauth;
 
-import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.AbstractAuthorizeProvider;
+import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationFilter;
+import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationProvider;
+import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationFilter;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationProvider;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
 
 /**
  * <p>短信登陆拦截器</p>
@@ -20,7 +19,7 @@ import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SmsLoginInterceptor extends HttpSecurityInterceptor {
+public class SmsLoginInterceptor extends AbstractAuthorizeProvider {
 
 	private AuthenticationSuccessHandler customAuthenticationFailureHandler;
 

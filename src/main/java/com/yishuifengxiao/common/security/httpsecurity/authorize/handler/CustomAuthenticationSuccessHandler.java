@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;

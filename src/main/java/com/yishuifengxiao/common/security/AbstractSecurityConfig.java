@@ -1,11 +1,11 @@
 package com.yishuifengxiao.common.security;
 
+import com.yishuifengxiao.common.security.user.GlobalUserDetails;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -30,7 +30,7 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
     private WebSecurityManager webSecurityManager;
 
     @Autowired
-    protected DaoAuthenticationProvider authenticationProvider;
+    protected GlobalUserDetails globalUserDetails;
 
     @Autowired
     public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
@@ -40,26 +40,16 @@ public abstract class AbstractSecurityConfig extends WebSecurityConfigurerAdapte
 		// .withUser("bob").password("abc123").roles("USER");
 		// 此设置会导致auth.authenticationProvider(authenticationProvider) 无效
 		//auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-		auth.authenticationProvider(authenticationProvider);
+		auth.authenticationProvider(globalUserDetails.authenticationProvider());
 		// @formatter:on
+
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        this.applyAuthenticationConfig(http);
+        httpSecurityManager.config(http);
     }
 
-    private void applyAuthenticationConfig(HttpSecurity http) throws Exception {
-
-        // @formatter:off
-
-		// 注入所有的自定义授权适配器
-		httpSecurityManager.config(http);
-
-		// .anonymous().disable()//禁止匿名访问要放在后面
-		// @formatter:on
-
-    }
 
     @Override
     @Bean

@@ -1,11 +1,10 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -22,14 +21,12 @@ public class ExceptionAuthorizeProvider implements AuthorizeProvider {
     private AccessDeniedHandler customAccessDeniedHandler;
 
     @Override
-    public void config(PropertyResource propertyResource, ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception {
+    public  void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
         //@formatter:off
-		expressionInterceptUrlRegistry.and()
-		.exceptionHandling()
+        http.exceptionHandling()
 		// 定义的不存在access_token时候响应
 		.authenticationEntryPoint(exceptionAuthenticationEntryPoint)
 		//自定义权限拒绝处理器
-		.accessDeniedHandler(customAccessDeniedHandler)
 		;
 		//@formatter:on  
     }

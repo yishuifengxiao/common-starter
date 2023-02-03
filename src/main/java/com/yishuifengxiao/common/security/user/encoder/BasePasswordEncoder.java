@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.authentication.encoder;
+package com.yishuifengxiao.common.security.user.encoder;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 

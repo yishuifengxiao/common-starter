@@ -16,14 +16,14 @@ import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl.SimpleSecurityTokenExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.TokenValidateFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.UsernamePasswordAuthFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.impl.ValidateCodeFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPreAuthFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 
@@ -59,8 +59,8 @@ public class SecurityFilterAutoConfiguration {
     @Bean("usernamePasswordAuthFilter")
     @ConditionalOnMissingBean(name = {"usernamePasswordAuthFilter"})
     public SecurityRequestFilter usernamePasswordAuthFilter(HandlerProcessor handlerProcessor, SecurityHelper securityHelper, PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor) {
-        UsernamePasswordAuthFilter usernamePasswordAuthFilter = new UsernamePasswordAuthFilter(handlerProcessor, securityHelper, propertyResource, securityContextExtractor);
-        return usernamePasswordAuthFilter;
+        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(handlerProcessor, securityHelper, propertyResource, securityContextExtractor);
+        return usernamePasswordPreAuthFilter;
     }
 
     @Bean("securityTokenValidateFilter")

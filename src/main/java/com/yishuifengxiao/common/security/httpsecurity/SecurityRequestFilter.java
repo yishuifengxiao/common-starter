@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.httpsecurity.filter;
+package com.yishuifengxiao.common.security.httpsecurity;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.filter.OncePerRequestFilter;

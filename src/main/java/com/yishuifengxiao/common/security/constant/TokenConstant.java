@@ -35,9 +35,9 @@ public class TokenConstant {
 	public final static String TOKEN_HEADER_PARAM = "xtoken";
 
 	/**
-	 * 从请求参数里取出认证信息时的参数名，默认为 yishui_token
+	 * 从请求参数里取出认证信息时的参数名，默认为 xtoken
 	 */
-	public final static String TOKEN_REQUEST_PARAM = "yishui_token";
+	public final static String TOKEN_REQUEST_PARAM = "xtoken";
 
 	/**
 	 * 用户唯一标识符的标志

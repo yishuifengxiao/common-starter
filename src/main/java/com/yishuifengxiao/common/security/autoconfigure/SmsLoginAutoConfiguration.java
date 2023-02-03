@@ -2,9 +2,7 @@ package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
-import com.yishuifengxiao.common.security.httpsecurity.interceptor.impl.AuthorizeResourceInterceptor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.thirdauth.SmsLoginInterceptor;
 import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -32,21 +30,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
         WebSecurityConfigurerAdapter.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
         "enable"}, havingValue = "true", matchIfMissing = true)
-public class SecurityInterceptorAutoConfiguration {
-
-    /**
-     * 配置需要拦截哪些资源
-     *
-     * @param propertyResource 资源管理器
-     * @return 资源授权拦截器
-     */
-    @Bean("authorizeResourceInterceptor")
-    @ConditionalOnMissingBean(name = {"authorizeResourceInterceptor"})
-    public HttpSecurityInterceptor authorizeResourceInterceptor(PropertyResource propertyResource) {
-        AuthorizeResourceInterceptor authorizeResourceProvider = new AuthorizeResourceInterceptor();
-        authorizeResourceProvider.setPropertyResource(propertyResource);
-        return authorizeResourceProvider;
-    }
+public class SmsLoginAutoConfiguration {
 
 
     /**
@@ -68,10 +52,10 @@ public class SecurityInterceptorAutoConfiguration {
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "sms-login-url")
     @ConditionalOnMissingBean(name = "smsLoginInterceptor")
     @ConditionalOnBean({SmsUserDetailsService.class})
-    public HttpSecurityInterceptor smsLoginInterceptor(AuthenticationSuccessHandler authenticationFailureHandler,
-                                                       AuthenticationFailureHandler authenticationSuccessHandler,
-                                                       SmsUserDetailsService smsUserDetailsService,
-                                                       SecurityProperties securityProperties) {
+    public AuthorizeProvider smsLoginInterceptor(AuthenticationSuccessHandler authenticationFailureHandler,
+                                                 AuthenticationFailureHandler authenticationSuccessHandler,
+                                                 SmsUserDetailsService smsUserDetailsService,
+                                                 SecurityProperties securityProperties) {
 
         return new SmsLoginInterceptor(authenticationFailureHandler, authenticationSuccessHandler, smsUserDetailsService,
                 securityProperties.getCode().getSmsLoginUrl());

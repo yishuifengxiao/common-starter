@@ -27,12 +27,6 @@ public interface PropertyResource {
      */
     SecurityProperties security();
 
-    /**
-     * spring social 相关的配置
-     *
-     * @return spring social 相关的配置
-     */
-    SocialProperties social();
 
     /**
      * 获取所有直接放行的资源
@@ -42,11 +36,11 @@ public interface PropertyResource {
     Set<String> allPermitUrs();
 
     /**
-     * 获取所有不经过资源服务器授权管理的资源
+     * 获取所有允许匿名访问的资源
      *
-     * @return 不经过资源服务器授权管理的资源
+     * @return 所有允许匿名访问的资源
      */
-    List<String> excludeUrls();
+    List<String> anonymousUrls();
 
     /**
      * 获取所有自定义权限的资源

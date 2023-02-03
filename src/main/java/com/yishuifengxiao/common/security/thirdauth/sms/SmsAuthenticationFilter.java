@@ -84,12 +84,12 @@ public class SmsAuthenticationFilter extends
 
 	/**
 	 * Provided so that subclasses may configure what is put into the
-	 * authentication request's details property.
+	 * user request's details property.
 	 *
 	 * @param request
-	 *            that an authentication request is being created for
+	 *            that an user request is being created for
 	 * @param authRequest
-	 *            the authentication request object that should have its details
+	 *            the user request object that should have its details
 	 *            set
 	 */
 	protected void setDetails(HttpServletRequest request,

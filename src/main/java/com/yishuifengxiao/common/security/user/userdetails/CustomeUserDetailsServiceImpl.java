@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.authentication.userdetails;
+package com.yishuifengxiao.common.security.user.userdetails;
 
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;

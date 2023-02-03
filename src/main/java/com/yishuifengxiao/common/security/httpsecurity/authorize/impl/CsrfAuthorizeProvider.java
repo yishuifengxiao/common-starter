@@ -1,9 +1,8 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -18,11 +17,9 @@ public class CsrfAuthorizeProvider implements AuthorizeProvider {
 
 
 	@Override
-	public void config(PropertyResource propertyResource,
-			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
+	public  void apply(PropertyResource propertyResource, HttpSecurity http)
 			throws Exception {
-		//@formatter:off 
-		HttpSecurity http=expressionInterceptUrlRegistry.and();
+		//@formatter:off
 		// 关闭csrf防护
 		if (propertyResource.security().getCloseCsrf()) {
 			http.csrf().disable();

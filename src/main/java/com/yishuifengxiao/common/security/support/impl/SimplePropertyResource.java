@@ -3,11 +3,7 @@
  */
 package com.yishuifengxiao.common.security.support.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
@@ -35,15 +31,12 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**",
-            "/**/**.png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff",
-            "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**.png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
 
     /**
      * 系统默认包含的swagger-ui资源路径
      */
-    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**",
-            "/v2/api-docs", "/swagger-ui/**", "/v3/**"};
+    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/swagger-ui/**", "/v3/**"};
     /**
      * 系统默认包含actuator相关的路径
      */
@@ -76,15 +69,11 @@ public class SimplePropertyResource implements PropertyResource {
         return this.securityProperties;
     }
 
-    @Override
-    public SocialProperties social() {
-        return this.socialProperties;
-    }
 
     @Override
     public Set<String> allPermitUrs() {
         // 获取配置的资源
-        Set<String> urls = this.getUrls(this.securityProperties.getPermits());
+        Set<String> urls = this.getUrls(this.securityProperties.getResource().getPermits());
         // 需要增加的资源
         urls.addAll(Arrays.asList(
                 // 获取token的地址
@@ -92,9 +81,9 @@ public class SimplePropertyResource implements PropertyResource {
                 // 校验token的地址
                 OAuth2Constant.OAUTH_CHECK_TOKEN,
                 // 权限拦截时默认的跳转地址
-                securityProperties.getCore().getRedirectUrl(),
+                securityProperties.getRedirectUrl(),
                 // 登陆页面的URL
-                securityProperties.getCore().getLoginPage(),
+                securityProperties.getLoginPage(),
                 // session失效时跳转的地址
                 securityProperties.getSession().getSessionInvalidUrl()
 
@@ -107,8 +96,8 @@ public class SimplePropertyResource implements PropertyResource {
     }
 
     @Override
-    public List<String> excludeUrls() {
-        Set<String> urls = this.getUrls(this.securityProperties.getExcludes());
+    public List<String> anonymousUrls() {
+        Set<String> urls = this.getUrls(this.securityProperties.getResource().getAnonymous());
         urls.addAll(Arrays.asList(
                 // QQ登陆的地址
                 socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(),
@@ -124,7 +113,7 @@ public class SimplePropertyResource implements PropertyResource {
 
     @Override
     public Set<String> allCustomUrls() {
-        Set<String> urls = this.getUrls(this.securityProperties.getCustoms());
+        Set<String> urls = this.getUrls(this.securityProperties.getResource().getCustoms());
         if (show) {
             log.info("【yishuifengxiao-common-spring-boot-starter】需要自定义权限的路径为 {}", StringUtils.join(urls, " ; "));
         }
@@ -133,13 +122,14 @@ public class SimplePropertyResource implements PropertyResource {
 
     @Override
     public Set<String> allUnCheckUrls() {
-        Set<String> urls = this.getUrls(this.securityProperties.getUnchecks());
+        final SecurityProperties.TokenProperties token = this.securityProperties.getToken();
+        Set<String> urls = new HashSet<>();
         // 所有直接放行的资源
         urls.addAll(this.allPermitUrs());
         // 所有忽视的资源
         urls.addAll(Arrays.asList(this.getAllIgnoreUrls()));
         // 登陆地址
-        urls.add(this.securityProperties.getCore().getFormActionUrl());
+        urls.add(this.securityProperties.getFormActionUrl());
         // 短信登陆地址
         urls.add(this.securityProperties.getCode().getSmsLoginUrl());
         return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
@@ -148,27 +138,28 @@ public class SimplePropertyResource implements PropertyResource {
     @Override
     public String[] getAllIgnoreUrls() {
         Set<String> set = new HashSet<>();
-        if (this.securityProperties.getIgnore().getContainStaticResource()) {
+        final SecurityProperties.IgnoreProperties ignore = this.securityProperties.getResource().getIgnore();
+        if (ignore.getContainStaticResource()) {
             set.addAll(Arrays.asList(STATIC_RESOURCE));
         }
-        if (this.securityProperties.getIgnore().getContainSwaagerUiResource()) {
+        if (ignore.getContainStaticResource()) {
             set.addAll(Arrays.asList(SWAGGER_UI_RESOURCE));
         }
-        if (this.securityProperties.getIgnore().getContainActuator()) {
+        if (ignore.getContainActuator()) {
             set.addAll(Arrays.asList(ACTUATOR_RESOURCE));
         }
-        if (this.securityProperties.getIgnore().getContainWebjars()) {
+        if (ignore.getContainWebjars()) {
             set.addAll(Arrays.asList(WEBJARS_RESOURCE));
         }
-        if (this.securityProperties.getIgnore().getContainAll()) {
+        if (ignore.getContainAll()) {
             set.addAll(Arrays.asList(ALL_RESOURCE));
         }
-        if (this.securityProperties.getIgnore().getContainErrorPage()) {
+        if (ignore.getContainErrorPage()) {
             // 错误页面
             set.add(UriConstant.ERROR_PAGE);
         }
 
-        set.addAll(this.getUrls(this.securityProperties.getIgnore().getUrls()));
+        set.addAll(this.getUrls(ignore.getUrls()));
 
         if (show) {
             log.info("【yishuifengxiao-common-spring-boot-starter】所有忽视管理的资源的为 {}", StringUtils.join(set, " ; "));
@@ -184,19 +175,18 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 提取出Map里存储的URL
      *
-     * @param map 存储资源路径的map
+     * @param list 存储资源路径的map
      * @return 所有过滤后的资源路径
      */
-    private Set<String> getUrls(Map<String, String> map) {
-        Set<String> urls = new HashSet<>();
-        if (null != map) {
-            map.forEach((k, v) -> {
-                if (StringUtils.isNoneBlank(k, v)) {
-                    urls.addAll(Arrays.asList(v.split(",")).parallelStream().filter(StringUtils::isNotBlank)
-                            .map(t -> t.trim()).collect(Collectors.toList()));
-                }
-            });
+    private Set<String> getUrls(List<String> list) {
+        if (null == list) {
+            return new HashSet<>();
         }
+        // @formatter:off
+        Set<String> urls = list.parallelStream().filter(StringUtils::isNotBlank).map(v -> Arrays.stream(v.split(","))
+                        .collect(Collectors.toSet())).flatMap(Collection::stream)
+                .filter(StringUtils::isNotBlank).map(String::trim).collect(Collectors.toSet());
+        // @formatter:on
         return urls;
     }
 

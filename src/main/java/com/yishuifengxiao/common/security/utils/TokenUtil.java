@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.exception.CustomException;

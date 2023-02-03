@@ -20,7 +20,7 @@ import com.yishuifengxiao.common.resourceserver.introspection.CustomOpaqueTokenI
 import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
 import com.yishuifengxiao.common.resourceserver.resolver.CustomBearerTokenResolver;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 

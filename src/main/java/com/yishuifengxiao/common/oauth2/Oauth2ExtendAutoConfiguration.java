@@ -11,7 +11,7 @@ import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.configurer.SimpleClientAuthentication;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;

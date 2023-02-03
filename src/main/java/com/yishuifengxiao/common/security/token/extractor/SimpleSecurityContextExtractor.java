@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl;
+package com.yishuifengxiao.common.security.token.extractor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -29,7 +29,7 @@ public class SimpleSecurityContextExtractor implements SecurityContextExtractor 
 
 	@Override
 	public String extractUsername(HttpServletRequest request, HttpServletResponse response) {
-		String usernameParameter = propertyResource.security().getCore().getUsernameParameter();
+		String usernameParameter = propertyResource.security().getUsernameParameter();
 		if (StringUtils.isBlank(usernameParameter)) {
 			usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
 		}
@@ -38,7 +38,7 @@ public class SimpleSecurityContextExtractor implements SecurityContextExtractor 
 
 	@Override
 	public String extractPassword(HttpServletRequest request, HttpServletResponse response) {
-		String passwordParameter = propertyResource.security().getCore().getPasswordParameter();
+		String passwordParameter = propertyResource.security().getPasswordParameter();
 		if (StringUtils.isBlank(passwordParameter)) {
 			passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
 		}

@@ -1,8 +1,8 @@
-package com.yishuifengxiao.common.security.authentication.encoder.impl;
+package com.yishuifengxiao.common.security.user.encoder.impl;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.yishuifengxiao.common.security.authentication.encoder.BasePasswordEncoder;
+import com.yishuifengxiao.common.security.user.encoder.BasePasswordEncoder;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.tool.encoder.DES;
 

@@ -13,7 +13,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -65,18 +67,54 @@ public class SecurityProperties {
     private Boolean showDetail = false;
 
     /**
-     * spring security 核心配置
+     * 表单提交时默认的用户名参数，默认值为 username
      */
-    private CoreProperties core = new CoreProperties();
+    private String usernameParameter = SecurityConstant.USERNAME_PARAMTER;
+    /**
+     * 表单提交时默认的密码名参数，默认值为 password
+     */
+    private String passwordParameter = SecurityConstant.PASSWORD_PARAMTER;
+    /**
+     * 系统登陆页面的地址 ,默认为 /toLogin
+     */
+    private String loginPage = UriConstant.DEFAULT_LOGIN_URL;
+    /**
+     * 权限拦截时默认的跳转地址，默认为 /toLogin
+     */
+    private String redirectUrl = UriConstant.DEFAULT_LOGIN_URL;
+    /**
+     * 表单登陆时form表单请求的地址，默认为/web/login
+     */
+    private String formActionUrl = UriConstant.DEFAULT_FORM_ACTION_URL;
+    /**
+     * 默认的处理登录成功后跳转的URL的路径 ，默认为/index
+     */
+    private String loginSuccessUrl = UriConstant.DEFAULT_REDIRECT_LOGIN_URL;
+
+    /**
+     * 默认的处理登录失败后跳转的URL的路径 ，默认为/toLogin
+     */
+    private String loginFailUrl = UriConstant.DEFAULT_LOGIN_URL;
+    /**
+     * 默认的处理登出请求的URL的路径【即请求此URL即为退出操作】，默认为/logout
+     */
+    private String loginOutUrl = UriConstant.DEFAULT_LOGINOUT_URL;
+
+    /**
+     * 需要删除的cookie的名字 JSESSIONID
+     */
+    private String cookieName = SecurityConstant.DEFAULT_COOKIE_NAME;
+
+    /**
+     * 是否关闭前置参数验证,默认为false
+     */
+    private Boolean closePreAuth = false;
     /**
      * spring security session相关的配置
      */
     private SessionProperties session = new SessionProperties();
 
-    /**
-     * spring security 忽视目录配置
-     */
-    private IgnoreProperties ignore = new IgnoreProperties();
+
     /**
      * 记住我相关的属性
      */
@@ -95,36 +133,14 @@ public class SecurityProperties {
      * 提示信息
      */
     private MessageProperties msg = new MessageProperties();
-    /**
-     * 所有不经过资源授权管理的的资源路径<br/>
-     * key: 不参与解析，可以为任意值，但必须唯一<br/>
-     * value: 不希望经过授权管理的路径，采用Ant风格匹配,多个路径之间用半角逗号(,)分给开
-     */
-    private Map<String, String> excludes = new HashMap<>();
 
     /**
-     * 所有直接放行的资源路径<br/>
-     * key: 不参与解析，可以为任意值，但必须唯一<br/>
-     * value: 不希望经过授权管理的路径，采用Ant风格匹配,多个路径之间用半角逗号(,)分给开
+     * 资源配置
      */
-    private Map<String, String> permits = new HashMap<>();
+    private ResourceProperties resource = new ResourceProperties();
 
     /**
-     * 所有需要自定义权限的资源路径<br/>
-     * key: 不参与解析，可以为任意值，但必须唯一<br/>
-     * value: 不希望经过授权管理的路径，采用Ant风格匹配,多个路径之间用半角逗号(,)分给开
-     */
-    private Map<String, String> customs = new HashMap<>();
-
-    /**
-     * 所有不需要经过权限校验的资源路径<br/>
-     * key: 不参与解析，可以为任意值，但必须唯一<br/>
-     * value: 不希望经过授权管理的路径，采用Ant风格匹配,多个路径之间用半角逗号(,)分给开
-     */
-    private Map<String, String> unchecks = new HashMap<>();
-
-    /**
-     * spring security 核心配置文件类
+     * spring security 资源权限相关的配置
      *
      * @author yishui
      * @version 1.0.0
@@ -133,52 +149,28 @@ public class SecurityProperties {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CoreProperties {
+    public static class ResourceProperties {
         /**
-         * 表单提交时默认的用户名参数，默认值为 username
+         * spring security 忽视目录配置，所有不经过权限校验的资源
          */
-        private String usernameParameter = SecurityConstant.USERNAME_PARAMTER;
-        /**
-         * 表单提交时默认的密码名参数，默认值为 password
-         */
-        private String passwordParameter = SecurityConstant.PASSWORD_PARAMTER;
-        /**
-         * 系统登陆页面的地址 ,默认为 /toLogin
-         */
-        private String loginPage = UriConstant.DEFAULT_LOGIN_URL;
-        /**
-         * 权限拦截时默认的跳转地址，默认为 /toLogin
-         */
-        private String redirectUrl = UriConstant.DEFAULT_LOGIN_URL;
-        /**
-         * 表单登陆时form表单请求的地址，默认为/web/login
-         */
-        private String formActionUrl = UriConstant.DEFAULT_FORM_ACTION_URL;
-        /**
-         * 默认的处理登录成功后跳转的URL的路径 ，默认为/index
-         */
-        private String loginSuccessUrl = UriConstant.DEFAULT_REDIRECT_LOGIN_URL;
+        private IgnoreProperties ignore = new IgnoreProperties();
 
         /**
-         * 默认的处理登录失败后跳转的URL的路径 ，默认为/toLogin
+         * 允许匿名访问的资源
          */
-        private String loginFailUrl = UriConstant.DEFAULT_LOGIN_URL;
-        /**
-         * 默认的处理登出请求的URL的路径【即请求此URL即为退出操作】，默认为/logout
-         */
-        private String loginOutUrl = UriConstant.DEFAULT_LOGINOUT_URL;
+        private List<String> anonymous = new ArrayList<>();
 
         /**
-         * 需要删除的cookie的名字 JSESSIONID
+         * 所有直接放行的资源
          */
-        private String cookieName = SecurityConstant.DEFAULT_COOKIE_NAME;
+        private List<String> permits = new ArrayList<>();
 
         /**
-         * 是否关闭前置参数验证,默认为false
+         * 自定义权限判断的资源
          */
-        private Boolean closePreAuth = false;
-
+        private List<String> customs = new ArrayList<>();
     }
+
 
     /**
      * spring security token生成配置文件类
@@ -271,7 +263,7 @@ public class SecurityProperties {
         /**
          * 是否包含swagger-ui的资源
          */
-        private Boolean containSwaagerUiResource = true;
+        private Boolean containSwaggerUiResource = true;
         /**
          * 是否包含actuator相关的路径
          */
@@ -293,7 +285,7 @@ public class SecurityProperties {
         /**
          * 所有需要忽视的目录
          */
-        private Map<String, String> urls = new HashMap<>();
+        private List<String> urls = new ArrayList();
 
     }
 
@@ -361,6 +353,7 @@ public class SecurityProperties {
         private Map<String, String> filter = new HashMap<>();
 
     }
+
 
     /**
      * 短信验证码相关属性配置文件

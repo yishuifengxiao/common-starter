@@ -42,7 +42,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
 	 * This constructor should only be used by <code>AuthenticationManager</code> or
 	 * <code>AuthenticationProvider</code> implementations that are satisfied with
 	 * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
-	 * authentication token.
+	 * user token.
 	 *
 	 * @param mobile 手机号
 	 * @param authorities 认证角色

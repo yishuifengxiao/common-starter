@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.httpsecurity.filter.impl;
+package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import java.io.IOException;
 
@@ -14,9 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
@@ -36,7 +36,7 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class UsernamePasswordAuthFilter extends SecurityRequestFilter {
+public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
 
     private AntPathRequestMatcher pathMatcher = null;
 
@@ -55,7 +55,7 @@ public class UsernamePasswordAuthFilter extends SecurityRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         // 是否关闭前置参数校验功能
-        Boolean closePreAuth = propertyResource.security().getCore().getClosePreAuth();
+        Boolean closePreAuth = propertyResource.security().getClosePreAuth();
         if (BooleanUtils.isNotTrue(closePreAuth)) {
             AntPathRequestMatcher pathMatcher = this.antPathMatcher();
             if (pathMatcher.matches(request)) {
@@ -108,13 +108,13 @@ public class UsernamePasswordAuthFilter extends SecurityRequestFilter {
      */
     private AntPathRequestMatcher antPathMatcher() {
         if (null == this.pathMatcher) {
-            this.pathMatcher = new AntPathRequestMatcher(this.propertyResource.security().getCore().getFormActionUrl());
+            this.pathMatcher = new AntPathRequestMatcher(this.propertyResource.security().getFormActionUrl());
         }
         return this.pathMatcher;
     }
 
-    public UsernamePasswordAuthFilter(HandlerProcessor handlerProcessor, SecurityHelper securityHelper,
-                                      PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor) {
+    public UsernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor, SecurityHelper securityHelper,
+                                         PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor) {
         this.handlerProcessor = handlerProcessor;
         this.securityHelper = securityHelper;
         this.propertyResource = propertyResource;

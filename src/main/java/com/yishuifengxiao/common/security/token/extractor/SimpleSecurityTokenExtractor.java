@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.httpsecurity.filter.extractor.impl;
+package com.yishuifengxiao.common.security.token.extractor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**

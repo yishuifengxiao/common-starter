@@ -1,23 +1,24 @@
 package com.yishuifengxiao.common.security;
 
-import com.yishuifengxiao.common.security.authentication.encoder.impl.SimpleBasePasswordEncoder;
-import com.yishuifengxiao.common.security.authentication.userdetails.CustomeUserDetailsServiceImpl;
+import com.yishuifengxiao.common.security.user.GlobalUserDetails;
+import com.yishuifengxiao.common.security.user.SimpleGlobalUserDetails;
+import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
+import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityInterceptorAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.exception.ExceptionAuthenticationEntryPoint;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -39,9 +40,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -52,7 +51,6 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * spring security扩展支持自动配置
@@ -67,7 +65,7 @@ import java.util.Locale;
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @EnableConfigurationProperties({SecurityProperties.class, SocialProperties.class})
 @Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
-        SecurityInterceptorAutoConfiguration.class,SecurityRedisAutoConfiguration.class})
+        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class SecurityCoreAutoConfiguration {
 
@@ -100,7 +98,7 @@ public class SecurityCoreAutoConfiguration {
 
     /**
      * <p>
-     * 将密码加密类注入到spring security中
+     * 提供用户名密码校验能力
      * </p>
      *
      * <pre>
@@ -112,13 +110,10 @@ public class SecurityCoreAutoConfiguration {
      * @return DaoAuthenticationProvider
      */
     @Bean
-    @ConditionalOnMissingBean({DaoAuthenticationProvider.class})
-    public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(userDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
-        authenticationProvider.setHideUserNotFoundExceptions(false);
-        return authenticationProvider;
+    @ConditionalOnMissingBean({GlobalUserDetails.class})
+    public GlobalUserDetails globalUserDetails(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        GlobalUserDetails globalUserDetails = new SimpleGlobalUserDetails(userDetailsService, passwordEncoder);
+        return globalUserDetails;
     }
 
 
@@ -211,15 +206,14 @@ public class SecurityCoreAutoConfiguration {
      * 注入一个HttpSecurity安全管理器
      *
      * @param authorizeConfigProviders 系统中所有的授权提供器实例
-     * @param interceptors             系统中所有的资源授权拦截器实例
      * @param securityRequestFilters   系统中所有的 web安全授权器实例
      * @param propertyResource         资源管理器
      * @return 安全管理器
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, List<HttpSecurityInterceptor> interceptors, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, interceptors, propertyResource, securityRequestFilters);
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -265,20 +259,6 @@ public class SecurityCoreAutoConfiguration {
         return simpleTokenBuilder;
     }
 
-
-    /**
-     * 错误提示信息国际化
-     *
-     * @return ReloadableResourceBundleMessageSource
-     */
-    @Bean("messageSource")
-    @ConditionalOnMissingBean(name = {"messageSource"})
-    public ReloadableResourceBundleMessageSource messageSource() {
-        Locale.setDefault(Locale.CHINA);
-        ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
-        messageSource.setBasenames("classpath*:messages_zh_CN", "classpath:messages_zh_CN", "classpath*:messages_zh_CN.properties", "messages_zh_CN.properties");
-        return messageSource;
-    }
 
     /**
      * 错误提示国际化

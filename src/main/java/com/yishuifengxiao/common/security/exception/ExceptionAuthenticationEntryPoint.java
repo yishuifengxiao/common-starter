@@ -56,8 +56,7 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  * 
  * @see HttpBasicAuthorizeProvider
  * @see ExceptionAuthorizeProvider
- * @see Oauth2Resource
- * @see Oauth2Server
+
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0

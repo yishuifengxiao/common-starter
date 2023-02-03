@@ -5,7 +5,6 @@ package com.yishuifengxiao.common.oauth2.provider;
 
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2ClientAuthenticationConfigurer;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -13,7 +12,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 
@@ -34,11 +33,9 @@ public class OAuth2AuthorizeProvider implements AuthorizeProvider {
     private OAuth2AuthorizationConsentService authorizationConsentService;
 
 
-    @SuppressWarnings({ "rawtypes", "unused" })
+    @SuppressWarnings({"rawtypes", "unused"})
     @Override
-    public void config(PropertyResource propertyResource, ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception {
-
-        HttpSecurity http = expressionInterceptUrlRegistry.and();
+    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
 
         OAuth2AuthorizationServerConfigurer<HttpSecurity> authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer<>();
         http.apply(authorizationServerConfigurer);

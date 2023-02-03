@@ -1,45 +1,40 @@
 /**
- * 
+ *
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
  * spring security记住我功能而定相关配置
- * 
- * 
+ *
+ *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
  */
 public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 
-	/**
-	 * 记住我功能的实现
-	 */
-	protected PersistentTokenRepository persistentTokenRepository;
+    /**
+     * 记住我功能的实现
+     */
+    protected PersistentTokenRepository persistentTokenRepository;
 
-	/**
-	 * 自定义UserDetailsService实现类，查找用户
-	 */
-	protected UserDetailsService userDetailsService;
+    /**
+     * 自定义UserDetailsService实现类，查找用户
+     */
+    protected UserDetailsService userDetailsService;
 
-	@Override
-	public void config(PropertyResource propertyResource,
-			ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry)
-			throws Exception {
-		//@formatter:off 
-		expressionInterceptUrlRegistry
-		.and()
+    @Override
+    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
+        //@formatter:off
 		//记住我的功能
-		.rememberMe()
+        http.rememberMe()
 		//是否使用安全cookie
 		.useSecureCookie(propertyResource.security().getRemeberMe().getUseSecureCookie())
 		//记住我产生的token的key
@@ -52,27 +47,27 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
 		//记住我的验证逻辑
 		.userDetailsService(userDetailsService);
 		//@formatter:on  
-	}
+    }
 
-	@Override
-	public int order() {
-		return 300;
-	}
+    @Override
+    public int order() {
+        return 300;
+    }
 
-	public PersistentTokenRepository getPersistentTokenRepository() {
-		return persistentTokenRepository;
-	}
+    public PersistentTokenRepository getPersistentTokenRepository() {
+        return persistentTokenRepository;
+    }
 
-	public void setPersistentTokenRepository(PersistentTokenRepository persistentTokenRepository) {
-		this.persistentTokenRepository = persistentTokenRepository;
-	}
+    public void setPersistentTokenRepository(PersistentTokenRepository persistentTokenRepository) {
+        this.persistentTokenRepository = persistentTokenRepository;
+    }
 
-	public UserDetailsService getUserDetailsService() {
-		return userDetailsService;
-	}
+    public UserDetailsService getUserDetailsService() {
+        return userDetailsService;
+    }
 
-	public void setUserDetailsService(UserDetailsService userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
 
 }

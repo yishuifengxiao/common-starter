@@ -1,19 +1,14 @@
 package com.yishuifengxiao.common.security.httpsecurity;
 
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.interceptor.HttpSecurityInterceptor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * 系统安全管理器
@@ -32,11 +27,6 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
      * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
      */
     private List<AuthorizeProvider> authorizeProviders;
-
-    /**
-     * 资源授权拦截器
-     */
-    private List<HttpSecurityInterceptor> interceptors;
 
 
     /**
@@ -57,15 +47,6 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
             }
         }
 
-        // 将HttpSecurityInterceptor 实例装载到security中
-        if (null != this.interceptors) {
-            for (HttpSecurityInterceptor interceptor : this.interceptors) {
-                if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 资源授权拦截器 ) 实例为 {}", interceptor);
-                }
-                http.apply(interceptor);
-            }
-        }
         // 加入自定义的授权配置
         if (null != this.authorizeProviders) {
             for (AuthorizeProvider authorizeConfigProvider : authorizeProviders) {
@@ -73,22 +54,25 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.order(), authorizeConfigProvider);
                 }
 
-                authorizeConfigProvider.config(propertyResource, http.authorizeRequests());
+                authorizeConfigProvider.apply(propertyResource, http);
 
             }
 
         }
 
+
     }
 
-
-    public SimpleHttpSecurityManager(List<AuthorizeProvider> authorizeProviders, List<HttpSecurityInterceptor> interceptors, PropertyResource propertyResource, List<SecurityRequestFilter> securityRequestFilters) {
+    // @formatter:off
+    public SimpleHttpSecurityManager(List<AuthorizeProvider> authorizeProviders,
+                                     PropertyResource propertyResource,
+                                     List<SecurityRequestFilter> securityRequestFilters) {
 
         this.authorizeProviders = authorizeProviders;
-        this.interceptors = interceptors;
         this.propertyResource = propertyResource;
         this.securityRequestFilters = securityRequestFilters;
     }
+    // @formatter:on
 
     @Override
     public void afterPropertiesSet() {

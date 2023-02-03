@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl.SimpleCustomResourceProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAccessDeniedHandler;
@@ -12,7 +12,7 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.*;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.impl.SimpleHandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
-import com.yishuifengxiao.common.security.httpsecurity.filter.extractor.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;

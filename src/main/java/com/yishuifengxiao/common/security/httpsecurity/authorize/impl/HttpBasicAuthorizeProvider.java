@@ -1,10 +1,9 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -22,10 +21,8 @@ public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
     private AuthenticationEntryPoint exceptionAuthenticationEntryPoint;
 
     @Override
-    public void config(PropertyResource propertyResource, ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry expressionInterceptUrlRegistry) throws Exception {
+    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
         //@formatter:off
-		HttpSecurity http = expressionInterceptUrlRegistry.and();
-
 		// 开启http baisc认证
 		if (propertyResource.security().getHttpBasic()) {
 			http.httpBasic() // 开启basic认证

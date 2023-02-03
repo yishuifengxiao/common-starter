@@ -77,7 +77,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, Response.sucData(token).setMsg("登陆成功"));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getLoginSuccessUrl(), token);
+        HttpUtils.redirect(request, response, propertyResource.security().getLoginSuccessUrl(), token);
 
     }
 
@@ -106,7 +106,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getLoginFailUrl(), exception);
+        HttpUtils.redirect(request, response, propertyResource.security().getLoginFailUrl(), exception);
     }
 
     /**
@@ -126,7 +126,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, Response.suc(authentication).setMsg("退出成功"));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getLoginOutUrl(), authentication);
+        HttpUtils.redirect(request, response, propertyResource.security().getLoginOutUrl(), authentication);
     }
 
     /**
@@ -151,7 +151,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(), propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getRedirectUrl(), exception);
+        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
     }
 
     /**
@@ -176,7 +176,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getRedirectUrl(), exception);
+        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
 
     }
 
@@ -200,7 +200,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             HttpUtils.out(response, data);
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getCore().getRedirectUrl(), data.getData());
+        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), data.getData());
 
     }
 

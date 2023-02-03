@@ -39,7 +39,7 @@ public class Oauth2Properties {
     private String tokenKeyAccess;
 
     /**
-     * Realm name for client authentication. If an unauthenticated request comes in
+     * Realm name for client user. If an unauthenticated request comes in
      * to the token endpoint, it will respond with a challenge including this name.
      */
     private String realm = "yishuifengxiao";
