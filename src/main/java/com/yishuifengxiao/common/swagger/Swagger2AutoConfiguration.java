@@ -83,8 +83,16 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
     public Docket createRestApi() {
         //全局配置信息
         List<Parameter> pars = this.buildParameter();
-        return new Docket(DocumentationType.SWAGGER_2).groupName(swaggerProperties.getGroupName()).apiInfo(apiInfo()).select().apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage())).paths(PathSelectors.any()).build().globalOperationParameters(pars);
-
+        // @formatter:off
+        return new Docket(DocumentationType.SWAGGER_2)
+                .groupName(swaggerProperties.getGroupName())
+                .apiInfo(apiInfo())
+                .select()
+                .apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()))
+                .paths(PathSelectors.any())
+                .build()
+                .globalOperationParameters(pars);
+        // @formatter:on
     }
 
 
@@ -94,15 +102,41 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      * @return api信息
      */
     private ApiInfo apiInfo() {
+        String applicationName = context.getEnvironment().getProperty("spring.application.name", "");
+        String[] activeProfiles = context.getEnvironment().getActiveProfiles();
         String title = swaggerProperties.getTitle();
 
         if (StringUtils.isBlank(title)) {
-            String applicationName = context.getApplicationName();
-            String activeProfiles = String.join(";", context.getEnvironment().getActiveProfiles());
-            title = new StringBuilder(StringUtils.isBlank(applicationName) ? "项目" : applicationName).append("【").append(activeProfiles).append("】").toString();
+            StringBuilder builder = new StringBuilder(applicationName);
+            if (null != activeProfiles && activeProfiles.length > 0) {
+                builder = builder.append("【").append(String.join(";", activeProfiles)).append("】");
+            }
+            title = builder.append("在线接口文档").toString();
         }
+        // @formatter:off
         String description = swaggerProperties.getDescription();
-        return new ApiInfoBuilder().title(title).description(StringUtils.isBlank(description) ? title : description).termsOfServiceUrl(swaggerProperties.getTermsOfServiceUrl()).contact(new Contact(swaggerProperties.getContactUser(), swaggerProperties.getContactUrl(), swaggerProperties.getContactEmail())).version(swaggerProperties.getVersion()).build();
+        if (StringUtils.isBlank(description)) {
+            StringBuilder builder = new StringBuilder("项目");
+            if(StringUtils.isNotBlank(applicationName)){
+                builder.append("【") .append(applicationName).append("】");
+            }
+            builder.append("在线接口文档");
+            if (null != activeProfiles && activeProfiles.length > 0) {
+                builder.append("。当前激活的环境为").append(String.join(";", activeProfiles));
+            }
+            description=builder.toString();
+        }
+        return new ApiInfoBuilder()
+                .title(title)
+                .description(description)
+                .termsOfServiceUrl(swaggerProperties.getTermsOfServiceUrl()).
+                contact(new Contact(
+                        swaggerProperties.getContactUser(),
+                        swaggerProperties.getContactUrl(),
+                        swaggerProperties.getContactEmail())
+                )
+                .version(swaggerProperties.getVersion()).build();
+        // @formatter:on
     }
 
 

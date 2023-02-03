@@ -34,7 +34,6 @@ public class IgnoreResourceProvider implements WebSecurityProvider {
 				.dispatcherTypeMatchers(DispatcherType.ERROR)
 		;
 		// @formatter:on
-
     }
 
 
