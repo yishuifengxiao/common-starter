@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.tool.entity.Response;
@@ -47,7 +47,7 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
     /**
      * 协助处理器
      */
-    private HandlerProcessor handlerProcessor;
+    private SecurityHandler securityHandler;
 
     /**
      * 验证码处理器
@@ -103,7 +103,7 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
                 if (propertyResource.showDetail()) {
                     log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
                 }
-                handlerProcessor.preAuth(propertyResource, request, response,
+                securityHandler.preAuth(propertyResource, request, response,
                         Response.of(Response.Const.CODE_INTERNAL_SERVER_ERROR, exception.getMessage(), exception));
 
                 // 失败后不执行后面的过滤器
@@ -164,12 +164,12 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
         this.codeProcessor = codeProcessor;
     }
 
-    public HandlerProcessor getHandlerProcessor() {
-        return handlerProcessor;
+    public SecurityHandler getHandlerProcessor() {
+        return securityHandler;
     }
 
-    public void setHandlerProcessor(HandlerProcessor handlerProcessor) {
-        this.handlerProcessor = handlerProcessor;
+    public void setHandlerProcessor(SecurityHandler securityHandler) {
+        this.securityHandler = securityHandler;
     }
 
 }

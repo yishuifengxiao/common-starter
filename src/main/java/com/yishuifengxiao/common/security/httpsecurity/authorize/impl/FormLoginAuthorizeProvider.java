@@ -3,12 +3,10 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
  * spring security表单登录相关的配置
@@ -20,17 +18,9 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  */
 public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 
-    /**
-     * 自定义认证成功处理器
-     */
-    protected AuthenticationSuccessHandler formAuthenticationSuccessHandler;
-    /**
-     * 自定义认证失败处理器
-     */
-    protected AuthenticationFailureHandler formAuthenticationFailureHandler;
 
     @Override
-    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
         //@formatter:off
         http.formLogin()
 		//权限拦截时默认跳转的页面
@@ -42,9 +32,9 @@ public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 		// 密码参数的名字
 		.passwordParameter(propertyResource.security().getPasswordParameter())
 		//自定义认证成功处理器
-		.successHandler(formAuthenticationSuccessHandler)
+		.successHandler(securityHandler)
 		//自定义认证失败处理器
-		.failureHandler(formAuthenticationFailureHandler);
+		.failureHandler(securityHandler);
 		//@formatter:on  
     }
 
@@ -53,20 +43,5 @@ public class FormLoginAuthorizeProvider implements AuthorizeProvider {
         return 100;
     }
 
-    public AuthenticationSuccessHandler getFormAuthenticationSuccessHandler() {
-        return formAuthenticationSuccessHandler;
-    }
-
-    public void setFormAuthenticationSuccessHandler(AuthenticationSuccessHandler formAuthenticationSuccessHandler) {
-        this.formAuthenticationSuccessHandler = formAuthenticationSuccessHandler;
-    }
-
-    public AuthenticationFailureHandler getFormAuthenticationFailureHandler() {
-        return formAuthenticationFailureHandler;
-    }
-
-    public void setFormAuthenticationFailureHandler(AuthenticationFailureHandler formAuthenticationFailureHandler) {
-        this.formAuthenticationFailureHandler = formAuthenticationFailureHandler;
-    }
 
 }

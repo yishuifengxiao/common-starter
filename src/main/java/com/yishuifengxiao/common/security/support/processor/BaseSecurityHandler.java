@@ -20,7 +20,7 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0.0
  */
 @Slf4j
-public abstract class BaseHandlerProcessor implements HandlerProcessor {
+public class BaseSecurityHandler extends SecurityHandler {
 
     /**
      * 声明了缓存与恢复操作
@@ -65,7 +65,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void loginSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
+    public void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
 
         final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
@@ -74,7 +74,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
             redirectStrategy.sendRedirect(request, response, attribute.toString());
         }
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.sucData(token).setMsg("登陆成功"));
+            HttpUtils.out(response, Response.sucData(token).setMsg("认证失败"));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginSuccessUrl(), token);
@@ -91,12 +91,12 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void loginFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
+    public void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 
 
-        String msg = "登陆失败";
+        String msg = "认证失败";
 
         if (exception instanceof CustomException) {
             CustomException e = (CustomException) exception;
@@ -118,7 +118,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void exit(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
 
@@ -142,7 +142,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void deney(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) throws IOException {
+    public void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) throws IOException {
 
         // 引起跳转的uri
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", request.getRequestURL(), exception);
@@ -167,7 +167,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void exception(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
+    public void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
 
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);

@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
@@ -51,7 +51,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     private PropertyResource propertyResource;
 
-    private HandlerProcessor handlerProcessor;
+    private SecurityHandler securityHandler;
 
     private SecurityTokenExtractor securityTokenExtractor;
 
@@ -84,10 +84,10 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
             }
 
         } catch (CustomException e) {
-            handlerProcessor.preAuth(propertyResource, request, response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), e.getMessage(), e));
+            securityHandler.preAuth(propertyResource, request, response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), e.getMessage(), e));
             return;
         } catch (Exception e) {
-            handlerProcessor.exception(propertyResource, request, response, e);
+            securityHandler.onException(propertyResource, request, response, e);
             return;
         }
         filterChain.doFilter(request, response);
@@ -121,9 +121,9 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     }
 
-    public TokenValidateFilter(PropertyResource propertyResource, HandlerProcessor handlerProcessor, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
+    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
         this.propertyResource = propertyResource;
-        this.handlerProcessor = handlerProcessor;
+        this.securityHandler = securityHandler;
         this.securityTokenExtractor = securityTokenExtractor;
         this.securityHelper = securityHelper;
 

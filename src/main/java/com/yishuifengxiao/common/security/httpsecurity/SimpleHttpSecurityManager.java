@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.security.httpsecurity;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,7 +29,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
      */
     private List<AuthorizeProvider> authorizeProviders;
 
-
+    private SecurityHandler securityHandler;
     /**
      * 资源路径器
      */
@@ -54,7 +55,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.order(), authorizeConfigProvider);
                 }
 
-                authorizeConfigProvider.apply(propertyResource, http);
+                authorizeConfigProvider.apply(propertyResource, securityHandler, http);
 
             }
 
@@ -66,10 +67,12 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     // @formatter:off
     public SimpleHttpSecurityManager(List<AuthorizeProvider> authorizeProviders,
                                      PropertyResource propertyResource,
+                                     SecurityHandler securityHandler,
                                      List<SecurityRequestFilter> securityRequestFilters) {
 
         this.authorizeProviders = authorizeProviders;
         this.propertyResource = propertyResource;
+        this.securityHandler = securityHandler;
         this.securityRequestFilters = securityRequestFilters;
     }
     // @formatter:on

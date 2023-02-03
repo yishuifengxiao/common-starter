@@ -14,8 +14,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 /**
  * spring security扩展支持自动配置
@@ -26,10 +24,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
  */
 @Configuration
 @ConditionalOnBean(AbstractSecurityConfig.class)
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-        WebSecurityConfigurerAdapter.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
-        "enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, WebSecurityConfigurerAdapter.class})
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class SmsLoginAutoConfiguration {
 
 
@@ -42,8 +38,6 @@ public class SmsLoginAutoConfiguration {
      * 先配置一个短信登陆地址属性(<code>yishuifengxiao.security.code.sms-login-url</code>), 2
      * 再配置一个名为 smsUserDetailsService 的 <code>UserDetailsService</code> 实例
      *
-     * @param authenticationFailureHandler 认证失败处理器
-     * @param authenticationSuccessHandler 认证成功处理器
      * @param smsUserDetailsService        短信登陆逻辑
      * @param securityProperties           安全属性配置
      * @return 资源授权拦截器实例
@@ -52,13 +46,9 @@ public class SmsLoginAutoConfiguration {
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "sms-login-url")
     @ConditionalOnMissingBean(name = "smsLoginInterceptor")
     @ConditionalOnBean({SmsUserDetailsService.class})
-    public AuthorizeProvider smsLoginInterceptor(AuthenticationSuccessHandler authenticationFailureHandler,
-                                                 AuthenticationFailureHandler authenticationSuccessHandler,
-                                                 SmsUserDetailsService smsUserDetailsService,
-                                                 SecurityProperties securityProperties) {
+    public AuthorizeProvider smsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
 
-        return new SmsLoginInterceptor(authenticationFailureHandler, authenticationSuccessHandler, smsUserDetailsService,
-                securityProperties.getCode().getSmsLoginUrl());
+        return new SmsLoginInterceptor(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
     }
 
 

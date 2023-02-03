@@ -3,13 +3,12 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.session.SessionInformationExpiredStrategy;
-
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
 /**
  * spring security并发登录相关的配置
@@ -21,24 +20,21 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  */
 public class SessionAuthorizeProvider implements AuthorizeProvider {
 
-    /**
-     * 自定义认证失败处理器
-     */
-    protected AuthenticationFailureHandler customAuthenticationFailureHandler;
+
     /**
      * session失效后的处理策略
      */
     private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
 
     @Override
-    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
         //@formatter:off
         http.sessionManagement()
 		.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
 		//定义AuthenticationFailureHandler，它将在SessionAuthenticationStrategy引发异常时使用。
 		//如果未设置，将向客户端返回未经授权的（402）错误代码。
 		//请注意，如果在基于表单的登录期间发生错误，则此属性不会发生，其中URL身份验证失败将优先
-		.sessionAuthenticationFailureHandler(customAuthenticationFailureHandler)
+		.sessionAuthenticationFailureHandler(securityHandler)
 		//.invalidSessionUrl(securityProperties.getSession().getSessionInvalidUrl()) //session过期时的跳转的url
 		//同一个用户最大的session数量
 		.maximumSessions(propertyResource.security().getSession().getMaximumSessions())
@@ -56,13 +52,6 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
         return 400;
     }
 
-    public AuthenticationFailureHandler getCustomAuthenticationFailureHandler() {
-        return customAuthenticationFailureHandler;
-    }
-
-    public void setCustomAuthenticationFailureHandler(AuthenticationFailureHandler customAuthenticationFailureHandler) {
-        this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
-    }
 
     public SessionInformationExpiredStrategy getSessionInformationExpiredStrategy() {
         return sessionInformationExpiredStrategy;

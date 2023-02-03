@@ -1,5 +1,10 @@
 package com.yishuifengxiao.common.resourceserver;
 
+import com.yishuifengxiao.common.resourceserver.introspection.CustomOpaqueTokenIntrospector;
+import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
+import com.yishuifengxiao.common.resourceserver.resolver.CustomBearerTokenResolver;
+import com.yishuifengxiao.common.security.AbstractSecurityConfig;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -12,21 +17,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
-
-import com.yishuifengxiao.common.resourceserver.endpoint.ResourceAuthenticationEntryPoint;
-import com.yishuifengxiao.common.resourceserver.introspection.CustomOpaqueTokenIntrospector;
-import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
-import com.yishuifengxiao.common.resourceserver.resolver.CustomBearerTokenResolver;
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
  * 资源服务器自动配置
- * 
+ *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -34,47 +28,34 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
 
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnBean(AbstractSecurityConfig.class)
-@AutoConfigureBefore({ SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class })
+@AutoConfigureBefore({SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 @EnableConfigurationProperties(ResourceProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnProperty(prefix = "yishuifengxiao.security.resourceserver", name = {
-		"enable" }, havingValue = "true", matchIfMissing = false)
+        "enable"}, havingValue = "true", matchIfMissing = false)
 public class SecurityResourceAutoConfiguration {
 
-	@Bean("resourceAuthenticationEntryPoint")
-	@ConditionalOnMissingBean(name = { "resourceAuthenticationEntryPoint" })
-	public AuthenticationEntryPoint resourceAuthenticationEntryPoint(HandlerProcessor handlerProcessor,
-			PropertyResource propertyResource) {
-		ResourceAuthenticationEntryPoint resourceAuthenticationEntryPoint = new ResourceAuthenticationEntryPoint();
-		resourceAuthenticationEntryPoint.setHandlerProcessor(handlerProcessor);
-		resourceAuthenticationEntryPoint.setPropertyResource(propertyResource);
-		return resourceAuthenticationEntryPoint;
-	}
 
-	@Bean("customBearerTokenResolver")
-	@ConditionalOnMissingBean(name = { "customBearerTokenResolver" })
-	public CustomBearerTokenResolver customBearerTokenResolver() {
-		return new CustomBearerTokenResolver();
-	}
+    @Bean("customBearerTokenResolver")
+    @ConditionalOnMissingBean(name = {"customBearerTokenResolver"})
+    public CustomBearerTokenResolver customBearerTokenResolver() {
+        return new CustomBearerTokenResolver();
+    }
 
-	@Bean("customOpaqueTokenIntrospector")
-	@ConditionalOnMissingBean(name = { "customOpaqueTokenIntrospector" })
-	public OpaqueTokenIntrospector customOpaqueTokenIntrospector(ResourceProperties resourceProperties) {
-		return new CustomOpaqueTokenIntrospector(resourceProperties.getTokenCheckUrl());
-	}
+    @Bean("customOpaqueTokenIntrospector")
+    @ConditionalOnMissingBean(name = {"customOpaqueTokenIntrospector"})
+    public OpaqueTokenIntrospector customOpaqueTokenIntrospector(ResourceProperties resourceProperties) {
+        return new CustomOpaqueTokenIntrospector(resourceProperties.getTokenCheckUrl());
+    }
 
-	@Bean("resourceAuthorizeProvider")
-	@ConditionalOnMissingBean(name = { "resourceAuthorizeProvider" })
-	public AuthorizeProvider resourceAuthorizeProvider(
-			@Qualifier("resourceAuthenticationEntryPoint") AuthenticationEntryPoint resourceAuthenticationEntryPoint,
-			@Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver,
-			@Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector,
-			AccessDeniedHandler accessDeniedHandler) {
-		ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
-		resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
-		resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);
-		resourceAuthorizeProvider.setResourceAuthenticationEntryPoint(resourceAuthenticationEntryPoint);
-		resourceAuthorizeProvider.setAccessDeniedHandler(accessDeniedHandler);
-		return resourceAuthorizeProvider;
-	}
+    @Bean("resourceAuthorizeProvider")
+    @ConditionalOnMissingBean(name = {"resourceAuthorizeProvider"})
+    public AuthorizeProvider resourceAuthorizeProvider(
+            @Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver,
+            @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
+        ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
+        resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
+        resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);
+        return resourceAuthorizeProvider;
+    }
 }

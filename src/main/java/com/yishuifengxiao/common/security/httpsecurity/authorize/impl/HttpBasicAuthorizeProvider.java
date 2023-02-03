@@ -1,10 +1,9 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.AuthenticationEntryPoint;
-
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
  * http basic登陆时的配置
@@ -15,18 +14,14 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  */
 public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
 
-    /**
-     * 异常处理的端点
-     */
-    private AuthenticationEntryPoint exceptionAuthenticationEntryPoint;
 
     @Override
-    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
         //@formatter:off
 		// 开启http baisc认证
 		if (propertyResource.security().getHttpBasic()) {
 			http.httpBasic() // 开启basic认证
-					.authenticationEntryPoint(exceptionAuthenticationEntryPoint)
+					.authenticationEntryPoint(securityHandler)
 					.realmName(propertyResource.security().getRealmName());
 		}
 		//@formatter:on  
@@ -35,15 +30,6 @@ public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
     @Override
     public int order() {
         return 700;
-    }
-
-
-    public AuthenticationEntryPoint getExceptionAuthenticationEntryPoint() {
-        return exceptionAuthenticationEntryPoint;
-    }
-
-    public void setExceptionAuthenticationEntryPoint(AuthenticationEntryPoint exceptionAuthenticationEntryPoint) {
-        this.exceptionAuthenticationEntryPoint = exceptionAuthenticationEntryPoint;
     }
 
 

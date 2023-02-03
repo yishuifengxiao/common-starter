@@ -2,6 +2,7 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
@@ -13,15 +14,16 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
  */
 public abstract class AbstractAuthorizeProvider implements AuthorizeProvider {
     @Override
-    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
-        this.configure(http);
+    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
+        this.configure(http, securityHandler);
     }
 
     /**
      * 授权配置
      *
      * @param http
+     * @param securityHandler
      * @throws Exception
      */
-    protected abstract void configure(HttpSecurity http) throws Exception;
+    protected abstract void configure(HttpSecurity http, SecurityHandler securityHandler) throws Exception;
 }

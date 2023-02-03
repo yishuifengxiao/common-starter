@@ -15,7 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
@@ -60,20 +60,20 @@ public class SecurityFilterAutoConfiguration {
 
     @Bean("usernamePasswordPreAuthFilter")
     @ConditionalOnMissingBean(name = {"usernamePasswordPreAuthFilter"})
-    public SecurityRequestFilter usernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor,
+    public SecurityRequestFilter usernamePasswordPreAuthFilter(SecurityHandler securityHandler,
                                                                UserDetailsService userDetailsService,
                                                                PasswordEncoder passwordEncoder,
                                                                PropertyResource propertyResource,
                                                                SecurityContextExtractor securityContextExtractor) {
-        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(handlerProcessor, userDetailsService, passwordEncoder, propertyResource, securityContextExtractor);
+        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(securityHandler, userDetailsService, passwordEncoder, propertyResource, securityContextExtractor);
         return usernamePasswordPreAuthFilter;
     }
 
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, HandlerProcessor handlerProcessor, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) throws ServletException {
+    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) throws ServletException {
 
-        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, handlerProcessor, securityTokenExtractor, securityHelper);
+        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenExtractor, securityHelper);
         tokenValidateFilter.afterPropertiesSet();
         return tokenValidateFilter;
     }
@@ -83,17 +83,17 @@ public class SecurityFilterAutoConfiguration {
      *
      * @param codeProcessor    验证码处理器
      * @param propertyResource 安全属性配置
-     * @param handlerProcessor 协助处理器
+     * @param securityHandler 协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")
     @ConditionalOnMissingBean(name = "validateCodeFilter")
     @ConditionalOnBean({CodeRepository.class})
-    public SecurityRequestFilter validateCodeFilter(CodeProcessor codeProcessor, PropertyResource propertyResource, HandlerProcessor handlerProcessor) {
+    public SecurityRequestFilter validateCodeFilter(CodeProcessor codeProcessor, PropertyResource propertyResource, SecurityHandler securityHandler) {
         ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
         validateCodeFilter.setCodeProcessor(codeProcessor);
         validateCodeFilter.setPropertyResource(propertyResource);
-        validateCodeFilter.setHandlerProcessor(handlerProcessor);
+        validateCodeFilter.setHandlerProcessor(securityHandler);
         return validateCodeFilter;
     }
 

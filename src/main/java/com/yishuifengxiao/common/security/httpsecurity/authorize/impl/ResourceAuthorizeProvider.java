@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
@@ -25,7 +26,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
     private CustomResourceProvider customResourceProvider;
 
     @Override
-    public void apply(PropertyResource propertyResource, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
 
 
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();

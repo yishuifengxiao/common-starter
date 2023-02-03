@@ -1,41 +1,20 @@
 package com.yishuifengxiao.common.security;
 
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
-
 import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.exception.ExceptionAuthenticationEntryPoint;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
+import com.yishuifengxiao.common.security.support.processor.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -51,8 +30,25 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import com.yishuifengxiao.common.social.SocialProperties;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * spring security扩展支持自动配置
@@ -66,8 +62,7 @@ import lombok.extern.slf4j.Slf4j;
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, WebSecurityConfigurerAdapter.class})
 @ConditionalOnBean(AbstractSecurityConfig.class)
 @EnableConfigurationProperties({SecurityProperties.class, SocialProperties.class})
-@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
-        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
+@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class SecurityCoreAutoConfiguration {
 
@@ -160,22 +155,6 @@ public class SecurityCoreAutoConfiguration {
         return new TokenUtil(securityHelper, securityContextExtractor);
     }
 
-    /**
-     * 资源异常处理器
-     *
-     * @param handlerProcessor 协助处理器
-     * @param propertyResource 资源管理器
-     * @return 资源异常处理器
-     */
-    @Bean("exceptionAuthenticationEntryPoint")
-    @ConditionalOnMissingBean(name = "exceptionAuthenticationEntryPoint")
-    public AuthenticationEntryPoint exceptionAuthenticationEntryPoint(HandlerProcessor handlerProcessor, PropertyResource propertyResource) {
-        ExceptionAuthenticationEntryPoint point = new ExceptionAuthenticationEntryPoint();
-        point.setHandlerProcessor(handlerProcessor);
-        point.setPropertyResource(propertyResource);
-        return point;
-    }
-
 
     /**
      * 默认实现的HttpFirewall，主要是解决路径里包含 // 路径报错的问题
@@ -199,8 +178,8 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, securityRequestFilters);
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, SecurityHandler securityHandler, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, securityHandler, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -246,6 +225,16 @@ public class SecurityCoreAutoConfiguration {
         return simpleTokenBuilder;
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public SecurityHandler securityHandler(PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor, SecurityHelper securityHelper, TokenBuilder tokenBuilder) {
+        BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
+        baseSecurityHandler.setPropertyResource(propertyResource);
+        baseSecurityHandler.setSecurityHelper(securityHelper);
+        baseSecurityHandler.setSecurityContextExtractor(securityContextExtractor);
+        baseSecurityHandler.setTokenBuilder(tokenBuilder);
+        return baseSecurityHandler;
+    }
 
     /**
      * 错误提示国际化

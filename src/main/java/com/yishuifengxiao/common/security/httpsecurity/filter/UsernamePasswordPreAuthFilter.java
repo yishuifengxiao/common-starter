@@ -18,7 +18,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -41,7 +41,7 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
 
     private AntPathRequestMatcher pathMatcher = null;
 
-    private HandlerProcessor handlerProcessor;
+    private SecurityHandler securityHandler;
 
     private UserDetailsService userDetailsService;
 
@@ -92,7 +92,7 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
                                 propertyResource.security().getMsg().getAccountNoExtis());
                     }
                 } catch (Exception exception) {
-                    handlerProcessor.loginFailure(propertyResource, request, response, exception);
+                    securityHandler.whenAuthenticationFailure(propertyResource, request, response, exception);
                     return;
                 }
 
@@ -121,12 +121,12 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
     }
 
     // @formatter:off
-    public UsernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor,
+    public UsernamePasswordPreAuthFilter(SecurityHandler securityHandler,
                                          UserDetailsService userDetailsService,
                                          PasswordEncoder passwordEncoder,
                                          PropertyResource propertyResource,
                                          SecurityContextExtractor securityContextExtractor) {
-        this.handlerProcessor = handlerProcessor;
+        this.securityHandler = securityHandler;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.propertyResource = propertyResource;
