@@ -11,57 +11,64 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
  * 系统令牌提取器
- * 
+ *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
  */
 public class SimpleSecurityTokenExtractor implements SecurityTokenExtractor {
 
-	@Override
-	public String extractTokenValue(HttpServletRequest request, HttpServletResponse response,
-			PropertyResource propertyResource) {
-		String tokenValue = this.getTokenValueInHeader(request, propertyResource);
-		if (StringUtils.isBlank(tokenValue)) {
-			tokenValue = this.getTokenValueInQuery(request, propertyResource);
-		}
-		return tokenValue;
-	}
+    @Override
+    public String extractTokenValue(HttpServletRequest request, HttpServletResponse response,
+                                    PropertyResource propertyResource) {
+        String tokenValue = this.getTokenValueInHeader(request, propertyResource);
+        if (StringUtils.isBlank(tokenValue)) {
+            tokenValue = this.getTokenValueInQuery(request, propertyResource);
+        }
+        if (StringUtils.isBlank(tokenValue)) {
+            Object val = request.getSession().getAttribute(propertyResource.security().getToken().getUserUniqueIdentitier());
+            if (null != val) {
+                tokenValue = val.toString();
+            }
+        }
+        return tokenValue;
+    }
 
-	/**
-	 * 从请求参数里获取tokenValue
-	 * 
-	 * @param request          HttpServletRequest
-	 * @param propertyResource 资源管理器
-	 * @return tokenValue
-	 */
-	private String getTokenValueInQuery(HttpServletRequest request, PropertyResource propertyResource) {
-		String requestParamter = propertyResource.security().getToken().getRequestParamter();
-		if (StringUtils.isBlank(requestParamter)) {
-			requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
-		}
 
-		String tokenValue = request.getParameter(requestParamter);
+    /**
+     * 从请求参数里获取tokenValue
+     *
+     * @param request          HttpServletRequest
+     * @param propertyResource 资源管理器
+     * @return tokenValue
+     */
+    private String getTokenValueInQuery(HttpServletRequest request, PropertyResource propertyResource) {
+        String requestParamter = propertyResource.security().getToken().getRequestParamter();
+        if (StringUtils.isBlank(requestParamter)) {
+            requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
 
-		if (StringUtils.isBlank(tokenValue)) {
-			tokenValue = (String) request.getSession().getAttribute(requestParamter);
-		}
-		return tokenValue;
-	}
+        String tokenValue = request.getParameter(requestParamter);
 
-	/**
-	 * 从请求头里获取到tokenValue
-	 * 
-	 * @param request          HttpServletRequest
-	 * @param propertyResource 资源管理器
-	 * @return tokenValue
-	 */
-	private String getTokenValueInHeader(HttpServletRequest request, PropertyResource propertyResource) {
-		String headerParamter = propertyResource.security().getToken().getHeaderParamter();
-		if (StringUtils.isBlank(headerParamter)) {
-			headerParamter = TokenConstant.TOKEN_HEADER_PARAM;
-		}
-		return request.getHeader(headerParamter);
-	}
+        if (StringUtils.isBlank(tokenValue)) {
+            tokenValue = (String) request.getSession().getAttribute(requestParamter);
+        }
+        return tokenValue;
+    }
+
+    /**
+     * 从请求头里获取到tokenValue
+     *
+     * @param request          HttpServletRequest
+     * @param propertyResource 资源管理器
+     * @return tokenValue
+     */
+    private String getTokenValueInHeader(HttpServletRequest request, PropertyResource propertyResource) {
+        String headerParamter = propertyResource.security().getToken().getHeaderParamter();
+        if (StringUtils.isBlank(headerParamter)) {
+            headerParamter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
+        return request.getHeader(headerParamter);
+    }
 
 }

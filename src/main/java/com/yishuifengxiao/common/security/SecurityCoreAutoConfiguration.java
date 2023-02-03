@@ -1,37 +1,9 @@
 package com.yishuifengxiao.common.security;
 
-import com.yishuifengxiao.common.security.user.GlobalUserDetails;
-import com.yishuifengxiao.common.security.user.SimpleGlobalUserDetails;
-import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
-import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
-import com.yishuifengxiao.common.security.exception.ExceptionAuthenticationEntryPoint;
-import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
-import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
-import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
-import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
-import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
-import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
-import com.yishuifengxiao.common.security.utils.TokenUtil;
-import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
-import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
-import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
-import com.yishuifengxiao.common.security.websecurity.provider.impl.IgnoreResourceProvider;
-import com.yishuifengxiao.common.social.SocialProperties;
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -49,8 +21,38 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import javax.annotation.PostConstruct;
-import java.util.List;
+import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
+import com.yishuifengxiao.common.security.exception.ExceptionAuthenticationEntryPoint;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
+import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.token.holder.TokenHolder;
+import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
+import com.yishuifengxiao.common.security.user.GlobalUserDetails;
+import com.yishuifengxiao.common.security.user.SimpleGlobalUserDetails;
+import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
+import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
+import com.yishuifengxiao.common.security.utils.TokenUtil;
+import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
+import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
+import com.yishuifengxiao.common.social.SocialProperties;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * spring security扩展支持自动配置
@@ -174,21 +176,6 @@ public class SecurityCoreAutoConfiguration {
         return point;
     }
 
-
-    /**
-     * <p>
-     * 忽视资源授权器
-     * </p>
-     *
-     * @param securityProperties 安全属性配置
-     * @return web安全授权器实例
-     */
-    @Bean(name = "ignoreResourceProvider")
-    @ConditionalOnMissingBean(name = {"ignoreResourceProvider"})
-    public WebSecurityProvider ignoreResourceProvider(SecurityProperties securityProperties) {
-        IgnoreResourceProvider ignoreResourceProvider = new IgnoreResourceProvider();
-        return ignoreResourceProvider;
-    }
 
     /**
      * 默认实现的HttpFirewall，主要是解决路径里包含 // 路径报错的问题

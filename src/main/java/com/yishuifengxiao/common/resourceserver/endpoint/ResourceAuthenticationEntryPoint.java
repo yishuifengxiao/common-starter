@@ -10,7 +10,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 
 import com.yishuifengxiao.common.resourceserver.provider.ResourceAuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**

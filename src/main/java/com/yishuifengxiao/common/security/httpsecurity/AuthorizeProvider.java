@@ -4,7 +4,6 @@
 package com.yishuifengxiao.common.security.httpsecurity;
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
 

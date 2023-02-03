@@ -3,7 +3,6 @@
  */
 package com.yishuifengxiao.common.security;
 
-import com.yishuifengxiao.common.security.constant.OAuth2Constant;
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.constant.UriConstant;
@@ -52,9 +51,9 @@ public class SecurityProperties {
      */
     private Boolean httpBasic = true;
     /**
-     * 资源名称,默认为yishuifengxiao
+     * the HTTP Basic realm to use
      */
-    private String realmName = OAuth2Constant.REAL_NAME;
+    private String realmName = SecurityConstant.REAL_NAME;
 
     /**
      * 是否开启token合法行校验,默认为开启
@@ -201,10 +200,10 @@ public class SecurityProperties {
         /**
          * 从请求头里取出认证信息时的参数名，默认为 xtoken
          */
-        private String headerParamter = TokenConstant.TOKEN_HEADER_PARAM;
+        private String headerParamter = TokenConstant.TOKEN_REQUEST_PARAM;
 
         /**
-         * 从请求参数里取出认证信息时的参数名，默认为 yishui_token
+         * 从请求参数里取出认证信息时的参数名，默认为 xtoken
          */
         private String requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
@@ -215,7 +214,7 @@ public class SecurityProperties {
         /**
          * 是否在使用用户唯一标识符参数获取参数失败时使用请求的sessionId作为用户唯一标识符
          */
-        private Boolean useSessionId = false;
+        private Boolean useSessionId = true;
 
     }
 
@@ -285,7 +284,7 @@ public class SecurityProperties {
         /**
          * 所有需要忽视的目录
          */
-        private List<String> urls = new ArrayList();
+        private List<String> urls = new ArrayList<>();
 
     }
 

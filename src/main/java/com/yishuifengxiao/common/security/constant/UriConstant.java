@@ -43,4 +43,5 @@ public final class UriConstant {
 	 * 错误页面
 	 */
 	public final static String ERROR_PAGE = "/error";
+
 }

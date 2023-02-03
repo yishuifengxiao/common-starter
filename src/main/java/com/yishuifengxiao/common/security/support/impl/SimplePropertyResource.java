@@ -3,19 +3,16 @@
  */
 package com.yishuifengxiao.common.security.support.impl;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
+import com.yishuifengxiao.common.security.SecurityProperties;
+import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.social.SocialProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.constant.OAuth2Constant;
-import com.yishuifengxiao.common.security.constant.UriConstant;
-import com.yishuifengxiao.common.social.SocialProperties;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 简单实现的资源管理器
@@ -31,7 +28,12 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**.png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"/js/**",
+            "/css/**", "/images/**", "/fonts/**",
+            "/**/**.png", "/**/**.jpg",
+            "/**/**.html", "/**/**.ico",
+            "/**/**.js", "/**/**.css",
+            "/**/**.woff", "/**/**.ttf"};
 
     /**
      * 系统默认包含的swagger-ui资源路径
@@ -76,10 +78,6 @@ public class SimplePropertyResource implements PropertyResource {
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getPermits());
         // 需要增加的资源
         urls.addAll(Arrays.asList(
-                // 获取token的地址
-//                OAuth2Constant.OAUTH_TOKEN,
-                // 校验token的地址
-                OAuth2Constant.OAUTH_CHECK_TOKEN,
                 // 权限拦截时默认的跳转地址
                 securityProperties.getRedirectUrl(),
                 // 登陆页面的URL
@@ -122,21 +120,18 @@ public class SimplePropertyResource implements PropertyResource {
 
     @Override
     public Set<String> allUnCheckUrls() {
-        final SecurityProperties.TokenProperties token = this.securityProperties.getToken();
         Set<String> urls = new HashSet<>();
         // 所有直接放行的资源
         urls.addAll(this.allPermitUrs());
+        // 所有允许匿名访问的资源
+        urls.addAll(this.anonymousUrls());
         // 所有忽视的资源
-        urls.addAll(Arrays.asList(this.getAllIgnoreUrls()));
-        // 登陆地址
-        urls.add(this.securityProperties.getFormActionUrl());
-        // 短信登陆地址
-        urls.add(this.securityProperties.getCode().getSmsLoginUrl());
+        urls.addAll(Arrays.asList(this.allIgnoreUrls()));
         return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
     }
 
     @Override
-    public String[] getAllIgnoreUrls() {
+    public String[] allIgnoreUrls() {
         Set<String> set = new HashSet<>();
         final SecurityProperties.IgnoreProperties ignore = this.securityProperties.getResource().getIgnore();
         if (ignore.getContainStaticResource()) {

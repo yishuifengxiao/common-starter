@@ -15,7 +15,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
@@ -26,6 +26,8 @@ import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPr
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * spring security扩展支持自动配置
@@ -56,10 +58,14 @@ public class SecurityFilterAutoConfiguration {
         return simpleSecurityExtractor;
     }
 
-    @Bean("usernamePasswordAuthFilter")
-    @ConditionalOnMissingBean(name = {"usernamePasswordAuthFilter"})
-    public SecurityRequestFilter usernamePasswordAuthFilter(HandlerProcessor handlerProcessor, SecurityHelper securityHelper, PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor) {
-        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(handlerProcessor, securityHelper, propertyResource, securityContextExtractor);
+    @Bean("usernamePasswordPreAuthFilter")
+    @ConditionalOnMissingBean(name = {"usernamePasswordPreAuthFilter"})
+    public SecurityRequestFilter usernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor,
+                                                               UserDetailsService userDetailsService,
+                                                               PasswordEncoder passwordEncoder,
+                                                               PropertyResource propertyResource,
+                                                               SecurityContextExtractor securityContextExtractor) {
+        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(handlerProcessor, userDetailsService, passwordEncoder, propertyResource, securityContextExtractor);
         return usernamePasswordPreAuthFilter;
     }
 

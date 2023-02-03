@@ -2,14 +2,13 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.handler;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -30,7 +29,7 @@ public class CustomAccessDeniedHandler extends AccessDeniedHandlerImpl {
 
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
-			AccessDeniedException accessDeniedException) throws IOException, ServletException {
+			AccessDeniedException accessDeniedException) throws IOException {
 
 		handlerProcessor.deney(propertyResource, request, response, accessDeniedException);
 

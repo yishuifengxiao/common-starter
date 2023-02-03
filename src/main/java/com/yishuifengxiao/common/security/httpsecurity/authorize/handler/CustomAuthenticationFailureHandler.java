@@ -2,14 +2,13 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.handler;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -33,9 +32,9 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException authenticationException) throws IOException, ServletException {
+			AuthenticationException authenticationException) throws IOException {
 
-		handlerProcessor.failure(propertyResource, request, response, authenticationException);
+		handlerProcessor.loginFailure(propertyResource, request, response, authenticationException);
 
 	}
 

@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.Http403ForbiddenEntryPoin
 
 import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.ExceptionAuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.HttpBasicAuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**

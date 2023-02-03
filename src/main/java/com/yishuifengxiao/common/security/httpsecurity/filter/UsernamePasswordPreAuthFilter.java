@@ -9,17 +9,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 
 /**
@@ -42,7 +43,9 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
 
     private HandlerProcessor handlerProcessor;
 
-    private SecurityHelper securityHelper;
+    private UserDetailsService userDetailsService;
+
+    private PasswordEncoder passwordEncoder;
 
     private PropertyResource propertyResource;
 
@@ -73,19 +76,23 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
                 username = username.trim();
 
                 try {
-                    // 生成token
-                    String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, response);
-                    // 生成token,这一步操作中已经产生了Authentication并放入上下文中
-                    SecurityToken token = securityHelper.create(username, password, sessionId);
                     // 获取认证信息
-                    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-                    handlerProcessor.login(propertyResource, request, response, authentication, token);
-                    return;
-                } catch (CustomException exception) {
-                    handlerProcessor.failure(propertyResource, request, response, exception);
-                    return;
-                } catch (Exception e) {
-                    handlerProcessor.exception(propertyResource, request, response, e);
+                    try {
+                        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                        if (null == userDetails) {
+                            throw new CustomException(ErrorCode.USERNAME_NO_EXTIS,
+                                    propertyResource.security().getMsg().getAccountNoExtis());
+                        }
+                        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+                            throw new CustomException(ErrorCode.PASSWORD_ERROR,
+                                    propertyResource.security().getMsg().getPasswordIsError());
+                        }
+                    } catch (UsernameNotFoundException ex) {
+                        throw new CustomException(ErrorCode.USERNAME_NO_EXTIS,
+                                propertyResource.security().getMsg().getAccountNoExtis());
+                    }
+                } catch (Exception exception) {
+                    handlerProcessor.loginFailure(propertyResource, request, response, exception);
                     return;
                 }
 
@@ -113,12 +120,17 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
         return this.pathMatcher;
     }
 
-    public UsernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor, SecurityHelper securityHelper,
-                                         PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor) {
+    // @formatter:off
+    public UsernamePasswordPreAuthFilter(HandlerProcessor handlerProcessor,
+                                         UserDetailsService userDetailsService,
+                                         PasswordEncoder passwordEncoder,
+                                         PropertyResource propertyResource,
+                                         SecurityContextExtractor securityContextExtractor) {
         this.handlerProcessor = handlerProcessor;
-        this.securityHelper = securityHelper;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
         this.propertyResource = propertyResource;
         this.securityContextExtractor = securityContextExtractor;
     }
-
+    // @formatter:on
 }

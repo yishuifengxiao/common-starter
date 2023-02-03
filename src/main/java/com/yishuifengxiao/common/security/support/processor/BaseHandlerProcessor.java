@@ -1,17 +1,15 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.httpsecurity.authorize.processor;
+package com.yishuifengxiao.common.security.support.processor;
 
-import com.yishuifengxiao.common.security.constant.OAuth2Constant;
-import com.yishuifengxiao.common.security.constant.SecurityConstant;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.utils.HttpUtils;
-import lombok.extern.slf4j.Slf4j;
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -21,9 +19,15 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import com.yishuifengxiao.common.security.constant.SecurityConstant;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.utils.HttpUtils;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>抽象协助处理器</p>
@@ -61,18 +65,14 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void login(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
+    public void loginSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
 
-
-        String historyUrl = match(request);
-
-        if (StringUtils.isNotBlank(historyUrl)) {
-            // 如果是 /oauth2/authorize 请求，就直接跳转
-            redirectStrategy.sendRedirect(request, response, historyUrl);
-            return;
+        final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
+        if (null != attribute && StringUtils.isNotBlank(attribute.toString())) {
+            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected that the historical blocking path is {}, and will be redirected to this address", attribute);
+            redirectStrategy.sendRedirect(request, response, attribute.toString());
         }
-
         if (HttpUtils.isJsonRequest(request)) {
             HttpUtils.out(response, Response.sucData(token).setMsg("登陆成功"));
             return;
@@ -91,7 +91,7 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void failure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
+    public void loginFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 
@@ -145,8 +145,8 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
     public void deney(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) throws IOException {
 
         // 引起跳转的uri
-        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", this.getReferer(request, response), exception);
-
+        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", request.getRequestURL(), exception);
+        saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(), propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
             return;
@@ -170,8 +170,8 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
     public void exception(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
 
 
-        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", this.getReferer(request, response), exception);
-
+        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);
+        saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
@@ -205,46 +205,34 @@ public abstract class BaseHandlerProcessor implements HandlerProcessor {
     }
 
     /**
-     * 从请求中获取请求的来源地址
+     * 从请求中获取请求的来源地址,在授权失败和拒绝时进行存储
      *
      * @param request  HttpServletRequest
      * @param response HttpServletResponse
      * @return 请求的来源地址
      */
-    protected String getReferer(HttpServletRequest request, HttpServletResponse response) {
+    protected void saveReferer(HttpServletRequest request, HttpServletResponse response) {
+        if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.GET.name())) {
+            // 不是get请求，放弃
+            return;
+        }
+        if (HttpUtils.isJsonRequest(request)) {
+            // json 请求，放弃
+            return;
+        }
         // 引起跳转的uri
         String redirectUrl = null;
         SavedRequest savedRequest = cache.getRequest(request, response);
         if (null != savedRequest) {
             redirectUrl = savedRequest.getRedirectUrl();
         }
-        // 请求地址
-        String requestUrl = request.getRequestURL().toString();
-
-        request.getSession().setAttribute(SecurityConstant.HISTORY_REDIRECT_URL, redirectUrl);
-        request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, requestUrl);
-
-        return StringUtils.isNotBlank(redirectUrl) ? redirectUrl : requestUrl;
+        if (StringUtils.isBlank(redirectUrl)) {
+            redirectUrl = null == request.getRequestURL() ? null : request.getRequestURL().toString();
+        }
+        if (StringUtils.isNotBlank(redirectUrl)) {
+            request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, redirectUrl);
+        }
     }
 
-    /**
-     * 判断当前请求是否时符合跳转要求
-     *
-     * @param request HttpServletRequest
-     * @return 如果匹配就返回为true, 否则为false
-     */
-    protected String match(HttpServletRequest request) {
-
-        String historyUrl = (String) request.getSession().getAttribute(SecurityConstant.HISTORY_REDIRECT_URL);
-        if (matcher.match(OAuth2Constant.AUTHORIZE_URL, historyUrl)) {
-            return historyUrl;
-        }
-
-        historyUrl = (String) request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
-        if (matcher.match(OAuth2Constant.AUTHORIZE_URL, historyUrl)) {
-            return historyUrl;
-        }
-        return null;
-    }
 
 }

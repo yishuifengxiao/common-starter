@@ -29,10 +29,6 @@ public class TokenConstant {
 	 */
 	public final static int TOKEN_LENGTH = 3;
 
-	/**
-	 * 从请求头里取出认证信息时的参数名，默认为 xtoken
-	 */
-	public final static String TOKEN_HEADER_PARAM = "xtoken";
 
 	/**
 	 * 从请求参数里取出认证信息时的参数名，默认为 xtoken

@@ -1,21 +1,6 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl.SimpleCustomResourceProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAccessDeniedHandler;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationFailureHandler;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationSuccessHandler;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomLogoutSuccessHandler;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.*;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.impl.SimpleHandlerProcessor;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -34,6 +19,30 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+import com.yishuifengxiao.common.security.AbstractSecurityConfig;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAccessDeniedHandler;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationFailureHandler;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationSuccessHandler;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomLogoutSuccessHandler;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.CorsAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.CsrfAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.ExceptionAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.FormLoginAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.HttpBasicAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.LoginOutAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.RemeberMeAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.ResourceAuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.SessionAuthorizeProvider;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.processor.impl.SimpleHandlerProcessor;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 
 /**
  * @author yishui
@@ -73,31 +82,21 @@ public class SecurityProcessorAutoConfiguration {
 
     @Configuration
     static class SecurityProviderConfiguration {
-        /**
-         * 注入一个名为 customAuthority 授权行为实体
-         *
-         * @return 自定义授权提供器
-         */
-        @Bean("customAuthority")
-        @ConditionalOnMissingBean(name = "customAuthority")
-        public CustomResourceProvider customAuthority() {
-            SimpleCustomResourceProvider customAuthority = new SimpleCustomResourceProvider();
-            return customAuthority;
-        }
+
 
         /**
          * 自定义授权提供器
          *
-         * @param customAuthority 自定义授权提供器
+         * @param customResourceProvider 自定义授权提供器
          * @return 授权提供器实例
          */
-        @Bean("customAuthorizeProvider")
-        @ConditionalOnMissingBean(name = "customAuthorizeProvider")
-        public AuthorizeProvider customAuthorizeProvider(
-                @Qualifier("customAuthority") CustomResourceProvider customAuthority) {
-            CustomAuthorizeProvider customAuthorizeProvider = new CustomAuthorizeProvider();
-            customAuthorizeProvider.setCustomAuthority(customAuthority);
-            return customAuthorizeProvider;
+        @Bean("resourceAuthorizeProvider")
+        @ConditionalOnMissingBean(name = "resourceAuthorizeProvider")
+        public AuthorizeProvider resourceAuthorizeProvider(
+                @Autowired(required = false) @Qualifier("customResourceProvider") CustomResourceProvider customResourceProvider) {
+            ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
+            resourceAuthorizeProvider.setCustomResourceProvider(customResourceProvider);
+            return resourceAuthorizeProvider;
         }
 
         /**
@@ -117,16 +116,6 @@ public class SecurityProcessorAutoConfiguration {
             return formLoginProvider;
         }
 
-        /**
-         * 拦截所有资源
-         *
-         * @return 授权提供器 实例
-         */
-        @Bean("interceptAllProvider")
-        @ConditionalOnMissingBean(name = "interceptAllProvider")
-        public AuthorizeProvider interceptAllProvider() {
-            return new InterceptAllAuthorizeProvider();
-        }
 
         /**
          * 退出授权管理
@@ -176,17 +165,6 @@ public class SecurityProcessorAutoConfiguration {
             return sessionProvider;
         }
 
-        /**
-         * 放行通过授权管理
-         *
-         * @return 授权提供器 实例
-         */
-        @Bean("permitAllProvider")
-        @ConditionalOnMissingBean(name = "permitAllProvider")
-        public AuthorizeProvider permitAllConfigProvider() {
-            PermitAllAuthorizeProvider permitAllConfigProvider = new PermitAllAuthorizeProvider();
-            return permitAllConfigProvider;
-        }
 
         /**
          * Basic登陆授权提供器
@@ -270,9 +248,9 @@ public class SecurityProcessorAutoConfiguration {
         /**
          * 配置登陆成功处理器
          *
-         * @param handlerProcessor  协助处理器
+         * @param handlerProcessor         协助处理器
          * @param securityHelper
-         * @param propertyResource  资源管理器
+         * @param propertyResource         资源管理器
          * @param securityContextExtractor 信息提取器
          * @return 登陆成功处理器
          */

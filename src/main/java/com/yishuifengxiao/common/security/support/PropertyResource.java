@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.social.SocialProperties;
 
 /**
  * <p>资源管理器</p>
@@ -61,7 +60,7 @@ public interface PropertyResource {
      *
      * @return 忽视的资源
      */
-    String[] getAllIgnoreUrls();
+    String[] allIgnoreUrls();
 
     /**
      * 是否显示加载细节

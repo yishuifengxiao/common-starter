@@ -10,7 +10,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
@@ -52,10 +52,13 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
             String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, response);
 
             SecurityToken token = securityHelper.createUnsafe(authentication.getName(), sessionId);
+
+            // 将生成的token存储在session中
+            request.getSession().setAttribute(propertyResource.security().getToken().getUserUniqueIdentitier(), token.getValue());
             // 登陆成功
-            handlerProcessor.login(propertyResource, request, response, authentication, token);
+            handlerProcessor.loginSuccess(propertyResource, request, response, authentication, token);
         } catch (CustomException e) {
-            handlerProcessor.failure(propertyResource, request, response,
+            handlerProcessor.loginFailure(propertyResource, request, response,
                     new AuthenticationServiceException(e.getMessage()));
         }
 

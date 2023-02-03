@@ -1,13 +1,14 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.processor.HandlerProcessor;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.support.HandlerProcessor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * <p>
@@ -59,66 +59,40 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
-        // 先判断请求是否需要经过授权校验
-        boolean requiresAuthentication = this.requiresAuth(request);
-        if (propertyResource.showDetail()) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), requiresAuthentication);
-        }
-
-        if (propertyResource.security().isOpenTokenFilter() && requiresAuthentication) {
-
-            try {
-                // 从请求中获取到携带的认证
-                String tokenValue = securityTokenExtractor.extractTokenValue(request, response, propertyResource);
-
+        try {
+            if (BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
+                // 先判断请求是否需要经过授权校验
+                boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
                 if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
+                    log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), !noRequiresAuthentication);
                 }
+                if (!noRequiresAuthentication) {
+                    // 从请求中获取到携带的认证
+                    String tokenValue = securityTokenExtractor.extractTokenValue(request, response, propertyResource);
 
-                if (StringUtils.isNotBlank(tokenValue)) {
-                    // 该请求携带了认证信息
-                    Authentication authentication = securityHelper.authorize(tokenValue);
-                    // 将认证信息注入到spring Security中
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    if (propertyResource.showDetail()) {
+                        log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
+                    }
+
+                    if (StringUtils.isNotBlank(tokenValue)) {
+                        // 该请求携带了认证信息
+                        Authentication authentication = securityHelper.authorize(tokenValue);
+                        // 将认证信息注入到spring Security中
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
-
-            } catch (CustomException e) {
-                handlerProcessor.preAuth(propertyResource, request, response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), e.getMessage(), e));
-                return;
-            } catch (Exception e) {
-                handlerProcessor.exception(propertyResource, request, response, e);
-                return;
             }
 
+        } catch (CustomException e) {
+            handlerProcessor.preAuth(propertyResource, request, response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), e.getMessage(), e));
+            return;
+        } catch (Exception e) {
+            handlerProcessor.exception(propertyResource, request, response, e);
+            return;
         }
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * 判断请求是否需要授权认证
-     *
-     * @param request
-     * @return true表示需要授权认证，false表示不需要授权认证
-     * @throws ExecutionException
-     */
-    private boolean requiresAuth(HttpServletRequest request) {
-
-        try {
-            for (String url : propertyResource.allUnCheckUrls()) {
-                if (this.getMatcher(url).matches(request)) {
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            if (propertyResource.showDetail()) {
-                log.info("【yishuifengxiao-common-spring-boot-starter】判断请求是否需要授权认证时出现问题，出现问题的原因为 {}", e.getMessage());
-            }
-        }
-
-        return true;
-
-    }
 
     /**
      * 根据url获取匹配器

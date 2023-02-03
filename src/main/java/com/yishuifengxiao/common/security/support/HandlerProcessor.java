@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.httpsecurity.authorize.processor;
+package com.yishuifengxiao.common.security.support;
 
 import java.io.IOException;
 
@@ -16,7 +16,6 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomA
 import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationFailureHandler;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomAuthenticationSuccessHandler;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.handler.CustomLogoutSuccessHandler;
-import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -49,7 +48,7 @@ public interface HandlerProcessor {
      * @param token          生成的token
      * @throws IOException 处理时发生问题
      */
-    void login(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException;
+    void loginSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException;
 
     /**
      * 登陆失败后的处理
@@ -60,7 +59,7 @@ public interface HandlerProcessor {
      * @param exception        失败的原因
      * @throws IOException 处理时发生问题
      */
-    void failure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
+    void loginFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
 
     /**
      * 退出成功后的处理
