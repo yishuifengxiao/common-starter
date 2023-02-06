@@ -10,7 +10,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
@@ -20,7 +20,7 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleSecurityContextExtractor implements SecurityContextExtractor {
+public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
 
 	public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
 	public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
@@ -71,7 +71,7 @@ public class SimpleSecurityContextExtractor implements SecurityContextExtractor 
 		return identitierValue;
 	}
 
-	public SimpleSecurityContextExtractor(PropertyResource propertyResource) {
+	public SimpleSecurityValueExtractor(PropertyResource propertyResource) {
 		this.propertyResource = propertyResource;
 	}
 

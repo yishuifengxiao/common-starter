@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.thirdauth;
+package com.yishuifengxiao.common.security.smsauth;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -6,9 +6,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.yishuifengxiao.common.security.httpsecurity.authorize.AbstractAuthorizeProvider;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationFilter;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsAuthenticationProvider;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
+import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationFilter;
+import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationProvider;
+import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
 
 /**
  * <p>短信登陆拦截器</p>
@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SmsLoginInterceptor extends AbstractAuthorizeProvider {
+public class SmsAuthorizeProvider extends AbstractAuthorizeProvider {
 
 
     private SmsUserDetailsService smsUserDetailsService;
@@ -39,16 +39,17 @@ public class SmsLoginInterceptor extends AbstractAuthorizeProvider {
         SmsAuthenticationProvider smsCodeAuthenticationProvider = new SmsAuthenticationProvider();
         smsCodeAuthenticationProvider.setSmsUserDetailsService(smsUserDetailsService);
 
-        http.authenticationProvider(smsCodeAuthenticationProvider).addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.authenticationProvider(smsCodeAuthenticationProvider)
+                .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
     }
 
-    public SmsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, String url) {
+    public SmsAuthorizeProvider(SmsUserDetailsService smsUserDetailsService, String url) {
         this.smsUserDetailsService = smsUserDetailsService;
         this.url = url;
     }
 
-    public SmsLoginInterceptor() {
+    public SmsAuthorizeProvider() {
 
     }
 

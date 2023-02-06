@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.utils;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -18,7 +18,7 @@ public class TokenUtil {
 
 	private static SecurityHelper securityHelper;
 
-	private static SecurityContextExtractor securityContextExtractor;
+	private static SecurityValueExtractor securityValueExtractor;
 
 	/**
 	 * 生成一个令牌
@@ -44,7 +44,7 @@ public class TokenUtil {
 	 */
 	public static SecurityToken create(HttpServletRequest request, String username, String password)
 			throws CustomException {
-		String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, null);
+		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
 		return create(username, password, sessionId);
 	}
 
@@ -83,7 +83,7 @@ public class TokenUtil {
 	 * @throws CustomException 非法的用户信息或状态
 	 */
 	public static SecurityToken createUnsafe(HttpServletRequest request, String username) throws CustomException {
-		String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, null);
+		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
 		return securityHelper.createUnsafe(username, sessionId);
 	}
 
@@ -110,7 +110,7 @@ public class TokenUtil {
 	 */
 	public static SecurityToken createUnsafe(HttpServletRequest request, String username, int validSeconds)
 			throws CustomException {
-		String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, null);
+		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
 		return createUnsafe(username, sessionId, validSeconds);
 	}
 
@@ -142,9 +142,9 @@ public class TokenUtil {
 		return securityHelper.createUnsafe(username, sessionId, validSeconds);
 	}
 
-	public TokenUtil(SecurityHelper securityHelper, SecurityContextExtractor securityContextExtractor) {
+	public TokenUtil(SecurityHelper securityHelper, SecurityValueExtractor securityValueExtractor) {
 		TokenUtil.securityHelper = securityHelper;
-		TokenUtil.securityContextExtractor = securityContextExtractor;
+		TokenUtil.securityValueExtractor = securityValueExtractor;
 	}
 
 }

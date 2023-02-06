@@ -3,8 +3,8 @@ package com.yishuifengxiao.common.security.autoconfigure;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.thirdauth.SmsLoginInterceptor;
-import com.yishuifengxiao.common.security.thirdauth.sms.SmsUserDetailsService;
+import com.yishuifengxiao.common.security.smsauth.SmsAuthorizeProvider;
+import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -48,7 +48,7 @@ public class SmsLoginAutoConfiguration {
     @ConditionalOnBean({SmsUserDetailsService.class})
     public AuthorizeProvider smsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
 
-        return new SmsLoginInterceptor(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
+        return new SmsAuthorizeProvider(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
     }
 
 

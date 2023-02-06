@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface SecurityContextExtractor {
+public interface SecurityValueExtractor {
 
 	/**
 	 * 从请求中提取出用户的登陆账号

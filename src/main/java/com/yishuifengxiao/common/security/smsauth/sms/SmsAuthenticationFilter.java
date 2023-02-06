@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.thirdauth.sms;
+package com.yishuifengxiao.common.security.smsauth.sms;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

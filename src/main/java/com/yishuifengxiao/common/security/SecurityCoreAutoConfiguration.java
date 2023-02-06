@@ -15,7 +15,7 @@ import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
 import com.yishuifengxiao.common.security.support.processor.BaseSecurityHandler;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
@@ -151,8 +151,8 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({TokenUtil.class})
-    public TokenUtil tokenUtil(SecurityHelper securityHelper, SecurityContextExtractor securityContextExtractor) {
-        return new TokenUtil(securityHelper, securityContextExtractor);
+    public TokenUtil tokenUtil(SecurityHelper securityHelper, SecurityValueExtractor securityValueExtractor) {
+        return new TokenUtil(securityHelper, securityValueExtractor);
     }
 
 
@@ -227,11 +227,11 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityHandler securityHandler(PropertyResource propertyResource, SecurityContextExtractor securityContextExtractor, SecurityHelper securityHelper, TokenBuilder tokenBuilder) {
+    public SecurityHandler securityHandler(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper, TokenBuilder tokenBuilder) {
         BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
         baseSecurityHandler.setPropertyResource(propertyResource);
         baseSecurityHandler.setSecurityHelper(securityHelper);
-        baseSecurityHandler.setSecurityContextExtractor(securityContextExtractor);
+        baseSecurityHandler.setSecurityContextExtractor(securityValueExtractor);
         baseSecurityHandler.setTokenBuilder(tokenBuilder);
         return baseSecurityHandler;
     }

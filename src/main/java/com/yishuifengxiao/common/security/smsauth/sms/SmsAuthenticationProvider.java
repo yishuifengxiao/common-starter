@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.thirdauth.sms;
+package com.yishuifengxiao.common.security.smsauth.sms;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;

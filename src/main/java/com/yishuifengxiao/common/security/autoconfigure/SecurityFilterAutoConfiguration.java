@@ -17,9 +17,9 @@ import com.yishuifengxiao.common.code.repository.CodeRepository;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenExtractor;
 import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPreAuthFilter;
@@ -52,9 +52,9 @@ public class SecurityFilterAutoConfiguration {
 
 
     @Bean
-    @ConditionalOnMissingBean({SecurityContextExtractor.class})
-    public SecurityContextExtractor securityContextExtractor(PropertyResource propertyResource) {
-        SimpleSecurityContextExtractor simpleSecurityExtractor = new SimpleSecurityContextExtractor(propertyResource);
+    @ConditionalOnMissingBean({SecurityValueExtractor.class})
+    public SecurityValueExtractor securityContextExtractor(PropertyResource propertyResource) {
+        SimpleSecurityValueExtractor simpleSecurityExtractor = new SimpleSecurityValueExtractor(propertyResource);
         return simpleSecurityExtractor;
     }
 
@@ -64,8 +64,8 @@ public class SecurityFilterAutoConfiguration {
                                                                UserDetailsService userDetailsService,
                                                                PasswordEncoder passwordEncoder,
                                                                PropertyResource propertyResource,
-                                                               SecurityContextExtractor securityContextExtractor) {
-        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(securityHandler, userDetailsService, passwordEncoder, propertyResource, securityContextExtractor);
+                                                               SecurityValueExtractor securityValueExtractor) {
+        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(securityHandler, userDetailsService, passwordEncoder, propertyResource, securityValueExtractor);
         return usernamePasswordPreAuthFilter;
     }
 

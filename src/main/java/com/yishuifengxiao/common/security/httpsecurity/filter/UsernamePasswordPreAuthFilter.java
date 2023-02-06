@@ -20,7 +20,7 @@ import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 
 /**
@@ -52,7 +52,7 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
     /**
      * 信息提取器
      */
-    private SecurityContextExtractor securityContextExtractor;
+    private SecurityValueExtractor securityValueExtractor;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -63,8 +63,8 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
             AntPathRequestMatcher pathMatcher = this.antPathMatcher();
             if (pathMatcher.matches(request)) {
 
-                String username = securityContextExtractor.extractUsername(request, response);
-                String password = securityContextExtractor.extractPassword(request, response);
+                String username = securityValueExtractor.extractUsername(request, response);
+                String password = securityValueExtractor.extractPassword(request, response);
 
                 if (username == null) {
                     username = "";
@@ -125,12 +125,12 @@ public class UsernamePasswordPreAuthFilter extends SecurityRequestFilter {
                                          UserDetailsService userDetailsService,
                                          PasswordEncoder passwordEncoder,
                                          PropertyResource propertyResource,
-                                         SecurityContextExtractor securityContextExtractor) {
+                                         SecurityValueExtractor securityValueExtractor) {
         this.securityHandler = securityHandler;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.propertyResource = propertyResource;
-        this.securityContextExtractor = securityContextExtractor;
+        this.securityValueExtractor = securityValueExtractor;
     }
     // @formatter:on
 }

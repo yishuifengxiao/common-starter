@@ -3,7 +3,7 @@
  */
 package com.yishuifengxiao.common.security.support;
 
-import com.yishuifengxiao.common.security.token.SecurityContextExtractor;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.tool.context.SessionStorage;
@@ -54,7 +54,7 @@ public abstract class SecurityHandler implements AccessDeniedHandler, Authentica
     /**
      * 信息提取器
      */
-    protected SecurityContextExtractor securityContextExtractor;
+    protected SecurityValueExtractor securityValueExtractor;
 
     /**
      * 安全处理工具
@@ -100,7 +100,7 @@ public abstract class SecurityHandler implements AccessDeniedHandler, Authentica
 
                 try {
                     // 根据登陆信息生成一个token
-                    String sessionId = securityContextExtractor.extractUserUniqueIdentifier(request, response);
+                    String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, response);
 
                     SecurityToken token = securityHelper.createUnsafe(authentication.getName(), sessionId);
 
@@ -231,12 +231,12 @@ public abstract class SecurityHandler implements AccessDeniedHandler, Authentica
         this.propertyResource = propertyResource;
     }
 
-    public SecurityContextExtractor getSecurityContextExtractor() {
-        return securityContextExtractor;
+    public SecurityValueExtractor getSecurityContextExtractor() {
+        return securityValueExtractor;
     }
 
-    public void setSecurityContextExtractor(SecurityContextExtractor securityContextExtractor) {
-        this.securityContextExtractor = securityContextExtractor;
+    public void setSecurityContextExtractor(SecurityValueExtractor securityValueExtractor) {
+        this.securityValueExtractor = securityValueExtractor;
     }
 
     public SecurityHelper getSecurityHelper() {

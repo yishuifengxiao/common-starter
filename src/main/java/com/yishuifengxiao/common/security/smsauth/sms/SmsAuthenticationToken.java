@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.thirdauth.sms;
+package com.yishuifengxiao.common.security.smsauth.sms;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
