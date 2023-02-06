@@ -53,7 +53,7 @@ public class WebExceptionAutoConfiguration {
         String uri = null != request ? request.getRequestURI() : null;
         Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()).setId(ssid);
         if (log.isInfoEnabled()) {
-            log.info("【Global exception interception】【 CustomException 】(Custom exception) traceId={} request {} request failed, custom exception {} was intercepted", ssid, uri, e);
+            log.info("【Global exception interception】【 CustomException 】(Custom exception) traceId={} request {} request failed, The intercepted custom exception is {}", ssid, uri, e);
         }
 
         return response;
@@ -76,7 +76,7 @@ public class WebExceptionAutoConfiguration {
 
         Response<?> response = handler.extract(e).setId(ssid);
         if (log.isWarnEnabled()) {
-            log.warn("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, unknown exception {} was intercepted", ssid, uri, e);
+            log.warn("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
         }
         return response;
     }
