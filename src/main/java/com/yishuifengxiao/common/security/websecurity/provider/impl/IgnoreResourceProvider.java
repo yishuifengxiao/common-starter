@@ -6,8 +6,6 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 
-import javax.servlet.DispatcherType;
-
 /**
  * 忽视资源授权器
  *
@@ -31,7 +29,7 @@ public class IgnoreResourceProvider implements WebSecurityProvider {
 				.mvcMatchers(propertyResource.allIgnoreUrls())
 				.antMatchers(propertyResource.allIgnoreUrls())
 				// 忽视 ERROR 当容器将处理传递给错误处理程序机制（如定义的错误页）时。
-				.dispatcherTypeMatchers(DispatcherType.ERROR)
+//				.dispatcherTypeMatchers(DispatcherType.ERROR)
 		;
 		// @formatter:on
     }

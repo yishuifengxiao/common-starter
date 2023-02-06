@@ -1,16 +1,21 @@
 package com.yishuifengxiao.common.oauth2;
 
-import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.RSAKey;
-import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.proc.SecurityContext;
-import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationConsentService;
-import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationService;
-import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
-import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
+import com.yishuifengxiao.common.oauth2.filter.TokenEndpointFilter;
+import com.yishuifengxiao.common.oauth2.filter.extractor.CustomTokenExtractor;
+import com.yishuifengxiao.common.oauth2.support.OAuth2TokenUtil;
+import com.yishuifengxiao.common.oauth2.token.TokenStrategy;
+import com.yishuifengxiao.common.oauth2.token.enhancer.CustomeTokenEnhancer;
+import com.yishuifengxiao.common.oauth2.token.impl.TokenStrategyImpl;
+import com.yishuifengxiao.common.oauth2.translator.AuthWebResponseExceptionTranslator;
+import com.yishuifengxiao.common.oauth2.user.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.AbstractSecurityConfig;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.web.error.ErrorHelper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -18,170 +23,222 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationConsentService;
-import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
-import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
-import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
+import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
+import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerEndpointsConfiguration;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.approval.ApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
+import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
+import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
+import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
+import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.InMemoryTokenStore;
+import org.springframework.security.oauth2.provider.token.store.redis.RedisTokenStore;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.UUID;
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
 
 /**
- * <p>
- * oauth2增强配置
- * </p>
- * <p>
- * The OAuth 2.0 Authorization Framework 相关解释参见 <a href=
- * "https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1">https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.1</a>
- * </p>
+ * oauth2扩展支持自动配置
  *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
+@Slf4j
 @Configuration
-@ConditionalOnClass({OAuth2AccessToken.class, WebMvcConfigurer.class})
-@ConditionalOnBean(AbstractSecurityConfig.class)
+@ConditionalOnClass({OAuth2AccessToken.class, WebMvcConfigurer.class, EnableAuthorizationServer.class})
+@ConditionalOnBean({AbstractSecurityConfig.class, AuthorizationServerEndpointsConfiguration.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({Oauth2Properties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
-        "enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class Oauth2ExtendAutoConfiguration {
 
-    /**
-     * <p>
-     * 用于自定义OAuth2授权服务器配置设置的AuthorizationServerSettings（必需）
-     * </p>
-     * <p>
-     * 默认的配置示例为
-     * </p>
-     *
-     * <pre>
-     *      <code>
-     *                  return new Builder()
-     *                 .authorizationEndpoint("/oauth2/authorize")
-     *                 .tokenEndpoint("/oauth2/token")
-     *                 .tokenIntrospectionEndpoint("/oauth2/introspect")
-     *                 .tokenRevocationEndpoint("/oauth2/revoke")
-     *                 .jwkSetEndpoint("/oauth2/jwks")
-     *                 .oidcUserInfoEndpoint("/userinfo")
-     *                 .oidcClientRegistrationEndpoint("/connect/register");
-     *      </code>
-     * </pre>
-     *
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean({ProviderSettings.class})
-    public ProviderSettings authorizationServerSettings() {
 
-        return ProviderSettings.builder().build();
+    @ConditionalOnMissingBean({TokenStore.class})
+    @Bean
+    public TokenStore tokenStore() {
+        return new InMemoryTokenStore();
+    }
+
+    @Bean("customClientDetailsService")
+    @ConditionalOnMissingBean(name = "customClientDetailsService")
+    public ClientDetailsService customClientDetailsService(PasswordEncoder passwordEncoder) {
+        ClientDetailsServiceImpl customClientDetailsService = new ClientDetailsServiceImpl();
+        customClientDetailsService.setPasswordEncoder(passwordEncoder);
+        return customClientDetailsService;
     }
 
     /**
-     * <p style="color:yellow">
-     * RegisteredClientRepository是必需的组件。
+     * <p>
+     * 必须加入，不然自定义权限表达式不生效
      * </p>
      * <p>
-     * RegisteredClientRepository是可以注册新客户端和查询现有客户端的中心组件。
-     * 其他组件在遵循特定协议流时使用它，如客户端身份验证、授权授权处理、令牌内省、动态客户端注册等。
-     * </p>
+     * 在 Oauth2Resource 中被public void configure(ResourceServerSecurityConfigurer
+     * resources)收集并配置
      *
-     * @return RegisteredClientRepository
+     * @param applicationContext spring上下文
+     * @return DefaultWebSecurityExpressionHandler
      */
     @Bean
-    @ConditionalOnMissingBean({RegisteredClientRepository.class})
-    public RegisteredClientRepository registeredClientRepository(PasswordEncoder passwordEncoder) {
-        SimpleRegisteredClientRepository clientRepository = new SimpleRegisteredClientRepository(passwordEncoder);
-        return clientRepository;
+    public DefaultWebSecurityExpressionHandler expressionHandler(ApplicationContext applicationContext) {
+        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
+        expressionHandler.setApplicationContext(applicationContext);
+        return expressionHandler;
+
     }
 
-    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {OAuth2AuthorizationService.class})
+    /**
+     * 注入token加强工具
+     *
+     * @return token加强工具
+     */
     @Bean
-    public OAuth2AuthorizationService authorizationService() {
-        return new InMemoryOAuth2AuthorizationService();
+    @ConditionalOnMissingBean({TokenEnhancer.class})
+    public TokenEnhancer tokenEnhancer() {
+        return new CustomeTokenEnhancer();
     }
 
-    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {OAuth2AuthorizationConsentService.class})
+    /**
+     * 自定义token提取器
+     *
+     * @return 自定义token提取器
+     */
     @Bean
-    public OAuth2AuthorizationConsentService authorizationConsentService() {
-        return new InMemoryOAuth2AuthorizationConsentService();
+    @ConditionalOnMissingBean(value = {TokenExtractor.class})
+    public TokenExtractor tokenExtractor() {
+        return new CustomTokenExtractor();
     }
 
-
-    // @formatter:off
-
+    /**
+     * token自动续签策略工具
+     *
+     * @param tokenStore                       token存取器
+     * @param authorizationServerTokenServices AuthorizationServerTokenServices实例
+     * @return token自动续签策略工具
+     */
     @Bean
-    @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true", matchIfMissing = true)
-    public AuthorizeProvider oAuth2AuthorizeProvider(RegisteredClientRepository registeredClientRepository,
-                                                     ProviderSettings providerSettings,
-                                                     OAuth2AuthorizationService authorizationService,
-                                                     OAuth2AuthorizationConsentService authorizationConsentService
-                                                  ) {
-
-        return new OAuth2AuthorizeProvider(registeredClientRepository,providerSettings,
-                authorizationService,authorizationConsentService);
+    @ConditionalOnMissingBean({TokenStrategy.class})
+    public TokenStrategy tokenStrategy(TokenStore tokenStore, AuthorizationServerTokenServices authorizationServerTokenServices) {
+        TokenStrategyImpl tokenStrategy = new TokenStrategyImpl();
+        tokenStrategy.setAuthorizationServerTokenServices(authorizationServerTokenServices);
+        tokenStrategy.setTokenStore(tokenStore);
+        return tokenStrategy;
     }
-    // @formatter:on
 
+    /**
+     * token生成工具
+     *
+     * @param clientDetailsService             ClientDetailsService
+     * @param authorizationServerTokenServices AuthorizationServerTokenServices
+     * @param tokenExtractor                   token提取器
+     * @param consumerTokenServices            ConsumerTokenServices
+     * @param userDetailsService               UserDetailsService
+     * @param passwordEncoder                  密码加密器
+     * @return token生成工具
+     */
+    @Bean
+    @ConditionalOnMissingBean({OAuth2TokenUtil.class})
+    public OAuth2TokenUtil oAuth2TokenUtil(@Qualifier("customClientDetailsService") ClientDetailsService clientDetailsService, AuthorizationServerTokenServices authorizationServerTokenServices, TokenExtractor tokenExtractor, ConsumerTokenServices consumerTokenServices, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        OAuth2TokenUtil tokenUtils = new OAuth2TokenUtil(clientDetailsService, authorizationServerTokenServices, consumerTokenServices, userDetailsService, passwordEncoder, tokenExtractor);
+        return tokenUtils;
+    }
+
+
+    /**
+     * Basic interface for determining whether a given client authentication request
+     * has been approved by the current user. 【认证服务器中需要显示使用到】
+     *
+     * @param tokenStore           token存取器
+     * @param clientDetailsService ClientDetailsService
+     * @return TokenStoreUserApprovalHandler
+     */
+    @Bean
+    public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore, @Qualifier("customClientDetailsService") ClientDetailsService clientDetailsService) {
+        TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
+        handler.setTokenStore(tokenStore);
+        handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+        handler.setClientDetailsService(clientDetailsService);
+        return handler;
+    }
+
+    /**
+     * Interface for saving, retrieving and revoking user approvals (per client, per
+     * scope).
+     *
+     * @param tokenStore token存取器
+     * @return ApprovalStore
+     */
+    @Bean
+    public ApprovalStore approvalStore(TokenStore tokenStore) {
+        TokenApprovalStore store = new TokenApprovalStore();
+        store.setTokenStore(tokenStore);
+        return store;
+    }
+
+    /**
+     * Oauth2Server中用于异常转换
+     *
+     * @return WebResponseExceptionTranslator
+     */
+    @Bean("authWebResponseExceptionTranslator")
+    @ConditionalOnMissingBean(name = "authWebResponseExceptionTranslator")
+    public WebResponseExceptionTranslator<OAuth2Exception> authWebResponseExceptionTranslator(@Autowired(required = false) ErrorHelper errorHelper) {
+        AuthWebResponseExceptionTranslator authWebResponseExceptionTranslator = new AuthWebResponseExceptionTranslator(errorHelper);
+        return authWebResponseExceptionTranslator;
+    }
+
+    /**
+     * 配置一个过滤器，用于在oauth2中提前验证用户名和密码以及clientId
+     *
+     * @param handlerProcessor     协助处理器
+     * @param propertyResource     资源管理器
+     * @param securityHelper       安全信息处理器
+     * @param clientDetailsService ClientDetailsService
+     * @param passwordEncoder      加密器
+     * @param oauth2Properties     oauth2扩展支持属性配置
+     * @return 过滤器
+     */
+    @Bean("tokenEndpointAuthenticationFilter")
+    @ConditionalOnMissingBean(name = "tokenEndpointAuthenticationFilter")
+    public Filter tokenEndpointAuthenticationFilter(SecurityHandler securityHandler, PropertyResource propertyResource, SecurityHelper securityHelper, ClientDetailsService clientDetailsService, PasswordEncoder passwordEncoder, Oauth2Properties oauth2Properties) {
+        TokenEndpointFilter tokenEndpointFilter = new TokenEndpointFilter(securityHandler, propertyResource, securityHelper, clientDetailsService, passwordEncoder, oauth2Properties);
+        return tokenEndpointFilter;
+    }
+
+
+    @ConditionalOnClass({RedisOperations.class})
     @Configuration
-    @ConditionalOnClass({RedisOperations.class, RedisTemplate.class})
-    public static class Oauth2RedisExtendAutoConfiguration {
+    public static class RedisExtend {
 
+        @ConditionalOnMissingBean({TokenStore.class})
         @Bean
-        public OAuth2AuthorizationService authorizationService(RedisTemplate<String, Object> redisTemplate) {
-            return new RedisOAuth2AuthorizationService(redisTemplate);
+        public TokenStore tokenStore(RedisConnectionFactory connectionFactory) {
+            return new RedisTokenStore(connectionFactory);
         }
-
-        @Bean
-        public OAuth2AuthorizationConsentService authorizationConsentService(
-                RedisTemplate<String, Object> redisTemplate) {
-            return new RedisOAuth2AuthorizationConsentService(redisTemplate);
-        }
-
     }
 
-    @Bean
-    @ConditionalOnMissingBean({JWKSource.class})
-    public JWKSource<com.nimbusds.jose.proc.SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
-        RSAKey rsaKey = new RSAKey.Builder(publicKey).privateKey(privateKey).keyID(UUID.randomUUID().toString())
-                .build();
-        JWKSet jwkSet = new JWKSet(rsaKey);
-        return new ImmutableJWKSet<>(jwkSet);
+
+    @PostConstruct
+    public void checkConfig() {
+
+        log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <Oauth2扩展支持> 相关的配置");
     }
 
-    private static KeyPair generateRsaKey() {
-        KeyPair keyPair;
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(2048);
-            keyPair = keyPairGenerator.generateKeyPair();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
-        return keyPair;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean({JwtDecoder.class})
-    public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
-        return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-    }
 }

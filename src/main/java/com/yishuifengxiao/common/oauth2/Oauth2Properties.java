@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * oauth2扩展支持属性配置
- *
+ * 
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -20,48 +20,45 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @ConfigurationProperties(prefix = "yishuifengxiao.security.oauth2")
 public class Oauth2Properties {
-    /**
-     * 是否开启OAUTH2增强的功能
-     */
-    private Boolean enable = false;
-    /**
-     * Spring Security access rule for the check token endpoint (e.g. a SpEL
-     * expression like "isAuthenticated()") . Default is empty, which is interpreted
-     * as "denyAll()" (no access).
-     */
-    private String checkTokenAccess;
 
-    /**
-     * Spring Security access rule for the token key endpoint (e.g. a SpEL
-     * expression like "isAuthenticated()"). Default is empty, which is interpreted
-     * as "denyAll()" (no access).
-     */
-    private String tokenKeyAccess;
+	/**
+	 * Spring Security access rule for the check token endpoint (e.g. a SpEL
+	 * expression like "isAuthenticated()") . Default is empty, which is interpreted
+	 * as "denyAll()" (no access).
+	 */
+	private String checkTokenAccess;
 
-    /**
-     * Realm name for client user. If an unauthenticated request comes in
-     * to the token endpoint, it will respond with a challenge including this name.
-     */
-    private String realm = "yishuifengxiao";
+	/**
+	 * Spring Security access rule for the token key endpoint (e.g. a SpEL
+	 * expression like "isAuthenticated()"). Default is empty, which is interpreted
+	 * as "denyAll()" (no access).
+	 */
+	private String tokenKeyAccess;
 
-    /**
-     * 终端不存在时异常提示信息
-     */
-    private String clientNotExtis = "终端不存在";
+	/**
+	 * Realm name for client authentication. If an unauthenticated request comes in
+	 * to the token endpoint, it will respond with a challenge including this name.
+	 */
+	private String realm = "yishuifengxiao";
 
-    /**
-     * 终端对应的密码错误时的异常提示信息
-     */
-    private String pwdErrorMsg = "终端密码错误";
+	/**
+	 * 终端不存在时异常提示信息
+	 */
+	private String clientNotExtis = "终端不存在";
 
-    /**
-     * 携带的basic token 无效时的提示信息
-     */
-    private String invalidBasicToken = "无效的basic token";
+	/**
+	 * 终端对应的密码错误时的异常提示信息
+	 */
+	private String pwdErrorMsg = "终端密码错误";
 
-    /**
-     * 终端信息不正确时的响应码，默认为500
-     */
-    private Integer invalidClientCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
+	/**
+	 * 携带的basic token 无效时的提示信息
+	 */
+	private String invalidBasicToken = "无效的basic token";
+
+	/**
+	 * 终端信息不正确时的响应码，默认为500
+	 */
+	private Integer invalidClientCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
 
 }

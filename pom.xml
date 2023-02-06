@@ -45,7 +45,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.14</version>
+        <version>2.3.12.RELEASE</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,7 +55,7 @@
         <swagger-bootstrap-ui.version>1.9.4</swagger-bootstrap-ui.version>
         <!-- swagger -->
         <spring-social.version>1.1.6.RELEASE</spring-social.version>
-        <spring-security-oauth2-authorization-server.version>0.2.0</spring-security-oauth2-authorization-server.version>
+        <oauth2.version>2.3.12.RELEASE</oauth2.version>
         <oauth2-oidc-sdk.version>6.17</oauth2-oidc-sdk.version>
         <pagehelper.version>1.4.5</pagehelper.version>
         <yishuifengxiao.tool.version>3.18.0</yishuifengxiao.tool.version>
@@ -170,9 +170,9 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-oauth2-authorization-server</artifactId>
-            <version>${spring-security-oauth2-authorization-server.version}</version>
+            <groupId>org.springframework.security.oauth.boot</groupId>
+            <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+            <version>${oauth2.version}</version>
             <optional>true</optional>
         </dependency>
 

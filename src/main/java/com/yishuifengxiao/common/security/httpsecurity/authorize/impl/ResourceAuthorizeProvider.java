@@ -8,8 +8,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import javax.servlet.DispatcherType;
-
 /**
  * 资源设置处理器
  *
@@ -33,7 +31,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
         registry.mvcMatchers(HttpMethod.OPTIONS).permitAll();
         registry.antMatchers(HttpMethod.OPTIONS).permitAll();
-        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
+//        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
         // 所有忽视的资源
         for (String url : propertyResource.allIgnoreUrls()) {
             registry.antMatchers(url).permitAll();
