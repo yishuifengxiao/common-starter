@@ -152,7 +152,7 @@ public class WebEnhanceAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(DispatcherServlet.class)
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"response"}, havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"tracked"}, matchIfMissing = true)
     class WebResponseBodyAutoConfiguration implements ResponseBodyAdvice {
 
 
