@@ -267,7 +267,7 @@ public class SimpleCodeProcessor implements CodeProcessor {
 		this.codeSenders = codeSenders;
 		this.repository = repository;
 		this.codeProperties = codeProperties;
-		this.show = BooleanUtils.isTrue(codeProperties.getShowDeatil());
+		this.show = BooleanUtils.isTrue(codeProperties.getShowDetail());
 	}
 
 }

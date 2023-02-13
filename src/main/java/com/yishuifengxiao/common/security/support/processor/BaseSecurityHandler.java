@@ -74,7 +74,7 @@ public class BaseSecurityHandler extends SecurityHandler {
             redirectStrategy.sendRedirect(request, response, attribute.toString());
         }
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.sucData(token).setMsg("认证失败"));
+            HttpUtils.out(response, Response.sucData(token).setMsg("认证成功"));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginSuccessUrl(), token);

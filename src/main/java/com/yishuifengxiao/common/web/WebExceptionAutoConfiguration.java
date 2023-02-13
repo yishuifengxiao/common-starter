@@ -8,6 +8,7 @@ import com.yishuifengxiao.common.web.error.ErrorHelper;
 import com.yishuifengxiao.common.web.error.ProxyErrorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
@@ -32,12 +33,14 @@ import javax.servlet.http.HttpServletRequest;
 @ResponseBody
 @ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 @Priority(1)
-public class WebExceptionAutoConfiguration {
+public class WebExceptionAutoConfiguration implements InitializingBean {
     @Autowired
     private WebEnhanceProperties webProperties;
 
     @Autowired(required = false)
     private ErrorHelper errorHelper;
+
+    private ErrorHelper proxyErrorHelper;
 
     /**
      * 500 - 自定义异常
@@ -71,10 +74,7 @@ public class WebExceptionAutoConfiguration {
     public Object catchThrowable(HttpServletRequest request, Throwable e) {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
-
-        ErrorHelper handler = ProxyErrorHelper.instance(errorHelper, webProperties);
-
-        Response<?> response = handler.extract(e).setId(ssid);
+        Object response = proxyErrorHelper.extract(e);
         if (log.isWarnEnabled()) {
             log.warn("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
         }
@@ -98,4 +98,8 @@ public class WebExceptionAutoConfiguration {
         log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <全局异常拦截> 相关的配置");
     }
 
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.proxyErrorHelper = ProxyErrorHelper.instance(errorHelper, webProperties);
+    }
 }

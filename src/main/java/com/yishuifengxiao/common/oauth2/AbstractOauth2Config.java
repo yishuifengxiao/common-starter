@@ -5,11 +5,13 @@ import java.util.List;
 
 import javax.servlet.Filter;
 
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -77,6 +79,11 @@ public class AbstractOauth2Config {
         @Autowired
         private TokenStrategy tokenStrategy;
 
+        /**
+         * 安全授权配置管理器
+         */
+        @Autowired
+        protected HttpSecurityManager httpSecurityManager;
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) {
 
@@ -95,6 +102,11 @@ public class AbstractOauth2Config {
 
             // token的验证和读取策略
             resources.tokenServices(tokenStrategy);
+        }
+
+        @Override
+        public void configure(HttpSecurity http) throws Exception {
+            httpSecurityManager.config(http);
         }
     }
 

@@ -81,7 +81,7 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 		String[] urls = { DEFAULT_URL };
 		
 		
-		clientDetails.setRegisteredRedirectUri(new HashSet<String>(Arrays.asList(urls)));
+		clientDetails.setRegisteredRedirectUri(new HashSet<>(Arrays.asList(urls)));
 
 		// 指定客户端所拥有的Spring Security的权限值,可选, 若有多个权限值,用逗号(,)分隔, 如: "ROLE_UNITY,ROLE_USER".
 		// 对于是否要设置该字段的值,要根据不同的grant_type来判断,

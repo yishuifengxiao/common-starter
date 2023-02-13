@@ -35,10 +35,10 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
 
     private WebEnhanceProperties.WebExceptionProperties exceptionProperties;
 
-    @SuppressWarnings("rawtypes")
-	@Override
-    public Response extract(Throwable e) {
-        Response<?> response = null;
+
+    @Override
+    public Object extract(Throwable e) {
+        Object response = null;
         if (null != this.errorHelper) {
             response = this.errorHelper.extract(e);
         }
@@ -132,12 +132,6 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
         }
         // 配置简称名字匹配的提示信息
         Optional.ofNullable(exceptionProperties.getMap()).orElse(new HashMap<>(0)).forEach((k, v) -> {
-            if (StringUtils.isNoneBlank(k, v)) {
-                ProxyErrorHelper.errors.put(k.toLowerCase(), v);
-            }
-        });
-        // 配置全称名字匹配的提示信息
-        Optional.ofNullable(exceptionProperties.getFull()).orElse(new HashMap<>(0)).forEach((k, v) -> {
             if (StringUtils.isNoneBlank(k, v)) {
                 ProxyErrorHelper.errors.put(k.toLowerCase(), v);
             }

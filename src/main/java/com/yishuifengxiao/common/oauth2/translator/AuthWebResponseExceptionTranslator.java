@@ -7,10 +7,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.exceptions.BadClientCredentialsException;
-import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.security.oauth2.provider.error.WebResponseExceptionTranslator;
 
 /**
@@ -33,44 +30,32 @@ import org.springframework.security.oauth2.provider.error.WebResponseExceptionTr
 @Slf4j
 public class AuthWebResponseExceptionTranslator implements WebResponseExceptionTranslator<OAuth2Exception> {
 
-    private final ErrorHelper errorHelper;
+	private final ErrorHelper errorHelper;
 
-    @SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "rawtypes" })
 	@Override
-    public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
-        HttpHeaders responseHeaders = new HttpHeaders();
-        responseHeaders.set("Access-Control-Allow-Origin", "*");
-        responseHeaders.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-        responseHeaders.set("Access-Control-Allow-Credentials", "true");
-        responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-        responseHeaders.setAccessControlAllowCredentials(true);
+	public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
+		HttpHeaders responseHeaders = new HttpHeaders();
+		responseHeaders.set("Access-Control-Allow-Origin", "*");
+		responseHeaders.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+		responseHeaders.set("Access-Control-Allow-Credentials", "true");
+		responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+		responseHeaders.setAccessControlAllowCredentials(true);
 
-        String defaultMsg = "用户名或密码不正确";
+		log.debug("【Oauth2服务】 Auth2认证异常，异常的原因为 {}", e);
 
-        if (e instanceof InvalidGrantException) {
-            // 授权码错误
-            InvalidGrantException ex = (InvalidGrantException) e;
-            defaultMsg = ex.getMessage();
-        } else if (e instanceof RedirectMismatchException) {
-            // 重定向URL不匹配
-            RedirectMismatchException ex = (RedirectMismatchException) e;
-            defaultMsg = ex.getMessage();
-        } else if (e instanceof BadClientCredentialsException) {
-            BadClientCredentialsException ex = (BadClientCredentialsException) e;
-            defaultMsg = ex.getMessage();
-        }
+		// 获取配置的提示信息
+		Object extract = errorHelper.extract(e);
+		if (null == extract) {
+			extract = "未知异常";
+		}
+		OAuth2Exception exception = new OAuth2Exception(
+				(extract instanceof Response) ? ((Response) extract).getMsg() : extract.toString());
+		return new ResponseEntity<OAuth2Exception>(exception, responseHeaders, HttpStatus.OK);
+	}
 
-        log.debug("【Oauth2服务】 Auth2认证异常，异常的原因为 {}", e);
-
-        // 获取配置的提示信息
-        Response<?> extract = errorHelper.extract(e);
-        OAuth2Exception exception = new OAuth2Exception(extract.getMsg());
-        return new ResponseEntity<OAuth2Exception>(exception, responseHeaders, HttpStatus.OK);
-    }
-
-    public AuthWebResponseExceptionTranslator(ErrorHelper errorHelper) {
-        this.errorHelper = errorHelper;
-    }
-
+	public AuthWebResponseExceptionTranslator(ErrorHelper errorHelper) {
+		this.errorHelper = errorHelper;
+	}
 
 }

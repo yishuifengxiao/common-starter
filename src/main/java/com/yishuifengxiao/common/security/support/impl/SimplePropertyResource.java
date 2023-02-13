@@ -61,6 +61,7 @@ public class SimplePropertyResource implements PropertyResource {
      */
     private SocialProperties socialProperties;
 
+
     /**
      * 是否显示详细信息日志
      */
@@ -78,6 +79,7 @@ public class SimplePropertyResource implements PropertyResource {
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getPermits());
         // 需要增加的资源
         urls.addAll(Arrays.asList(
+                UriConstant.ERROR_PAGE,
                 // 权限拦截时默认的跳转地址
                 securityProperties.getRedirectUrl(),
                 // 登陆页面的URL
@@ -97,6 +99,11 @@ public class SimplePropertyResource implements PropertyResource {
     public List<String> anonymousUrls() {
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getAnonymous());
         urls.addAll(Arrays.asList(
+                UriConstant.ERROR_PAGE,
+                // 权限拦截时默认的跳转地址
+                securityProperties.getRedirectUrl(),
+                // 登陆页面的URL
+                securityProperties.getLoginPage(),
                 // QQ登陆的地址
                 socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(),
                 // 微信登陆的地址

@@ -117,7 +117,8 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
                 }
 
             } catch (CustomException e) {
-                securityHandler.preAuth(this.propertyResource, request, response, Response.of(oauth2Properties.getInvalidClientCode(), oauth2Properties.getInvalidBasicToken(), e));
+                securityHandler.preAuth(this.propertyResource, request, response,
+                        Response.of(oauth2Properties.getInvalidClientCode(), e.getMessage(), null));
                 return;
             } catch (Exception e) {
                 // 其他异常

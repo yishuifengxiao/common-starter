@@ -148,7 +148,7 @@ public class WebEnhanceAutoConfiguration {
     }
 
     @SuppressWarnings("rawtypes")
-	@ControllerAdvice
+    @ControllerAdvice
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(DispatcherServlet.class)
@@ -226,12 +226,12 @@ public class WebEnhanceAutoConfiguration {
                     TraceContext.set(ssid);
                     // 动态设置日志
                     String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
-                    if (StringUtils.isNotBlank(dynamicLogLevel)) {
+                    if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase("false", dynamicLogLevel)) {
                         // 开启动态日志功能
                         HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webEnhanceProperties.getDynamicLogParameter()));
+                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webEnhanceProperties.getDynamicLogLevel()));
                         if (null == tokens) {
-                            dynamicLogLevel(httpServerHttpRequest.getParameter(webEnhanceProperties.getDynamicLogParameter()));
+                            dynamicLogLevel(httpServerHttpRequest.getParameter(webEnhanceProperties.getDynamicLogLevel()));
                         }
                         if (null != tokens) {
                             LogLevelUtil.setLevel(tokens[0], tokens[1]);
@@ -260,10 +260,7 @@ public class WebEnhanceAutoConfiguration {
             if (null == tokens || tokens.length != 2) {
                 return null;
             }
-            if (!StringUtils.equals(tokens[0], webEnhanceProperties.getDynamicLogParameter())) {
-                return null;
-            }
-            if (StringUtils.isBlank(tokens[1])) {
+            if (StringUtils.isBlank(tokens[0]) || StringUtils.isBlank(tokens[1])) {
                 return null;
             }
             Level level = Level.toLevel(tokens[1].trim(), null);

@@ -47,11 +47,7 @@ public class WebEnhanceProperties {
     /**
      * 是否开启动态修改日志级别功能，若不为空则表示开启此功能
      */
-    private String dynamicLogLevel;
-    /**
-     * 动态日志内容获取参数
-     */
-    private String dynamicLogParameter = "dynamicLogLevel";
+    private String dynamicLogLevel = "dynamicLogLevel";
 
     /**
      * 跨域支持功能配置
@@ -130,13 +126,6 @@ public class WebEnhanceProperties {
          * value：提示信息
          */
         private Map<String, String> map = new HashMap<>();
-        /**
-         * 完整异常信息提示<br/>
-         * key：异常类型的完整名字，如 com.yishuifengxiao.common.tool.exception.ServiceException
-         * <br/>
-         * value：提示信息，例如 用户信息不能为空
-         */
-        private Map<String, String> full = new HashMap<>();
 
     }
 

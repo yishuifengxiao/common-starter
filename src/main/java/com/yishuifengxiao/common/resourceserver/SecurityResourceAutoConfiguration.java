@@ -31,8 +31,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 @AutoConfigureBefore({SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 @EnableConfigurationProperties(ResourceProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "yishuifengxiao.security.resourceserver", name = {
-        "enable"}, havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security.resourceserver", name = {"token-check-url"}, matchIfMissing = false)
 public class SecurityResourceAutoConfiguration {
 
 
@@ -50,9 +49,7 @@ public class SecurityResourceAutoConfiguration {
 
     @Bean("resourceAuthorizeProvider")
     @ConditionalOnMissingBean(name = {"resourceAuthorizeProvider"})
-    public AuthorizeProvider resourceAuthorizeProvider(
-            @Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver,
-            @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
+    public AuthorizeProvider resourceAuthorizeProvider(@Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver, @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
         ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
         resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
         resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);

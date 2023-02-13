@@ -3,8 +3,6 @@
  */
 package com.yishuifengxiao.common.web.error;
 
-import com.yishuifengxiao.common.tool.entity.Response;
-
 /**
  * 异常信息补充提取工具
  *
@@ -20,7 +18,6 @@ public interface ErrorHelper {
      * @param e                   异常信息
      * @return 响应数据
      */
-    @SuppressWarnings("rawtypes")
-	Response extract(Throwable e);
+	Object extract(Throwable e);
 
 }

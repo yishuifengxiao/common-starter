@@ -43,7 +43,7 @@ public class SimpleSecurityTokenExtractor implements SecurityTokenExtractor {
      * @return tokenValue
      */
     private String getTokenValueInQuery(HttpServletRequest request, PropertyResource propertyResource) {
-        String requestParamter = propertyResource.security().getToken().getRequestParamter();
+        String requestParamter = propertyResource.security().getToken().getRequestParameter();
         if (StringUtils.isBlank(requestParamter)) {
             requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
         }
@@ -64,7 +64,7 @@ public class SimpleSecurityTokenExtractor implements SecurityTokenExtractor {
      * @return tokenValue
      */
     private String getTokenValueInHeader(HttpServletRequest request, PropertyResource propertyResource) {
-        String headerParamter = propertyResource.security().getToken().getHeaderParamter();
+        String headerParamter = propertyResource.security().getToken().getHeaderParameter();
         if (StringUtils.isBlank(headerParamter)) {
             headerParamter = TokenConstant.TOKEN_REQUEST_PARAM;
         }

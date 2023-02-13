@@ -1,11 +1,11 @@
 package com.yishuifengxiao.common.security.utils;
 
-import javax.servlet.http.HttpServletRequest;
-
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 令牌生成工具

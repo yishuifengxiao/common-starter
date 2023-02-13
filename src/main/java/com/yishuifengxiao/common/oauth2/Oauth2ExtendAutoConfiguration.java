@@ -170,7 +170,8 @@ public class Oauth2ExtendAutoConfiguration {
      * @return TokenStoreUserApprovalHandler
      */
     @Bean
-    public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore, @Qualifier("customClientDetailsService") ClientDetailsService clientDetailsService) {
+    public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore,
+                                                             @Qualifier("customClientDetailsService") ClientDetailsService clientDetailsService) {
         TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
         handler.setTokenStore(tokenStore);
         handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
@@ -207,7 +208,7 @@ public class Oauth2ExtendAutoConfiguration {
     /**
      * 配置一个过滤器，用于在oauth2中提前验证用户名和密码以及clientId
      *
-     * @param handlerProcessor     协助处理器
+     * @param securityHandler     协助处理器
      * @param propertyResource     资源管理器
      * @param securityHelper       安全信息处理器
      * @param clientDetailsService ClientDetailsService

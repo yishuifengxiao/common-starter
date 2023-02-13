@@ -121,7 +121,8 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     }
 
-    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
+    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
+                               SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenExtractor = securityTokenExtractor;

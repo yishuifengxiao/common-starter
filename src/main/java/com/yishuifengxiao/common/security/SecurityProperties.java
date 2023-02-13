@@ -200,12 +200,12 @@ public class SecurityProperties {
         /**
          * 从请求头里取出认证信息时的参数名，默认为 xtoken
          */
-        private String headerParamter = TokenConstant.TOKEN_REQUEST_PARAM;
+        private String headerParameter = TokenConstant.TOKEN_REQUEST_PARAM;
 
         /**
          * 从请求参数里取出认证信息时的参数名，默认为 xtoken
          */
-        private String requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
+        private String requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
          * 用户唯一标识符参数，默认为user_unique_identitier
          */
@@ -347,7 +347,7 @@ public class SecurityProperties {
          * <p>
          * 需要过滤的路径
          * </p>
-         * key：验证码类型的名字, value: 需要过滤的路径，多个路径采用半角的逗号分隔
+         * key：验证码类型的名字（可选值：SMS，IMAGE，EMAIL）, value: 需要过滤的路径，多个路径采用半角的逗号分隔
          */
         private Map<String, String> filter = new HashMap<>();
 
