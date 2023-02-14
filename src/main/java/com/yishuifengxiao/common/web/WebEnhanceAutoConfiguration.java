@@ -166,11 +166,13 @@ public class WebEnhanceAutoConfiguration {
             try {
                 if (null != body && body instanceof Response) {
                     Response result = (Response) body;
-                    HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                    Object attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
+                    Object attribute = null;
+                    if (request instanceof ServletServerHttpRequest) {
+                        HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
+                        attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
+                    }
                     if (null == attribute || StringUtils.isBlank(attribute.toString())) {
                         attribute = TraceContext.get();
-
                     }
                     if (null != attribute) {
                         result.setId(attribute.toString());
@@ -228,10 +230,9 @@ public class WebEnhanceAutoConfiguration {
                     String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
                     if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase("false", dynamicLogLevel)) {
                         // 开启动态日志功能
-                        HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                        String[] tokens = dynamicLogLevel(httpServerHttpRequest.getHeader(webEnhanceProperties.getDynamicLogLevel()));
+                        String[] tokens = dynamicLogLevel(request.getHeader(webEnhanceProperties.getDynamicLogLevel()));
                         if (null == tokens) {
-                            dynamicLogLevel(httpServerHttpRequest.getParameter(webEnhanceProperties.getDynamicLogLevel()));
+                            dynamicLogLevel(request.getParameter(webEnhanceProperties.getDynamicLogLevel()));
                         }
                         if (null != tokens) {
                             LogLevelUtil.setLevel(tokens[0], tokens[1]);
@@ -284,23 +285,24 @@ public class WebEnhanceAutoConfiguration {
         private WebEnhanceProperties.CorsProperties corsProperties;
 
         @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-                throws IOException, ServletException {
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
             try {
+                if (response instanceof HttpServletResponse) {
 
-                HttpServletResponse httpServletResponse = ((HttpServletResponse) response);
+                    HttpServletResponse httpServletResponse = ((HttpServletResponse) response);
 
-                httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, corsProperties.getAllowedOrigins());
-                httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, corsProperties.getAllowedHeaders());
-                httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
-                        corsProperties.getAllowCredentials() + "");
-                httpServletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, corsProperties.getAllowedMethods());
-                corsProperties.getHeaders().forEach((k, v) -> {
-                    if (StringUtils.isNoneBlank(k, v)) {
-                        httpServletResponse.addHeader(k, v);
-                    }
-                });
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, corsProperties.getAllowedOrigins());
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, corsProperties.getAllowedHeaders());
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, corsProperties.getAllowCredentials() + "");
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, corsProperties.getAllowedMethods());
+                    corsProperties.getHeaders().forEach((k, v) -> {
+                        if (StringUtils.isNoneBlank(k, v)) {
+                            httpServletResponse.setHeader(k, v);
+                        }
+                    });
+                }
+
             } catch (Throwable e) {
                 if (log.isInfoEnabled()) {
                     log.info("[unkown] 跨域支持捕获到未知异常 {}", e.getMessage());

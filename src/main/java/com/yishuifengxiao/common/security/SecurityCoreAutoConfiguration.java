@@ -29,7 +29,6 @@ import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
-import com.yishuifengxiao.common.social.SocialProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -61,7 +60,7 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, WebSecurityConfigurerAdapter.class})
 @ConditionalOnBean(AbstractSecurityConfig.class)
-@EnableConfigurationProperties({SecurityProperties.class, SocialProperties.class})
+@EnableConfigurationProperties({SecurityProperties.class})
 @Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class SecurityCoreAutoConfiguration {
@@ -130,14 +129,12 @@ public class SecurityCoreAutoConfiguration {
      * 注入一个资源管理器
      *
      * @param securityProperties 安全属性配置
-     * @param socialProperties   spring social属性配置
      * @return 资源管理器
      */
     @Bean
-    public PropertyResource propertyResource(SecurityProperties securityProperties, SocialProperties socialProperties) {
+    public PropertyResource propertyResource(SecurityProperties securityProperties) {
         SimplePropertyResource propertyResource = new SimplePropertyResource();
         propertyResource.setSecurityProperties(securityProperties);
-        propertyResource.setSocialProperties(socialProperties);
         return propertyResource;
     }
 

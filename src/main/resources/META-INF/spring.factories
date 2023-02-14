@@ -9,7 +9,7 @@ com.yishuifengxiao.common.code.CodeAutoConfiguration,\
 com.yishuifengxiao.common.oauth2.Oauth2ExtendAutoConfiguration,\
 com.yishuifengxiao.common.security.SecurityCoreAutoConfiguration,\
 com.yishuifengxiao.common.social.SpringSocialAutoConfiguration,\
-com.yishuifengxiao.common.resourceserver.SecurityResourceAutoConfiguration,\
+com.yishuifengxiao.common.resource.SecurityResourceAutoConfiguration,\
 com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.guava.GuavaAutoConfiguration,\
 com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration

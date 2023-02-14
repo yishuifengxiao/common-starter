@@ -6,7 +6,6 @@ package com.yishuifengxiao.common.security.support.impl;
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.social.SocialProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,12 +27,7 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**",
-            "/css/**", "/images/**", "/fonts/**",
-            "/**/**.png", "/**/**.jpg",
-            "/**/**.html", "/**/**.ico",
-            "/**/**.js", "/**/**.css",
-            "/**/**.woff", "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**.png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
 
     /**
      * 系统默认包含的swagger-ui资源路径
@@ -56,10 +50,6 @@ public class SimplePropertyResource implements PropertyResource {
      * spring security 属性配置文件
      */
     private SecurityProperties securityProperties;
-    /**
-     * spring social 属性配置文件
-     */
-    private SocialProperties socialProperties;
 
 
     /**
@@ -78,8 +68,7 @@ public class SimplePropertyResource implements PropertyResource {
         // 获取配置的资源
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getPermits());
         // 需要增加的资源
-        urls.addAll(Arrays.asList(
-                UriConstant.ERROR_PAGE,
+        urls.addAll(Arrays.asList(UriConstant.ERROR_PAGE,
                 // 权限拦截时默认的跳转地址
                 securityProperties.getRedirectUrl(),
                 // 登陆页面的URL
@@ -98,20 +87,11 @@ public class SimplePropertyResource implements PropertyResource {
     @Override
     public List<String> anonymousUrls() {
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getAnonymous());
-        urls.addAll(Arrays.asList(
-                UriConstant.ERROR_PAGE,
+        urls.addAll(Arrays.asList(UriConstant.ERROR_PAGE,
                 // 权限拦截时默认的跳转地址
                 securityProperties.getRedirectUrl(),
                 // 登陆页面的URL
-                securityProperties.getLoginPage(),
-                // QQ登陆的地址
-                socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getQq().getProviderId(),
-                // 微信登陆的地址
-                socialProperties.getFilterProcessesUrl() + "/" + socialProperties.getWeixin().getProviderId(),
-                // qq登陆成功后跳转的地址
-                socialProperties.getQq().getRegisterUrl(),
-                // 微信登陆成功后跳转的地址
-                socialProperties.getWeixin().getRegisterUrl()));
+                securityProperties.getLoginPage()));
 
         return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
     }
@@ -197,8 +177,5 @@ public class SimplePropertyResource implements PropertyResource {
         this.show = BooleanUtils.isTrue(securityProperties.getShowDetail());
     }
 
-    public void setSocialProperties(SocialProperties socialProperties) {
-        this.socialProperties = socialProperties;
-    }
 
 }

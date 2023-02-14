@@ -162,7 +162,7 @@ public class Oauth2ExtendAutoConfiguration {
 
 
     /**
-     * Basic interface for determining whether a given client authentication request
+     * Basic interface for determining whether a given userService authentication request
      * has been approved by the current user. 【认证服务器中需要显示使用到】
      *
      * @param tokenStore           token存取器
@@ -180,7 +180,7 @@ public class Oauth2ExtendAutoConfiguration {
     }
 
     /**
-     * Interface for saving, retrieving and revoking user approvals (per client, per
+     * Interface for saving, retrieving and revoking user approvals (per userService, per
      * scope).
      *
      * @param tokenStore token存取器

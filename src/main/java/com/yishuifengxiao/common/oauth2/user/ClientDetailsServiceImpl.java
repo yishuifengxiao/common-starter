@@ -57,11 +57,11 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 
 		// @formatter:off
 
-		// 用于唯一标识每一个客户端(client); 在注册时必须填写(也可由服务端自动生成).
+		// 用于唯一标识每一个客户端(userService); 在注册时必须填写(也可由服务端自动生成).
 		// 对于不同的grant_type,该字段都是必须的. 在实际应用中的另一个名称叫appKey,与client_id是同一个概念.
 		clientDetails.setClientId(clientId);
 
-		// 用于指定客户端(client)的访问密匙; 在注册时必须填写(也可由服务端自动生成).
+		// 用于指定客户端(userService)的访问密匙; 在注册时必须填写(也可由服务端自动生成).
 		// 对于不同的grant_type,该字段都是必须的. 在实际应用中的另一个名称叫appSecret,与client_secret是同一个概念.
 		// 这里是加密后的密码
 		clientDetails.setClientSecret(passwordEncoder.encode("12345678"));
@@ -90,7 +90,7 @@ public class ClientDetailsServiceImpl implements ClientDetailsService {
 		// 但如果客户端在Oauth流程中不需要用户信息的(implicit,client_credentials),
 		// 则该字段必须要设置对应的权限值, 因为服务端将根据该字段值的权限来判断是否有权限访问对应的API.
 		//clientDetails.setAuthorities(AuthorityUtils.createAuthorityList(
-		//		StringUtils.isBlank(client.getAuthorities()) ? DEFAULT_AUTHORITY : client.getAuthorities()));
+		//		StringUtils.isBlank(userService.getAuthorities()) ? DEFAULT_AUTHORITY : userService.getAuthorities()));
 		clientDetails.setAuthorities(AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 		// 指定客户端申请的权限范围,可选值包括read,write,trust;若有多个权限范围用逗号(,)分隔,如: "read,write".
