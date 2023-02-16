@@ -58,7 +58,7 @@
         <oauth2.version>2.3.12.RELEASE</oauth2.version>
         <oauth2-oidc-sdk.version>6.17</oauth2-oidc-sdk.version>
         <pagehelper.version>1.4.5</pagehelper.version>
-        <yishuifengxiao.tool.version>3.18.0</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>4.0.0</yishuifengxiao.tool.version>
         <build.finalName>common-spring-boot-starter</build.finalName>
     </properties>
     <dependencies>
