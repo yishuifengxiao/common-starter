@@ -151,7 +151,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
         }
 
         List<Parameter> pars = new ArrayList<>();
-        if (SizeUtil.notEmpty(this.swaggerProperties.getAuths())) {
+        if (SizeUtil.isNotEmpty(this.swaggerProperties.getAuths())) {
             this.swaggerProperties.getAuths().forEach(t -> {
                 pars.add(new ParameterBuilder().name(t.getName()).description(t.getDescription()).modelRef(new ModelRef(t.getModelRef())).parameterType(t.getParameterType()).required(t.getRequired()).build());
             });

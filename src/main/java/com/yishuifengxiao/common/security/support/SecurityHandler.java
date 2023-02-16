@@ -3,10 +3,11 @@
  */
 package com.yishuifengxiao.common.security.support;
 
+import com.yishuifengxiao.common.guava.GuavaCache;
 import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
-import com.yishuifengxiao.common.tool.context.SessionStorage;
+
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
@@ -126,7 +127,7 @@ public abstract class SecurityHandler implements AccessDeniedHandler, Authentica
 
                 try {
                     // 取出存储的信息
-                    SecurityToken token = SessionStorage.get(SecurityToken.class);
+                    SecurityToken token = GuavaCache.get(SecurityToken.class);
                     if (null != token && StringUtils.isNotBlank(token.getValue())) {
                         tokenBuilder.remove(token.getValue());
                     }

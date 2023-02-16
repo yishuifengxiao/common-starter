@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.security.support.impl;
 
+import com.yishuifengxiao.common.guava.GuavaCache;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
@@ -8,7 +9,6 @@ import com.yishuifengxiao.common.security.support.TokenExpireEvnet;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
-import com.yishuifengxiao.common.tool.context.SessionStorage;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -199,7 +199,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
         token = tokenBuilder.refreshExpireTime(tokenValue);
 
         // 存储访问令牌
-        SessionStorage.put(token);
+        GuavaCache.put(token);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());

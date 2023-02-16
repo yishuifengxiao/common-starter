@@ -75,7 +75,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(fieldExtractor, t, true);
 		sql.append(condtion.getSql());
 
-		if (SizeUtil.notEmpty(condtion.getArgs())) {
+		if (SizeUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 
@@ -109,7 +109,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(clazz, fieldExtractor, true, conditions);
 		sql.append(condtion.getSql());
 
-		if (SizeUtil.notEmpty(condtion.getArgs())) {
+		if (SizeUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 

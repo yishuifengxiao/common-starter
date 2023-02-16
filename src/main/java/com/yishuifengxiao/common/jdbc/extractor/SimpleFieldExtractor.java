@@ -11,11 +11,12 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.yishuifengxiao.common.tool.lang.TextUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.tool.bean.ClassUtil;
-import com.yishuifengxiao.common.tool.lang.HumpUtil;
+
 
 /**
  * 系统属性提取器
@@ -228,7 +229,7 @@ public class SimpleFieldExtractor implements FieldExtractor {
 	private <T> String getSimpleName(Class<T> clazz) {
 		String simpleName = clazz.getSimpleName();
 		if (simpleName != null) {
-			return HumpUtil.underscoreName(simpleName);
+			return TextUtil.underscoreName(simpleName);
 		}
 		return null;
 	}

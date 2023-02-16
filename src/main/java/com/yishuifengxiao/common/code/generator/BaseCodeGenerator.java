@@ -6,9 +6,10 @@ package com.yishuifengxiao.common.code.generator;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+import com.yishuifengxiao.common.guava.GuavaCache;
 import org.apache.commons.lang3.StringUtils;
 
-import com.yishuifengxiao.common.tool.context.SessionStorage;
+
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -52,7 +53,7 @@ public abstract class BaseCodeGenerator implements CodeGenerator {
 		try {
 			if (StringUtils.isBlank(value)) {
 				// 如果还是没有，就从请求上下文获取
-				key = (String) SessionStorage.get(key);
+				key = (String) GuavaCache.get(key);
 			}
 
 			if (StringUtils.isBlank(value)) {
