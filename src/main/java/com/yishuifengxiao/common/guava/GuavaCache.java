@@ -5,8 +5,11 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -23,45 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class GuavaCache {
 
     private static final Cache<String, Object> GUAVA_CACHE = CacheBuilder.newBuilder().maximumSize(1000).expireAfterAccess(24, TimeUnit.HOURS).build();
-    
 
-    /**
-     * 存储一组键值对
-     *
-     * @param key   存储的key，不能为null
-     * @param value 被保存的数据，不能为null
-     */
-    public static synchronized void put(String key, Object value) {
-        if (null == key || null == value) {
-            return;
-        }
-        GUAVA_CACHE.put(key.trim(), value);
-    }
-
-    /**
-     * 在缓存中放入一个数据，数据的键为<code>value.getClass().getName()</code>
-     *
-     * @param value
-     */
-    public static synchronized void put(Object value) {
-        if (null == value) {
-            return;
-        }
-        GUAVA_CACHE.put(value.getClass().getName(), value);
-    }
-
-    /**
-     * 根据指定的key获取一个存储的数据
-     *
-     * @param key 存储的key，不能为null
-     * @return 存储的数据，数据不存在时值为null
-     */
-    public static synchronized Object get(String key) {
-        if (null == key) {
-            return null;
-        }
-        return GUAVA_CACHE.getIfPresent(key.trim());
-    }
 
     /**
      * Returns the value associated with {@code key} in this cache, obtaining that value from {@code
@@ -109,8 +74,9 @@ public class GuavaCache {
         if (null == key) {
             return null;
         }
+
         try {
-            return (V) GUAVA_CACHE.get(key.trim(), loader);
+            return (V) GUAVA_CACHE.get(key.trim(), null != loader ? loader : () -> null);
         } catch (Exception e) {
         }
         return null;
@@ -118,19 +84,100 @@ public class GuavaCache {
     }
 
     /**
-     * 根据<code>clazz.getName()</code>获取一个数据
+     * <p>存储一个数据</p>
+     * <p>存储的时的key值默认为<code>value.getClass().getName()</code></p>
      *
-     * @param clazz
-     * @param <T>
-     * @return
+     * @param value 待存储的数据
+     */
+    public static synchronized void put(Object value) {
+        if (null == value) {
+            return;
+        }
+        GUAVA_CACHE.put(value.getClass().getName(), value);
+    }
+
+    /**
+     * <p>存储一个数据</p>
+     *
+     * @param key   待存储的数据的key
+     * @param value 待存储的数据
+     */
+    public static synchronized void put(String key, Object value) {
+        if (StringUtils.isBlank(key) || null == value) {
+            return;
+        }
+        GUAVA_CACHE.put(key.trim(), value);
+    }
+
+    /**
+     * 根据数据的key获取数据
+     *
+     * @param key 待存储的数据的key
+     * @return 获取到的存储数据
+     */
+    public static synchronized Object get(String key) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        return GUAVA_CACHE.getIfPresent(key.trim());
+    }
+
+
+    /**
+     * 根据数据的key获取数据
+     *
+     * @param key   待存储的数据的key
+     * @param clazz 数据的类型Class
+     * @param <T>   数据的类型
+     * @return 获取到的存储数据
      */
     @SuppressWarnings("unchecked")
+    public static synchronized <T> T get(String key, Class<T> clazz) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        try {
+            return (T) GUAVA_CACHE.getIfPresent(key.trim());
+        } catch (Exception e) {
+        }
+        return null;
+
+    }
+
+    /**
+     * <p>根据数据的key获取数据</p>
+     * <p>此方式下默认key为<code>clazz.getName()</code></p>
+     *
+     * @param clazz 数据的类型Class
+     * @param <T>   数据的类型
+     * @return 获取到的存储数据
+     */
     public static synchronized <T> T get(Class<T> clazz) {
         if (null == clazz) {
             return null;
         }
+        return get(clazz.getName(), clazz);
+    }
+
+    /**
+     * 根据数据的key获取数据，若成功获取到此数据则从缓存中删除此数据
+     *
+     * @param key   待存储的数据的key
+     * @param clazz 数据的类型Class
+     * @param <T>   数据的类型
+     * @return 获取到的存储数据
+     */
+    @SuppressWarnings("unchecked")
+    public static synchronized <T> T getAndRemove(String key, Class<T> clazz) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
         try {
-            return (T) GUAVA_CACHE.getIfPresent(clazz.getName());
+            T value = (T) GUAVA_CACHE.getIfPresent(key.trim());
+            if (null != value) {
+                remove(key.trim());
+            }
+            return value;
         } catch (Exception e) {
         }
         return null;
@@ -138,22 +185,91 @@ public class GuavaCache {
     }
 
     /**
-     * 清空所有的缓存数据
+     * <p>根据数据的key获取数据，若成功获取到此数据则从缓存中删除此数据</p>
+     * <p>此方式下默认key为<code>clazz.getName()</code></p>
+     *
+     * @param clazz 数据的类型Class
+     * @param <T>   数据的类型
+     * @return 获取到的存储数据
      */
-    public synchronized static void clearAll() {
-        GUAVA_CACHE.invalidateAll();
+    public static synchronized <T> T getAndRemove(Class<T> clazz) {
+        if (null == clazz) {
+            return null;
+        }
+
+        return getAndRemove(clazz.getName(), clazz);
     }
 
     /**
-     * 根据存储的键移除指定的数据
+     * 根据数据的key获取数据，若成功获取到此数据则从缓存中删除此数据
      *
-     * @param key 存储的键
+     * @param key 待存储的数据的key
+     * @return 获取到的存储数据
      */
-    public synchronized static void remove(String key) {
-        if (null == key) {
+    public static synchronized Object getAndRemove(String key) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        Object value = GUAVA_CACHE.getIfPresent(key.trim());
+        if (null != value) {
+            remove(key.trim());
+        }
+        return value;
+    }
+
+    /**
+     * 移除存储的数据
+     *
+     * @param key 待移除的数据的key
+     */
+    public static synchronized void remove(String key) {
+        if (StringUtils.isBlank(key)) {
             return;
         }
         GUAVA_CACHE.invalidate(key.trim());
+    }
+
+    /**
+     * <p>移除存储的数据</p>
+     * <p>此方式下默认key为<code>clazz.getName()</code></p>
+     *
+     * @param <T>   数据的类型
+     * @param clazz 待移除的数据的key
+     */
+    public static synchronized <T> void remove(Class<T> clazz) {
+        if (null == clazz) {
+            return;
+        }
+        remove(clazz.getName());
+    }
+
+    /**
+     * 获取所有存储的数据的key
+     *
+     * @return 所有存储的数据的key
+     */
+    public static synchronized Set<String> keys() {
+        return GUAVA_CACHE.asMap().keySet();
+    }
+
+    /**
+     * 所有存储的数据的key中是否包含指定的key
+     *
+     * @param key 指定的key
+     * @return 包含返回为true, 否则为false
+     */
+    public static synchronized boolean keys(String key) {
+        if (StringUtils.isBlank(key)) {
+            return false;
+        }
+        return GUAVA_CACHE.asMap().containsKey(key);
+    }
+
+    /**
+     * 清空所有存储的数据
+     */
+    public static synchronized void clear() {
+        GUAVA_CACHE.cleanUp();
     }
 
 }
