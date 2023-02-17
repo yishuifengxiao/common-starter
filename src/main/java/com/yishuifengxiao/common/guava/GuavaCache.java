@@ -93,7 +93,7 @@ public class GuavaCache {
         if (null == value) {
             return;
         }
-        GUAVA_CACHE.put(value.getClass().getName(), value);
+        put(value.getClass().getName(), value);
     }
 
     /**
@@ -137,7 +137,7 @@ public class GuavaCache {
             return null;
         }
         try {
-            return (T) GUAVA_CACHE.getIfPresent(key.trim());
+            return (T) get(key.trim());
         } catch (Exception e) {
         }
         return null;
@@ -167,13 +167,12 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @return 获取到的存储数据
      */
-    @SuppressWarnings("unchecked")
     public static synchronized <T> T getAndRemove(String key, Class<T> clazz) {
         if (StringUtils.isBlank(key)) {
             return null;
         }
         try {
-            T value = (T) GUAVA_CACHE.getIfPresent(key.trim());
+            T value = get(key.trim(), clazz);
             if (null != value) {
                 remove(key.trim());
             }
