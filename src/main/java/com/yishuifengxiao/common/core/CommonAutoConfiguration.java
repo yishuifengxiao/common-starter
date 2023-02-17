@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Priority;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 核心组件自动配置
@@ -51,10 +54,13 @@ public class CommonAutoConfiguration {
      * @return 线程池
      */
     @Bean
-    @ConditionalOnMissingBean({ThreadPool.class})
-    public ThreadPool threadPool() {
+    @ConditionalOnMissingBean({ThreadPoolProducer.class})
+    public ThreadPoolProducer threadPoolProducer() {
 
-        return new SimpleThreadPool();
+        return () -> new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+                //
+                Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(),
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
 

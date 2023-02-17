@@ -27,7 +27,7 @@ public class TraceContext {
      *
      * @return 请求追踪id
      */
-    public static String get() {
+    public synchronized static String get() {
         return localVar.get();
     }
 

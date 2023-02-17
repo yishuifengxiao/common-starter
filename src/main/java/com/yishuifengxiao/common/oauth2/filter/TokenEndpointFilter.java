@@ -84,7 +84,7 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
             }
 
             try {
-                String[] tokens = httpExtractor.extractBaiscAuth(request);
+                String[] tokens = httpExtractor.extractBasicAuth(request);
 
                 String clientId = tokens[0];
 

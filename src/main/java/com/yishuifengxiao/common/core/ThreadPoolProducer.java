@@ -9,7 +9,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface ThreadPool {
+public interface ThreadPoolProducer {
 
 	/**
 	 * 获取一个自定义ThreadPoolExecutor

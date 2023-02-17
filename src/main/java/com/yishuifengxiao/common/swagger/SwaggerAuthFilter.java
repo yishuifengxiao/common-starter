@@ -46,7 +46,7 @@ public class SwaggerAuthFilter implements Filter {
 		if (this.match(request)) {
 
 			try {
-				String[] tokens = httpExtractor.extractBaiscAuth(request);
+				String[] tokens = httpExtractor.extractBasicAuth(request);
 				if (null == tokens) {
 					throw new CustomException("需要经过认证才能访问");
 				}

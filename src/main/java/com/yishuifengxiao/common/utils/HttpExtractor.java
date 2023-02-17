@@ -30,7 +30,7 @@ public class HttpExtractor {
 	 * @return basic认证信息,只有两个元素，数组形式为 {用户名,密码}
 	 * @throws CustomException 提取basic认证信息时出现问题
 	 */
-	public String[] extractBaiscAuth(HttpServletRequest request) throws CustomException {
+	public String[] extractBasicAuth(HttpServletRequest request) throws CustomException {
 		String header = request.getHeader(AUTH_FLAG);
 
 		if (header == null || !header.toLowerCase().startsWith(BASIC)) {
