@@ -12,11 +12,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import com.yishuifengxiao.common.code.CodeProperties;
-import com.yishuifengxiao.common.code.constant.ErrorCode;
 import com.yishuifengxiao.common.code.entity.EmailCode;
 import com.yishuifengxiao.common.code.entity.ValidateCode;
 import com.yishuifengxiao.common.code.sender.CodeSender;
-import com.yishuifengxiao.common.tool.exception.CustomException ;
+import com.yishuifengxiao.common.tool.exception.CustomException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,8 +38,7 @@ public class EmailCodeSender implements CodeSender {
 	private CodeProperties codeProperties;
 
 	@Override
-	public <T extends ValidateCode> void send(ServletWebRequest request, String target, T code)
-			throws CustomException  {
+	public <T extends ValidateCode> void send(ServletWebRequest request, String target, T code) throws CustomException {
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
 
@@ -58,7 +56,7 @@ public class EmailCodeSender implements CodeSender {
 			javaMailSender.send(mimeMessage);
 		} catch (Exception e) {
 			log.warn("发送邮件验证码失败，失败的原因为 {}", e.getMessage());
-			throw new CustomException (ErrorCode.CODE_SEND_ERROR, "验证码发送失败");
+			throw new CustomException("验证码发送失败");
 		}
 
 	}
