@@ -135,6 +135,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
         // 根据用户信息生成一个访问令牌
         SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), sessionId, validSeconds,
                 preventsLogin, maxSessions);
+        token.setDetails(userDetails);
 
         // 将认证信息注入到spring Security中
         SecurityContextHolder.getContext().setAuthentication(authentication);

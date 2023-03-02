@@ -14,8 +14,11 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.security.Principal;
 import java.time.LocalDateTime;
 
 /**
@@ -313,7 +316,17 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     @Override
     public String getName() {
-        return null;
+        if (this.getPrincipal() instanceof UserDetails) {
+            return ((UserDetails) this.getPrincipal()).getUsername();
+        }
+        if (this.getPrincipal() instanceof AuthenticatedPrincipal) {
+            return ((AuthenticatedPrincipal) this.getPrincipal()).getName();
+        }
+        if (this.getPrincipal() instanceof Principal) {
+            return ((Principal) this.getPrincipal()).getName();
+        }
+
+        return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
     }
 
     @Override
