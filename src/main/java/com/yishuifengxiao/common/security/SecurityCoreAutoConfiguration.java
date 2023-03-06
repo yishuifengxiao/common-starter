@@ -14,7 +14,7 @@ import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
-import com.yishuifengxiao.common.security.support.processor.BaseSecurityHandler;
+import com.yishuifengxiao.common.security.support.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;

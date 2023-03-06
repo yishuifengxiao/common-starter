@@ -12,7 +12,7 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class TokenExpireEvnet extends ApplicationEvent {
+public class TokenExpireEvent extends ApplicationEvent {
 
 	/**
 	 * 
@@ -25,7 +25,7 @@ public class TokenExpireEvnet extends ApplicationEvent {
 
 	private String tokenValue;
 
-	public TokenExpireEvnet(Object source, CustomException cxception, SecurityToken token, String tokenValue) {
+	public TokenExpireEvent(Object source, CustomException cxception, SecurityToken token, String tokenValue) {
 		super(source);
 		this.cxception = cxception;
 		this.token = token;

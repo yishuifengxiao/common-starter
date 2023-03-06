@@ -5,7 +5,7 @@ import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.support.TokenExpireEvnet;
+import com.yishuifengxiao.common.security.support.TokenExpireEvent;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
@@ -162,7 +162,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
         if (null == token) {
             e = new CustomException(ErrorCode.INVALID_TOKEN, propertyResource.security().getMsg().getTokenIsNull());
 
-            SpringContext.publishEvent(new TokenExpireEvnet(this, e, token, tokenValue));
+            SpringContext.publishEvent(new TokenExpireEvent(this, e, token, tokenValue));
 
             throw e;
         }
@@ -176,7 +176,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
             e = new CustomException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsExpired());
 
-            SpringContext.publishEvent(new TokenExpireEvnet(this, e, token, tokenValue));
+            SpringContext.publishEvent(new TokenExpireEvent(this, e, token, tokenValue));
             throw e;
         }
 
@@ -189,7 +189,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
             e = new CustomException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsInvalid());
 
-            SpringContext.publishEvent(new TokenExpireEvnet(this, e, token, tokenValue));
+            SpringContext.publishEvent(new TokenExpireEvent(this, e, token, tokenValue));
             throw e;
         }
 

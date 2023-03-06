@@ -4,12 +4,11 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -97,6 +96,19 @@ public class GuavaCache {
     }
 
     /**
+     * <p>存储一个数据到当前线程中</p>
+     * <p>存储的时的key值默认为<code>Thread.currentThread().getId()</code></p>
+     *
+     * @param value 待存储的数据
+     */
+    public static synchronized void putCurrent(Object value) {
+        if (null == value) {
+            return;
+        }
+        put(Thread.currentThread().getId() + "", value);
+    }
+
+    /**
      * <p>存储一个数据</p>
      *
      * @param key   待存储的数据的key
@@ -120,6 +132,15 @@ public class GuavaCache {
             return null;
         }
         return GUAVA_CACHE.getIfPresent(key.trim());
+    }
+
+    /**
+     * 获取当前线程中存储的数据
+     *
+     * @return 获取到的存储数据
+     */
+    public static synchronized Object getCurrent() {
+        return GUAVA_CACHE.getIfPresent(Thread.currentThread().getId() + "");
     }
 
 
@@ -214,6 +235,16 @@ public class GuavaCache {
             remove(key.trim());
         }
         return value;
+    }
+
+    /**
+     * 获取当前线程中存储的数据,若存在则删除此数据
+     *
+     * @return 获取到的存储数据
+     */
+    public static synchronized Object getAndRemove() {
+
+        return getAndRemove(Thread.currentThread().getId() + "");
     }
 
     /**
