@@ -112,6 +112,8 @@ public class SimplePropertyResource implements PropertyResource {
         urls.addAll(this.allPermitUrs());
         // 所有允许匿名访问的资源
         urls.addAll(this.anonymousUrls());
+        //表单登陆时form表单请求的地址
+        urls.add(securityProperties.getFormActionUrl());
         // 所有忽视的资源
         urls.addAll(Arrays.asList(this.allIgnoreUrls()));
         return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
