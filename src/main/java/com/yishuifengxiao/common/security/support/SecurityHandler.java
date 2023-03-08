@@ -4,11 +4,9 @@
 package com.yishuifengxiao.common.security.support;
 
 import com.yishuifengxiao.common.guava.GuavaCache;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
-
-import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -210,19 +208,7 @@ public abstract class SecurityHandler implements AccessDeniedHandler, Authentica
      */
     public abstract void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
 
-    /**
-     * <p>
-     * 输出前置校验时出现的异常信息
-     * </p>
-     * 在进行前置校验时出现了问题，一般情况下为用户名或密码错误之类的
-     *
-     * @param propertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param data             响应信息
-     * @throws IOException 处理时发生问题
-     */
-    public abstract void preAuth(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Response<CustomException> data) throws IOException;
+
 
     public PropertyResource getPropertyResource() {
         return propertyResource;

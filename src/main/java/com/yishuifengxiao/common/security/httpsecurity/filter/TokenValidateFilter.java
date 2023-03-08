@@ -1,12 +1,10 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -83,10 +81,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
                 }
             }
 
-        } catch (CustomException e) {
-            securityHandler.preAuth(propertyResource, request, response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), e.getMessage(), e));
-            return;
-        } catch (Exception e) {
+        }catch (Exception e) {
             securityHandler.onException(propertyResource, request, response, e);
             return;
         }

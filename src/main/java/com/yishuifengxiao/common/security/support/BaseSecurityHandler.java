@@ -7,6 +7,7 @@ import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -168,36 +169,17 @@ public class BaseSecurityHandler extends SecurityHandler {
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
+            if (exception instanceof CustomException || exception instanceof UncheckedException) {
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), exception.getMessage(), null));
+            } else {
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
+            }
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
 
     }
 
-    /**
-     * <p>
-     * 输出前置校验时出现的异常信息
-     * </p>
-     * 在进行前置校验时出现了问题，一般情况下为用户名或密码错误之类的
-     *
-     * @param request  HttpServletRequest
-     * @param response HttpServletResponse
-     * @param data     响应信息
-     * @throws IOException 处理时发生问题
-     */
-    @Override
-    public void preAuth(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Response<CustomException> data) throws IOException {
-        log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 自定义权限检查时发现问题 {}", data);
-
-
-        if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, data);
-            return;
-        }
-        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), data.getData());
-
-    }
 
     /**
      * 从请求中获取请求的来源地址,在授权失败和拒绝时进行存储

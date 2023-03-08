@@ -68,7 +68,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
-    private LocalDateTime time;
+    private LocalDateTime issueAt;
 
     /**
      * token的过期时间点
@@ -207,22 +207,23 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.validSeconds = validSeconds;
     }
 
+
     /**
-     * 获取token的生成时间
+     * 获取token的首次生成时间
      *
-     * @return 生成时间
+     * @return token的首次生成时间
      */
-    public LocalDateTime getTime() {
-        return time;
+    public LocalDateTime getIssueAt() {
+        return issueAt;
     }
 
     /**
-     * 设置token的生成时间
+     * 设置token的首次生成时间
      *
-     * @param time token的生成时间
+     * @param issueAt token的首次生成时间
      */
-    public void setTime(LocalDateTime time) {
-        this.time = time;
+    public void setIssueAt(LocalDateTime issueAt) {
+        this.issueAt = issueAt;
     }
 
     /**
@@ -278,8 +279,8 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.username = username;
         this.sessionId = sessionId;
         this.validSeconds = validSeconds;
-        this.time = LocalDateTime.now();
-        this.expireAt = this.time.plusSeconds(validSeconds.longValue());
+        this.issueAt = LocalDateTime.now();
+        this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
         this.isActive = true;
 
     }
@@ -316,17 +317,21 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     @Override
     public String getName() {
-        if (this.getPrincipal() instanceof UserDetails) {
-            return ((UserDetails) this.getPrincipal()).getUsername();
+        final Object principal = this.getPrincipal();
+        if (null == principal) {
+            return this.getName();
         }
-        if (this.getPrincipal() instanceof AuthenticatedPrincipal) {
-            return ((AuthenticatedPrincipal) this.getPrincipal()).getName();
+        if (principal instanceof UserDetails) {
+            return ((UserDetails) principal).getUsername();
+        }
+        if (principal instanceof AuthenticatedPrincipal) {
+            return ((AuthenticatedPrincipal) principal).getName();
         }
         if (this.getPrincipal() instanceof Principal) {
-            return ((Principal) this.getPrincipal()).getName();
+            return ((Principal) principal).getName();
         }
 
-        return (this.getPrincipal() == null) ? "" : this.getPrincipal().toString();
+        return principal.toString();
     }
 
     @Override
@@ -412,6 +417,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     @Override
     public Object getPrincipal() {
-        return this.value;
+        return this.getUsername();
     }
 }

@@ -7,7 +7,6 @@ import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.utils.HttpExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -116,10 +115,6 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
                     securityHelper.authorize(username, password);
                 }
 
-            } catch (CustomException e) {
-                securityHandler.preAuth(this.propertyResource, request, response,
-                        Response.of(oauth2Properties.getInvalidClientCode(), e.getMessage(), null));
-                return;
             } catch (Exception e) {
                 // 其他异常
                 securityHandler.onException(this.propertyResource, httpServletRequest, httpServletResponse, e);

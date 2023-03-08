@@ -2,10 +2,9 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -103,8 +102,7 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
                 if (propertyResource.showDetail()) {
                     log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
                 }
-                securityHandler.preAuth(propertyResource, request, response,
-                        Response.of(Response.Const.CODE_INTERNAL_SERVER_ERROR, exception.getMessage(), exception));
+                securityHandler.onException(propertyResource, request, response, exception);
 
                 // 失败后不执行后面的过滤器
                 return;
