@@ -81,7 +81,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
                 }
             }
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             securityHandler.onException(propertyResource, request, response, e);
             return;
         }

@@ -5,7 +5,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.yishuifengxiao.common.security.httpsecurity.authorize.AbstractAuthorizeProvider;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationFilter;
 import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationProvider;
 import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
@@ -29,12 +29,12 @@ public class SmsAuthorizeProvider extends AbstractAuthorizeProvider {
     private String url;
 
     @Override
-    public void configure(HttpSecurity http, SecurityHandler securityHandler) throws Exception {
+    public void configure(HttpSecurity http, AuthenticationPoint authenticationPoint) throws Exception {
 
         SmsAuthenticationFilter smsCodeAuthenticationFilter = new SmsAuthenticationFilter(this.url);
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
-        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(securityHandler);
-        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(securityHandler);
+        smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationPoint);
+        smsCodeAuthenticationFilter.setAuthenticationFailureHandler(authenticationPoint);
 
         SmsAuthenticationProvider smsCodeAuthenticationProvider = new SmsAuthenticationProvider();
         smsCodeAuthenticationProvider.setSmsUserDetailsService(smsUserDetailsService);

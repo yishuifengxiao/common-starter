@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.social;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.social.qq.QQSocialProvider;
 import com.yishuifengxiao.common.social.support.CompositeOAuth2AccessTokenResponseClient;
 import com.yishuifengxiao.common.social.support.CompositeOAuth2UserService;
@@ -34,7 +34,7 @@ public class SocialAuthorizeProvider implements AuthorizeProvider, InitializingB
 
     @SuppressWarnings("unused")
     @Override
-    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         /**
          * 用于OAuth 2.0登录的AbstractHttpConfigurer，它利用OAuth 2.0Authorization Code Grant Flow。
          * OAuth 2.0登录为应用程序提供了一种功能，可以让用户使用OAuth 1.0或OpenID Connect 1.0提供程序中的现有帐户登录。
@@ -47,7 +47,7 @@ public class SocialAuthorizeProvider implements AuthorizeProvider, InitializingB
 
         final OAuth2LoginConfigurer<HttpSecurity> oauth2Login = http.oauth2Login();
 
-        oauth2Login.failureHandler(securityHandler).successHandler(securityHandler).loginPage(propertyResource.security().getLoginPage());
+        oauth2Login.failureHandler(authenticationPoint).successHandler(authenticationPoint).loginPage(propertyResource.security().getLoginPage());
 //        The default redirect URI template is . The registrationId is a unique identifier for the . {baseUrl}/login/oauth2/code/{registrationId}ClientRegistration
 //                .loginProcessingUrl(propertyResource.security().getFormActionUrl());
 

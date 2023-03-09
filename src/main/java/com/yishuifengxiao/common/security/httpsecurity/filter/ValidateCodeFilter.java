@@ -162,12 +162,11 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
         this.codeProcessor = codeProcessor;
     }
 
-    public SecurityHandler getHandlerProcessor() {
+    public SecurityHandler getSecurityHandler() {
         return securityHandler;
     }
 
-    public void setHandlerProcessor(SecurityHandler securityHandler) {
+    public void setSecurityHandler(SecurityHandler securityHandler) {
         this.securityHandler = securityHandler;
     }
-
 }

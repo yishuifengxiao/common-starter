@@ -101,7 +101,7 @@ public class GuavaCache {
      *
      * @param value 待存储的数据
      */
-    public static synchronized void putCurrent(Object value) {
+    public static synchronized void current(Object value) {
         if (null == value) {
             return;
         }
@@ -139,8 +139,8 @@ public class GuavaCache {
      *
      * @return 获取到的存储数据
      */
-    public static synchronized Object getCurrent() {
-        return GUAVA_CACHE.getIfPresent(Thread.currentThread().getId() + "");
+    public static synchronized Object current() {
+        return get(Thread.currentThread().getId() + "");
     }
 
 
@@ -154,9 +154,6 @@ public class GuavaCache {
      */
     @SuppressWarnings("unchecked")
     public static synchronized <T> T get(String key, Class<T> clazz) {
-        if (StringUtils.isBlank(key)) {
-            return null;
-        }
         try {
             return (T) get(key.trim());
         } catch (Exception e) {
@@ -227,12 +224,10 @@ public class GuavaCache {
      * @return 获取到的存储数据
      */
     public static synchronized Object getAndRemove(String key) {
-        if (StringUtils.isBlank(key)) {
-            return null;
-        }
-        Object value = GUAVA_CACHE.getIfPresent(key.trim());
+
+        Object value = get(key);
         if (null != value) {
-            remove(key.trim());
+            remove(key);
         }
         return value;
     }
@@ -242,7 +237,7 @@ public class GuavaCache {
      *
      * @return 获取到的存储数据
      */
-    public static synchronized Object getAndRemove() {
+    public static synchronized Object currentAndRemove() {
 
         return getAndRemove(Thread.currentThread().getId() + "");
     }

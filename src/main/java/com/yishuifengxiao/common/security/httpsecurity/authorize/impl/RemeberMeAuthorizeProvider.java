@@ -3,7 +3,7 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -32,7 +32,7 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
     protected UserDetailsService userDetailsService;
 
     @Override
-    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		//记住我的功能
         http.rememberMe()

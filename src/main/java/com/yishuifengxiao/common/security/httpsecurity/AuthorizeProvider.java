@@ -3,7 +3,7 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity;
 
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
@@ -25,11 +25,11 @@ public interface AuthorizeProvider {
      * 授权配置
      *
      * @param propertyResource               授权资源
-     * @param  securityHandler 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
+     * @param  authenticationPoint 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
      * @param http HttpSecurity
      * @throws Exception 配置时出现问题
      */
-    void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception;
+    void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception;
 
     /**
      * 授权提供器的顺序，数字越小越是提前使用，默认值为100

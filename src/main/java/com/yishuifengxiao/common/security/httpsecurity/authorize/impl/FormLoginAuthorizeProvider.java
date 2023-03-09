@@ -5,7 +5,7 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 /**
@@ -20,7 +20,7 @@ public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 
 
     @Override
-    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
         http.formLogin()
 		//权限拦截时默认跳转的页面
@@ -32,9 +32,9 @@ public class FormLoginAuthorizeProvider implements AuthorizeProvider {
 		// 密码参数的名字
 		.passwordParameter(propertyResource.security().getPasswordParameter())
 		//自定义认证成功处理器
-		.successHandler(securityHandler)
+		.successHandler(authenticationPoint)
 		//自定义认证失败处理器
-		.failureHandler(securityHandler);
+		.failureHandler(authenticationPoint);
 		//@formatter:on  
     }
 

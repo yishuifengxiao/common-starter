@@ -9,12 +9,14 @@ import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
+import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
-import com.yishuifengxiao.common.security.support.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -175,8 +177,9 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, SecurityHandler securityHandler, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, securityHandler, securityRequestFilters);
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint,
+                                                   List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -224,13 +227,22 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityHandler securityHandler(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper, TokenBuilder tokenBuilder) {
+    public SecurityHandler securityHandler() {
         BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
-        baseSecurityHandler.setPropertyResource(propertyResource);
-        baseSecurityHandler.setSecurityHelper(securityHelper);
-        baseSecurityHandler.setSecurityContextExtractor(securityValueExtractor);
-        baseSecurityHandler.setTokenBuilder(tokenBuilder);
         return baseSecurityHandler;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor,
+                                                   SecurityHelper securityHelper, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+        SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
+        authenticationPoint.setPropertyResource(propertyResource);
+        authenticationPoint.setSecurityHelper(securityHelper);
+        authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
+        authenticationPoint.setTokenBuilder(tokenBuilder);
+        authenticationPoint.setSecurityHandler(securityHandler);
+        return authenticationPoint;
     }
 
     /**

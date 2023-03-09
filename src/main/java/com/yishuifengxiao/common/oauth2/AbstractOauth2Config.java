@@ -1,11 +1,8 @@
 package com.yishuifengxiao.common.oauth2;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.Filter;
-
+import com.yishuifengxiao.common.oauth2.token.TokenStrategy;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +27,9 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
-import com.yishuifengxiao.common.oauth2.token.TokenStrategy;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import javax.servlet.Filter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * oauth2的相关的配置
@@ -65,7 +63,7 @@ public class AbstractOauth2Config {
          * 定义在security-core包中
          */
         @Autowired
-        private SecurityHandler securityHandler;
+        private AuthenticationPoint authenticationPoint;
 
         @Autowired
         private DefaultWebSecurityExpressionHandler expressionHandler;
@@ -87,13 +85,13 @@ public class AbstractOauth2Config {
         @Override
         public void configure(ResourceServerSecurityConfigurer resources) {
 
-            resources.authenticationEntryPoint(securityHandler);
+            resources.authenticationEntryPoint(authenticationPoint);
 
             // 自定义token信息提取器
             resources.tokenExtractor(tokenExtractor == null ? new BearerTokenExtractor() : tokenExtractor);
 
             // 权限拒绝处理器
-            resources.accessDeniedHandler(securityHandler);
+            resources.accessDeniedHandler(authenticationPoint);
             resources.stateless(false);
 
             // 不然自定义权限表达式不生效
@@ -120,7 +118,7 @@ public class AbstractOauth2Config {
          * 定义在security-core包中
          */
         @Autowired
-        private SecurityHandler securityHandler;
+        private AuthenticationPoint authenticationPoint;
 
 
         @Autowired
@@ -205,7 +203,7 @@ public class AbstractOauth2Config {
             if (oauth2Properties.getRealm() != null) {
                 security.realm(oauth2Properties.getRealm());
             }
-            security.authenticationEntryPoint(securityHandler);
+            security.authenticationEntryPoint(authenticationPoint);
             // Adds a new custom authentication filter for the TokenEndpoint.
             security.addTokenEndpointAuthenticationFilter(tokenEndpointFilter);
 

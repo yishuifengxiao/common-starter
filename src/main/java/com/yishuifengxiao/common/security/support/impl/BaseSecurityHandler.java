@@ -1,9 +1,11 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.support;
+package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -35,7 +37,7 @@ import java.io.IOException;
  * @since 1.0.0
  */
 @Slf4j
-public class BaseSecurityHandler extends SecurityHandler {
+public class BaseSecurityHandler implements SecurityHandler {
 
     /**
      * 声明了缓存与恢复操作

@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.resource;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
@@ -23,13 +23,13 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
 
     @Override
-    public void apply(PropertyResource propertyResource, SecurityHandler securityHandler, HttpSecurity http) throws Exception {
+    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 
 
 		http.oauth2ResourceServer()
-				.authenticationEntryPoint(securityHandler)
-				.accessDeniedHandler(securityHandler)
+				.authenticationEntryPoint(authenticationPoint)
+				.accessDeniedHandler(authenticationPoint)
 				.bearerTokenResolver(customBearerTokenResolver)
 				.opaqueToken()
 				.introspector(customOpaqueTokenIntrospector)
