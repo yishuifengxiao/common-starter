@@ -32,7 +32,7 @@ public class SocialAuthorizeProvider implements AuthorizeProvider, InitializingB
 
     private List<SocialProvider> providers = new ArrayList<>();
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "deprecation" })
     @Override
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         /**

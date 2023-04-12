@@ -2,7 +2,6 @@ package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.code.CodeProcessor;
 import com.yishuifengxiao.common.code.repository.CodeRepository;
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPreAuthFilter;
@@ -22,7 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -36,9 +34,7 @@ import javax.servlet.ServletException;
  * @since 1.0.0
  */
 @Configuration
-@ConditionalOnBean(AbstractSecurityConfig.class)
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class,
-        WebSecurityConfigurerAdapter.class})
+@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
         "enable"}, havingValue = "true", matchIfMissing = true)
 public class SecurityFilterAutoConfiguration {
@@ -56,6 +52,7 @@ public class SecurityFilterAutoConfiguration {
         SimpleSecurityValueExtractor simpleSecurityExtractor = new SimpleSecurityValueExtractor(propertyResource);
         return simpleSecurityExtractor;
     }
+
 
     @Bean("usernamePasswordPreAuthFilter")
     @ConditionalOnMissingBean(name = {"usernamePasswordPreAuthFilter"})
@@ -80,9 +77,9 @@ public class SecurityFilterAutoConfiguration {
     /**
      * 注入一个验证码过滤器
      *
-     * @param codeProcessor       验证码处理器
-     * @param propertyResource    安全属性配置
-     * @param authenticationPoint 协助处理器
+     * @param codeProcessor    验证码处理器
+     * @param propertyResource 安全属性配置
+     * @param securityHandler  协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")

@@ -8,7 +8,6 @@ import com.yishuifengxiao.common.oauth2.token.enhancer.CustomeTokenEnhancer;
 import com.yishuifengxiao.common.oauth2.token.impl.TokenStrategyImpl;
 import com.yishuifengxiao.common.oauth2.translator.AuthWebResponseExceptionTranslator;
 import com.yishuifengxiao.common.oauth2.user.ClientDetailsServiceImpl;
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.SecurityHelper;
@@ -64,7 +63,7 @@ import javax.servlet.Filter;
 @Slf4j
 @Configuration
 @ConditionalOnClass({OAuth2AccessToken.class, WebMvcConfigurer.class, EnableAuthorizationServer.class})
-@ConditionalOnBean({AbstractSecurityConfig.class, AuthorizationServerEndpointsConfiguration.class})
+@ConditionalOnBean({ AuthorizationServerEndpointsConfiguration.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({Oauth2Properties.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)

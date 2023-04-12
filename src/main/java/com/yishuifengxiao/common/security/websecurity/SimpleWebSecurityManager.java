@@ -1,13 +1,11 @@
 package com.yishuifengxiao.common.security.websecurity;
 
-import java.util.List;
-
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
-
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
+
+import java.util.List;
 
 /**
  * @author yishui
@@ -23,7 +21,7 @@ public class SimpleWebSecurityManager implements WebSecurityManager {
 
 
     @Override
-    public void config(WebSecurity web) throws Exception {
+    public void apply(WebSecurity web) {
 
         if (null != this.webSecurityProviders) {
             for (WebSecurityProvider webSecurityProvider : webSecurityProviders) {

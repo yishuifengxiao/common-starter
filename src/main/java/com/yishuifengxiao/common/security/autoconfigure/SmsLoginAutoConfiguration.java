@@ -1,6 +1,5 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import com.yishuifengxiao.common.security.AbstractSecurityConfig;
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.smsauth.SmsAuthorizeProvider;
@@ -13,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 /**
  * spring security扩展支持自动配置
@@ -23,8 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  * @since 1.0.0
  */
 @Configuration
-@ConditionalOnBean(AbstractSecurityConfig.class)
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, WebSecurityConfigurerAdapter.class})
+@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class SmsLoginAutoConfiguration {
 

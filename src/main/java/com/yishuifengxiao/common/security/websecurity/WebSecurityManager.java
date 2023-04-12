@@ -13,7 +13,6 @@ public interface WebSecurityManager {
      * 配置WebSecurity
      *
      * @param web WebSecurity
-     * @throws Exception 配置时发生问题
      */
-    void config(WebSecurity web) throws Exception;
+    void apply(WebSecurity web);
 }

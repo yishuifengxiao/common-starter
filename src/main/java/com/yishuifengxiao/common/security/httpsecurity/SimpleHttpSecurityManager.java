@@ -37,7 +37,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
 
     @Override
-    public void config(HttpSecurity http) throws Exception {
+    public void apply(HttpSecurity http) throws Exception {
 
         if (null != this.securityRequestFilters) {
             for (SecurityRequestFilter securityRequestFilter : this.securityRequestFilters) {

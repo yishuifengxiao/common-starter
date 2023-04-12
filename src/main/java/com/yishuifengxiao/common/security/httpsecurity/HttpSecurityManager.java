@@ -21,6 +21,6 @@ public interface HttpSecurityManager {
 	 * @param http HttpSecurity
 	 * @throws Exception 配置时发生问题
 	 */
-	void config(HttpSecurity http) throws Exception;
+	void apply(HttpSecurity http) throws Exception;
 
 }

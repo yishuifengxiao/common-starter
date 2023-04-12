@@ -21,7 +21,7 @@ import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvid
 public class FirewallWebSecurityProvider implements WebSecurityProvider {
 
 	@Override
-	public void configure(PropertyResource propertyResource, WebSecurity web) throws Exception {
+	public void configure(PropertyResource propertyResource, WebSecurity web) {
 		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
 		firewall.setAllowUrlEncodedSlash(true);
 		web.httpFirewall(firewall);

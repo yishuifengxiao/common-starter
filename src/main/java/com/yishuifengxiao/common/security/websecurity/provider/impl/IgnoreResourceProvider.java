@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.security.websecurity.provider.impl;
 
+import javax.servlet.DispatcherType;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
@@ -15,12 +17,10 @@ import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvid
  */
 public class IgnoreResourceProvider implements WebSecurityProvider {
 
+	@Override
+	public void configure(PropertyResource propertyResource, WebSecurity web) {
 
-    @Override
-    public void configure(PropertyResource propertyResource, WebSecurity web) throws Exception {
-
-
-        // @formatter:off
+		// @formatter:off
 		web.ignoring()
 				// 忽视OPTIONS请求
 				.mvcMatchers(HttpMethod.OPTIONS)
@@ -29,10 +29,9 @@ public class IgnoreResourceProvider implements WebSecurityProvider {
 				.mvcMatchers(propertyResource.allIgnoreUrls())
 				.antMatchers(propertyResource.allIgnoreUrls())
 				// 忽视 ERROR 当容器将处理传递给错误处理程序机制（如定义的错误页）时。
-//				.dispatcherTypeMatchers(DispatcherType.ERROR)
+				.dispatcherTypeMatchers(DispatcherType.ERROR)
 		;
 		// @formatter:on
-    }
-
+	}
 
 }

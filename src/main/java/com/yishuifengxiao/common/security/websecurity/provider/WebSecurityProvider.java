@@ -16,7 +16,6 @@ public interface WebSecurityProvider {
      *
      * @param propertyResource 资源管理器
      * @param web              WebSecurity
-     * @throws Exception 处理时发生了问题
      */
-    void configure(PropertyResource propertyResource, WebSecurity web) throws Exception;
+    void configure(PropertyResource propertyResource, WebSecurity web) ;
 }

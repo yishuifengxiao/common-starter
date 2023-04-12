@@ -104,7 +104,7 @@ public class AbstractOauth2Config {
 
         @Override
         public void configure(HttpSecurity http) throws Exception {
-            httpSecurityManager.config(http);
+            httpSecurityManager.apply(http);
         }
     }
 

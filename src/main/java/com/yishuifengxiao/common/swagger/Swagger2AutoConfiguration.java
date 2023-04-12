@@ -1,7 +1,11 @@
 package com.yishuifengxiao.common.swagger;
 
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
+
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,23 +19,23 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
+
+import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.RequestParameterBuilder;
 import springfox.documentation.oas.annotations.EnableOpenApi;
-import springfox.documentation.schema.ModelRef;
+import springfox.documentation.schema.ScalarType;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
-import springfox.documentation.service.Parameter;
+import springfox.documentation.service.ParameterType;
+import springfox.documentation.service.RequestParameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * swagger扩展支持自动配置
@@ -88,7 +92,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingClass
     public Docket createRestApi() {
         //全局配置信息
-        List<Parameter> pars = this.buildParameter();
+        List<RequestParameter> pars = this.buildParameter();
         // @formatter:off
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName(swaggerProperties.getGroupName())
@@ -97,7 +101,8 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
                 .apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()))
                 .paths(PathSelectors.any())
                 .build()
-                .globalOperationParameters(pars);
+                .globalRequestParameters(pars)
+                ;
         // @formatter:on
     }
 
@@ -151,15 +156,17 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      *
      * @return 全局配置信息
      */
-    private List<Parameter> buildParameter() {
+    private List<RequestParameter> buildParameter() {
         if (BooleanUtils.isTrue(this.swaggerProperties.getShowDetail())) {
             log.info("【yishuifengxiao-common-spring-boot-starter】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
         }
 
-        List<Parameter> pars = new ArrayList<>();
+        List<RequestParameter> pars = new ArrayList<>();
         if (SizeUtil.isNotEmpty(this.swaggerProperties.getAuths())) {
             this.swaggerProperties.getAuths().forEach(t -> {
-                pars.add(new ParameterBuilder().name(t.getName()).description(t.getDescription()).modelRef(new ModelRef(t.getModelRef())).parameterType(t.getParameterType()).required(t.getRequired()).build());
+                pars.add(new RequestParameterBuilder().name(t.getName()).description(t.getDescription()).required(t.getRequired()).in(ParameterType.QUERY)
+                        .required(true)
+                        .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING))).build());
             });
         }
         return pars;

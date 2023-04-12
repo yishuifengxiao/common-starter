@@ -32,7 +32,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,11 +40,16 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
@@ -52,7 +57,8 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * spring security扩展支持自动配置
+ * <p> spring security扩展支持自动配置</p
+ * <p>新版文档参见 https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter</p>
  *
  * @author yishui
  * @version 1.0.0
@@ -60,8 +66,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, WebSecurityConfigurerAdapter.class})
-@ConditionalOnBean(AbstractSecurityConfig.class)
+@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
 @Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
@@ -107,8 +112,8 @@ public class SecurityCoreAutoConfiguration {
      * @param passwordEncoder    加密器
      * @return DaoAuthenticationProvider
      */
-    @Bean
-    @ConditionalOnMissingBean({GlobalUserDetails.class})
+//    @Bean
+//    @ConditionalOnMissingBean({GlobalUserDetails.class})
     public GlobalUserDetails globalUserDetails(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         GlobalUserDetails globalUserDetails = new SimpleGlobalUserDetails(userDetailsService, passwordEncoder);
         return globalUserDetails;
@@ -177,8 +182,7 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint,
-                                                   List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
         SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
@@ -234,8 +238,7 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor,
-                                                   SecurityHelper securityHelper, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
         authenticationPoint.setSecurityHelper(securityHelper);
@@ -256,6 +259,41 @@ public class SecurityCoreAutoConfiguration {
     }
 
 
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
+        httpSecurityManager.apply(http);
+        return http.build();
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer(WebSecurityManager webSecurityManager) {
+        //设置忽视的目录
+        return web -> webSecurityManager.apply(web);
+    }
+
+    /**
+     * 获取AuthenticationManager（认证管理器），登录时认证使用
+     *
+     * @param authenticationConfiguration
+     * @return
+     * @throws Exception
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    // @formatter:off
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+        // @formatter:off
+        // auth.inMemoryAuthentication().withUser("yishui").password(passwordEncoder.encode("12345678")).roles("ADMIN").and()
+        // .withUser("bob").password("abc123").roles("USER");
+        // 此设置会导致auth.authenticationProvider(authenticationProvider) 无效
+        //auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+//        auth.authenticationProvider(globalUserDetails.authenticationProvider());
+    }
+    // @formatter:on
     @PostConstruct
     public void checkConfig() {
 
