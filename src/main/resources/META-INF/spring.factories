@@ -13,3 +13,8 @@ com.yishuifengxiao.common.resource.SecurityResourceAutoConfiguration,\
 com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.guava.GuavaAutoConfiguration,\
 com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration
+
+
+# Environment Post Processors
+org.springframework.boot.env.EnvironmentPostProcessor=\
+com.yishuifengxiao.common.support.SpringEnvironmentPostProcessor

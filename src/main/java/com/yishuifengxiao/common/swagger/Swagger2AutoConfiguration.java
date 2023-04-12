@@ -1,11 +1,7 @@
 package com.yishuifengxiao.common.swagger;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,15 +15,11 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.github.xiaoymin.swaggerbootstrapui.annotations.EnableSwaggerBootstrapUI;
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
-
-import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.ParameterBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.oas.annotations.EnableOpenApi;
 import springfox.documentation.schema.ModelRef;
 import springfox.documentation.service.ApiInfo;
 import springfox.documentation.service.Contact;
@@ -35,6 +27,11 @@ import springfox.documentation.service.Parameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * swagger扩展支持自动配置
@@ -46,7 +43,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Slf4j
 @Configuration
 @EnableSwagger2
-@EnableSwaggerBootstrapUI
+@EnableOpenApi
 @EnableConfigurationProperties(SwaggerProperties.class)
 @ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"base-package"})
 public class Swagger2AutoConfiguration implements WebMvcConfigurer {
@@ -61,9 +58,18 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath*:/META-INF/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
-        registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations(
+                        "classpath*:/swagger-ui/webjars/springfox-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/",
+                        "classpath*:/META-INF/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger-ui/"
+                );
+        registry.addResourceHandler("doc.html")
+                .addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations(
+                        "classpath*:/swagger-ui/webjars/", "classpath:/swagger-ui/webjars/",
+                        "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources/webjars/");
     }
 
     @Override
