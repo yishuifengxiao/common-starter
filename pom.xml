@@ -50,20 +50,13 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <!-- swagger -->
-        <swagger.model.version>1.6.8</swagger.model.version>
-        <swagger2.version>2.9.2</swagger2.version>
-        <swagger-bootstrap-ui.version>1.9.4</swagger-bootstrap-ui.version>
-        <!-- swagger -->
-        <spring-social.version>1.1.6.RELEASE</spring-social.version>
-        <oauth2.version>2.3.12.RELEASE</oauth2.version>
-        <oauth2-oidc-sdk.version>6.17</oauth2-oidc-sdk.version>
+
+        <oauth2.version>2.6.8</oauth2.version>
         <pagehelper.version>1.4.5</pagehelper.version>
         <yishuifengxiao.tool.version>4.0.4</yishuifengxiao.tool.version>
 
         <springfox.version>3.0.0</springfox.version>
         <guava.version>31.0-jre</guava.version>
-        <oauth2-oidc-sdk.version>10.7.1</oauth2-oidc-sdk.version>
     </properties>
     <dependencies>
         <dependency>

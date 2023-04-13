@@ -14,6 +14,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 
 /**
  * 资源服务器自动配置
@@ -33,7 +34,7 @@ public class SecurityResourceAutoConfiguration {
 
     @Bean("customBearerTokenResolver")
     @ConditionalOnMissingBean(name = {"customBearerTokenResolver"})
-    public CustomBearerTokenResolver customBearerTokenResolver() {
+    public BearerTokenResolver customBearerTokenResolver() {
         return new CustomBearerTokenResolver();
     }
 
@@ -45,7 +46,7 @@ public class SecurityResourceAutoConfiguration {
 
     @Bean("resourceAuthorizeProvider")
     @ConditionalOnMissingBean(name = {"resourceAuthorizeProvider"})
-    public AuthorizeProvider resourceAuthorizeProvider(@Qualifier("customBearerTokenResolver") CustomBearerTokenResolver customBearerTokenResolver, @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
+    public AuthorizeProvider resourceAuthorizeProvider(@Qualifier("customBearerTokenResolver") BearerTokenResolver customBearerTokenResolver, @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
         ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
         resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
         resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);
