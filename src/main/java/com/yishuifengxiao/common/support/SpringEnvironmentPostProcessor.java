@@ -17,8 +17,7 @@
 
 package com.yishuifengxiao.common.support;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.DefaultPropertiesPropertySource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -33,6 +32,7 @@ import java.util.Map;
  * 2022/8/11 21:52
  * @since 4.0.0
  */
+@Slf4j
 public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
     /**
@@ -47,7 +47,7 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
      * 当前策略枚举类全路径
      */
     final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties.MatchingStrategy";
-    Logger logger = LoggerFactory.getLogger(SpringEnvironmentPostProcessor.class);
+
 
     /**
      * 处理springfox2.x版本兼容高版本Spring Boot出现空指针的异常的情况，为开发者自动配置matchingStrategy策略(如果开发者没要求的情况下)
@@ -65,12 +65,12 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
         String swaggerScanPackage = environment.getProperty(SWAGGER_SCAN_KEY);
         // 判断是否开启了增强swagger功能
         boolean enable = null != swaggerScanPackage && !"".equals(swaggerScanPackage.trim());
-        logger.debug("springfox-post-processor,The activation status of the swagger enhancement function is {}", enable);
+        log.debug("springfox-post-processor,The activation status of the swagger enhancement function is {}", enable);
         if (!enable) {
             return;
         }
         if (ClassUtils.isPresent(MATCHING_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
-            logger.debug("Spring Boot Version Getter than 2.4.0,handle MatchingStrategy");
+            log.debug("Spring Boot Version Getter than 2.4.0,handle MatchingStrategy");
             String matchingStrategy = environment.getProperty(SPRING_MVC_MATCHING_STRATEGY);
 
             if (matchingStrategy == null || "".equals(matchingStrategy)) {

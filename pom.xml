@@ -179,12 +179,6 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.nimbusds</groupId>
-            <artifactId>oauth2-oidc-sdk</artifactId>
-            <version>${oauth2-oidc-sdk.version}</version>
-            <optional>true</optional>
-        </dependency>
         <!-- 资源管理器相关 -->
         <!-- 可选依赖 -->
     </dependencies>

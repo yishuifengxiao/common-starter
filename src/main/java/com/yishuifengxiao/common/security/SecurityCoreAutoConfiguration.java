@@ -22,8 +22,6 @@ import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
-import com.yishuifengxiao.common.security.user.GlobalUserDetails;
-import com.yishuifengxiao.common.security.user.SimpleGlobalUserDetails;
 import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtil;
@@ -32,7 +30,6 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,7 +39,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -57,8 +53,12 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 /**
- * <p> spring security扩展支持自动配置</p
- * <p>新版文档参见 https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter</p>
+ * <p>
+ * spring security扩展支持自动配置</p
+ * <p>
+ * 新版文档参见
+ * https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
+ * </p>
  *
  * @author yishui
  * @version 1.0.0
@@ -68,8 +68,10 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
-@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
+        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
+        "enable"}, havingValue = "true", matchIfMissing = true)
 public class SecurityCoreAutoConfiguration {
 
     /**
@@ -100,27 +102,6 @@ public class SecurityCoreAutoConfiguration {
     }
 
     /**
-     * <p>
-     * 提供用户名密码校验能力
-     * </p>
-     *
-     * <pre>
-     * 此配置会被AbstractSecurityConfig收集，通过public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception 注入到spring security中
-     * </pre>
-     *
-     * @param userDetailsService UserDetailsService
-     * @param passwordEncoder    加密器
-     * @return DaoAuthenticationProvider
-     */
-//    @Bean
-//    @ConditionalOnMissingBean({GlobalUserDetails.class})
-    public GlobalUserDetails globalUserDetails(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        GlobalUserDetails globalUserDetails = new SimpleGlobalUserDetails(userDetailsService, passwordEncoder);
-        return globalUserDetails;
-    }
-
-
-    /**
      * 记住密码策略【存储内存中在redis数据库中】
      *
      * @return 记住密码策略
@@ -130,7 +111,6 @@ public class SecurityCoreAutoConfiguration {
     public PersistentTokenRepository inMemoryTokenRepository() {
         return new InMemoryTokenRepository();
     }
-
 
     /**
      * 注入一个资源管理器
@@ -145,11 +125,12 @@ public class SecurityCoreAutoConfiguration {
         return propertyResource;
     }
 
-
     @Bean
     @ConditionalOnMissingBean({SecurityHelper.class})
-    public SecurityHelper securityHelper(PropertyResource propertyResource, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
-        SecurityHelper securityHelper = new SimpleSecurityHelper(propertyResource, userDetailsService, passwordEncoder, tokenBuilder);
+    public SecurityHelper securityHelper(PropertyResource propertyResource, UserDetailsService userDetailsService,
+                                         PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
+        SecurityHelper securityHelper = new SimpleSecurityHelper(propertyResource, userDetailsService, passwordEncoder,
+                tokenBuilder);
         return securityHelper;
     }
 
@@ -158,7 +139,6 @@ public class SecurityCoreAutoConfiguration {
     public TokenUtil tokenUtil(SecurityHelper securityHelper, SecurityValueExtractor securityValueExtractor) {
         return new TokenUtil(securityHelper, securityValueExtractor);
     }
-
 
     /**
      * 默认实现的HttpFirewall，主要是解决路径里包含 // 路径报错的问题
@@ -171,7 +151,6 @@ public class SecurityCoreAutoConfiguration {
         return new FirewallWebSecurityProvider();
     }
 
-
     /**
      * 注入一个HttpSecurity安全管理器
      *
@@ -182,12 +161,14 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
+                                                   AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters,
+                                                   PropertyResource propertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
+                propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
-
 
     /**
      * 注入一个WebSecurity安全管理器
@@ -198,11 +179,11 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({WebSecurityManager.class})
-    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders, PropertyResource propertyResource) {
+    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders,
+                                                 PropertyResource propertyResource) {
         WebSecurityManager webSecurityManager = new SimpleWebSecurityManager(webSecurityProviders, propertyResource);
         return webSecurityManager;
     }
-
 
     /**
      * 注入一个基于内存的token存取工具
@@ -238,7 +219,9 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource,
+                                                   SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper,
+                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
         authenticationPoint.setSecurityHelper(securityHelper);
@@ -259,15 +242,17 @@ public class SecurityCoreAutoConfiguration {
     }
 
 
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager)
+            throws Exception {
         httpSecurityManager.apply(http);
         return http.build();
     }
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(WebSecurityManager webSecurityManager) {
-        //设置忽视的目录
+        // 设置忽视的目录
         return web -> webSecurityManager.apply(web);
     }
 
@@ -279,21 +264,11 @@ public class SecurityCoreAutoConfiguration {
      * @throws Exception
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    // @formatter:off
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        // @formatter:off
-        // auth.inMemoryAuthentication().withUser("yishui").password(passwordEncoder.encode("12345678")).roles("ADMIN").and()
-        // .withUser("bob").password("abc123").roles("USER");
-        // 此设置会导致auth.authenticationProvider(authenticationProvider) 无效
-        //auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
-//        auth.authenticationProvider(globalUserDetails.authenticationProvider());
-    }
-    // @formatter:on
     @PostConstruct
     public void checkConfig() {
 
