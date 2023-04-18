@@ -53,7 +53,7 @@
 
         <oauth2.version>2.6.8</oauth2.version>
         <pagehelper.version>1.4.5</pagehelper.version>
-        <yishuifengxiao.tool.version>4.0.4</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>4.1.0</yishuifengxiao.tool.version>
 
         <springfox.version>3.0.0</springfox.version>
         <guava.version>31.0-jre</guava.version>

@@ -85,7 +85,8 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingClass
     public Docket createRestApi(ApplicationContext context) {
 
-         Set<String> apis = context.getBeansWithAnnotation(Api.class).values().stream().map(v->v.getClass().getName()).map(v->StringUtils.substringAfterLast(v,".")).collect(Collectors.toSet());
+         Set<String> apis = context.getBeansWithAnnotation(Api.class).values().stream().map(v->v.getClass().getName())
+                 .map(v->StringUtils.substringBeforeLast(v,".")).collect(Collectors.toSet());
         //全局配置信息
         List<RequestParameter> pars = this.buildParameter();
         // @formatter:off
@@ -97,7 +98,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
                 if(StringUtils.isNotBlank(swaggerProperties.getBasePackage())){
                     builder.apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()));
                 }else {
-                    apis.stream().forEach(RequestHandlerSelectors::basePackage);
+                    apis.stream().forEach(v-> builder.apis(RequestHandlerSelectors.basePackage(v)));
                 }
 
         return builder.build()
