@@ -1,11 +1,8 @@
 package com.yishuifengxiao.common.swagger;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.Filter;
-
+import com.yishuifengxiao.common.tool.collections.SizeUtil;
+import io.swagger.annotations.Api;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +16,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
-
-import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -34,8 +27,16 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.service.ParameterType;
 import springfox.documentation.service.RequestParameter;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spring.web.plugins.ApiSelectorBuilder;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.Filter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * swagger扩展支持自动配置
@@ -49,7 +50,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @EnableOpenApi
 @EnableConfigurationProperties(SwaggerProperties.class)
-@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"base-package"})
+@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -62,18 +63,10 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui/**")
-                .addResourceLocations(
-                        "classpath*:/swagger-ui/webjars/springfox-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/",
-                        "classpath*:/META-INF/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger-ui/"
-                );
-        registry.addResourceHandler("doc.html")
-                .addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
+        registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath*:/swagger-ui/webjars/springfox-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/", "classpath*:/META-INF/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
+        registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
 
-        registry.addResourceHandler("/webjars/**")
-                .addResourceLocations(
-                        "classpath*:/swagger-ui/webjars/", "classpath:/swagger-ui/webjars/",
-                        "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath*:/swagger-ui/webjars/", "classpath:/swagger-ui/webjars/", "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources/webjars/");
     }
 
     @Override
@@ -90,19 +83,26 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     @Bean
     @ConditionalOnMissingClass
-    public Docket createRestApi() {
+    public Docket createRestApi(ApplicationContext context) {
+
+         Set<String> apis = context.getBeansWithAnnotation(Api.class).values().stream().map(v->v.getClass().getName()).map(v->StringUtils.substringAfterLast(v,".")).collect(Collectors.toSet());
         //全局配置信息
         List<RequestParameter> pars = this.buildParameter();
         // @formatter:off
-        return new Docket(DocumentationType.SWAGGER_2)
+        final ApiSelectorBuilder builder = new Docket(DocumentationType.SWAGGER_2)
                 .groupName(swaggerProperties.getGroupName())
                 .apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()))
-                .paths(PathSelectors.any())
-                .build()
-                .globalRequestParameters(pars)
-                ;
+                .paths(PathSelectors.any());
+                if(StringUtils.isNotBlank(swaggerProperties.getBasePackage())){
+                    builder.apis(RequestHandlerSelectors.basePackage(swaggerProperties.getBasePackage()));
+                }else {
+                    apis.stream().forEach(RequestHandlerSelectors::basePackage);
+                }
+
+        return builder.build()
+                .globalRequestParameters(pars);
+
         // @formatter:on
     }
 
@@ -164,9 +164,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
         List<RequestParameter> pars = new ArrayList<>();
         if (SizeUtil.isNotEmpty(this.swaggerProperties.getAuths())) {
             this.swaggerProperties.getAuths().forEach(t -> {
-                pars.add(new RequestParameterBuilder().name(t.getName()).description(t.getDescription()).required(t.getRequired()).in(ParameterType.QUERY)
-                        .required(true)
-                        .query(q -> q.model(m -> m.scalarModel(ScalarType.STRING))).build());
+                pars.add(new RequestParameterBuilder().name(t.getName()).description(t.getDescription()).required(t.getRequired()).in(ParameterType.QUERY).required(true).query(q -> q.model(m -> m.scalarModel(ScalarType.STRING))).build());
             });
         }
         return pars;

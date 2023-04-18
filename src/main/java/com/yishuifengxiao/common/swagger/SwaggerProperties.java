@@ -3,15 +3,14 @@
  */
 package com.yishuifengxiao.common.swagger;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * swagger扩展支持属性配置
@@ -25,6 +24,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SwaggerProperties {
+
+    /**
+     * 是否开启swagger-ui增强的功能，默认开启
+     */
+    private Boolean enable = true;
     /**
      * swagger 扫描的根路径
      */
@@ -52,7 +56,6 @@ public class SwaggerProperties {
 
     /**
      * 项目联系人
-     *
      */
     private String contactUser = "yishuifengxiao";
 

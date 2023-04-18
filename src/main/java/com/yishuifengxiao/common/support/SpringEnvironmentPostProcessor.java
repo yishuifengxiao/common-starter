@@ -42,7 +42,7 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
     /**
      * 开启swagger增强功能的key
      */
-    final static String SWAGGER_SCAN_KEY = "yishuifengxiao.swagger.base-package";
+    final static String SWAGGER_SCAN_KEY = "yishuifengxiao.swagger.enable";
     /**
      * 当前策略枚举类全路径
      */
@@ -62,11 +62,11 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
         // 首先，判断当前Spring Boot版本
         // 高版本才处理,自2.4.0开始提供MatchingStrategy
         // 判断当前类是否存在
-        String swaggerScanPackage = environment.getProperty(SWAGGER_SCAN_KEY);
+        String enable = environment.getProperty(SWAGGER_SCAN_KEY);
         // 判断是否开启了增强swagger功能
-        boolean enable = null != swaggerScanPackage && !"".equals(swaggerScanPackage.trim());
+        boolean disable = null != enable && !"false".equalsIgnoreCase(enable.trim());
         log.debug("springfox-post-processor,The activation status of the swagger enhancement function is {}", enable);
-        if (!enable) {
+        if (disable) {
             return;
         }
         if (ClassUtils.isPresent(MATCHING_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
