@@ -32,7 +32,7 @@ public class SecurityProperties {
     /**
      * 是否开启安全相关的功能
      */
-    private Boolean enable = true;
+    private Boolean enable = false;
 
     /**
      * 加解密中需要使用的密钥

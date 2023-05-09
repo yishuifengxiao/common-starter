@@ -66,7 +66,7 @@ import javax.servlet.Filter;
 @ConditionalOnBean({ AuthorizationServerEndpointsConfiguration.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({Oauth2Properties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
 public class Oauth2ExtendAutoConfiguration {
 
 
