@@ -12,14 +12,16 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMe
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.support.impl.SimpleSecurityHelper;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
+import com.yishuifengxiao.common.security.token.TokenHelper;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.SimpleAuthorizeHelper;
+import com.yishuifengxiao.common.security.token.SimpleTokenHelper;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
@@ -30,6 +32,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -68,10 +71,8 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
-@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
-        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
-        "enable"}, havingValue = "true", matchIfMissing = false)
+@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
 public class SecurityCoreAutoConfiguration {
 
     /**
@@ -126,18 +127,24 @@ public class SecurityCoreAutoConfiguration {
     }
 
     @Bean
-    @ConditionalOnMissingBean({SecurityHelper.class})
-    public SecurityHelper securityHelper(PropertyResource propertyResource, UserDetailsService userDetailsService,
-                                         PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
-        SecurityHelper securityHelper = new SimpleSecurityHelper(propertyResource, userDetailsService, passwordEncoder,
-                tokenBuilder);
-        return securityHelper;
+    @ConditionalOnMissingBean({AuthorizeHelper.class})
+    public AuthorizeHelper authorizeHelper(PropertyResource propertyResource, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
+        AuthorizeHelper authorizeHelper = new SimpleAuthorizeHelper(propertyResource, userDetailsService, passwordEncoder, tokenBuilder);
+        return authorizeHelper;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean({TokenHelper.class})
+    public TokenHelper tokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, TokenBuilder tokenBuilder) {
+        TokenHelper tokenHelper = new SimpleTokenHelper(propertyResource, authorizeHelper, tokenBuilder);
+        return tokenHelper;
     }
 
     @Bean
     @ConditionalOnMissingBean({TokenUtil.class})
-    public TokenUtil tokenUtil(SecurityHelper securityHelper, SecurityValueExtractor securityValueExtractor) {
-        return new TokenUtil(securityHelper, securityValueExtractor);
+    @ConditionalOnBean({TokenHelper.class})
+    public TokenUtil tokenUtil(TokenHelper tokenHelper, SecurityValueExtractor securityValueExtractor) {
+        return new TokenUtil(tokenHelper, securityValueExtractor);
     }
 
     /**
@@ -161,11 +168,8 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
-                                                   AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters,
-                                                   PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                propertyResource, authenticationPoint, securityRequestFilters);
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -179,8 +183,7 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({WebSecurityManager.class})
-    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders,
-                                                 PropertyResource propertyResource) {
+    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders, PropertyResource propertyResource) {
         WebSecurityManager webSecurityManager = new SimpleWebSecurityManager(webSecurityProviders, propertyResource);
         return webSecurityManager;
     }
@@ -219,14 +222,12 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource,
-                                                   SecurityValueExtractor securityValueExtractor, SecurityHelper securityHelper,
-                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor,
+                                                   SecurityHandler securityHandler, TokenHelper tokenHelper) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
-        authenticationPoint.setSecurityHelper(securityHelper);
+        authenticationPoint.setTokenHelper(tokenHelper);
         authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
-        authenticationPoint.setTokenBuilder(tokenBuilder);
         authenticationPoint.setSecurityHandler(securityHandler);
         return authenticationPoint;
     }
@@ -242,10 +243,8 @@ public class SecurityCoreAutoConfiguration {
     }
 
 
-
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager)
-            throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
         httpSecurityManager.apply(http);
         return http.build();
     }
@@ -264,8 +263,7 @@ public class SecurityCoreAutoConfiguration {
      * @throws Exception
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

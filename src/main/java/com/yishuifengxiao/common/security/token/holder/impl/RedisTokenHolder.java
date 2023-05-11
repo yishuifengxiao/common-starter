@@ -4,14 +4,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
-import com.yishuifengxiao.common.tool.datetime.DateTimeUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,6 +66,7 @@ public class RedisTokenHolder implements TokenHolder {
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
         try {
+            this.delete(token.getUsername(), token.getDeviceId());
             this.get(token.getUsername()).put(token.getDeviceId(), JSONObject.toJSONString(token));
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
@@ -76,36 +75,22 @@ public class RedisTokenHolder implements TokenHolder {
 
     }
 
-    /**
-     * 更新一个令牌
-     *
-     * @param token 令牌
-     * @throws CustomException 更新时出现问题
-     */
-    @Override
-    public synchronized void update(SecurityToken token) throws CustomException {
-        this.check(token);
-        // 先删除再增加
-        this.get(token.getUsername()).delete(token.getDeviceId());
-        this.save(token);
-    }
 
     /**
      * 根据用户账号和设备id删除一个令牌
      *
-     * @param username  用户账号
+     * @param username 用户账号
      * @param deviceId 设备id
-     * @throws CustomException 删除时出现问题
      */
     @Override
-    public synchronized void delete(String username, String deviceId) throws CustomException {
+    public synchronized void delete(String username, String deviceId) {
         this.get(username).delete(deviceId);
     }
 
     /**
      * 根据用户账号和设备id获取一个令牌
      *
-     * @param username  用户账号
+     * @param username 用户账号
      * @param deviceId 设备id
      * @return 令牌
      */
@@ -123,20 +108,6 @@ public class RedisTokenHolder implements TokenHolder {
         return null;
     }
 
-    /**
-     * 设置过期时间点
-     *
-     * @param username 用户账号
-     * @param expireAt 过期时间点
-     * @throws CustomException 处理时出现问题
-     */
-    @Override
-    public synchronized void setExpireAt(String username, LocalDateTime expireAt) throws CustomException {
-        if (null == expireAt) {
-            throw new CustomException("过期时间点不能为空");
-        }
-        this.get(username).expireAt(DateTimeUtil.localDateTime2Date(expireAt));
-    }
 
     private BoundHashOperations<String, Object, Object> get(String key) {
         return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(":").append(key).toString());

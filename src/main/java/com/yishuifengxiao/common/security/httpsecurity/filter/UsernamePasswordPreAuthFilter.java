@@ -4,7 +4,7 @@ import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

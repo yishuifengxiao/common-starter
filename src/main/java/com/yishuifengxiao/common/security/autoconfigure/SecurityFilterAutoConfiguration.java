@@ -8,9 +8,9 @@ import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPr
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
+import com.yishuifengxiao.common.security.token.extractor.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenExtractor;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExtractor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -67,9 +67,9 @@ public class SecurityFilterAutoConfiguration {
 
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) throws ServletException {
+    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, AuthorizeHelper authorizeHelper) throws ServletException {
 
-        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenExtractor, securityHelper);
+        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenExtractor, authorizeHelper);
         tokenValidateFilter.afterPropertiesSet();
         return tokenValidateFilter;
     }

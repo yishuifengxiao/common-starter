@@ -6,7 +6,6 @@ package com.yishuifengxiao.common.security.token.holder;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -17,6 +16,15 @@ import java.util.List;
  * @since 1.0.0
  */
 public interface TokenHolder {
+
+    /**
+     * 根据用户账号和设备id获取一个令牌
+     *
+     * @param username 用户账号
+     * @param deviceId 设备id
+     * @return 令牌
+     */
+    SecurityToken get(String username, String deviceId);
 
     /**
      * <p>
@@ -37,39 +45,14 @@ public interface TokenHolder {
      */
     void save(SecurityToken token) throws CustomException;
 
-    /**
-     * 更新一个令牌
-     *
-     * @param token 令牌
-     * @throws CustomException 更新时出现问题
-     */
-    void update(SecurityToken token) throws CustomException;
 
     /**
      * 根据用户账号和设备id删除一个令牌
      *
-     * @param username  用户账号
-     * @param deviceId 设备id
-     * @throws CustomException 删除时出现问题
-     */
-    void delete(String username, String deviceId) throws CustomException;
-
-    /**
-     * 根据用户账号和设备id获取一个令牌
-     *
-     * @param username  用户账号
-     * @param deviceId 设备id
-     * @return 令牌
-     */
-    SecurityToken get(String username, String deviceId);
-
-    /**
-     * 设置过期时间点
-     *
      * @param username 用户账号
-     * @param expireAt 过期时间点
-     * @throws CustomException  处理时出现问题
+     * @param deviceId 设备id
      */
-    void setExpireAt(String username, LocalDateTime expireAt) throws CustomException;
+    void delete(String username, String deviceId);
+
 
 }

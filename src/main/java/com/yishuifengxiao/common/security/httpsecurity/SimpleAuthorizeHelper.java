@@ -1,22 +1,17 @@
-package com.yishuifengxiao.common.security.support.impl;
+package com.yishuifengxiao.common.security.httpsecurity;
 
-import com.yishuifengxiao.common.guava.GuavaCache;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
-import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.support.TokenExpireEvent;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,7 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @since 1.0.0
  */
 @Slf4j
-public class SimpleSecurityHelper implements SecurityHelper {
+public class SimpleAuthorizeHelper implements AuthorizeHelper {
 
     private PropertyResource propertyResource;
 
@@ -42,107 +37,6 @@ public class SimpleSecurityHelper implements SecurityHelper {
      */
     private TokenBuilder tokenBuilder;
 
-
-    @Override
-    public SecurityToken createUnsafe(String username, String deviceId) throws CustomException {
-
-        return this.createUnsafe(username, deviceId, propertyResource.security().getToken().getValidSeconds());
-    }
-
-    @Override
-    public SecurityToken createUnsafe(String username, String deviceId, int validSeconds) throws CustomException {
-        if (StringUtils.isBlank(username)) {
-            throw new CustomException("账号不能为空");
-        }
-
-        UserDetails userDetails = this.loadUserByUsername(username.trim());
-        return this.create(userDetails, deviceId, validSeconds,
-                propertyResource.security().getToken().getPreventsLogin(),
-                propertyResource.security().getToken().getMaxSessions());
-
-    }
-
-    @Override
-    public SecurityToken create(String username, String password, String deviceId) throws CustomException {
-        if (StringUtils.isBlank(username)) {
-            throw new CustomException("账号不能为空");
-        }
-
-        if (StringUtils.isBlank(password)) {
-            password = "";
-        }
-
-        UserDetails userDetails = this.authorize(username.trim(), password);
-
-        return this.create(userDetails, deviceId);
-    }
-
-    /**
-     * <p>
-     * 根据指定参数生成访问令牌
-     * </p>
-     *
-     * @param userDetails 用户认证信息
-     * @param deviceId   设备id
-     * @return 访问令牌
-     * @throws CustomException 创建时发生问题
-     */
-    private SecurityToken create(UserDetails userDetails, String deviceId) throws CustomException {
-
-        return this.create(userDetails, deviceId, propertyResource.security().getToken().getValidSeconds(),
-                propertyResource.security().getToken().getPreventsLogin(),
-                propertyResource.security().getToken().getMaxSessions());
-
-    }
-
-    /**
-     * <p>
-     * 根据指定参数生成访问令牌
-     * </p>
-     *
-     * @param userDetails   用户认证信息
-     * @param deviceId     设备id
-     * @param validSeconds  令牌过期时间，单位为秒
-     * @param preventsLogin 在达到同一个账号最大的登陆数量时是否阻止后面的用户登陆,默认为false
-     * @param maxSessions   同一个账号最大的登陆数量
-     * @return 访问令牌
-     * @throws CustomException 创建时发生问题
-     */
-    private SecurityToken create(UserDetails userDetails, String deviceId, int validSeconds, boolean preventsLogin,
-                                 int maxSessions) throws CustomException {
-
-        if (null == userDetails) {
-            throw new CustomException(ErrorCode.NO_USERDETAILS,
-                    propertyResource.security().getMsg().getUserDetailsIsNull());
-        }
-
-        if (StringUtils.isBlank(deviceId)) {
-            deviceId = userDetails.getUsername();
-        }
-
-        if (!CompareUtil.gtZero(validSeconds)) {
-            validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
-        }
-
-        if (!CompareUtil.gtZero(maxSessions)) {
-            maxSessions = TokenConstant.MAX_SESSION_NUM;
-        }
-
-        // 检查用户信息
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                userDetails.getAuthorities());
-
-        // 根据用户信息生成一个访问令牌
-        SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), deviceId, validSeconds,
-                preventsLogin, maxSessions);
-        token.setDetails(userDetails);
-
-        // 将认证信息注入到spring Security中
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        return token;
-
-    }
 
     @Override
     public Authentication authorize(String tokenValue) throws CustomException {
@@ -172,7 +66,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
                 log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已过期 ", token);
             }
             // 删除失效的token
-            tokenBuilder.remove(tokenValue);
+            tokenBuilder.remove(token);
 
             e = new CustomException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsExpired());
 
@@ -185,7 +79,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
                 log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已失效 ", token);
             }
             // 删除失效的token
-            tokenBuilder.remove(tokenValue);
+            tokenBuilder.remove(token);
 
             e = new CustomException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsInvalid());
 
@@ -197,10 +91,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
         UserDetails userDetails = this.loadUserByUsername(token.getUsername());
 
         // 刷新令牌的过期时间
-        token = tokenBuilder.refreshExpireTime(tokenValue);
-
-        // 存储访问令牌
-        GuavaCache.put(token);
+        tokenBuilder.refreshExpireTime(token);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
                 userDetails.getAuthorities());
@@ -253,8 +144,8 @@ public class SimpleSecurityHelper implements SecurityHelper {
         return userDetails;
     }
 
-    public SimpleSecurityHelper(PropertyResource propertyResource, UserDetailsService userDetailsService,
-                                PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
+    public SimpleAuthorizeHelper(PropertyResource propertyResource, UserDetailsService userDetailsService,
+                                 PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.userDetailsService = userDetailsService;
         this.passwordEncoder = passwordEncoder;

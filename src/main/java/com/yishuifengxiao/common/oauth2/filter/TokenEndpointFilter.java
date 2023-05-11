@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.oauth2.filter;
 import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.utils.HttpExtractor;
 import lombok.extern.slf4j.Slf4j;
@@ -59,7 +59,7 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
 
     private PropertyResource propertyResource;
 
-    private SecurityHelper securityHelper;
+    private AuthorizeHelper authorizeHelper;
 
     private ClientDetailsService clientDetailsService;
 
@@ -70,8 +70,8 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+        HttpServletRequest httpServletRequest = request;
+        HttpServletResponse httpServletResponse = response;
 
         if (MATCHER.matches(httpServletRequest)) {
 
@@ -112,7 +112,7 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
                     if (propertyResource.showDetail()) {
                         log.info("The user name obtained in oauth2 password mode is {} ", username);
                     }
-                    securityHelper.authorize(username, password);
+                    authorizeHelper.authorize(username, password);
                 }
 
             } catch (Exception e) {
@@ -130,13 +130,13 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
     public TokenEndpointFilter(
             SecurityHandler securityHandler,
             PropertyResource propertyResource,
-            SecurityHelper securityHelper,
+            AuthorizeHelper authorizeHelper,
             ClientDetailsService clientDetailsService,
             PasswordEncoder passwordEncoder,
             Oauth2Properties oauth2Properties) {
         this.securityHandler = securityHandler;
         this.propertyResource = propertyResource;
-        this.securityHelper = securityHelper;
+        this.authorizeHelper = authorizeHelper;
         this.clientDetailsService = clientDetailsService;
         this.passwordEncoder = passwordEncoder;
         this.oauth2Properties = oauth2Properties;

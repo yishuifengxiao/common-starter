@@ -1,9 +1,9 @@
-package com.yishuifengxiao.common.security.token;
+package com.yishuifengxiao.common.security.token.extractor;
+
+import com.yishuifengxiao.common.security.support.PropertyResource;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import com.yishuifengxiao.common.security.support.PropertyResource;
 
 /**
  * 令牌提取器

@@ -22,7 +22,7 @@ public class TokenConstant {
 	/**
 	 * 默认的最大登陆用户数量
 	 */
-	public final static int MAX_SESSION_NUM = 8888;
+	public final static int MAX_SESSION_NUM = 10;
 
 	/**
 	 * token信息的长度

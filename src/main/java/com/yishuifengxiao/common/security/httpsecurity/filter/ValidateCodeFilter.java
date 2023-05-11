@@ -150,9 +150,6 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
         this.propertyResource = propertyResource;
     }
 
-    public ValidateCodeFilter() {
-
-    }
 
     public CodeProcessor getCodeProcessor() {
         return codeProcessor;

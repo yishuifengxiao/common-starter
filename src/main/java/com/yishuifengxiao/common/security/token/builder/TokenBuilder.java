@@ -20,8 +20,9 @@ public interface TokenBuilder {
     /**
      * <p>创建一个新的token</p>
      * <p>若存在旧的token则返回旧的token并自动续期</p>
+     *
      * @param username      用户名
-     * @param deviceId     设备id
+     * @param deviceId      设备id
      * @param validSeconds  token的有效时间，单位为秒
      * @param preventsLogin 在达到最大的token数量限制时是否阻止后面的用户登陆
      * @param maxSessions   最大的token数量
@@ -34,33 +35,11 @@ public interface TokenBuilder {
     /**
      * 获取所有的token
      *
-     * @param username        用户名
-     * @param isOnlyAvailable 是否仅返回可用的token的数量
+     * @param username 用户名
      * @return 所有的token, 按照token的过期时间点从前到后排序
      */
-    List<SecurityToken> loadAllToken(String username, boolean isOnlyAvailable);
+    List<SecurityToken> loadAllToken(String username);
 
-    /**
-     * 返回符合条件的token的数量
-     *
-     * @param username  用户名
-     * @param isActive  token是否处于激活状态
-     * @param isExpired token是否已经过期
-     * @return 符合条件的token的数量
-     */
-    int getTokenNum(String username, boolean isActive, boolean isExpired);
-
-    /**
-     * <p>
-     * 从token值中解析出信息
-     * </p>
-     * 正确的tokenValue解析出来的后的信息为[username,clientId,currentTimeMillis]形式的数组
-     *
-     * @param tokenValue token值
-     * @return [username, clientId, currentTimeMillis]形式的数组
-     * @throws CustomException 非法的token信息
-     */
-    String[] parseTokenValue(String tokenValue) throws CustomException;
 
     /**
      * 根据token的值获取token
@@ -74,18 +53,18 @@ public interface TokenBuilder {
     /**
      * 根据token的值从列表里移除一个token
      *
-     * @param tokenValue token的值
+     * @param token 令牌
      * @throws CustomException 非法的token信息
      */
-    void remove(String tokenValue) throws CustomException;
+    void remove(SecurityToken token) throws CustomException;
 
     /**
      * 根据token的值重置token的过期时间点
      *
-     * @param tokenValue 令牌内容
+     * @param token 令牌
      * @return 重置后的token
      * @throws CustomException 非法的token信息
      */
-    SecurityToken refreshExpireTime(String tokenValue) throws CustomException;
+    SecurityToken refreshExpireTime(SecurityToken token) throws CustomException;
 
 }

@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.token;
+package com.yishuifengxiao.common.security.token.extractor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

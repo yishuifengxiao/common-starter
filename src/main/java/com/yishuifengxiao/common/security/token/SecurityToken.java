@@ -38,7 +38,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     /**
      * <p>token的值，不区分大小写</p>
-     * 一般值的内容为 username:clientId:currentTimeMillis
+     * <p>一般值的内容为 username:deviceId:issueAt的DES加密值</p>
      */
     @ApiModelProperty("token的值")
     private String value;

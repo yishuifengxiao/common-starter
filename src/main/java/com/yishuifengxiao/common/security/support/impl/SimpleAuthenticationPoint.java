@@ -7,10 +7,9 @@ import com.yishuifengxiao.common.guava.GuavaCache;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
-import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.token.TokenHelper;
+import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -35,17 +34,16 @@ import java.io.IOException;
  * <p>
  * 协助处理器
  * </p>
- *
+ * <p>
  * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
  *
+ * @author yishui
+ * @version 1.0.0
  * @see AuthenticationEntryPoint
  * @see AccessDeniedHandler
  * @see AuthenticationFailureHandler
  * @see AuthenticationFailureHandler
  * @see AuthenticationSuccessHandler
- *
- * @author yishui
- * @version 1.0.0
  * @since 1.0.0
  */
 @Slf4j
@@ -60,11 +58,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     /**
      * 安全处理工具
      */
-    protected SecurityHelper securityHelper;
-    /**
-     * token生成器
-     */
-    protected TokenBuilder tokenBuilder;
+    protected TokenHelper tokenHelper;
 
 
     private SecurityHandler securityHandler;
@@ -78,8 +72,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         new SimpleUrlAuthenticationFailureHandler() {
             @Override
-            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                                AuthenticationException authenticationException) throws IOException {
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
 
                 securityHandler.whenAuthenticationFailure(propertyResource, request, response, authenticationException);
 
@@ -98,7 +91,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     // 根据登陆信息生成一个token
                     String deviceId = securityValueExtractor.extractDeviceId(request, response);
 
-                    SecurityToken token = securityHelper.createUnsafe(authentication.getName(), deviceId);
+                    SecurityToken token = tokenHelper.createUnsafe(authentication.getName(), deviceId);
 
                     // 将生成的token存储在session中
                     request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(), token.getValue());
@@ -117,14 +110,13 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         new SimpleUrlLogoutSuccessHandler() {
             @Override
-            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
-                    throws IOException, ServletException {
+            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
                 try {
                     // 取出存储的信息
                     SecurityToken token = GuavaCache.get(SecurityToken.class);
                     if (null != token && StringUtils.isNotBlank(token.getValue())) {
-                        tokenBuilder.remove(token.getValue());
+                        tokenHelper.remove(token);
                     }
                 } catch (Exception e) {
                     log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
@@ -160,20 +152,12 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
         this.securityValueExtractor = securityValueExtractor;
     }
 
-    public SecurityHelper getSecurityHelper() {
-        return securityHelper;
+    public TokenHelper getTokenHelper() {
+        return tokenHelper;
     }
 
-    public void setSecurityHelper(SecurityHelper securityHelper) {
-        this.securityHelper = securityHelper;
-    }
-
-    public TokenBuilder getTokenBuilder() {
-        return tokenBuilder;
-    }
-
-    public void setTokenBuilder(TokenBuilder tokenBuilder) {
-        this.tokenBuilder = tokenBuilder;
+    public void setTokenHelper(TokenHelper tokenHelper) {
+        this.tokenHelper = tokenHelper;
     }
 
     public SecurityHandler getSecurityHandler() {

@@ -10,7 +10,7 @@ import com.yishuifengxiao.common.oauth2.translator.AuthWebResponseExceptionTrans
 import com.yishuifengxiao.common.oauth2.user.ClientDetailsServiceImpl;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
 import com.yishuifengxiao.common.web.error.ErrorHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,9 +207,9 @@ public class Oauth2ExtendAutoConfiguration {
     /**
      * 配置一个过滤器，用于在oauth2中提前验证用户名和密码以及clientId
      *
-     * @param authenticationPoint     协助处理器
+     * @param securityHandler     协助处理器
      * @param propertyResource     资源管理器
-     * @param securityHelper       安全信息处理器
+     * @param authorizeHelper       安全信息处理器
      * @param clientDetailsService ClientDetailsService
      * @param passwordEncoder      加密器
      * @param oauth2Properties     oauth2扩展支持属性配置
@@ -217,8 +217,9 @@ public class Oauth2ExtendAutoConfiguration {
      */
     @Bean("tokenEndpointAuthenticationFilter")
     @ConditionalOnMissingBean(name = "tokenEndpointAuthenticationFilter")
-    public Filter tokenEndpointAuthenticationFilter(SecurityHandler securityHandler, PropertyResource propertyResource, SecurityHelper securityHelper, ClientDetailsService clientDetailsService, PasswordEncoder passwordEncoder, Oauth2Properties oauth2Properties) {
-        TokenEndpointFilter tokenEndpointFilter = new TokenEndpointFilter(securityHandler, propertyResource, securityHelper, clientDetailsService, passwordEncoder, oauth2Properties);
+    public Filter tokenEndpointAuthenticationFilter(SecurityHandler securityHandler, PropertyResource propertyResource, AuthorizeHelper authorizeHelper,
+                                                    ClientDetailsService clientDetailsService, PasswordEncoder passwordEncoder, Oauth2Properties oauth2Properties) {
+        TokenEndpointFilter tokenEndpointFilter = new TokenEndpointFilter(securityHandler, propertyResource, authorizeHelper, clientDetailsService, passwordEncoder, oauth2Properties);
         return tokenEndpointFilter;
     }
 

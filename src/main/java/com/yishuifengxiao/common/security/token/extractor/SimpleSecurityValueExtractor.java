@@ -5,7 +5,6 @@ package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.token.SecurityValueExtractor;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

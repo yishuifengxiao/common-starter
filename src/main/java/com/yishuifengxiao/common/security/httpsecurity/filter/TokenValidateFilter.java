@@ -3,8 +3,8 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.SecurityHelper;
-import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
+import com.yishuifengxiao.common.security.token.extractor.SecurityTokenExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +53,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     private SecurityTokenExtractor securityTokenExtractor;
 
-    private SecurityHelper securityHelper;
+    private AuthorizeHelper authorizeHelper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -74,7 +74,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
                     if (StringUtils.isNotBlank(tokenValue)) {
                         // 该请求携带了认证信息
-                        Authentication authentication = securityHelper.authorize(tokenValue);
+                        Authentication authentication = authorizeHelper.authorize(tokenValue);
                         // 将认证信息注入到spring Security中
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
@@ -117,11 +117,11 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
     }
 
     public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                               SecurityTokenExtractor securityTokenExtractor, SecurityHelper securityHelper) {
+                               SecurityTokenExtractor securityTokenExtractor, AuthorizeHelper authorizeHelper) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenExtractor = securityTokenExtractor;
-        this.securityHelper = securityHelper;
+        this.authorizeHelper = authorizeHelper;
 
     }
 

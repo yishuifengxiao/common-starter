@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,8 +50,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @throws CustomException 生成时出现了问题
      */
     @Override
-    public synchronized SecurityToken creatNewToken(String username, String deviceId, Integer validSeconds,
-                                                    boolean preventsLogin, int maxSessions) throws CustomException {
+    public synchronized SecurityToken creatNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions) throws CustomException {
         if (StringUtils.isBlank(username)) {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
@@ -71,9 +71,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
                 // 重置有效期
                 token.refreshExpireTime();
                 // 更新token
-                tokenHolder.update(token);
-                // 更新有效期
-                tokenHolder.setExpireAt(token.getUsername(), token.getExpireAt());
+                tokenHolder.save(token);
                 return token;
 
             } else {
@@ -95,24 +93,24 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @param maxSessions   最大登陆数量限制
      * @return
      * @throws CustomException
-     * @throws CustomException
      */
-    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin,
-                                         int maxSessions) throws CustomException, CustomException {
+    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions) throws CustomException {
         // 先取出该用户所有可用的token
-        List<SecurityToken> list = this.loadAllToken(username, true);
+        List<SecurityToken> list = this.loadAllToken(username);
 
         if (null == list) {
             list = new ArrayList<>();
         }
+        // 清除已过期的token
+        list.stream().filter(v -> !v.isAvailable()).forEach(v -> tokenHolder.delete(v.getUsername(), v.getDeviceId()));
+        // 所有激活状态的token
+        List<SecurityToken> activeTokens = list.stream().filter(SecurityToken::isAvailable).collect(Collectors.toList());
 
-        String tokenValue = DES
-                .encrypt(new StringBuffer(username).append(TokenConstant.TOKEN_SPLIT_CHAR).append(deviceId)
-                        .append(TokenConstant.TOKEN_SPLIT_CHAR).append(System.currentTimeMillis()).toString());
+        String tokenValue = DES.encrypt(new StringBuffer(username).append(TokenConstant.TOKEN_SPLIT_CHAR).append(deviceId).append(TokenConstant.TOKEN_SPLIT_CHAR).append(System.currentTimeMillis()).toString());
 
         SecurityToken newToken = new SecurityToken(tokenValue, username, deviceId, validSeconds);
 
-        if (list.size() >= maxSessions) {
+        if (activeTokens.size() >= maxSessions) {
             if (preventsLogin) {
                 throw new CustomException(ErrorCode.MAX_USER_LIMT, "已达到最大登陆用户数量限制");
             }
@@ -120,35 +118,26 @@ public class SimpleTokenBuilder implements TokenBuilder {
             SecurityToken existToken = list.get(0);
             existToken.setActive(false);
             // 覆盖掉旧的列表
-            tokenHolder.update(existToken);
+            tokenHolder.save(existToken);
         }
         // 新增一个token
         tokenHolder.save(newToken);
-        // 更新有效期
-        tokenHolder.setExpireAt(username, newToken.getExpireAt());
         return newToken;
     }
 
     @Override
-    public synchronized List<SecurityToken> loadAllToken(String username, boolean isOnlyAvailable) {
+    public synchronized List<SecurityToken> loadAllToken(String username) {
         // 获取该用户所有的token信息
-        List<SecurityToken> list = DataUtil.stream(tokenHolder.getAll(username)).filter(Objects::nonNull).distinct()
-                .collect(Collectors.toList());
-        if (isOnlyAvailable) {
-            list = DataUtil.stream(list).filter(SecurityToken::isAvailable).collect(Collectors.toList());
+        return DataUtil.stream(tokenHolder.getAll(username)).filter(Objects::nonNull).sorted(Comparator.comparing(SecurityToken::getExpireAt)).collect(Collectors.toList());
+    }
+
+
+    private synchronized String[] parseTokenValue(String tokenValue) throws CustomException {
+
+        if (StringUtils.isBlank(tokenValue)) {
+            throw new CustomException(ErrorCode.TOKEN_VALUE_NULL, "非法的认证信息");
         }
-        return DataUtil.stream(list).sorted((t1, t2) -> t1.getExpireAt().isAfter(t2.getExpireAt()) ? 1 : -1)
-                .collect(Collectors.toList());
-    }
 
-    @Override
-    public synchronized int getTokenNum(String username, boolean isActive, boolean isExpired) {
-        List<SecurityToken> list = this.loadAllToken(username, false);
-        return (int) DataUtil.stream(list).filter(t -> t.isActive() == isActive && t.isExpired() == isExpired).count();
-    }
-
-    @Override
-    public synchronized String[] parseTokenValue(String tokenValue) throws CustomException {
         try {
             tokenValue = DES.decrypt(tokenValue);
         } catch (Exception e) {
@@ -156,16 +145,12 @@ public class SimpleTokenBuilder implements TokenBuilder {
             throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
         }
 
-        if (StringUtils.isBlank(tokenValue)) {
-            throw new CustomException(ErrorCode.TOKEN_VALUE_NULL, "非法的认证信息");
-        }
         // 非法的tokenValue
         if (!StringUtils.contains(tokenValue, TokenConstant.TOKEN_SPLIT_CHAR)) {
             throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
         }
 
-        String[] tokens = StringUtils.splitByWholeSeparatorPreserveAllTokens(tokenValue,
-                TokenConstant.TOKEN_SPLIT_CHAR);
+        String[] tokens = StringUtils.splitByWholeSeparatorPreserveAllTokens(tokenValue, TokenConstant.TOKEN_SPLIT_CHAR);
         // 非法的tokenValue
         if (null == tokens || tokens.length != TokenConstant.TOKEN_LENGTH) {
             throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
@@ -181,27 +166,26 @@ public class SimpleTokenBuilder implements TokenBuilder {
             return tokenHolder.get(tokens[0], tokens[1]);
 
         } catch (Exception e) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】根据tokenValue获取token时出现问题，出现问题的原因为{}", e.getMessage());
+            log.debug("【yishuifengxiao-common-spring-boot-starter】根据tokenValue获取token时出现问题，出现问题的原因为{}", e.getMessage());
         }
 
         return null;
     }
 
     @Override
-    public synchronized void remove(String tokenValue) throws CustomException {
-        String[] tokens = this.parseTokenValue(tokenValue);
-        tokenHolder.delete(tokens[0], tokens[1]);
+    public synchronized void remove(SecurityToken token) throws CustomException {
+        if (null == token) {
+            return;
+        }
+        tokenHolder.delete(token.getUsername(), token.getDeviceId());
     }
 
     @Override
-    public synchronized SecurityToken refreshExpireTime(String tokenValue) throws CustomException {
-        SecurityToken token = this.loadByTokenValue(tokenValue);
+    public synchronized SecurityToken refreshExpireTime(SecurityToken token) throws CustomException {
         if (null != token && token.isAvailable()) {
-            token.refreshExpireTime();
+            token = token.refreshExpireTime();
             // 更新token信息
-            tokenHolder.update(token);
-            // 更新过期时间
-            tokenHolder.setExpireAt(token.getUsername(), token.getExpireAt());
+            tokenHolder.save(token);
         }
         return token;
     }

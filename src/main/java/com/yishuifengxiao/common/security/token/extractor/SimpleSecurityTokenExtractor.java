@@ -2,7 +2,6 @@ package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
