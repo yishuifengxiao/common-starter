@@ -1,13 +1,12 @@
 package com.yishuifengxiao.common.security.token.extractor;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
 import org.apache.commons.lang3.StringUtils;
 
-import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.token.SecurityTokenExtractor;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 系统令牌提取器
@@ -26,7 +25,7 @@ public class SimpleSecurityTokenExtractor implements SecurityTokenExtractor {
             tokenValue = this.getTokenValueInQuery(request, propertyResource);
         }
         if (StringUtils.isBlank(tokenValue)) {
-            Object val = request.getSession().getAttribute(propertyResource.security().getToken().getUserUniqueIdentitier());
+            Object val = request.getSession().getAttribute(propertyResource.security().getToken().getUserDeviceId());
             if (null != val) {
                 tokenValue = val.toString();
             }

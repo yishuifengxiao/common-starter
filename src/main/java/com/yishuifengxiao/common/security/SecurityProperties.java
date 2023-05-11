@@ -207,14 +207,14 @@ public class SecurityProperties {
          */
         private String requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
-         * 用户唯一标识符参数，默认为user_unique_identitier
+         * 用户唯一标识符的标志参数,即设备id的参数，默认为user_device_id
          */
-        private String userUniqueIdentitier = TokenConstant.USER_UNIQUE_IDENTIFIER;
+        private String userDeviceId = TokenConstant.USER_DEVICE_ID;
 
         /**
-         * 是否在使用用户唯一标识符参数获取参数失败时使用请求的sessionId作为用户唯一标识符
+         * 是否在使用用户唯一标识符参数获取参数失败时使用请求的User-Agent作为用户唯一标识符
          */
-        private Boolean useSessionId = true;
+        private Boolean useUserAgent = true;
 
     }
 

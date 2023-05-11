@@ -1,6 +1,4 @@
 package com.yishuifengxiao.common.security.smsauth.sms;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -8,6 +6,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 模仿UsernamePasswordAuthenticationFilter实现自己的SmsCodeAuthenticationFilter
@@ -28,7 +29,7 @@ public class SmsAuthenticationFilter extends
 	 */
 	public static final String METHOD = "POST";
 
-	private String moblileParameter = MOBILE_KEY;
+	private String mobileParameter = MOBILE_KEY;
 	/**
 	 * 是否值处理POST请求
 	 */
@@ -79,7 +80,7 @@ public class SmsAuthenticationFilter extends
 	 *         <code>AuthenticationManager</code>
 	 */
 	protected String obtainUsername(HttpServletRequest request) {
-		return request.getParameter(moblileParameter);
+		return request.getParameter(mobileParameter);
 	}
 
 	/**
@@ -103,14 +104,14 @@ public class SmsAuthenticationFilter extends
 		this.postOnly = postOnly;
 	}
 
-	public final String getMoblileParameter() {
-		return moblileParameter;
+	public final String getMobileParameter() {
+		return mobileParameter;
 	}
 
-	public void setMoblileParameter(String moblileParameter) {
-		Assert.hasText(moblileParameter,
+	public void setMobileParameter(String mobileParameter) {
+		Assert.hasText(mobileParameter,
 				"Mobile parameter must not be empty or null");
-		this.moblileParameter = moblileParameter;
+		this.mobileParameter = mobileParameter;
 	}
 
 }

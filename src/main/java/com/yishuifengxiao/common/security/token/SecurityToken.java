@@ -50,10 +50,10 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     private String username;
 
     /**
-     * 会话id
+     * 设备id
      */
-    @ApiModelProperty("会话id")
-    private String sessionId;
+    @ApiModelProperty("设备id")
+    private String deviceId;
 
     /**
      * token的有效时间，单位为秒
@@ -166,21 +166,21 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     /**
-     * 获取会话id
+     * 获取设备id
      *
-     * @return 会话id
+     * @return 设备id
      */
-    public String getSessionId() {
-        return sessionId;
+    public String getDeviceId() {
+        return deviceId;
     }
 
     /**
-     * 设置会话id
+     * 设置设备id
      *
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      */
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     /**
@@ -263,13 +263,12 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     /**
-     *
      * @param value        当前token的值
      * @param username     用户名
-     * @param sessionId    会话id
+     * @param deviceId     设备id
      * @param validSeconds token有效时间
      */
-    public SecurityToken(String value, String username, String sessionId, Integer validSeconds) {
+    public SecurityToken(String value, String username, String deviceId, Integer validSeconds) {
         super(null);
         super.setAuthenticated(true);
         if (null == validSeconds || validSeconds <= 0) {
@@ -277,7 +276,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         }
         this.value = value;
         this.username = username;
-        this.sessionId = sessionId;
+        this.deviceId = deviceId;
         this.validSeconds = validSeconds;
         this.issueAt = LocalDateTime.now();
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
@@ -286,7 +285,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     /**
-     *
      * @param value        当前token的值
      * @param validSeconds token有效时间
      */
@@ -295,7 +293,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     /**
-     *
      * @param value 当前token的值
      */
     public SecurityToken(String value) {
@@ -308,7 +305,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         int result = 1;
         result = prime * result + ((expireAt == null) ? 0 : expireAt.hashCode());
         result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
-        result = prime * result + ((sessionId == null) ? 0 : sessionId.hashCode());
+        result = prime * result + ((deviceId == null) ? 0 : deviceId.hashCode());
         result = prime * result + ((username == null) ? 0 : username.hashCode());
         result = prime * result + ((validSeconds == null) ? 0 : validSeconds.hashCode());
         result = prime * result + ((value == null) ? 0 : value.hashCode());
@@ -360,11 +357,11 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         } else if (!isActive.equals(other.isActive)) {
             return false;
         }
-        if (sessionId == null) {
-            if (other.sessionId != null) {
+        if (deviceId == null) {
+            if (other.deviceId != null) {
                 return false;
             }
-        } else if (!sessionId.equals(other.sessionId)) {
+        } else if (!deviceId.equals(other.deviceId)) {
             return false;
         }
         if (username == null) {
@@ -398,8 +395,8 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         builder.append(value);
         builder.append(", username=");
         builder.append(username);
-        builder.append(", sessionId=");
-        builder.append(sessionId);
+        builder.append(", deviceId=");
+        builder.append(deviceId);
         builder.append(", validSeconds=");
         builder.append(validSeconds);
         builder.append(", expireAt=");

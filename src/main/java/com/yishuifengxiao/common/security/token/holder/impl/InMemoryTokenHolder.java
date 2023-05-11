@@ -65,38 +65,38 @@ public class InMemoryTokenHolder implements TokenHolder {
     public synchronized void update(SecurityToken token) throws CustomException {
         this.check(token);
         // 先删除
-        this.delete(token.getUsername(), token.getSessionId());
+        this.delete(token.getUsername(), token.getDeviceId());
         // 再新增
         this.save(token);
 
     }
 
     /**
-     * 根据用户账号和会话id删除一个令牌
+     * 根据用户账号和设备id删除一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @throws CustomException 删除时出现问题
      */
     @Override
-    public synchronized void delete(String username, String sessionId) throws CustomException {
+    public synchronized void delete(String username, String deviceId) throws CustomException {
         List<SecurityToken> tokens = DataUtil.stream(this.getAll(username)).filter(Objects::nonNull)
-                .filter(t -> !StringUtils.equalsIgnoreCase(t.getSessionId(), sessionId)).collect(Collectors.toList());
+                .filter(t -> !StringUtils.equalsIgnoreCase(t.getDeviceId(), deviceId)).collect(Collectors.toList());
         map.remove(username);
         map.put(username, tokens);
     }
 
     /**
-     * 根据用户账号和会话id获取一个令牌
+     * 根据用户账号和设备id获取一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @return 令牌
      */
     @Override
-    public synchronized SecurityToken get(String username, String sessionId) {
+    public synchronized SecurityToken get(String username, String deviceId) {
         List<SecurityToken> tokens = DataUtil.stream(this.getAll(username)).filter(Objects::nonNull)
-                .filter(t -> StringUtils.equalsIgnoreCase(t.getSessionId(), sessionId)).collect(Collectors.toList());
+                .filter(t -> StringUtils.equalsIgnoreCase(t.getDeviceId(), deviceId)).collect(Collectors.toList());
         return DataUtil.first(tokens);
     }
 
@@ -123,7 +123,7 @@ public class InMemoryTokenHolder implements TokenHolder {
         if (StringUtils.isBlank(token.getUsername())) {
             throw new CustomException("令牌中必须包含用户账号信息");
         }
-        if (StringUtils.isBlank(token.getSessionId())) {
+        if (StringUtils.isBlank(token.getDeviceId())) {
             throw new CustomException("令牌中必须包含请求识别信息");
         }
         if (null == token.getExpireAt()) {

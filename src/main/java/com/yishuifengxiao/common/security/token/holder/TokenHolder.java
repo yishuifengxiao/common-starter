@@ -46,22 +46,22 @@ public interface TokenHolder {
     void update(SecurityToken token) throws CustomException;
 
     /**
-     * 根据用户账号和会话id删除一个令牌
+     * 根据用户账号和设备id删除一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @throws CustomException 删除时出现问题
      */
-    void delete(String username, String sessionId) throws CustomException;
+    void delete(String username, String deviceId) throws CustomException;
 
     /**
-     * 根据用户账号和会话id获取一个令牌
+     * 根据用户账号和设备id获取一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @return 令牌
      */
-    SecurityToken get(String username, String sessionId);
+    SecurityToken get(String username, String deviceId);
 
     /**
      * 设置过期时间点

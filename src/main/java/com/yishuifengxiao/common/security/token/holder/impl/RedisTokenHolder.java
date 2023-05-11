@@ -68,7 +68,7 @@ public class RedisTokenHolder implements TokenHolder {
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
         try {
-            this.get(token.getUsername()).put(token.getSessionId(), JSONObject.toJSONString(token));
+            this.get(token.getUsername()).put(token.getDeviceId(), JSONObject.toJSONString(token));
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
             throw new CustomException(e.getMessage());
@@ -86,39 +86,39 @@ public class RedisTokenHolder implements TokenHolder {
     public synchronized void update(SecurityToken token) throws CustomException {
         this.check(token);
         // 先删除再增加
-        this.get(token.getUsername()).delete(token.getSessionId());
+        this.get(token.getUsername()).delete(token.getDeviceId());
         this.save(token);
     }
 
     /**
-     * 根据用户账号和会话id删除一个令牌
+     * 根据用户账号和设备id删除一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @throws CustomException 删除时出现问题
      */
     @Override
-    public synchronized void delete(String username, String sessionId) throws CustomException {
-        this.get(username).delete(sessionId);
+    public synchronized void delete(String username, String deviceId) throws CustomException {
+        this.get(username).delete(deviceId);
     }
 
     /**
-     * 根据用户账号和会话id获取一个令牌
+     * 根据用户账号和设备id获取一个令牌
      *
      * @param username  用户账号
-     * @param sessionId 会话id
+     * @param deviceId 设备id
      * @return 令牌
      */
     @Override
-    public synchronized SecurityToken get(String username, String sessionId) {
-        Object data = this.get(username).get(sessionId);
+    public synchronized SecurityToken get(String username, String deviceId) {
+        Object data = this.get(username).get(deviceId);
         if (null == data || StringUtils.isBlank(data.toString())) {
             return null;
         }
         try {
             return JSONObject.parseObject(data.toString(), SecurityToken.class);
         } catch (Exception e) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, sessionId, e.getMessage());
+            log.info("【yishuifengxiao-common-spring-boot-starter】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, deviceId, e.getMessage());
         }
         return null;
     }
@@ -155,7 +155,7 @@ public class RedisTokenHolder implements TokenHolder {
         if (StringUtils.isBlank(token.getUsername())) {
             throw new CustomException("令牌中必须包含用户账号信息");
         }
-        if (StringUtils.isBlank(token.getSessionId())) {
+        if (StringUtils.isBlank(token.getDeviceId())) {
             throw new CustomException("令牌中必须包含请求识别信息");
         }
         if (null == token.getExpireAt()) {

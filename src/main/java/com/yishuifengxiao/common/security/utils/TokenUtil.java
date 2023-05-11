@@ -44,8 +44,8 @@ public class TokenUtil {
 	 */
 	public static SecurityToken create(HttpServletRequest request, String username, String password)
 			throws CustomException {
-		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
-		return create(username, password, sessionId);
+		String deviceId = securityValueExtractor.extractDeviceId(request, null);
+		return create(username, password, deviceId);
 	}
 
 	/**
@@ -53,13 +53,13 @@ public class TokenUtil {
 	 * 
 	 * @param username  用户账号
 	 * @param password  账号对应的密码
-	 * @param sessionId 会话id
+	 * @param deviceId 设备id
 	 * @return 生成的令牌
 	 * @throws CustomException 非法的用户信息或状态
 	 */
-	public static SecurityToken create(String username, String password, String sessionId) throws CustomException {
+	public static SecurityToken create(String username, String password, String deviceId) throws CustomException {
 
-		return securityHelper.create(username, password, sessionId);
+		return securityHelper.create(username, password, deviceId);
 	}
 
 	/**
@@ -83,8 +83,8 @@ public class TokenUtil {
 	 * @throws CustomException 非法的用户信息或状态
 	 */
 	public static SecurityToken createUnsafe(HttpServletRequest request, String username) throws CustomException {
-		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
-		return securityHelper.createUnsafe(username, sessionId);
+		String deviceId = securityValueExtractor.extractDeviceId(request, null);
+		return securityHelper.createUnsafe(username, deviceId);
 	}
 
 	/**
@@ -110,36 +110,36 @@ public class TokenUtil {
 	 */
 	public static SecurityToken createUnsafe(HttpServletRequest request, String username, int validSeconds)
 			throws CustomException {
-		String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, null);
-		return createUnsafe(username, sessionId, validSeconds);
+		String deviceId = securityValueExtractor.extractDeviceId(request, null);
+		return createUnsafe(username, deviceId, validSeconds);
 	}
 
 	/**
 	 * 生成一个令牌
 	 * 
 	 * @param username  用户账号
-	 * @param sessionId 会话id
+	 * @param deviceId 设备id
 	 * @return 生成的令牌
 	 * @throws CustomException 非法的用户信息或状态
 	 */
-	public static SecurityToken createUnsafe(String username, String sessionId) throws CustomException {
+	public static SecurityToken createUnsafe(String username, String deviceId) throws CustomException {
 
-		return securityHelper.createUnsafe(username, sessionId);
+		return securityHelper.createUnsafe(username, deviceId);
 	}
 
 	/**
 	 * 生成一个令牌
 	 * 
 	 * @param username     用户账号
-	 * @param sessionId    会话id
+	 * @param deviceId    设备id
 	 * @param validSeconds 令牌过期时间，单位为秒
 	 * @return 生成的令牌
 	 * @throws CustomException 非法的用户信息或状态
 	 */
-	public static SecurityToken createUnsafe(String username, String sessionId, int validSeconds)
+	public static SecurityToken createUnsafe(String username, String deviceId, int validSeconds)
 			throws CustomException {
 
-		return securityHelper.createUnsafe(username, sessionId, validSeconds);
+		return securityHelper.createUnsafe(username, deviceId, validSeconds);
 	}
 
 	public TokenUtil(SecurityHelper securityHelper, SecurityValueExtractor securityValueExtractor) {

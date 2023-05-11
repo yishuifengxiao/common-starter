@@ -44,26 +44,26 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
 
     @Override
-    public SecurityToken createUnsafe(String username, String sessionId) throws CustomException {
+    public SecurityToken createUnsafe(String username, String deviceId) throws CustomException {
 
-        return this.createUnsafe(username, sessionId, propertyResource.security().getToken().getValidSeconds());
+        return this.createUnsafe(username, deviceId, propertyResource.security().getToken().getValidSeconds());
     }
 
     @Override
-    public SecurityToken createUnsafe(String username, String sessionId, int validSeconds) throws CustomException {
+    public SecurityToken createUnsafe(String username, String deviceId, int validSeconds) throws CustomException {
         if (StringUtils.isBlank(username)) {
             throw new CustomException("账号不能为空");
         }
 
         UserDetails userDetails = this.loadUserByUsername(username.trim());
-        return this.create(userDetails, sessionId, validSeconds,
+        return this.create(userDetails, deviceId, validSeconds,
                 propertyResource.security().getToken().getPreventsLogin(),
                 propertyResource.security().getToken().getMaxSessions());
 
     }
 
     @Override
-    public SecurityToken create(String username, String password, String sessionId) throws CustomException {
+    public SecurityToken create(String username, String password, String deviceId) throws CustomException {
         if (StringUtils.isBlank(username)) {
             throw new CustomException("账号不能为空");
         }
@@ -74,7 +74,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
 
         UserDetails userDetails = this.authorize(username.trim(), password);
 
-        return this.create(userDetails, sessionId);
+        return this.create(userDetails, deviceId);
     }
 
     /**
@@ -83,13 +83,13 @@ public class SimpleSecurityHelper implements SecurityHelper {
      * </p>
      *
      * @param userDetails 用户认证信息
-     * @param sessionId   会话id
+     * @param deviceId   设备id
      * @return 访问令牌
      * @throws CustomException 创建时发生问题
      */
-    private SecurityToken create(UserDetails userDetails, String sessionId) throws CustomException {
+    private SecurityToken create(UserDetails userDetails, String deviceId) throws CustomException {
 
-        return this.create(userDetails, sessionId, propertyResource.security().getToken().getValidSeconds(),
+        return this.create(userDetails, deviceId, propertyResource.security().getToken().getValidSeconds(),
                 propertyResource.security().getToken().getPreventsLogin(),
                 propertyResource.security().getToken().getMaxSessions());
 
@@ -101,14 +101,14 @@ public class SimpleSecurityHelper implements SecurityHelper {
      * </p>
      *
      * @param userDetails   用户认证信息
-     * @param sessionId     会话id
+     * @param deviceId     设备id
      * @param validSeconds  令牌过期时间，单位为秒
      * @param preventsLogin 在达到同一个账号最大的登陆数量时是否阻止后面的用户登陆,默认为false
      * @param maxSessions   同一个账号最大的登陆数量
      * @return 访问令牌
      * @throws CustomException 创建时发生问题
      */
-    private SecurityToken create(UserDetails userDetails, String sessionId, int validSeconds, boolean preventsLogin,
+    private SecurityToken create(UserDetails userDetails, String deviceId, int validSeconds, boolean preventsLogin,
                                  int maxSessions) throws CustomException {
 
         if (null == userDetails) {
@@ -116,8 +116,8 @@ public class SimpleSecurityHelper implements SecurityHelper {
                     propertyResource.security().getMsg().getUserDetailsIsNull());
         }
 
-        if (StringUtils.isBlank(sessionId)) {
-            sessionId = userDetails.getUsername();
+        if (StringUtils.isBlank(deviceId)) {
+            deviceId = userDetails.getUsername();
         }
 
         if (!CompareUtil.gtZero(validSeconds)) {
@@ -133,7 +133,7 @@ public class SimpleSecurityHelper implements SecurityHelper {
                 userDetails.getAuthorities());
 
         // 根据用户信息生成一个访问令牌
-        SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), sessionId, validSeconds,
+        SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), deviceId, validSeconds,
                 preventsLogin, maxSessions);
         token.setDetails(userDetails);
 

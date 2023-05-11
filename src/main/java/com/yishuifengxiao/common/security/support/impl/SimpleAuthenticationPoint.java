@@ -96,12 +96,12 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
                 try {
                     // 根据登陆信息生成一个token
-                    String sessionId = securityValueExtractor.extractUserUniqueIdentifier(request, response);
+                    String deviceId = securityValueExtractor.extractDeviceId(request, response);
 
-                    SecurityToken token = securityHelper.createUnsafe(authentication.getName(), sessionId);
+                    SecurityToken token = securityHelper.createUnsafe(authentication.getName(), deviceId);
 
                     // 将生成的token存储在session中
-                    request.getSession().setAttribute(propertyResource.security().getToken().getUserUniqueIdentitier(), token.getValue());
+                    request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(), token.getValue());
                     // 登陆成功
                     securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication, token);
                 } catch (CustomException e) {

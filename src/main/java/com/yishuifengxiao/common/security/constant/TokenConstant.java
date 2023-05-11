@@ -36,7 +36,7 @@ public class TokenConstant {
 	public final static String TOKEN_REQUEST_PARAM = "xtoken";
 
 	/**
-	 * 用户唯一标识符的标志
+	 * 用户唯一标识符的标志,即设备id
 	 */
-	public final static String USER_UNIQUE_IDENTIFIER = "user_unique_identitier";
+	public final static String USER_DEVICE_ID= "user_device_id";
 }
