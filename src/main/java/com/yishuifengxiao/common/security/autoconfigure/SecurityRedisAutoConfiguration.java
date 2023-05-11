@@ -1,12 +1,15 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
+import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.RedisTokenRepository;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.RedisTokenHolder;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +25,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
  * @since 1.0.0
  */
 @Configuration
+@AutoConfigureAfter(value = { RedisCoreAutoConfiguration.class, RedisAutoConfiguration.class })
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @ConditionalOnMissingBean(name = "persistentTokenRepository")
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
@@ -30,7 +34,6 @@ public class SecurityRedisAutoConfiguration {
 
     @Bean
     @ConditionalOnBean(name = "redisTemplate")
-    @ConditionalOnClass(DefaultAuthenticationEventPublisher.class)
     public PersistentTokenRepository redisTokenRepository(RedisTemplate<String, Object> redisTemplate) {
         RedisTokenRepository redisTokenRepository = new RedisTokenRepository(redisTemplate);
         return redisTokenRepository;

@@ -1,6 +1,5 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
@@ -67,7 +66,7 @@ public class RedisTokenHolder implements TokenHolder {
         this.check(token);
         try {
             this.delete(token.getUsername(), token.getDeviceId());
-            this.get(token.getUsername()).put(token.getDeviceId(), JSONObject.toJSONString(token));
+            this.get(token.getUsername()).put(token.getDeviceId(), token);
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
             throw new CustomException(e.getMessage());
@@ -101,7 +100,7 @@ public class RedisTokenHolder implements TokenHolder {
             return null;
         }
         try {
-            return JSONObject.parseObject(data.toString(), SecurityToken.class);
+            return (SecurityToken) data;
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, deviceId, e.getMessage());
         }

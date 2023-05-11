@@ -113,9 +113,6 @@ public class SimpleTokenHelper implements TokenHelper {
                     propertyResource.security().getMsg().getUserDetailsIsNull());
         }
 
-        if (StringUtils.isBlank(deviceId)) {
-            deviceId = userDetails.getUsername();
-        }
 
         if (!CompareUtil.gtZero(validSeconds)) {
             validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;

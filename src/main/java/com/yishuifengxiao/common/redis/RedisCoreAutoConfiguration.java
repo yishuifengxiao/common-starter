@@ -11,7 +11,6 @@ import com.yishuifengxiao.common.code.CodeAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -26,7 +25,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.*;
 
 import javax.annotation.PostConstruct;
-import java.net.UnknownHostException;
 
 /**
  * Redis扩展支持自动配置
@@ -85,13 +83,11 @@ public class RedisCoreAutoConfiguration {
 	 * @param redisConnectionFactory 连接工厂
 	 * @param redisValueSerializer   Redis序列化器
 	 * @return Redis操作工具
-	 * @throws UnknownHostException 创建Redis操作工具时出现异常
 	 */
 	@Bean("redisTemplate")
 	@ConditionalOnMissingBean(name = "redisTemplate")
-	@ConditionalOnBean({RedisConnectionFactory.class})
 	public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
-			RedisSerializer<Object> redisValueSerializer) throws UnknownHostException {
+			RedisSerializer<Object> redisValueSerializer) {
 		RedisSerializer<String> stringRedisSerializer = new StringRedisSerializer();
 
 		RedisTemplate<String, Object> template = new RedisTemplate<String, Object>();

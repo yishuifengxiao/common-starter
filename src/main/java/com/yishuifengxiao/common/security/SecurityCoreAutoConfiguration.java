@@ -1,13 +1,11 @@
 package com.yishuifengxiao.common.security;
 
+import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
-import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
+import com.yishuifengxiao.common.security.httpsecurity.*;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
@@ -15,13 +13,11 @@ import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
+import com.yishuifengxiao.common.security.token.SimpleTokenHelper;
 import com.yishuifengxiao.common.security.token.TokenHelper;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.security.httpsecurity.SimpleAuthorizeHelper;
-import com.yishuifengxiao.common.security.token.SimpleTokenHelper;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
@@ -32,6 +28,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -73,6 +70,7 @@ import java.util.List;
 @EnableConfigurationProperties({SecurityProperties.class})
 @Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@AutoConfigureAfter({RedisCoreAutoConfiguration.class})
 public class SecurityCoreAutoConfiguration {
 
     /**

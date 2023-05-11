@@ -55,7 +55,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
 
-        deviceId = null == deviceId ? "" : deviceId;
+        deviceId = null == deviceId ? username : deviceId;
 
         if (maxSessions <= 0) {
             maxSessions = TokenConstant.MAX_SESSION_NUM;

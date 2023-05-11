@@ -1,19 +1,19 @@
 package com.yishuifengxiao.common.code.autoconfigure;
 
+import com.yishuifengxiao.common.code.CodeProperties;
+import com.yishuifengxiao.common.code.repository.CodeRepository;
+import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
+import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-
-import com.yishuifengxiao.common.code.CodeProperties;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
-import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
-import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 
 /**
  * 基于Redis的验证码存储器自动配置
@@ -23,7 +23,7 @@ import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
  * @since 1.0.0
  */
 @Configuration
-@AutoConfigureAfter(value = { RedisCoreAutoConfiguration.class })
+@AutoConfigureAfter(value = { RedisCoreAutoConfiguration.class, RedisAutoConfiguration.class })
 @ConditionalOnClass({ RedisOperations.class, RedisTemplate.class })
 @ConditionalOnProperty(prefix = "yishuifengxiao.code", name = { "enable" }, havingValue = "true", matchIfMissing = false)
 public class RedisExtendAutoConfiguration {
