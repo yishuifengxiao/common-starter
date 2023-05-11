@@ -55,8 +55,8 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
         Response<String> response = new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()).setId(ssid);
-        if (log.isInfoEnabled()) {
-            log.info("【Global exception interception】【 CustomException 】(Custom exception) traceId={} request {} request failed, The intercepted custom exception is {}", ssid, uri, e);
+        if (log.isDebugEnabled()) {
+            log.debug("【Global exception interception】【 CustomException 】(Custom exception) traceId={} request {} request failed, The intercepted custom exception is {}", ssid, uri, e);
         }
 
         return response;
@@ -75,8 +75,8 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
         Object response = proxyErrorHelper.extract(e);
-        if (log.isWarnEnabled()) {
-            log.warn("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
+        if (log.isInfoEnabled()) {
+            log.info("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
         }
         return response;
     }

@@ -117,10 +117,10 @@ public class SimpleTokenBuilder implements TokenBuilder {
 				throw new CustomException (ErrorCode.MAX_USER_LIMT, "已达到最大登陆用户数量限制");
 			}
 			// 将第一个token设置为失效状态
-			SecurityToken extisToken = list.get(0);
-			extisToken.setActive(false);
+			SecurityToken existToken = list.get(0);
+			existToken.setActive(false);
 			// 覆盖掉旧的列表
-			tokenHolder.update(extisToken);
+			tokenHolder.update(existToken);
 		}
 		// 新增一个token
 		tokenHolder.save(newToken);
