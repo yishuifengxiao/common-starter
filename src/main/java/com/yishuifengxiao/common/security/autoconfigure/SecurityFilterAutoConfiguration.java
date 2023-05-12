@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import com.yishuifengxiao.common.code.CodeProcessor;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
+import com.yishuifengxiao.common.code.CodeProducer;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPreAuthFilter;
@@ -77,17 +77,17 @@ public class SecurityFilterAutoConfiguration {
     /**
      * 注入一个验证码过滤器
      *
-     * @param codeProcessor    验证码处理器
+     * @param codeProducer    验证码处理器
      * @param propertyResource 安全属性配置
      * @param securityHandler  协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")
     @ConditionalOnMissingBean(name = "validateCodeFilter")
-    @ConditionalOnBean({CodeRepository.class})
-    public SecurityRequestFilter validateCodeFilter(CodeProcessor codeProcessor, PropertyResource propertyResource, SecurityHandler securityHandler) {
+    @ConditionalOnBean({CodeHolder.class})
+    public SecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, PropertyResource propertyResource, SecurityHandler securityHandler) {
         ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
-        validateCodeFilter.setCodeProcessor(codeProcessor);
+        validateCodeFilter.setCodeProducer(codeProducer);
         validateCodeFilter.setPropertyResource(propertyResource);
         validateCodeFilter.setSecurityHandler(securityHandler);
         return validateCodeFilter;

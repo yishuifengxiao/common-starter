@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
-import com.yishuifengxiao.common.code.CodeProcessor;
+import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.eunm.CodeType;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
@@ -51,7 +51,7 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
     /**
      * 验证码处理器
      */
-    private CodeProcessor codeProcessor;
+    private CodeProducer codeProducer;
 
     private PropertyResource propertyResource;
 
@@ -94,10 +94,10 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
 
                 if (propertyResource.showDetail()) {
                     log.info("【验证码过滤器】  请求校验{}中的验证码的的类型是 {} ,校验器类型为 {}", request.getRequestURI(), validateCodeType,
-                            codeProcessor);
+                            codeProducer);
                 }
 
-                codeProcessor.validate(new ServletWebRequest(request, response), validateCodeType);
+                codeProducer.validate(new ServletWebRequest(request, response), validateCodeType);
             } catch (CustomException exception) {
                 if (propertyResource.showDetail()) {
                     log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
@@ -150,13 +150,12 @@ public class ValidateCodeFilter extends SecurityRequestFilter implements Initial
         this.propertyResource = propertyResource;
     }
 
-
-    public CodeProcessor getCodeProcessor() {
-        return codeProcessor;
+    public CodeProducer getCodeProducer() {
+        return codeProducer;
     }
 
-    public void setCodeProcessor(CodeProcessor codeProcessor) {
-        this.codeProcessor = codeProcessor;
+    public void setCodeProducer(CodeProducer codeProducer) {
+        this.codeProducer = codeProducer;
     }
 
     public SecurityHandler getSecurityHandler() {

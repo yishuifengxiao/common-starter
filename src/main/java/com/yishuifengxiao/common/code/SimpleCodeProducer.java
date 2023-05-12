@@ -12,7 +12,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import com.yishuifengxiao.common.code.entity.ValidateCode;
 import com.yishuifengxiao.common.code.eunm.CodeType;
 import com.yishuifengxiao.common.code.generator.CodeGenerator;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.code.sender.CodeSender;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 
@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.0.0
  */
 @Slf4j
-public class SimpleCodeProcessor implements CodeProcessor {
+public class SimpleCodeProducer implements CodeProducer {
 	/**
 	 * 收集系统中所有的 {@link CodeGenerator} 验证码生成器接口的实现。key为bean的名字
 	 */
@@ -39,7 +39,7 @@ public class SimpleCodeProcessor implements CodeProcessor {
 	/**
 	 * 验证码存取工具
 	 */
-	private CodeRepository repository;
+	private CodeHolder repository;
 
 	/**
 	 * 验证码配置属性
@@ -259,8 +259,8 @@ public class SimpleCodeProcessor implements CodeProcessor {
 
 	}
 
-	public SimpleCodeProcessor(Map<String, CodeGenerator> codeGenerators, Map<String, CodeSender> codeSenders,
-			CodeRepository repository, CodeProperties codeProperties) {
+	public SimpleCodeProducer(Map<String, CodeGenerator> codeGenerators, Map<String, CodeSender> codeSenders,
+							  CodeHolder repository, CodeProperties codeProperties) {
 		this.codeGenerators = codeGenerators;
 		this.codeSenders = codeSenders;
 		this.repository = repository;

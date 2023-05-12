@@ -1,14 +1,13 @@
-package com.yishuifengxiao.common.code.repository.impl;
+package com.yishuifengxiao.common.code.holder.impl;
+
+import com.yishuifengxiao.common.code.CodeProperties;
+import com.yishuifengxiao.common.code.entity.ValidateCode;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
-
-import org.springframework.data.redis.core.RedisTemplate;
-
-import com.yishuifengxiao.common.code.CodeProperties;
-import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
 
 /**
  * 验证码redis管理器
@@ -17,7 +16,7 @@ import com.yishuifengxiao.common.code.repository.CodeRepository;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class RedisCodeRepository implements CodeRepository {
+public class RedisCodeHolder implements CodeHolder {
 
 	/**
 	 * 简化Redis数据访问代码的Helper类。
@@ -99,12 +98,12 @@ public class RedisCodeRepository implements CodeRepository {
 		this.redisTemplate = redisTemplate;
 	}
 
-	public RedisCodeRepository() {
+	public RedisCodeHolder() {
 
 	}
 
 	@SuppressWarnings({ "rawtypes" })
-	public RedisCodeRepository(RedisTemplate redisTemplate, CodeProperties codeProperties) {
+	public RedisCodeHolder(RedisTemplate redisTemplate, CodeProperties codeProperties) {
 		this.redisTemplate = redisTemplate;
 		this.codeProperties = codeProperties;
 	}

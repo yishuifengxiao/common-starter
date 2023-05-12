@@ -1,8 +1,8 @@
 package com.yishuifengxiao.common.code.autoconfigure;
 
 import com.yishuifengxiao.common.code.CodeProperties;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
-import com.yishuifengxiao.common.code.repository.impl.RedisCodeRepository;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
+import com.yishuifengxiao.common.code.holder.impl.RedisCodeHolder;
 import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -37,10 +37,10 @@ public class RedisExtendAutoConfiguration {
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	@ConditionalOnBean(value = { RedisTemplate.class }, name = "redisTemplate")
-	@ConditionalOnMissingBean({ CodeRepository.class })
+	@ConditionalOnMissingBean({ CodeHolder.class })
 	@Bean
-	public CodeRepository redisRepository(RedisTemplate redisTemplate, CodeProperties codeProperties) {
-		return new RedisCodeRepository(redisTemplate, codeProperties);
+	public CodeHolder redisCodeHolder(RedisTemplate redisTemplate, CodeProperties codeProperties) {
+		return new RedisCodeHolder(redisTemplate, codeProperties);
 	}
 
 }

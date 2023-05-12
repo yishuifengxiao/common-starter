@@ -10,7 +10,6 @@ import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.TokenHelper;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.AccessDeniedException;
@@ -97,7 +96,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(), token.getValue());
                     // 登陆成功
                     securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication, token);
-                } catch (CustomException e) {
+                } catch (Exception e) {
                     securityHandler.whenAuthenticationFailure(propertyResource, request, response, new AuthenticationServiceException(e.getMessage()));
                 }
 

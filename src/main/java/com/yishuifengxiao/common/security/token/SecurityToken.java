@@ -15,11 +15,14 @@ import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * 自定义访问令牌
@@ -28,6 +31,7 @@ import java.time.LocalDateTime;
  * @version 1.0.0
  * @since 1.0.0
  */
+
 @ApiModel(value = "自定义访问令牌")
 public class SecurityToken extends AbstractAuthenticationToken implements Serializable {
 
@@ -282,6 +286,14 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
         this.isActive = true;
 
+    }
+
+    public SecurityToken(Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
+    }
+
+    private SecurityToken() {
+        super(Collections.EMPTY_LIST);
     }
 
     /**

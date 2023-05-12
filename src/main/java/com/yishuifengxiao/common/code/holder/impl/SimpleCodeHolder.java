@@ -1,14 +1,14 @@
 /**
  * 
  */
-package com.yishuifengxiao.common.code.repository.impl;
+package com.yishuifengxiao.common.code.holder.impl;
+
+import com.yishuifengxiao.common.code.entity.ValidateCode;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
 
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
 
 /**
  * 基于内存实现的验证码存储器
@@ -17,7 +17,7 @@ import com.yishuifengxiao.common.code.repository.CodeRepository;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleCodeRepository implements CodeRepository {
+public class SimpleCodeHolder implements CodeHolder {
 
 	private final static Map<String, ValidateCode> MAP = new ConcurrentHashMap<>();
 
@@ -53,7 +53,7 @@ public class SimpleCodeRepository implements CodeRepository {
 	@Override
 	public synchronized void remove(String key) {
 		Iterator<String> it = MAP.keySet().iterator();
-		synchronized (SimpleCodeRepository.class) {
+		synchronized (SimpleCodeHolder.class) {
 			while (it.hasNext()) {
 				String currentKey = it.next();
 				MAP.keySet().remove(currentKey);

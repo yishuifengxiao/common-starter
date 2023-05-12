@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +68,7 @@ public class RedisTokenHolder implements TokenHolder {
         try {
             this.delete(token.getUsername(), token.getDeviceId());
             this.get(token.getUsername()).put(token.getDeviceId(), token);
+            this.get(token.getUsername()).expire(token.getValidSeconds(), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
             throw new CustomException(e.getMessage());
@@ -108,7 +110,7 @@ public class RedisTokenHolder implements TokenHolder {
     }
 
 
-    private BoundHashOperations<String, Object, Object> get(String key) {
+    private synchronized BoundHashOperations<String, Object, Object> get(String key) {
         return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(":").append(key).toString());
     }
 

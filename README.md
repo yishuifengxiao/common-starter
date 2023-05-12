@@ -33,7 +33,7 @@
 <dependency>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>5.6.0</version>
+    <version>6.0.0</version>
 </dependency>
 ```
 
@@ -185,7 +185,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
 ```
   @Autowired
-  private CodeProcessor codeProcessor;
+  private CodeHolder codeHolder;
 ```
 
 在注入一个验证码工具后，通过以下代码即可快速生成一个图形验证码。 具体的示例代码如下：
@@ -197,7 +197,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
 public Response<String> image(HttpServletRequest request, HttpServletResponse response){
 
   try {
-  codeProcessor.create(new ServletWebRequest(request, response),CodeType.IMAGE);
+  codeHolder.create(new ServletWebRequest(request, response),CodeType.IMAGE);
    } catch (ValidateException e) {
        return Response.error(e.getMessage());
    }

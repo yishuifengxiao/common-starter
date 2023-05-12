@@ -16,7 +16,7 @@ import com.yishuifengxiao.common.tool.exception.CustomException ;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface CodeProcessor {
+public interface CodeProducer {
 	/**
 	 * 创建校验码
 	 * 

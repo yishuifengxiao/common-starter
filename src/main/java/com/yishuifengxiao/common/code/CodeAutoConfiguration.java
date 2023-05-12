@@ -1,9 +1,17 @@
 package com.yishuifengxiao.common.code;
 
-import java.util.Map;
-
-import javax.annotation.PostConstruct;
-
+import com.yishuifengxiao.common.code.autoconfigure.MailExtendAutoConfiguration;
+import com.yishuifengxiao.common.code.autoconfigure.RedisExtendAutoConfiguration;
+import com.yishuifengxiao.common.code.generator.CodeGenerator;
+import com.yishuifengxiao.common.code.generator.impl.EmailCodeGenerator;
+import com.yishuifengxiao.common.code.generator.impl.ImageCodeGenerator;
+import com.yishuifengxiao.common.code.generator.impl.SmsCodeGenerator;
+import com.yishuifengxiao.common.code.holder.CodeHolder;
+import com.yishuifengxiao.common.code.holder.impl.SimpleCodeHolder;
+import com.yishuifengxiao.common.code.sender.CodeSender;
+import com.yishuifengxiao.common.code.sender.impl.ImageCodeSender;
+import com.yishuifengxiao.common.code.sender.impl.SmsCodeSender;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -13,19 +21,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.yishuifengxiao.common.code.autoconfigure.MailExtendAutoConfiguration;
-import com.yishuifengxiao.common.code.autoconfigure.RedisExtendAutoConfiguration;
-import com.yishuifengxiao.common.code.generator.CodeGenerator;
-import com.yishuifengxiao.common.code.generator.impl.EmailCodeGenerator;
-import com.yishuifengxiao.common.code.generator.impl.ImageCodeGenerator;
-import com.yishuifengxiao.common.code.generator.impl.SmsCodeGenerator;
-import com.yishuifengxiao.common.code.repository.CodeRepository;
-import com.yishuifengxiao.common.code.repository.impl.SimpleCodeRepository;
-import com.yishuifengxiao.common.code.sender.CodeSender;
-import com.yishuifengxiao.common.code.sender.impl.ImageCodeSender;
-import com.yishuifengxiao.common.code.sender.impl.SmsCodeSender;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.annotation.PostConstruct;
+import java.util.Map;
 
 /**
  * 验证码组件自动配置
@@ -47,10 +44,10 @@ public class CodeAutoConfiguration {
      *
      * @return 名为codeRepository的验证码存储器
      */
-    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {CodeRepository.class})
+    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {CodeHolder.class})
     @Bean
-    public CodeRepository codeRepository() {
-        return new SimpleCodeRepository();
+    public CodeHolder codeCodeHolder() {
+        return new SimpleCodeHolder();
     }
 
     /**
@@ -119,12 +116,12 @@ public class CodeAutoConfiguration {
      * @return 验证码处理器
      */
     @Bean
-    @ConditionalOnMissingBean({CodeProcessor.class})
-    public CodeProcessor codeProcessor(CodeProperties codeProperties, Map<String, CodeGenerator> codeGenerators,
-                                       Map<String, CodeSender> codeSenders, CodeRepository repository) {
-        SimpleCodeProcessor simpleCodeProcessor = new SimpleCodeProcessor(codeGenerators, codeSenders, repository,
+    @ConditionalOnMissingBean({CodeProducer.class})
+    public CodeProducer codeProducer(CodeProperties codeProperties, Map<String, CodeGenerator> codeGenerators,
+                                      Map<String, CodeSender> codeSenders, CodeHolder repository) {
+        SimpleCodeProducer codeProducer = new SimpleCodeProducer(codeGenerators, codeSenders, repository,
                 codeProperties);
-        return simpleCodeProcessor;
+        return codeProducer;
     }
 
     /**

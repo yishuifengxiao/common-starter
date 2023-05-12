@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.code.repository;
+package com.yishuifengxiao.common.code.holder;
 
 import com.yishuifengxiao.common.code.entity.ValidateCode;
 
@@ -9,7 +9,7 @@ import com.yishuifengxiao.common.code.entity.ValidateCode;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface CodeRepository {
+public interface CodeHolder {
 
 	/**
 	 * 存储验证码

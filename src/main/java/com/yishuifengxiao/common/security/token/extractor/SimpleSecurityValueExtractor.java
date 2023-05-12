@@ -5,6 +5,7 @@ package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.tool.encoder.Md5;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +66,9 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
             if (BooleanUtils.isTrue(propertyResource.security().getToken().getUseUserAgent())) {
                 // 使用sessionId作为用户的唯一标识符
                 deviceIdValue = HttpUtils.userAgent(request);
+                if (null != deviceIdValue) {
+                    deviceIdValue = Md5.md5Short(deviceIdValue);
+                }
             }
         }
         return deviceIdValue;
