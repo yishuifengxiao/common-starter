@@ -30,7 +30,7 @@ public class TokenUtil {
      */
     public static SecurityToken create(String username, String password) throws CustomException {
 
-        return tokenHelper.create(username, password, null);
+        return tokenHelper.create(username, null, password);
     }
 
     /**
@@ -45,7 +45,7 @@ public class TokenUtil {
     public static SecurityToken create(HttpServletRequest request, String username, String password)
             throws CustomException {
         String deviceId = securityValueExtractor.extractDeviceId(request, null);
-        return create(username, password, deviceId);
+        return create(username, deviceId, password);
     }
 
     /**
@@ -57,9 +57,9 @@ public class TokenUtil {
      * @return 生成的令牌
      * @throws CustomException 非法的用户信息或状态
      */
-    public static SecurityToken create(String username, String password, String deviceId) throws CustomException {
+    public static SecurityToken create(String username, String deviceId, String password) throws CustomException {
 
-        return tokenHelper.create(username, password, deviceId);
+        return tokenHelper.create(username, deviceId, password);
     }
 
     /**
@@ -140,6 +140,17 @@ public class TokenUtil {
             throws CustomException {
 
         return tokenHelper.createUnsafe(username, deviceId, validSeconds);
+    }
+
+
+    /**
+     * 清除所有的登录信息
+     *
+     * @param username 用户账号
+     * @throws CustomException 清除所有的登录信息时出现问题
+     */
+    public static void clearAuthentication(String username) throws CustomException {
+        tokenHelper.clear(username);
     }
 
     public TokenUtil(TokenHelper tokenHelper, SecurityValueExtractor securityValueExtractor) {

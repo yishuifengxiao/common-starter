@@ -1,12 +1,5 @@
 package com.yishuifengxiao.common.oauth2.support;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.Base64;
-import java.util.HashMap;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,16 +9,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.UnapprovedClientAuthenticationException;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.TokenRequest;
+import org.springframework.security.oauth2.provider.*;
 import org.springframework.security.oauth2.provider.authentication.TokenExtractor;
 import org.springframework.security.oauth2.provider.token.AuthorizationServerTokenServices;
 import org.springframework.security.oauth2.provider.token.ConsumerTokenServices;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.Assert;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Base64;
+import java.util.HashMap;
 
 /**
  * 
@@ -76,7 +71,7 @@ public class OAuth2TokenUtil {
 		if (authentication == null) {
 			return false;
 		}
-		String token = authentication.getPrincipal().toString();
+		String token = authentication.getName();
 		return removeToken(token);
 	}
 

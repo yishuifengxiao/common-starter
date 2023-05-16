@@ -66,9 +66,9 @@ public class RedisTokenHolder implements TokenHolder {
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
         try {
-            this.delete(token.getUsername(), token.getDeviceId());
-            this.get(token.getUsername()).put(token.getDeviceId(), token);
-            this.get(token.getUsername()).expire(token.getValidSeconds(), TimeUnit.SECONDS);
+            this.delete(token.getName(), token.getDeviceId());
+            this.get(token.getName()).put(token.getDeviceId(), token);
+            this.get(token.getName()).expire(token.getValidSeconds(), TimeUnit.SECONDS);
         } catch (Exception e) {
             log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
             throw new CustomException(e.getMessage());
@@ -124,7 +124,7 @@ public class RedisTokenHolder implements TokenHolder {
         if (null == token) {
             throw new CustomException("令牌不能为空");
         }
-        if (StringUtils.isBlank(token.getUsername())) {
+        if (null == token.getName() || StringUtils.isBlank(token.getName())) {
             throw new CustomException("令牌中必须包含用户账号信息");
         }
         if (StringUtils.isBlank(token.getDeviceId())) {

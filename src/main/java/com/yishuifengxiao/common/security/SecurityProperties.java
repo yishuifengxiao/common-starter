@@ -431,9 +431,9 @@ public class SecurityProperties {
         private String visitOnError = "该资源需要经过授权才能被访问";
 
         /**
-         * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的响应码，默认值为401
+         * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的响应码，默认值为500
          */
-        private Integer visitOnErrorCode = Response.Const.CODE_UNAUTHORIZED;
+        private Integer visitOnErrorCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
 
         /**
          * 请求中未携带访问令牌或获取到的访问令牌为空时的提示信息，令牌不能为空

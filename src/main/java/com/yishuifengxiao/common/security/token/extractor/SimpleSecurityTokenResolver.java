@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleSecurityTokenExtractor implements SecurityTokenExtractor {
+public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
 
     @Override
     public String extractTokenValue(HttpServletRequest request, HttpServletResponse response,

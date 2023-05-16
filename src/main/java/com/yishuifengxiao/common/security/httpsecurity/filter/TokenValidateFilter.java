@@ -1,14 +1,25 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
+import com.yishuifengxiao.common.security.constant.ErrorCode;
+import com.yishuifengxiao.common.security.exception.ExpireTokenException;
+import com.yishuifengxiao.common.security.exception.IllegalTokenException;
+import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityContext;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
-import com.yishuifengxiao.common.security.token.extractor.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
+import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -51,14 +62,17 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     private SecurityHandler securityHandler;
 
-    private SecurityTokenExtractor securityTokenExtractor;
+    private SecurityTokenResolver securityTokenResolver;
 
-    private AuthorizeHelper authorizeHelper;
+    /**
+     * token生成器
+     */
+    private TokenBuilder tokenBuilder;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
-            if (BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
+            if (BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter()) && !StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name())) {
                 // 先判断请求是否需要经过授权校验
                 boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
                 if (propertyResource.showDetail()) {
@@ -66,26 +80,33 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
                 }
                 if (!noRequiresAuthentication) {
                     // 从请求中获取到携带的认证
-                    String tokenValue = securityTokenExtractor.extractTokenValue(request, response, propertyResource);
+                    String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
 
                     if (propertyResource.showDetail()) {
                         log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
                     }
 
-                    if (StringUtils.isNotBlank(tokenValue)) {
+                    try {
                         // 该请求携带了认证信息
-                        Authentication authentication = authorizeHelper.authorize(tokenValue);
+                        Authentication authentication = authorize(request, tokenValue);
+
                         // 将认证信息注入到spring Security中
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    } catch (AccessDeniedException e) {
+                        securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                        return;
+                    } catch (CustomException e) {
+                        securityHandler.onException(propertyResource, request, response, e);
+                        return;
                     }
+
                 }
             }
+            filterChain.doFilter(request, response);
 
-        } catch (Exception e) {
-            securityHandler.onException(propertyResource, request, response, e);
-            return;
+        } finally {
+            SecurityContext.remove();
         }
-        filterChain.doFilter(request, response);
     }
 
 
@@ -104,6 +125,63 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
         return matcher;
     }
 
+
+    /**
+     * 验证携带的token信息
+     *
+     * @param request
+     * @param tokenValue
+     * @return Authentication
+     * @throws AccessDeniedException
+     * @throws CustomException
+     */
+    protected Authentication authorize(HttpServletRequest request, String tokenValue) throws AccessDeniedException, CustomException {
+        if (StringUtils.isBlank(tokenValue)) {
+            throw new IllegalTokenException(propertyResource.security().getMsg().getTokenValueIsNull());
+        }
+
+        // 解析token
+        SecurityToken token = tokenBuilder.loadByTokenValue(tokenValue);
+
+        if (propertyResource.showDetail()) {
+            log.info("【yishuifengxiao-common-spring-boot-starter】根据访问令牌 {} 获取到的认证信息为 {}", tokenValue, token);
+        }
+
+        if (null == token) {
+            throw new IllegalTokenException(ErrorCode.INVALID_TOKEN, propertyResource.security().getMsg().getTokenIsNull());
+        }
+
+        if (token.isExpired()) {
+            if (propertyResource.showDetail()) {
+                log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已过期 ", token);
+            }
+            // 删除失效的token
+            tokenBuilder.remove(token);
+
+            throw new ExpireTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsExpired());
+        }
+
+        if (!token.isActive()) {
+            if (propertyResource.showDetail()) {
+                log.info("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已失效 ", token);
+            }
+            // 删除失效的token
+            tokenBuilder.remove(token);
+
+            throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsInvalid());
+        }
+
+        // 刷新令牌的过期时间
+        token = tokenBuilder.refreshExpireTime(token);
+        // 将token放入当前线程
+        SecurityContext.set(token);
+
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(token.getPrincipal(), null, token.getAuthorities());
+        authentication.setDetails(new SimpleWebAuthenticationDetails(request, token));
+        return authentication;
+    }
+
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
         http.addFilterBefore(this, LogoutFilter.class);
@@ -116,12 +194,11 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     }
 
-    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                               SecurityTokenExtractor securityTokenExtractor, AuthorizeHelper authorizeHelper) {
+    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
-        this.securityTokenExtractor = securityTokenExtractor;
-        this.authorizeHelper = authorizeHelper;
+        this.securityTokenResolver = securityTokenResolver;
+        this.tokenBuilder = tokenBuilder;
 
     }
 

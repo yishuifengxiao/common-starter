@@ -126,15 +126,15 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({AuthorizeHelper.class})
-    public AuthorizeHelper authorizeHelper(PropertyResource propertyResource, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
-        AuthorizeHelper authorizeHelper = new SimpleAuthorizeHelper(propertyResource, userDetailsService, passwordEncoder, tokenBuilder);
+    public AuthorizeHelper authorizeHelper(PropertyResource propertyResource, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        AuthorizeHelper authorizeHelper = new SimpleAuthorizeHelper(propertyResource, userDetailsService, passwordEncoder);
         return authorizeHelper;
     }
 
     @Bean
     @ConditionalOnMissingBean({TokenHelper.class})
-    public TokenHelper tokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, TokenBuilder tokenBuilder) {
-        TokenHelper tokenHelper = new SimpleTokenHelper(propertyResource, authorizeHelper, tokenBuilder);
+    public TokenHelper tokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
+        TokenHelper tokenHelper = new SimpleTokenHelper(propertyResource, authorizeHelper, passwordEncoder, tokenBuilder);
         return tokenHelper;
     }
 
@@ -221,10 +221,10 @@ public class SecurityCoreAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor,
-                                                   SecurityHandler securityHandler, TokenHelper tokenHelper) {
+                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
-        authenticationPoint.setTokenHelper(tokenHelper);
+        authenticationPoint.setTokenBuilder(tokenBuilder);
         authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
         authenticationPoint.setSecurityHandler(securityHandler);
         return authenticationPoint;

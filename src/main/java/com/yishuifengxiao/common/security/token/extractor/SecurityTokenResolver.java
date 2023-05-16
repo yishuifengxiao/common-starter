@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface SecurityTokenExtractor {
+public interface SecurityTokenResolver {
 
 	/**
 	 * 从请求中提取出访问令牌信息

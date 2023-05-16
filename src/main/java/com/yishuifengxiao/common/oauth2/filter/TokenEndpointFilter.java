@@ -4,6 +4,7 @@
 package com.yishuifengxiao.common.oauth2.filter;
 
 import com.yishuifengxiao.common.oauth2.Oauth2Properties;
+import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
@@ -11,6 +12,7 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.utils.HttpExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.security.oauth2.provider.ClientDetailsService;
@@ -112,7 +114,11 @@ public class TokenEndpointFilter extends OncePerRequestFilter {
                     if (propertyResource.showDetail()) {
                         log.info("The user name obtained in oauth2 password mode is {} ", username);
                     }
-                    authorizeHelper.authorize(username, password);
+                    UserDetails userDetails = authorizeHelper.loadUserByUsername(username);
+                    if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+                        throw new CustomException(ErrorCode.PASSWORD_ERROR,
+                                propertyResource.security().getMsg().getPasswordIsError());
+                    }
                 }
 
             } catch (Exception e) {

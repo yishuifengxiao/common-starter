@@ -41,14 +41,16 @@ public interface TokenHelper {
      * @return 安全的令牌
      * @throws CustomException 创建令牌时出现问题
      */
-    SecurityToken create(String username, String password, String deviceId) throws CustomException;
+    SecurityToken create(String username, String deviceId, String password) throws CustomException;
+
 
     /**
-     * 删除token
+     * <p>清除指定账号下面的所有的令牌</p>
+     * <p>一般用于用户修改密码后使用</p>
      *
-     * @param token 待删除的token
-     * @throws CustomException 删除令牌时出现问题
+     * @param username 用户账号
+     * @throws CustomException 清除令牌时出现问题
      */
-    void remove(SecurityToken token) throws CustomException;
+    void clear(String username) throws CustomException;
 
 }

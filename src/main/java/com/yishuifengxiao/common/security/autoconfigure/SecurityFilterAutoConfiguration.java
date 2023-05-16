@@ -8,10 +8,10 @@ import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPr
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeHelper;
-import com.yishuifengxiao.common.security.token.extractor.SecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
+import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenExtractor;
+import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExtractor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -40,9 +40,9 @@ import javax.servlet.ServletException;
 public class SecurityFilterAutoConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean({SecurityTokenExtractor.class})
-    public SecurityTokenExtractor securityTokenExtractor() {
-        return new SimpleSecurityTokenExtractor();
+    @ConditionalOnMissingBean({SecurityTokenResolver.class})
+    public SecurityTokenResolver securityTokenResolver() {
+        return new SimpleSecurityTokenResolver();
     }
 
 
@@ -67,9 +67,10 @@ public class SecurityFilterAutoConfiguration {
 
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenExtractor securityTokenExtractor, AuthorizeHelper authorizeHelper) throws ServletException {
+    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
+                                                             SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) throws ServletException {
 
-        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenExtractor, authorizeHelper);
+        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenResolver, tokenBuilder);
         tokenValidateFilter.afterPropertiesSet();
         return tokenValidateFilter;
     }
@@ -77,7 +78,7 @@ public class SecurityFilterAutoConfiguration {
     /**
      * 注入一个验证码过滤器
      *
-     * @param codeProducer    验证码处理器
+     * @param codeProducer     验证码处理器
      * @param propertyResource 安全属性配置
      * @param securityHandler  协助处理器
      * @return 验证码过滤器

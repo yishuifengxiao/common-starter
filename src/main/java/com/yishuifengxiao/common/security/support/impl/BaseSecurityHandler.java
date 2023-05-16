@@ -4,12 +4,15 @@
 package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
+import com.yishuifengxiao.common.security.exception.AbnormalAccountException;
+import com.yishuifengxiao.common.security.exception.ExpireTokenException;
+import com.yishuifengxiao.common.security.exception.IllegalTokenException;
+import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +32,7 @@ import java.io.IOException;
 
 /**
  * <p>抽象协助处理器</p>
- *
+ * <p>
  * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
  *
  * @author yishui
@@ -146,7 +149,11 @@ public class BaseSecurityHandler implements SecurityHandler {
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(), propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
+            if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException || exception instanceof AbnormalAccountException) {
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
+            } else {
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(), propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
+            }
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
@@ -171,11 +178,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            if (exception instanceof CustomException || exception instanceof UncheckedException) {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), exception.getMessage(), null));
-            } else {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
-            }
+            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);

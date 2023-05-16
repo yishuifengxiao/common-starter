@@ -12,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.List;
 
 /**
  * 系统安全信息处理器
@@ -25,6 +28,8 @@ public class SimpleTokenHelper implements TokenHelper {
 
     private PropertyResource propertyResource;
 
+
+    private PasswordEncoder passwordEncoder;
     private AuthorizeHelper authorizeHelper;
     /**
      * token生成器
@@ -52,7 +57,7 @@ public class SimpleTokenHelper implements TokenHelper {
     }
 
     @Override
-    public SecurityToken create(String username, String password, String deviceId) throws CustomException {
+    public SecurityToken create(String username, String deviceId, String password) throws CustomException {
         if (StringUtils.isBlank(username)) {
             throw new CustomException("账号不能为空");
         }
@@ -61,36 +66,18 @@ public class SimpleTokenHelper implements TokenHelper {
             password = "";
         }
 
-        UserDetails userDetails = authorizeHelper.authorize(username.trim(), password);
+        UserDetails userDetails = authorizeHelper.loadUserByUsername(username.trim());
 
-        return this.create(userDetails, deviceId);
-    }
-
-    @Override
-    public void remove(SecurityToken token) throws CustomException {
-        if (null == token || null == token.getValue()) {
-            return;
+        if (!passwordEncoder.matches(password, userDetails.getPassword())) {
+            throw new CustomException(ErrorCode.PASSWORD_ERROR,
+                    propertyResource.security().getMsg().getPasswordIsError());
         }
-        tokenBuilder.remove(token);
-    }
-
-    /**
-     * <p>
-     * 根据指定参数生成访问令牌
-     * </p>
-     *
-     * @param userDetails 用户认证信息
-     * @param deviceId    设备id
-     * @return 访问令牌
-     * @throws CustomException 创建时发生问题
-     */
-    private SecurityToken create(UserDetails userDetails, String deviceId) throws CustomException {
 
         return this.create(userDetails, deviceId, propertyResource.security().getToken().getValidSeconds(),
                 propertyResource.security().getToken().getPreventsLogin(),
                 propertyResource.security().getToken().getMaxSessions());
-
     }
+
 
     /**
      * <p>
@@ -128,7 +115,7 @@ public class SimpleTokenHelper implements TokenHelper {
 
         // 根据用户信息生成一个访问令牌
         SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), deviceId, validSeconds,
-                preventsLogin, maxSessions);
+                preventsLogin, maxSessions, userDetails.getAuthorities());
         token.setDetails(userDetails);
 
         // 将认证信息注入到spring Security中
@@ -138,9 +125,27 @@ public class SimpleTokenHelper implements TokenHelper {
 
     }
 
-    public SimpleTokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, TokenBuilder tokenBuilder) {
+    /**
+     * <p>清除指定账号下面的所有的令牌</p>
+     * <p>一般用于用户修改密码后使用</p>
+     *
+     * @param username 用户账号
+     */
+    @Override
+    public void clear(String username) throws CustomException {
+        final List<SecurityToken> tokens = tokenBuilder.loadAllToken(username);
+        if (null == tokens) {
+            return;
+        }
+        for (SecurityToken token : tokens) {
+            tokenBuilder.remove(token);
+        }
+    }
+
+    public SimpleTokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.authorizeHelper = authorizeHelper;
         this.tokenBuilder = tokenBuilder;
+        this.passwordEncoder = passwordEncoder;
     }
 }

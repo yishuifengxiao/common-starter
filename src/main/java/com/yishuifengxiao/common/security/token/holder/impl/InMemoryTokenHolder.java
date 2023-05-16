@@ -48,11 +48,11 @@ public class InMemoryTokenHolder implements TokenHolder {
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
         // 先删除
-        this.delete(token.getUsername(), token.getDeviceId());
-        List<SecurityToken> tokens = this.getAll(token.getUsername());
+        this.delete(token.getName(), token.getDeviceId());
+        List<SecurityToken> tokens = this.getAll(token.getName());
         tokens.add(token);
-        map.remove(token.getUsername());
-        map.put(token.getUsername(), tokens);
+        map.remove(token.getName());
+        map.put(token.getName(), tokens);
 
     }
 
@@ -96,7 +96,7 @@ public class InMemoryTokenHolder implements TokenHolder {
         if (null == token) {
             throw new CustomException("令牌不能为空");
         }
-        if (StringUtils.isBlank(token.getUsername())) {
+        if (StringUtils.isBlank(token.getName())) {
             throw new CustomException("令牌中必须包含用户账号信息");
         }
         if (StringUtils.isBlank(token.getDeviceId())) {

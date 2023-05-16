@@ -14,15 +14,12 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Objects;
 
 /**
  * 自定义访问令牌
@@ -51,7 +48,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * 用户名
      */
     @ApiModelProperty("用户名")
-    private String username;
+    private Object principal;
 
     /**
      * 设备id
@@ -90,6 +87,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     @ApiModelProperty("当前token是否处于有效状态")
     private Boolean isActive;
+
 
     /**
      * 当前token是否已经过期
@@ -151,23 +149,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.value = value;
     }
 
-    /**
-     * 获取用户名
-     *
-     * @return 用户名
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    /**
-     * 设置用户名
-     *
-     * @param username 用户名
-     */
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     /**
      * 获取设备id
@@ -253,6 +234,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      *
      * @return 当前token是否为有效状态，true表示有效。false表示无效
      */
+    @JsonIgnore
     public Boolean isActive() {
         return isActive;
     }
@@ -268,18 +250,19 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     /**
      * @param value        当前token的值
-     * @param username     用户名
+     * @param principal     用户名
      * @param deviceId     设备id
      * @param validSeconds token有效时间
+     * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
      */
-    public SecurityToken(String value, String username, String deviceId, Integer validSeconds) {
-        super(null);
+    public SecurityToken(String value, String principal, String deviceId, Integer validSeconds, Collection<? extends GrantedAuthority> authorities) {
+        super(authorities);
         super.setAuthenticated(true);
         if (null == validSeconds || validSeconds <= 0) {
             validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
         }
         this.value = value;
-        this.username = username;
+        this.principal = principal;
         this.deviceId = deviceId;
         this.validSeconds = validSeconds;
         this.issueAt = LocalDateTime.now();
@@ -288,144 +271,56 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     }
 
+
     public SecurityToken(Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
     }
 
     private SecurityToken() {
-        super(Collections.EMPTY_LIST);
+        super(null);
     }
 
-    /**
-     * @param value        当前token的值
-     * @param validSeconds token有效时间
-     */
-    public SecurityToken(String value, Integer validSeconds) {
-        this(value, null, null, validSeconds);
-    }
-
-    /**
-     * @param value 当前token的值
-     */
-    public SecurityToken(String value) {
-        this(value, null, null, null);
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((expireAt == null) ? 0 : expireAt.hashCode());
-        result = prime * result + ((isActive == null) ? 0 : isActive.hashCode());
-        result = prime * result + ((deviceId == null) ? 0 : deviceId.hashCode());
-        result = prime * result + ((username == null) ? 0 : username.hashCode());
-        result = prime * result + ((validSeconds == null) ? 0 : validSeconds.hashCode());
-        result = prime * result + ((value == null) ? 0 : value.hashCode());
-        return result;
-    }
-
-    @Override
-    public String getName() {
-        final Object principal = this.getPrincipal();
-        if (null == principal) {
-            return this.getName();
-        }
-        if (principal instanceof UserDetails) {
-            return ((UserDetails) principal).getUsername();
-        }
-        if (principal instanceof AuthenticatedPrincipal) {
-            return ((AuthenticatedPrincipal) principal).getName();
-        }
-        if (this.getPrincipal() instanceof Principal) {
-            return ((Principal) principal).getName();
-        }
-
-        return principal.toString();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        SecurityToken other = (SecurityToken) obj;
-        if (expireAt == null) {
-            if (other.expireAt != null) {
-                return false;
-            }
-        } else if (!expireAt.equals(other.expireAt)) {
-            return false;
-        }
-        if (isActive == null) {
-            if (other.isActive != null) {
-                return false;
-            }
-        } else if (!isActive.equals(other.isActive)) {
-            return false;
-        }
-        if (deviceId == null) {
-            if (other.deviceId != null) {
-                return false;
-            }
-        } else if (!deviceId.equals(other.deviceId)) {
-            return false;
-        }
-        if (username == null) {
-            if (other.username != null) {
-                return false;
-            }
-        } else if (!username.equals(other.username)) {
-            return false;
-        }
-        if (validSeconds == null) {
-            if (other.validSeconds != null) {
-                return false;
-            }
-        } else if (!validSeconds.equals(other.validSeconds)) {
-            return false;
-        }
-        if (value == null) {
-            if (other.value != null) {
-                return false;
-            }
-        } else if (!value.equals(other.value)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("SecurityToken [value=");
-        builder.append(value);
-        builder.append(", username=");
-        builder.append(username);
-        builder.append(", deviceId=");
-        builder.append(deviceId);
-        builder.append(", validSeconds=");
-        builder.append(validSeconds);
-        builder.append(", expireAt=");
-        builder.append(expireAt);
-        builder.append(", isActive=");
-        builder.append(isActive);
-        builder.append("]");
-        return builder.toString();
-    }
 
     @Override
     public Object getCredentials() {
-        return this.value;
+        return null;
     }
 
     @Override
     public Object getPrincipal() {
-        return this.getUsername();
+        return this.principal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SecurityToken)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        SecurityToken that = (SecurityToken) o;
+        return value.equals(that.value) && principal.equals(that.principal) && deviceId.equals(that.deviceId) && validSeconds.equals(that.validSeconds) && issueAt.equals(that.issueAt) && expireAt.equals(that.expireAt) && isActive.equals(that.isActive);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), value, principal, deviceId, validSeconds, issueAt, expireAt, isActive);
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityToken{" +
+                "value='" + value + '\'' +
+                ", principal=" + principal +
+                ", deviceId='" + deviceId + '\'' +
+                ", validSeconds=" + validSeconds +
+                ", issueAt=" + issueAt +
+                ", expireAt=" + expireAt +
+                ", isActive=" + isActive +
+                '}';
     }
 }

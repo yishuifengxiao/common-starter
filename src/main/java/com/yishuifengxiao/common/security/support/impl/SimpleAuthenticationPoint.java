@@ -8,7 +8,8 @@ import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.TokenHelper;
+import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
+import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -55,9 +56,9 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     protected SecurityValueExtractor securityValueExtractor;
 
     /**
-     * 安全处理工具
+     * token生成器
      */
-    protected TokenHelper tokenHelper;
+    protected TokenBuilder tokenBuilder;
 
 
     private SecurityHandler securityHandler;
@@ -89,8 +90,10 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                 try {
                     // 根据登陆信息生成一个token
                     String deviceId = securityValueExtractor.extractDeviceId(request, response);
-
-                    SecurityToken token = tokenHelper.createUnsafe(authentication.getName(), deviceId);
+                    SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), deviceId,
+                            propertyResource.security().getToken().getValidSeconds(),
+                            propertyResource.security().getToken().getPreventsLogin(),
+                            propertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
 
                     // 将生成的token存储在session中
                     request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(), token.getValue());
@@ -112,10 +115,16 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
             public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
                 try {
-                    // 取出存储的信息
-                    SecurityToken token = GuavaCache.get(SecurityToken.class);
+                    SecurityToken token = null;
+                    if (null != authentication.getDetails() && authentication.getDetails() instanceof SimpleWebAuthenticationDetails) {
+                        token = ((SimpleWebAuthenticationDetails) authentication.getDetails()).getToken();
+                    }
+                    if (null == token) {
+                        // 取出存储的信息
+                        token = GuavaCache.currentGet(SecurityToken.class);
+                    }
                     if (null != token && StringUtils.isNotBlank(token.getValue())) {
-                        tokenHelper.remove(token);
+                        tokenBuilder.remove(token);
                     }
                 } catch (Exception e) {
                     log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
@@ -151,12 +160,12 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
         this.securityValueExtractor = securityValueExtractor;
     }
 
-    public TokenHelper getTokenHelper() {
-        return tokenHelper;
+    public TokenBuilder getTokenBuilder() {
+        return tokenBuilder;
     }
 
-    public void setTokenHelper(TokenHelper tokenHelper) {
-        this.tokenHelper = tokenHelper;
+    public void setTokenBuilder(TokenBuilder tokenBuilder) {
+        this.tokenBuilder = tokenBuilder;
     }
 
     public SecurityHandler getSecurityHandler() {

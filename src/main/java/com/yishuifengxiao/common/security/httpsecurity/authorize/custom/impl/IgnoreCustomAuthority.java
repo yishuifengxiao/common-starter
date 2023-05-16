@@ -3,18 +3,15 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.AntPathMatcher;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-
-import lombok.extern.slf4j.Slf4j;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 默认的授权表达式实现
@@ -48,8 +45,8 @@ public class IgnoreCustomAuthority implements CustomResourceProvider {
 		// 获取到请求的uri
 		String path = request.getRequestURI();
 
-		if (auth == null || auth.getPrincipal() == null
-				|| StringUtils.endsWithIgnoreCase(auth.getPrincipal().toString(), "anonymousUser")) {
+		if (auth == null || auth.getName() == null
+				|| StringUtils.equalsIgnoreCase(auth.getName(), "anonymousUser")) {
 			for (String url : urls) {
 				boolean orinal = matcher.match(url.trim(), path);
 				log.debug("> 1) 当前请求路径为{},匹配路径为{},匹配结果为{}", path, url, orinal);

@@ -6,17 +6,16 @@ package com.yishuifengxiao.common.security.token.builder;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.authentication.SimpleAuthority;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.encoder.DES;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -46,11 +45,12 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @param validSeconds  token的有效时间，单位为秒
      * @param preventsLogin 在达到最大的token数量限制时是否阻止后面的用户登陆
      * @param maxSessions   最大的token数量
+     * @param authorities   authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
      * @return SecurityToken 生成的token
      * @throws CustomException 生成时出现了问题
      */
     @Override
-    public synchronized SecurityToken creatNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions) throws CustomException {
+    public synchronized SecurityToken creatNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions, Collection<? extends GrantedAuthority> authorities) throws CustomException {
         if (StringUtils.isBlank(username)) {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
@@ -67,12 +67,8 @@ public class SimpleTokenBuilder implements TokenBuilder {
             // token已经存在
             if (token.isAvailable()) {
                 // 当前token还有效
-
-                // 重置有效期
-                token.refreshExpireTime();
                 // 更新token
-                tokenHolder.save(token);
-                return token;
+                return this.refreshExpireTime(token);
 
             } else {
                 // token已经失效,删除旧的token信息
@@ -80,7 +76,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
             }
         }
 
-        return createNewToken(username, deviceId, validSeconds, preventsLogin, maxSessions);
+        return createNewToken(username, deviceId, validSeconds, preventsLogin, maxSessions, authorities);
     }
 
     /**
@@ -91,10 +87,11 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @param validSeconds  token有效期
      * @param preventsLogin 是否阻止后面的用户登陆
      * @param maxSessions   最大登陆数量限制
+     * @param authorities   authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
      * @return
      * @throws CustomException
      */
-    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions) throws CustomException {
+    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions, Collection<? extends GrantedAuthority> authorities) throws CustomException {
         // 先取出该用户所有可用的token
         List<SecurityToken> list = this.loadAllToken(username);
 
@@ -102,13 +99,13 @@ public class SimpleTokenBuilder implements TokenBuilder {
             list = new ArrayList<>();
         }
         // 清除已过期的token
-        list.stream().filter(v -> !v.isAvailable()).forEach(v -> tokenHolder.delete(v.getUsername(), v.getDeviceId()));
+        list.stream().filter(v -> !v.isAvailable()).forEach(v -> tokenHolder.delete(v.getName(), v.getDeviceId()));
         // 所有激活状态的token
         List<SecurityToken> activeTokens = list.stream().filter(SecurityToken::isAvailable).collect(Collectors.toList());
 
         String tokenValue = DES.encrypt(new StringBuffer(username).append(TokenConstant.TOKEN_SPLIT_CHAR).append(deviceId).append(TokenConstant.TOKEN_SPLIT_CHAR).append(System.currentTimeMillis()).toString());
-
-        SecurityToken newToken = new SecurityToken(tokenValue, username, deviceId, validSeconds);
+        authorities = null == authorities ? Collections.emptyList() : authorities.stream().map(v -> new SimpleAuthority(v.getAuthority())).collect(Collectors.toList());
+        SecurityToken newToken = new SecurityToken(tokenValue, username, deviceId, validSeconds, authorities);
 
         if (activeTokens.size() >= maxSessions) {
             if (preventsLogin) {
@@ -177,7 +174,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
         if (null == token) {
             return;
         }
-        tokenHolder.delete(token.getUsername(), token.getDeviceId());
+        tokenHolder.delete(token.getName(), token.getDeviceId());
     }
 
     @Override
