@@ -6,7 +6,6 @@ import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityContext;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
@@ -71,42 +70,37 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        try {
-            if (BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter()) && !StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name())) {
-                // 先判断请求是否需要经过授权校验
-                boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
-                if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), !noRequiresAuthentication);
-                }
-                if (!noRequiresAuthentication) {
-                    // 从请求中获取到携带的认证
-                    String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
-
-                    if (propertyResource.showDetail()) {
-                        log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
-                    }
-
-                    try {
-                        // 该请求携带了认证信息
-                        Authentication authentication = authorize(request, tokenValue);
-
-                        // 将认证信息注入到spring Security中
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    } catch (AccessDeniedException e) {
-                        securityHandler.whenAccessDenied(propertyResource, request, response, e);
-                        return;
-                    } catch (CustomException e) {
-                        securityHandler.onException(propertyResource, request, response, e);
-                        return;
-                    }
-
-                }
+        if (BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter()) && !StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name())) {
+            // 先判断请求是否需要经过授权校验
+            boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
+            if (propertyResource.showDetail()) {
+                log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), !noRequiresAuthentication);
             }
-            filterChain.doFilter(request, response);
+            if (!noRequiresAuthentication) {
+                // 从请求中获取到携带的认证
+                String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
 
-        } finally {
-            SecurityContext.remove();
+                if (propertyResource.showDetail()) {
+                    log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
+                }
+
+                try {
+                    // 该请求携带了认证信息
+                    Authentication authentication = authorize(request, tokenValue);
+
+                    // 将认证信息注入到spring Security中
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (AccessDeniedException e) {
+                    securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                    return;
+                } catch (CustomException e) {
+                    securityHandler.onException(propertyResource, request, response, e);
+                    return;
+                }
+
+            }
         }
+        filterChain.doFilter(request, response);
     }
 
 
@@ -173,8 +167,6 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
         // 刷新令牌的过期时间
         token = tokenBuilder.refreshExpireTime(token);
-        // 将token放入当前线程
-        SecurityContext.set(token);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(token.getPrincipal(), null, token.getAuthorities());
         authentication.setDetails(new SimpleWebAuthenticationDetails(request, token));
