@@ -7,6 +7,7 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomRe
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,6 +63,11 @@ public class IgnoreCustomAuthority implements CustomResourceProvider {
 		}
 		log.debug("【授权管理】当前请求的URI为 {},匹配结果为{}", path, isMatch);
 		return isMatch;
+	}
+
+	@Override
+	public RequestMatcher requestMatcher() {
+		return null;
 	}
 
 	public Set<String> getUrls() {

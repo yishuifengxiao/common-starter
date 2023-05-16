@@ -104,10 +104,7 @@ public class SecurityProperties {
      */
     private String cookieName = SecurityConstant.DEFAULT_COOKIE_NAME;
 
-    /**
-     * 是否关闭前置参数验证,默认为false
-     */
-    private Boolean closePreAuth = false;
+
     /**
      * spring security session相关的配置
      */
@@ -163,11 +160,6 @@ public class SecurityProperties {
          * 所有直接放行的资源
          */
         private List<String> permits = new ArrayList<>();
-
-        /**
-         * 自定义权限判断的资源
-         */
-        private List<String> customs = new ArrayList<>();
     }
 
 
@@ -230,9 +222,9 @@ public class SecurityProperties {
     @NoArgsConstructor
     public static class SessionProperties {
         /**
-         * 同一个用户在系统中的最大session数，默认8888
+         * 同一个用户在系统中的最大session数，默认10
          */
-        private int maximumSessions = 8888;
+        private int maximumSessions = 10;
         /**
          * 达到最大session时是否阻止新的登录请求，默认为false，不阻止，新的登录会将老的登录失效掉
          */

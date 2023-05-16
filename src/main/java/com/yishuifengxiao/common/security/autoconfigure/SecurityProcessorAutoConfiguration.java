@@ -5,7 +5,6 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomRe
 import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.*;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -16,6 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+
+import java.util.Map;
 
 /**
  * @author yishui
@@ -47,14 +48,14 @@ public class SecurityProcessorAutoConfiguration {
         /**
          * 自定义授权提供器
          *
-         * @param customResourceProvider 自定义授权提供器
+         * @param customResourceProviders 自定义授权提供器
          * @return 授权提供器实例
          */
         @Bean("resourceAuthorizeProvider")
         @ConditionalOnMissingBean(name = "resourceAuthorizeProvider")
-        public AuthorizeProvider resourceAuthorizeProvider(@Autowired(required = false) @Qualifier("customResourceProvider") CustomResourceProvider customResourceProvider) {
+        public AuthorizeProvider resourceAuthorizeProvider(@Autowired(required = false) Map<String, CustomResourceProvider> customResourceProviders) {
             ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
-            resourceAuthorizeProvider.setCustomResourceProvider(customResourceProvider);
+            resourceAuthorizeProvider.setCustomResourceProviders(customResourceProviders);
             return resourceAuthorizeProvider;
         }
 

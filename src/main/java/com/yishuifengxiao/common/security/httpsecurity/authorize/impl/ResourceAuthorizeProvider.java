@@ -2,11 +2,13 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
+import com.yishuifengxiao.common.security.support.PropertyResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+
+import java.util.Map;
 
 /**
  * 资源设置处理器
@@ -19,9 +21,10 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
 
     /**
-     * 实例的名字必须为 <code>customResourceProvider</code>
+     * key CustomResourceProvider的名字
+     * value CustomResourceProvider的实例
      */
-    private CustomResourceProvider customResourceProvider;
+    private Map<String, CustomResourceProvider> customResourceProviders;
 
     @Override
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
@@ -45,14 +48,11 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
             registry.antMatchers(url).anonymous();
         }
         // 所有自定义权限路径的资源
-        if (null != this.customResourceProvider) {
-            for (String path : propertyResource.allCustomUrls()) {
-                // 自定义权限
-                registry.antMatchers(path).access("@customResourceProvider.hasPermission(request, authentication)");
-                registry.mvcMatchers(path).access("@customResourceProvider.hasPermission(request, authentication)");
-            }
+        if (null != this.customResourceProviders) {
+            customResourceProviders.forEach((providerName, provider) -> {
+                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission(request, authentication)");
+            });
         }
-
 
         //只要经过了授权就能访问
         registry.anyRequest().authenticated();
@@ -64,11 +64,11 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         return Integer.MAX_VALUE;
     }
 
-    public CustomResourceProvider getCustomResourceProvider() {
-        return customResourceProvider;
+    public Map<String, CustomResourceProvider> getCustomResourceProviders() {
+        return customResourceProviders;
     }
 
-    public void setCustomResourceProvider(CustomResourceProvider customResourceProvider) {
-        this.customResourceProvider = customResourceProvider;
+    public void setCustomResourceProviders(Map<String, CustomResourceProvider> customResourceProviders) {
+        this.customResourceProviders = customResourceProviders;
     }
 }

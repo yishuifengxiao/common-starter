@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.annotation.PostConstruct;
 import javax.annotation.Priority;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 全局异常捕获自动配置
@@ -71,14 +72,14 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
      */
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler({RuntimeException.class, Exception.class, Throwable.class})
-    public Object catchThrowable(HttpServletRequest request, Throwable e) {
+    public Object catchThrowable(HttpServletRequest request, HttpServletResponse response, Throwable e) {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
-        Object response = proxyErrorHelper.extract(e);
+        Object result = proxyErrorHelper.extract(request, response, e);
         if (log.isInfoEnabled()) {
             log.info("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
         }
-        return response;
+        return result;
     }
 
     /**
@@ -100,6 +101,6 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.proxyErrorHelper = ProxyErrorHelper.instance(errorHelper, webProperties);
+        this.proxyErrorHelper = new ProxyErrorHelper(errorHelper, webProperties.getError());
     }
 }

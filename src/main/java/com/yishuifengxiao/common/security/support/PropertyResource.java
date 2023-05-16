@@ -3,10 +3,10 @@
  */
 package com.yishuifengxiao.common.security.support;
 
+import com.yishuifengxiao.common.security.SecurityProperties;
+
 import java.util.List;
 import java.util.Set;
-
-import com.yishuifengxiao.common.security.SecurityProperties;
 
 /**
  * <p>资源管理器</p>
@@ -41,12 +41,6 @@ public interface PropertyResource {
      */
     List<String> anonymousUrls();
 
-    /**
-     * 获取所有自定义权限的资源
-     *
-     * @return 自定义权限的资源
-     */
-    Set<String> allCustomUrls();
 
     /**
      * 获取所有不需要经过token校验的资源的路径

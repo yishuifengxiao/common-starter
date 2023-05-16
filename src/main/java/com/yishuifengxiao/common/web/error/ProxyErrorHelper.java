@@ -12,6 +12,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.io.IOException;
@@ -37,16 +39,16 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
 
 
     @Override
-    public Object extract(Throwable e) {
-        Object response = null;
+    public Object extract(HttpServletRequest request, HttpServletResponse response, Throwable e) {
+        Object result = null;
         if (null != this.errorHelper) {
-            response = this.errorHelper.extract(e);
+            result = this.errorHelper.extract(request, response, e);
         }
-        if (null != response) {
-            return response;
+        if (null != result) {
+            return result;
         }
-        response = createResponse(e);
-        return null != response ? response : Response.error(getErrorMsg(e));
+        result = createResponse(e);
+        return null != result ? result : Response.error(getErrorMsg(e));
     }
 
     /**
@@ -155,26 +157,13 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
         this.exceptionProperties = exceptionProperties;
     }
 
-    public ProxyErrorHelper() {
+    private ProxyErrorHelper() {
     }
 
     public ProxyErrorHelper(ErrorHelper errorHelper, WebEnhanceProperties.WebExceptionProperties exceptionProperties) {
         this.errorHelper = errorHelper;
         this.exceptionProperties = exceptionProperties;
+        this.afterPropertiesSet();
     }
 
-    /**
-     * 生成处理实例
-     *
-     * @param errorHelper
-     * @param webEnhanceProperties
-     * @return
-     */
-    public static ErrorHelper instance(ErrorHelper errorHelper, WebEnhanceProperties webEnhanceProperties) {
-        ProxyErrorHelper handler = new ProxyErrorHelper();
-        handler.setErrorHandler(errorHelper);
-        handler.setExceptionProperties(null == webEnhanceProperties ? null : webEnhanceProperties.getError());
-        handler.afterPropertiesSet();
-        return handler;
-    }
 }

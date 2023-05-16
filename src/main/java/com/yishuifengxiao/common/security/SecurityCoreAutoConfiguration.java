@@ -37,8 +37,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -166,7 +168,10 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders, AuthenticationPoint authenticationPoint, List<SecurityRequestFilter> securityRequestFilters, PropertyResource propertyResource) {
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
+                                                   AuthenticationPoint authenticationPoint,
+                                                   List<SecurityRequestFilter> securityRequestFilters,
+                                                   PropertyResource propertyResource) {
         SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
@@ -220,8 +225,7 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor,
-                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
         authenticationPoint.setTokenBuilder(tokenBuilder);
@@ -240,15 +244,47 @@ public class SecurityCoreAutoConfiguration {
         return new AcceptHeaderLocaleResolver();
     }
 
+    /**
+     * 解决DaoAuthenticationProvider 的hideUserNotFoundExceptions默认为true导致的UsernameNotFoundException被隐藏的问题
+     *
+     * @param passwordEncoder
+     * @param userDetailsService
+     * @return
+     */
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
+        return provider;
+    }
 
+
+    /**
+     * spring security 自定义入口
+     *
+     * @param http
+     * @param httpSecurityManager
+     * @return
+     * @throws Exception
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
         httpSecurityManager.apply(http);
         return http.build();
     }
 
+    /**
+     * spring security 自定义入口
+     *
+     * @param webSecurityManager
+     * @return
+     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(WebSecurityManager webSecurityManager) {
+
         // 设置忽视的目录
         return web -> webSecurityManager.apply(web);
     }
@@ -262,6 +298,7 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+
         return authenticationConfiguration.getAuthenticationManager();
     }
 

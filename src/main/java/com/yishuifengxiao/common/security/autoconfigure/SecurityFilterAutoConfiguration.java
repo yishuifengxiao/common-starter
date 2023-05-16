@@ -4,7 +4,6 @@ import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.UsernamePasswordPreAuthFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
@@ -21,8 +20,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.ServletException;
 
@@ -54,16 +51,6 @@ public class SecurityFilterAutoConfiguration {
     }
 
 
-    @Bean("usernamePasswordPreAuthFilter")
-    @ConditionalOnMissingBean(name = {"usernamePasswordPreAuthFilter"})
-    public SecurityRequestFilter usernamePasswordPreAuthFilter(SecurityHandler securityHandler,
-                                                               UserDetailsService userDetailsService,
-                                                               PasswordEncoder passwordEncoder,
-                                                               PropertyResource propertyResource,
-                                                               SecurityValueExtractor securityValueExtractor) {
-        UsernamePasswordPreAuthFilter usernamePasswordPreAuthFilter = new UsernamePasswordPreAuthFilter(securityHandler, userDetailsService, passwordEncoder, propertyResource, securityValueExtractor);
-        return usernamePasswordPreAuthFilter;
-    }
 
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})

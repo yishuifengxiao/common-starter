@@ -30,32 +30,32 @@ import org.springframework.security.oauth2.provider.error.WebResponseExceptionTr
 @Slf4j
 public class AuthWebResponseExceptionTranslator implements WebResponseExceptionTranslator<OAuth2Exception> {
 
-	private final ErrorHelper errorHelper;
+    private final ErrorHelper errorHelper;
 
-	@SuppressWarnings({ "unused", "rawtypes" })
-	@Override
-	public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.set("Access-Control-Allow-Origin", "*");
-		responseHeaders.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
-		responseHeaders.set("Access-Control-Allow-Credentials", "true");
-		responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
-		responseHeaders.setAccessControlAllowCredentials(true);
+    @SuppressWarnings({"unused", "rawtypes"})
+    @Override
+    public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("Access-Control-Allow-Origin", "*");
+        responseHeaders.set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE");
+        responseHeaders.set("Access-Control-Allow-Credentials", "true");
+        responseHeaders.setContentType(MediaType.APPLICATION_JSON_UTF8);
+        responseHeaders.setAccessControlAllowCredentials(true);
 
-		log.debug("【Oauth2服务】 Auth2认证异常，异常的原因为 {}", e);
+        log.debug("【Oauth2服务】 Auth2认证异常，异常的原因为 {}", e);
 
-		// 获取配置的提示信息
-		Object extract = errorHelper.extract(e);
-		if (null == extract) {
-			extract = "未知异常";
-		}
-		OAuth2Exception exception = new OAuth2Exception(
-				(extract instanceof Response) ? ((Response) extract).getMsg() : extract.toString());
-		return new ResponseEntity<OAuth2Exception>(exception, responseHeaders, HttpStatus.OK);
-	}
+        // 获取配置的提示信息
+        Object extract = errorHelper.extract(null, null, e);
+        if (null == extract) {
+            extract = "未知异常";
+        }
+        OAuth2Exception exception = new OAuth2Exception(
+                (extract instanceof Response) ? ((Response) extract).getMsg() : extract.toString());
+        return new ResponseEntity<OAuth2Exception>(exception, responseHeaders, HttpStatus.OK);
+    }
 
-	public AuthWebResponseExceptionTranslator(ErrorHelper errorHelper) {
-		this.errorHelper = errorHelper;
-	}
+    public AuthWebResponseExceptionTranslator(ErrorHelper errorHelper) {
+        this.errorHelper = errorHelper;
+    }
 
 }

@@ -18,7 +18,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -102,6 +104,18 @@ public class BaseSecurityHandler implements SecurityHandler {
         if (exception instanceof CustomException) {
             CustomException e = (CustomException) exception;
             msg = e.getMessage();
+        } else if (exception instanceof BadCredentialsException) {
+            msg = propertyResource.security().getMsg().getPasswordIsError();
+        } else if (exception instanceof UsernameNotFoundException) {
+            msg = propertyResource.security().getMsg().getAccountNoExtis();
+        } else if (exception instanceof LockedException) {
+            msg = propertyResource.security().getMsg().getAccountLocked();
+        } else if (exception instanceof DisabledException) {
+            msg = propertyResource.security().getMsg().getAccountNoEnable();
+        } else if (exception instanceof AccountExpiredException) {
+            msg = propertyResource.security().getMsg().getAccountExpired();
+        } else if (exception instanceof CredentialsExpiredException) {
+            msg = propertyResource.security().getMsg().getPasswordExpired();
         }
         if (HttpUtils.isJsonRequest(request)) {
             HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));

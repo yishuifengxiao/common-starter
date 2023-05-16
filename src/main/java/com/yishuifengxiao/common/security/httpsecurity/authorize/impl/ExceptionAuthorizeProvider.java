@@ -20,7 +20,8 @@ public class ExceptionAuthorizeProvider implements AuthorizeProvider {
         //@formatter:off
         http.exceptionHandling()
 		// 定义的不存在access_token时候响应
-		.authenticationEntryPoint(authenticationPoint).accessDeniedHandler(authenticationPoint)
+		.authenticationEntryPoint(authenticationPoint)
+                .accessDeniedHandler(authenticationPoint)
 		//自定义权限拒绝处理器
 		;
 		//@formatter:on  

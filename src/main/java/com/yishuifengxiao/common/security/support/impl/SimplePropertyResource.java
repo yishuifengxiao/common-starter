@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 /**
  * 简单实现的资源管理器
  *
- *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -96,14 +95,6 @@ public class SimplePropertyResource implements PropertyResource {
         return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
     }
 
-    @Override
-    public Set<String> allCustomUrls() {
-        Set<String> urls = this.getUrls(this.securityProperties.getResource().getCustoms());
-        if (show) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】需要自定义权限的路径为 {}", StringUtils.join(urls, " ; "));
-        }
-        return urls;
-    }
 
     @Override
     public Set<String> allUnCheckUrls() {
