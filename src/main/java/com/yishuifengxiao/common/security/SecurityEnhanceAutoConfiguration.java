@@ -10,28 +10,26 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMe
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.token.SimpleTokenHelper;
-import com.yishuifengxiao.common.security.token.TokenHelper;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
-import com.yishuifengxiao.common.security.user.encoder.impl.SimpleBasePasswordEncoder;
+import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
-import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -70,10 +68,11 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
-@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
+        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @AutoConfigureAfter({RedisCoreAutoConfiguration.class})
-public class SecurityCoreAutoConfiguration {
+public class SecurityEnhanceAutoConfiguration {
 
     /**
      * 注入自定义密码加密类
@@ -84,7 +83,7 @@ public class SecurityCoreAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public PasswordEncoder passwordEncoder(PropertyResource propertyResource) {
-        return new SimpleBasePasswordEncoder(propertyResource);
+        return new SimplePasswordEncoder(propertyResource);
     }
 
     /**
@@ -108,10 +107,24 @@ public class SecurityCoreAutoConfiguration {
      * @return 记住密码策略
      */
     @Bean
-    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {PersistentTokenRepository.class})
+    @ConditionalOnMissingBean(value = {PersistentTokenRepository.class})
+    @ConditionalOnMissingClass({"org.springframework.data.redis.core.RedisOperations"})
     public PersistentTokenRepository inMemoryTokenRepository() {
         return new InMemoryTokenRepository();
     }
+
+    /**
+     * 注入一个基于内存的token存取工具
+     *
+     * @return token存取工具
+     */
+    @Bean
+    @ConditionalOnMissingBean(value = {TokenHolder.class})
+    @ConditionalOnMissingClass({"org.springframework.data.redis.core.RedisOperations"})
+    public TokenHolder tokenHolder() {
+        return new InMemoryTokenHolder();
+    }
+
 
     /**
      * 注入一个资源管理器
@@ -126,25 +139,14 @@ public class SecurityCoreAutoConfiguration {
         return propertyResource;
     }
 
-    @Bean
-    @ConditionalOnMissingBean({AuthorizeHelper.class})
-    public AuthorizeHelper authorizeHelper(PropertyResource propertyResource, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
-        AuthorizeHelper authorizeHelper = new SimpleAuthorizeHelper(propertyResource, userDetailsService, passwordEncoder);
-        return authorizeHelper;
-    }
-
-    @Bean
-    @ConditionalOnMissingBean({TokenHelper.class})
-    public TokenHelper tokenHelper(PropertyResource propertyResource, AuthorizeHelper authorizeHelper, PasswordEncoder passwordEncoder, TokenBuilder tokenBuilder) {
-        TokenHelper tokenHelper = new SimpleTokenHelper(propertyResource, authorizeHelper, passwordEncoder, tokenBuilder);
-        return tokenHelper;
-    }
 
     @Bean
     @ConditionalOnMissingBean({TokenUtil.class})
-    @ConditionalOnBean({TokenHelper.class})
-    public TokenUtil tokenUtil(TokenHelper tokenHelper, SecurityValueExtractor securityValueExtractor) {
-        return new TokenUtil(tokenHelper, securityValueExtractor);
+    public TokenUtil tokenUtil(PropertyResource propertyResource, PasswordEncoder passwordEncoder,
+                               UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
+                               SecurityValueExtractor securityValueExtractor) {
+        return new TokenUtil(propertyResource, passwordEncoder, userDetailsService, tokenBuilder,
+                securityValueExtractor);
     }
 
     /**
@@ -172,7 +174,8 @@ public class SecurityCoreAutoConfiguration {
                                                    AuthenticationPoint authenticationPoint,
                                                    List<SecurityRequestFilter> securityRequestFilters,
                                                    PropertyResource propertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders, propertyResource, authenticationPoint, securityRequestFilters);
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
+                propertyResource, authenticationPoint, securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -186,21 +189,12 @@ public class SecurityCoreAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({WebSecurityManager.class})
-    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders, PropertyResource propertyResource) {
+    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders,
+                                                 PropertyResource propertyResource) {
         WebSecurityManager webSecurityManager = new SimpleWebSecurityManager(webSecurityProviders, propertyResource);
         return webSecurityManager;
     }
 
-    /**
-     * 注入一个基于内存的token存取工具
-     *
-     * @return token存取工具
-     */
-    @Bean
-    @ConditionalOnMissingBean(name = {"redisTemplate"}, value = {TokenHolder.class})
-    public TokenHolder tokenHolder() {
-        return new InMemoryTokenHolder();
-    }
 
     /**
      * 注入一个TokenBuilder
@@ -225,7 +219,9 @@ public class SecurityCoreAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource, SecurityValueExtractor securityValueExtractor, SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource,
+                                                   SecurityValueExtractor securityValueExtractor,
+                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
         authenticationPoint.setTokenBuilder(tokenBuilder);
@@ -252,7 +248,8 @@ public class SecurityCoreAutoConfiguration {
      * @return
      */
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder, UserDetailsService userDetailsService) {
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
+                                                               UserDetailsService userDetailsService) {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setHideUserNotFoundExceptions(false);
         provider.setUserDetailsService(userDetailsService);
@@ -276,6 +273,7 @@ public class SecurityCoreAutoConfiguration {
         return http.build();
     }
 
+
     /**
      * spring security 自定义入口
      *
@@ -290,7 +288,8 @@ public class SecurityCoreAutoConfiguration {
     }
 
     /**
-     * 获取AuthenticationManager（认证管理器），登录时认证使用
+     * <p>获取AuthenticationManager（认证管理器），登录时认证使用</p>
+     * <p style="color:red;"> 显示注入一个AuthenticationManager以便兼容全局使用</p>
      *
      * @param authenticationConfiguration
      * @return

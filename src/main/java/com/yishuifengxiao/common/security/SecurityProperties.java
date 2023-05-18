@@ -68,11 +68,11 @@ public class SecurityProperties {
     /**
      * 表单提交时默认的用户名参数，默认值为 username
      */
-    private String usernameParameter = SecurityConstant.USERNAME_PARAMTER;
+    private String usernameParameter = SecurityConstant.USERNAME_PARAMETER;
     /**
      * 表单提交时默认的密码名参数，默认值为 password
      */
-    private String passwordParameter = SecurityConstant.PASSWORD_PARAMTER;
+    private String passwordParameter = SecurityConstant.PASSWORD_PARAMETER;
     /**
      * 系统登陆页面的地址 ,默认为 /toLogin
      */
@@ -190,12 +190,12 @@ public class SecurityProperties {
          */
         private Boolean preventsLogin = false;
         /**
-         * 从请求头里取出认证信息时的参数名，默认为 xtoken
+         * 从请求头参数里取出认证信息时的参数名，默认为 Authorization
          */
-        private String headerParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+        private String headerParameter = TokenConstant.TOKEN_HEADER_PARAM;
 
         /**
-         * 从请求参数里取出认证信息时的参数名，默认为 xtoken
+         * 从请求URL参数里取出认证信息时的参数名，默认为 access_token
          */
         private String requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
@@ -302,7 +302,7 @@ public class SecurityProperties {
         /**
          * 登陆时开启记住我的参数,默认为 rememberMe
          */
-        private String rememberMeParameter = SecurityConstant.REMEMBER_ME_PARAMTER;
+        private String rememberMeParameter = SecurityConstant.REMEMBER_ME_PARAMETER;
 
         /**
          * 默认过期时间为60分钟

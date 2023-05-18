@@ -4,7 +4,6 @@
 package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
-import com.yishuifengxiao.common.security.exception.AbnormalAccountException;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
@@ -68,12 +67,15 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
+    public void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request,
+                                          HttpServletResponse response, Authentication authentication,
+                                          SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
 
         final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
         if (null != attribute && StringUtils.isNotBlank(attribute.toString())) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected that the historical blocking path is {}, and will be redirected to this address", attribute);
+            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected that" +
+                    " the historical blocking path is {}, and will be redirected to this address", attribute);
             redirectStrategy.sendRedirect(request, response, attribute.toString());
         }
         if (HttpUtils.isJsonRequest(request)) {
@@ -94,7 +96,8 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
+    public void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request,
+                                          HttpServletResponse response, Exception exception) throws IOException {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 
@@ -118,7 +121,8 @@ public class BaseSecurityHandler implements SecurityHandler {
             msg = propertyResource.security().getMsg().getPasswordExpired();
         }
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));
+            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
+                    exception.getMessage()));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginFailUrl(), exception);
@@ -133,7 +137,8 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request,
+                                  HttpServletResponse response, Authentication authentication) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
 
@@ -157,16 +162,20 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) throws IOException {
+    public void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request,
+                                 HttpServletResponse response, AccessDeniedException exception) throws IOException {
 
         // 引起跳转的uri
-        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", request.getRequestURL(), exception);
+        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}",
+                request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException || exception instanceof AbnormalAccountException) {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(), propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
+            if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(),
+                        propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
             } else {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(), propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
+                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
+                        propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
             }
             return;
         }
@@ -186,13 +195,16 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException {
+    public void onException(PropertyResource propertyResource, HttpServletRequest request,
+                            HttpServletResponse response, Exception exception) throws IOException {
 
 
-        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);
+        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}",
+                request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(), propertyResource.security().getMsg().getVisitOnError(), exception));
+            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
+                    propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);

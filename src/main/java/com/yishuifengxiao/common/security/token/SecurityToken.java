@@ -10,6 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.tool.encoder.Md5;
+import com.yishuifengxiao.common.tool.random.IdWorker;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.BooleanUtils;
@@ -42,7 +44,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * <p>一般值的内容为 username:deviceId:issueAt的DES加密值</p>
      */
     @ApiModelProperty("token的值")
-    private String value;
+    private final String value;
 
     /**
      * 用户名
@@ -138,15 +140,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     public String getValue() {
         return value;
-    }
-
-    /**
-     * 设置token的值
-     *
-     * @param value token的值
-     */
-    public void setValue(String value) {
-        this.value = value;
     }
 
 
@@ -249,35 +242,38 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     /**
-     * @param value        当前token的值
-     * @param principal     用户名
+     * @param principal    用户名
      * @param deviceId     设备id
      * @param validSeconds token有效时间
-     * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
+     * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by
+     *                     this authentication object.
      */
-    public SecurityToken(String value, String principal, String deviceId, Integer validSeconds, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<?
+            extends GrantedAuthority> authorities) {
         super(authorities);
         super.setAuthenticated(true);
         if (null == validSeconds || validSeconds <= 0) {
             validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
         }
-        this.value = value;
         this.principal = principal;
         this.deviceId = deviceId;
         this.validSeconds = validSeconds;
         this.issueAt = LocalDateTime.now();
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
         this.isActive = true;
-
+        this.value =
+                Md5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
     }
 
 
     public SecurityToken(Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
+        this.value = null;
     }
 
     private SecurityToken() {
         super(null);
+        this.value = null;
     }
 
 

@@ -78,4 +78,8 @@ public final class ErrorCode {
      * 用户认证信息位空
      */
     public final static int NO_USERDETAILS = 115;
+    /**
+     * 未知异常
+     */
+    public final static int UNKNOWN = 116;
 }

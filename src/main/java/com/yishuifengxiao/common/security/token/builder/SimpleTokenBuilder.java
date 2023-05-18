@@ -8,11 +8,9 @@ import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleAuthority;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
-import com.yishuifengxiao.common.tool.encoder.DES;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.*;
@@ -28,6 +26,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SimpleTokenBuilder implements TokenBuilder {
 
+
     /**
      * token存储工具<br/>
      * 键：username<br/>
@@ -40,29 +39,32 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * <p>创建一个新的token</p>
      * <p>若存在旧的token则返回旧的token并自动续期</p>
      *
-     * @param username      用户名
-     * @param deviceId      设备id
-     * @param validSeconds  token的有效时间，单位为秒
-     * @param preventsLogin 在达到最大的token数量限制时是否阻止后面的用户登陆
-     * @param maxSessions   最大的token数量
-     * @param authorities   authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
+     * @param authentication 用户认证信息
+     * @param deviceId       设备id
+     * @param validSeconds   token的有效时间，单位为秒
+     * @param preventsLogin  在达到最大的token数量限制时是否阻止后面的用户登陆
+     * @param maxSessions    最大的token数量
+     * @param authorities    authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by
+     *                       this authentication object.
      * @return SecurityToken 生成的token
      * @throws CustomException 生成时出现了问题
      */
     @Override
-    public synchronized SecurityToken creatNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions, Collection<? extends GrantedAuthority> authorities) throws CustomException {
-        if (StringUtils.isBlank(username)) {
+    public synchronized SecurityToken creatNewToken(Authentication authentication, String deviceId,
+                                                    Integer validSeconds, boolean preventsLogin, int maxSessions,
+                                                    Collection<? extends GrantedAuthority> authorities) throws CustomException {
+        if (null == authentication) {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
 
-        deviceId = null == deviceId ? username : deviceId;
+        deviceId = null == deviceId ? authentication.getName() : deviceId;
 
         if (maxSessions <= 0) {
             maxSessions = TokenConstant.MAX_SESSION_NUM;
         }
 
         // 先判断改token是否存在
-        SecurityToken token = tokenHolder.get(username, deviceId);
+        SecurityToken token = tokenHolder.get(authentication.getName(), deviceId);
         if (null != token) {
             // token已经存在
             if (token.isAvailable()) {
@@ -72,11 +74,12 @@ public class SimpleTokenBuilder implements TokenBuilder {
 
             } else {
                 // token已经失效,删除旧的token信息
-                tokenHolder.delete(username, deviceId);
+                tokenHolder.remove(token);
             }
         }
 
-        return createNewToken(username, deviceId, validSeconds, preventsLogin, maxSessions, authorities);
+        return createNewToken(authentication.getName(), deviceId, validSeconds, preventsLogin, maxSessions,
+                authorities);
     }
 
     /**
@@ -87,32 +90,36 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @param validSeconds  token有效期
      * @param preventsLogin 是否阻止后面的用户登陆
      * @param maxSessions   最大登陆数量限制
-     * @param authorities   authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by this authentication object.
+     * @param authorities   authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by
+     *                      this authentication object.
      * @return
      * @throws CustomException
      */
-    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds, boolean preventsLogin, int maxSessions, Collection<? extends GrantedAuthority> authorities) throws CustomException {
+    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds,
+                                         boolean preventsLogin, int maxSessions, Collection<?
+            extends GrantedAuthority> authorities) throws CustomException {
         // 先取出该用户所有可用的token
-        List<SecurityToken> list = this.loadAllToken(username);
+        List<SecurityToken> list =
+                tokenHolder.getAll(username).stream().sorted(Comparator.comparing(SecurityToken::getExpireAt)).collect(Collectors.toList());
 
         if (null == list) {
             list = new ArrayList<>();
         }
         // 清除已过期的token
-        list.stream().filter(v -> !v.isAvailable()).forEach(v -> tokenHolder.delete(v.getName(), v.getDeviceId()));
+        list.stream().filter(v -> !v.isAvailable()).forEach(v -> tokenHolder.remove(v));
         // 所有激活状态的token
-        List<SecurityToken> activeTokens = list.stream().filter(SecurityToken::isAvailable).collect(Collectors.toList());
-
-        String tokenValue = DES.encrypt(new StringBuffer(username).append(TokenConstant.TOKEN_SPLIT_CHAR).append(deviceId).append(TokenConstant.TOKEN_SPLIT_CHAR).append(System.currentTimeMillis()).toString());
-        authorities = null == authorities ? Collections.emptyList() : authorities.stream().map(v -> new SimpleAuthority(v.getAuthority())).collect(Collectors.toList());
-        SecurityToken newToken = new SecurityToken(tokenValue, username, deviceId, validSeconds, authorities);
-
+        List<SecurityToken> activeTokens =
+                list.stream().filter(SecurityToken::isAvailable).collect(Collectors.toList());
+        authorities = null == authorities ? Collections.EMPTY_LIST :
+                authorities.stream().map(v -> new SimpleAuthority(v.getAuthority())).collect(Collectors.toList());
+        SecurityToken newToken = new SecurityToken(username, deviceId, validSeconds, authorities);
         if (activeTokens.size() >= maxSessions) {
             if (preventsLogin) {
                 throw new CustomException(ErrorCode.MAX_USER_LIMT, "已达到最大登陆用户数量限制");
             }
             // 将第一个token设置为失效状态
             SecurityToken existToken = list.get(0);
+            tokenHolder.remove(existToken);
             existToken.setActive(false);
             // 覆盖掉旧的列表
             tokenHolder.save(existToken);
@@ -122,69 +129,45 @@ public class SimpleTokenBuilder implements TokenBuilder {
         return newToken;
     }
 
+    /**
+     * 删除指定账号下所有的令牌
+     *
+     * @param authentication 用户认证信息
+     */
     @Override
-    public synchronized List<SecurityToken> loadAllToken(String username) {
-        // 获取该用户所有的token信息
-        return DataUtil.stream(tokenHolder.getAll(username)).filter(Objects::nonNull).sorted(Comparator.comparing(SecurityToken::getExpireAt)).collect(Collectors.toList());
-    }
-
-
-    private synchronized String[] parseTokenValue(String tokenValue) throws CustomException {
-
-        if (StringUtils.isBlank(tokenValue)) {
-            throw new CustomException(ErrorCode.TOKEN_VALUE_NULL, "非法的认证信息");
-        }
-
-        try {
-            tokenValue = DES.decrypt(tokenValue);
-        } catch (Exception e) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】解密tokenValue时出现问题，出现问题的原因为{}", e.getMessage());
-            throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
-        }
-
-        // 非法的tokenValue
-        if (!StringUtils.contains(tokenValue, TokenConstant.TOKEN_SPLIT_CHAR)) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
-        }
-
-        String[] tokens = StringUtils.splitByWholeSeparatorPreserveAllTokens(tokenValue, TokenConstant.TOKEN_SPLIT_CHAR);
-        // 非法的tokenValue
-        if (null == tokens || tokens.length != TokenConstant.TOKEN_LENGTH) {
-            throw new CustomException(ErrorCode.INVALID_TOKEN, "非法的认证信息");
-        }
-
-        return tokens;
+    public void clearAll(Authentication authentication) {
+        tokenHolder.getAll(authentication.getName()).forEach(tokenHolder::remove);
     }
 
     @Override
-    public synchronized SecurityToken loadByTokenValue(String tokenValue) throws CustomException {
-        try {
-            String[] tokens = this.parseTokenValue(tokenValue);
-            return tokenHolder.get(tokens[0], tokens[1]);
-
-        } catch (Exception e) {
-            log.debug("【yishuifengxiao-common-spring-boot-starter】根据tokenValue获取token时出现问题，出现问题的原因为{}", e.getMessage());
-        }
-
-        return null;
+    public void remove(SecurityToken token) {
+        tokenHolder.remove(token);
     }
 
+
+    /**
+     * Read an access token from the store.
+     *
+     * @param tokenValue The token value.
+     * @return The access token to read.
+     */
     @Override
-    public synchronized void remove(SecurityToken token) throws CustomException {
-        if (null == token) {
-            return;
-        }
-        tokenHolder.delete(token.getName(), token.getDeviceId());
+    public SecurityToken loadByTokenValue(String tokenValue) {
+        return tokenHolder.loadByTokenValue(tokenValue);
     }
 
+    /**
+     * 重置token的有效时间
+     *
+     * @param token 待重置的token
+     * @return 重置后的token
+     */
     @Override
-    public synchronized SecurityToken refreshExpireTime(SecurityToken token) throws CustomException {
-        if (null != token && token.isAvailable()) {
-            token = token.refreshExpireTime();
-            // 更新token信息
-            tokenHolder.save(token);
-        }
-        return token;
+    public SecurityToken refreshExpireTime(SecurityToken token) throws CustomException {
+        SecurityToken securityToken = token.refreshExpireTime();
+        tokenHolder.remove(token);
+        tokenHolder.save(securityToken);
+        return securityToken;
     }
 
     public TokenHolder getTokenHolder() {

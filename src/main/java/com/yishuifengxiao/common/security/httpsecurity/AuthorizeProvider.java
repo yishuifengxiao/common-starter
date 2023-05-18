@@ -12,7 +12,7 @@ import com.yishuifengxiao.common.security.support.PropertyResource;
  * <p>
  * 授权提供器
  * </p>
- *
+ * <p>
  * 对系统进行授权配置操作
  *
  * @author yishui
@@ -24,9 +24,9 @@ public interface AuthorizeProvider {
     /**
      * 授权配置
      *
-     * @param propertyResource               授权资源
-     * @param  authenticationPoint 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
-     * @param http HttpSecurity
+     * @param propertyResource    授权资源
+     * @param authenticationPoint 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
+     * @param http                HttpSecurity
      * @throws Exception 配置时出现问题
      */
     void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception;

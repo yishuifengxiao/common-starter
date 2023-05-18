@@ -42,7 +42,8 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
         if (null != this.securityRequestFilters) {
             for (SecurityRequestFilter securityRequestFilter : this.securityRequestFilters) {
                 if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}", securityRequestFilter);
+                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}",
+                            securityRequestFilter);
                 }
                 securityRequestFilter.configure(http);
             }
@@ -52,7 +53,8 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
         if (null != this.authorizeProviders) {
             for (AuthorizeProvider authorizeConfigProvider : authorizeProviders) {
                 if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}", authorizeConfigProvider.order(), authorizeConfigProvider);
+                    log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}",
+                            authorizeConfigProvider.order(), authorizeConfigProvider);
                 }
 
                 authorizeConfigProvider.apply(propertyResource, authenticationPoint, http);
@@ -79,6 +81,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
     @Override
     public void afterPropertiesSet() {
-        this.authorizeProviders = this.authorizeProviders.stream().filter(Objects::nonNull).sorted(Comparator.comparing(AuthorizeProvider::order)).collect(Collectors.toList());
+        this.authorizeProviders =
+                this.authorizeProviders.stream().filter(Objects::nonNull).sorted(Comparator.comparing(AuthorizeProvider::order)).collect(Collectors.toList());
     }
 }

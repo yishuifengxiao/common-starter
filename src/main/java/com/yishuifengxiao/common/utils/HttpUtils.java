@@ -5,6 +5,7 @@ import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.FileCopyUtils;
@@ -45,7 +46,8 @@ public class HttpUtils {
      * @param data     需要携带的信息
      * @throws IOException 重定向时出现异常
      */
-    public synchronized static void redirect(HttpServletRequest request, HttpServletResponse response, String url, Object data) throws IOException {
+    public synchronized static void redirect(HttpServletRequest request, HttpServletResponse response, String url,
+                                             Object data) throws IOException {
         request.getSession().setAttribute("info", data);
         response.sendRedirect(url);
     }
@@ -146,7 +148,7 @@ public class HttpUtils {
         Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             String nextElement = headerNames.nextElement();
-            if (StringUtils.equalsIgnoreCase(nextElement, "Accept")) {
+            if (StringUtils.equalsIgnoreCase(nextElement, HttpHeaders.ACCEPT)) {
                 accept = nextElement;
                 break;
             }
@@ -168,7 +170,7 @@ public class HttpUtils {
      * @return User-Agent
      */
     public static String userAgent(HttpServletRequest request) {
-        String header = request.getHeader("User-Agent");
+        String header = request.getHeader(HttpHeaders.USER_AGENT);
         if (StringUtils.isNotBlank(header)) {
             return header;
         }
@@ -176,7 +178,8 @@ public class HttpUtils {
         final Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             final String element = headerNames.nextElement();
-            if (StringUtils.equalsIgnoreCase(element, "User-Agent") || StringUtils.equalsIgnoreCase(element, "UserAgent")) {
+            if (StringUtils.equalsIgnoreCase(element, HttpHeaders.USER_AGENT) || StringUtils.equalsIgnoreCase(element,
+                    "UserAgent")) {
                 headerName = element;
                 break;
             }

@@ -64,15 +64,18 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     private SecurityHandler securityHandler;
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response,
+                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
         securityHandler.whenAccessDenied(propertyResource, request, response, accessDeniedException);
     }
 
     @Override
-    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
+    public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                        AuthenticationException exception) throws IOException, ServletException {
         new SimpleUrlAuthenticationFailureHandler() {
             @Override
-            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException authenticationException) throws IOException {
+            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+                                                AuthenticationException authenticationException) throws IOException {
 
                 securityHandler.whenAuthenticationFailure(propertyResource, request, response, authenticationException);
 
@@ -81,26 +84,31 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     }
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
         new SavedRequestAwareAuthenticationSuccessHandler() {
 
             @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                                Authentication authentication) throws IOException, ServletException {
 
                 try {
                     // 根据登陆信息生成一个token
                     String deviceId = securityValueExtractor.extractDeviceId(request, response);
-                    SecurityToken token = tokenBuilder.creatNewToken(authentication.getName(), deviceId,
+                    SecurityToken token = tokenBuilder.creatNewToken(authentication, deviceId,
                             propertyResource.security().getToken().getValidSeconds(),
                             propertyResource.security().getToken().getPreventsLogin(),
                             propertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
 
                     // 将生成的token存储在session中
-                    request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(), token.getValue());
+                    request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(),
+                            token.getValue());
                     // 登陆成功
-                    securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication, token);
+                    securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication,
+                            token);
                 } catch (Exception e) {
-                    securityHandler.whenAuthenticationFailure(propertyResource, request, response, new AuthenticationServiceException(e.getMessage()));
+                    securityHandler.whenAuthenticationFailure(propertyResource, request, response,
+                            new AuthenticationServiceException(e.getMessage()));
                 }
 
             }
@@ -109,10 +117,12 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     }
 
     @Override
-    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+                                Authentication authentication) throws IOException, ServletException {
         new SimpleUrlLogoutSuccessHandler() {
             @Override
-            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+            public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
 
                 try {
                     SecurityToken token = null;
@@ -127,7 +137,8 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                         tokenBuilder.remove(token);
                     }
                 } catch (Exception e) {
-                    log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}", e.getMessage());
+                    log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}",
+                            e.getMessage());
 
                     securityHandler.onException(propertyResource, request, response, e);
                 }
@@ -139,7 +150,8 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     }
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException, ServletException {
         securityHandler.onException(propertyResource, request, response, authException);
     }
 

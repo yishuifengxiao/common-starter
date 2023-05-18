@@ -2,13 +2,15 @@ package com.yishuifengxiao.common.security.token.holder.impl;
 
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -26,7 +28,11 @@ public class RedisTokenHolder implements TokenHolder {
     /**
      * redis中存储时的key的前缀
      */
-    private final static String TOKEN_PREFIX = "security_token_store_redis";
+    private final static String TOKEN_PREFIX = "security_token_store_redis::";
+    /**
+     * redis中存储值时的key的前缀
+     */
+    private final static String TOKEN_VAL_PREFIX = "security_token_store_redis_val::";
 
     private RedisTemplate<String, Object> redisTemplate;
 
@@ -41,19 +47,13 @@ public class RedisTokenHolder implements TokenHolder {
      */
     @Override
     public synchronized List<SecurityToken> getAll(String username) {
-        List<SecurityToken> list = new ArrayList<>();
-        Map<Object, Object> map = this.get(username).entries();
-        if (null != map) {
-            Iterator<Object> it = map.keySet().iterator();
-            while (it.hasNext()) {
-                Object val = it.next();
-                if (null != val) {
-                    list.add(this.get(username, val.toString()));
-                }
-            }
+        final Map<Object, Object> entries = this.token(username).entries();
+        try {
+            return entries.values().stream().filter(Objects::nonNull).map(v -> (SecurityToken) v).collect(Collectors.toList());
+        } catch (Exception e) {
         }
-        return DataUtil.stream(list).filter(Objects::nonNull).filter(t -> null != t.getExpireAt())
-                .collect(Collectors.toList());
+        return Collections.emptyList();
+
     }
 
     /**
@@ -65,27 +65,35 @@ public class RedisTokenHolder implements TokenHolder {
     @Override
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
-        try {
-            this.delete(token.getName(), token.getDeviceId());
-            this.get(token.getName()).put(token.getDeviceId(), token);
-            this.get(token.getName()).expire(token.getValidSeconds(), TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】保存令牌{}时出现问题，失败的原因为 {}", token, e.getMessage());
-            throw new CustomException(e.getMessage());
-        }
-
+        this.remove(token);
+        //获取当前账号下过期时间最久的token
+        SecurityToken securityToken =
+                this.getAll(token.getName()).stream().sorted((v1, v2) -> v2.getExpireAt().compareTo(v1.getExpireAt())).findFirst().orElse(null);
+        //有效时间
+        LocalDateTime expiredAtTime =
+                (null == securityToken ? LocalDateTime.now() : securityToken.getExpireAt()).plusSeconds(token.getValidSeconds());
+        this.token(token.getName()).put(token.getDeviceId(), token);
+        this.token(token.getName()).expireAt(expiredAtTime.toInstant(ZoneOffset.of("+8")));
+        this.tokenVal(token.getValue()).set(token, token.getValidSeconds(), TimeUnit.SECONDS);
     }
 
 
     /**
-     * 根据用户账号和设备id删除一个令牌
+     * 删除指定的令牌
      *
-     * @param username 用户账号
-     * @param deviceId 设备id
+     * @param token 令牌
+     * @throws CustomException 删除时出现问题
      */
     @Override
-    public synchronized void delete(String username, String deviceId) {
-        this.get(username).delete(deviceId);
+    public synchronized void remove(SecurityToken token) {
+        this.tokenVal(token.getValue()).getAndDelete();
+        this.token(token.getName()).delete(token.getDeviceId());
+    }
+
+    @Override
+    public SecurityToken loadByTokenValue(String tokenValue) {
+        Object val = this.tokenVal(tokenValue).get();
+        return val instanceof SecurityToken ? (SecurityToken) val : null;
     }
 
     /**
@@ -97,21 +105,17 @@ public class RedisTokenHolder implements TokenHolder {
      */
     @Override
     public synchronized SecurityToken get(String username, String deviceId) {
-        Object data = this.get(username).get(deviceId);
-        if (null == data || StringUtils.isBlank(data.toString())) {
-            return null;
-        }
-        try {
-            return (SecurityToken) data;
-        } catch (Exception e) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】根据用户名{} 和会话{} 获取令牌时失败，失败的原因为 {}", username, deviceId, e.getMessage());
-        }
-        return null;
+        Object val = this.token(username).get(deviceId);
+        return val instanceof SecurityToken ? (SecurityToken) val : null;
     }
 
 
-    private synchronized BoundHashOperations<String, Object, Object> get(String key) {
-        return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(":").append(key).toString());
+    private synchronized BoundHashOperations<String, Object, Object> token(String key) {
+        return redisTemplate.boundHashOps(new StringBuffer(TOKEN_PREFIX).append(key).toString());
+    }
+
+    private synchronized BoundValueOperations<String, Object> tokenVal(String key) {
+        return redisTemplate.boundValueOps(new StringBuffer(TOKEN_VAL_PREFIX).append(key).toString());
     }
 
     /**

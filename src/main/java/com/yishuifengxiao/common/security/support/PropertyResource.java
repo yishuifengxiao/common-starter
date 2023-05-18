@@ -12,7 +12,6 @@ import java.util.Set;
  * <p>资源管理器</p>
  * 管理系统中所有的资源
  *
- *
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -58,6 +57,7 @@ public interface PropertyResource {
 
     /**
      * 是否显示加载细节
+     *
      * @return true表示显示加载细节，false不显示
      */
     boolean showDetail();

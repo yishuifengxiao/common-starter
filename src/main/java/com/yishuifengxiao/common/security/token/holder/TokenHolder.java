@@ -9,7 +9,8 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
 import java.util.List;
 
 /**
- * token存取工具类
+ * <p>token存取工具</p>
+ * <p>注意：令牌中的<code>username</code>和<code>deviceId</code>组成唯一标识符</p>
  *
  * @author yishui
  * @version 1.0.0
@@ -47,12 +48,17 @@ public interface TokenHolder {
 
 
     /**
-     * 根据用户账号和设备id删除一个令牌
+     * 删除指定的令牌
      *
-     * @param username 用户账号
-     * @param deviceId 设备id
+     * @param token 令牌
      */
-    void delete(String username, String deviceId);
+    void remove(SecurityToken token);
 
-
+    /**
+     * Read an access token from the store.
+     *
+     * @param tokenValue The token value.
+     * @return The access token to read.
+     */
+    SecurityToken loadByTokenValue(String tokenValue);
 }

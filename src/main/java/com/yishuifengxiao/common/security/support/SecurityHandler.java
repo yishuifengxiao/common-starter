@@ -19,17 +19,16 @@ import java.io.IOException;
  * <p>
  * 协助处理器
  * </p>
- *
+ * <p>
  * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
  *
+ * @author yishui
+ * @version 1.0.0
  * @see AuthenticationEntryPoint
  * @see AccessDeniedHandler
  * @see AuthenticationFailureHandler
  * @see AuthenticationFailureHandler
  * @see AuthenticationSuccessHandler
- *
- * @author yishui
- * @version 1.0.0
  * @since 1.0.0
  */
 public interface SecurityHandler {
@@ -44,7 +43,8 @@ public interface SecurityHandler {
      * @param token            生成的token
      * @throws IOException 处理时发生问题
      */
-    void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException;
+    void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request,
+                                   HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException;
 
     /**
      * 登陆失败后的处理
@@ -55,7 +55,8 @@ public interface SecurityHandler {
      * @param exception        失败的原因
      * @throws IOException 处理时发生问题
      */
-    void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
+    void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request,
+                                   HttpServletResponse response, Exception exception) throws IOException;
 
     /**
      * 退出成功后的处理
@@ -66,7 +67,8 @@ public interface SecurityHandler {
      * @param authentication   认证信息
      * @throws IOException 处理时发生问题
      */
-    void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException;
+    void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request,
+                           HttpServletResponse response, Authentication authentication) throws IOException;
 
     /**
      * <p>
@@ -80,7 +82,8 @@ public interface SecurityHandler {
      * @param exception        被拒绝的原因
      * @throws IOException 处理时发生问题
      */
-    void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception) throws IOException;
+    void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response
+            , AccessDeniedException exception) throws IOException;
 
     /**
      * <p>
@@ -94,7 +97,8 @@ public interface SecurityHandler {
      * @param exception        发生异常的原因
      * @throws IOException 处理时发生问题
      */
-    void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response, Exception exception) throws IOException;
+    void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
+                     Exception exception) throws IOException;
 
 
 }

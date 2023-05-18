@@ -2,14 +2,13 @@ package com.yishuifengxiao.common.security.token.holder.impl;
 
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +20,16 @@ import java.util.stream.Collectors;
  */
 public class InMemoryTokenHolder implements TokenHolder {
 
+    /**
+     * 存储用户所有的令牌
+     */
     private final Map<String, List<SecurityToken>> map = new HashMap<>();
+
+    /**
+     * key : SecurityToken tokenVal
+     * value :SecurityToken
+     */
+    private final Map<String, SecurityToken> tokenValMap = new HashMap<>();
 
     /**
      * <p>
@@ -34,8 +42,7 @@ public class InMemoryTokenHolder implements TokenHolder {
      */
     @Override
     public synchronized List<SecurityToken> getAll(String username) {
-        return DataUtil.stream(map.get(username)).filter(Objects::nonNull).filter(t -> null != t.getExpireAt())
-                .collect(Collectors.toList());
+        return map.getOrDefault(username, Collections.emptyList());
     }
 
     /**
@@ -47,28 +54,33 @@ public class InMemoryTokenHolder implements TokenHolder {
     @Override
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
-        // 先删除
-        this.delete(token.getName(), token.getDeviceId());
-        List<SecurityToken> tokens = this.getAll(token.getName());
+        tokenValMap.put(token.getValue(), token);
+        List<SecurityToken> tokens = map.getOrDefault(token.getName(), Collections.emptyList())
+                .stream().filter(v -> !StringUtils.equals(v.getDeviceId(), token.getDeviceId())).collect(Collectors.toList());
         tokens.add(token);
-        map.remove(token.getName());
         map.put(token.getName(), tokens);
 
     }
 
 
     /**
-     * 根据用户账号和设备id删除一个令牌
+     * 删除指定的令牌
      *
-     * @param username 用户账号
-     * @param deviceId 设备id
+     * @param token 令牌
      */
     @Override
-    public synchronized void delete(String username, String deviceId) {
-        List<SecurityToken> tokens = DataUtil.stream(this.getAll(username)).filter(Objects::nonNull)
-                .filter(t -> !StringUtils.equalsIgnoreCase(t.getDeviceId(), deviceId)).collect(Collectors.toList());
-        map.remove(username);
-        map.put(username, tokens);
+    public synchronized void remove(SecurityToken token) {
+
+        List<SecurityToken> tokens = map.getOrDefault(token.getName(), Collections.emptyList())
+                .stream().filter(v -> !StringUtils.equals(v.getDeviceId(), token.getDeviceId())).collect(Collectors.toList());
+        tokenValMap.put(token.getValue(), null);
+        map.put(token.getName(), tokens);
+    }
+
+    @Override
+    public SecurityToken loadByTokenValue(String tokenValue) {
+        SecurityToken token = tokenValMap.get(tokenValue);
+        return token;
     }
 
     /**
@@ -80,9 +92,7 @@ public class InMemoryTokenHolder implements TokenHolder {
      */
     @Override
     public synchronized SecurityToken get(String username, String deviceId) {
-        List<SecurityToken> tokens = DataUtil.stream(this.getAll(username)).filter(Objects::nonNull)
-                .filter(t -> StringUtils.equalsIgnoreCase(t.getDeviceId(), deviceId)).collect(Collectors.toList());
-        return DataUtil.first(tokens);
+        return this.getAll(username).stream().filter(t -> StringUtils.equals(t.getDeviceId(), deviceId)).findFirst().orElse(null);
     }
 
 

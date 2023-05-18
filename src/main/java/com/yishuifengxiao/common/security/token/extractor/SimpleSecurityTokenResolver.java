@@ -6,9 +6,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * 系统令牌提取器
+ * <p>默认的系统令牌提取器</p>
+ * <p>参考<code> org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver </code></p>
+ * <p>参见 HTTP 身份验证
+ * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Authorization">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Authorization</a></p>
  *
  * @author yishui
  * @version 1.0.0
@@ -16,42 +21,20 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
 
+    private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+            Pattern.CASE_INSENSITIVE);
+
+    private static final String AUTHORIZATION_TYPE = "bearer";
+
+
     @Override
     public String extractTokenValue(HttpServletRequest request, HttpServletResponse response,
                                     PropertyResource propertyResource) {
-        String tokenValue = this.getTokenValueInHeader(request, propertyResource);
-        if (StringUtils.isBlank(tokenValue)) {
-            tokenValue = this.getTokenValueInQuery(request, propertyResource);
-        }
-        if (StringUtils.isBlank(tokenValue)) {
-            Object val = request.getSession().getAttribute(propertyResource.security().getToken().getUserDeviceId());
-            if (null != val) {
-                tokenValue = val.toString();
-            }
-        }
-        return tokenValue;
-    }
 
 
-    /**
-     * 从请求参数里获取tokenValue
-     *
-     * @param request          HttpServletRequest
-     * @param propertyResource 资源管理器
-     * @return tokenValue
-     */
-    private String getTokenValueInQuery(HttpServletRequest request, PropertyResource propertyResource) {
-        String requestParamter = propertyResource.security().getToken().getRequestParameter();
-        if (StringUtils.isBlank(requestParamter)) {
-            requestParamter = TokenConstant.TOKEN_REQUEST_PARAM;
-        }
-
-        String tokenValue = request.getParameter(requestParamter);
-
-        if (StringUtils.isBlank(tokenValue)) {
-            tokenValue = (String) request.getSession().getAttribute(requestParamter);
-        }
-        return tokenValue;
+        String tokenVal = resolveFromAuthorizationHeader(request, propertyResource);
+        return StringUtils.isNotBlank(tokenVal) ? tokenVal : resolveFromRequestParameters(request,
+                propertyResource);
     }
 
     /**
@@ -61,12 +44,43 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
      * @param propertyResource 资源管理器
      * @return tokenValue
      */
-    private String getTokenValueInHeader(HttpServletRequest request, PropertyResource propertyResource) {
-        String headerParamter = propertyResource.security().getToken().getHeaderParameter();
-        if (StringUtils.isBlank(headerParamter)) {
-            headerParamter = TokenConstant.TOKEN_REQUEST_PARAM;
+    private String resolveFromAuthorizationHeader(HttpServletRequest request, PropertyResource propertyResource) {
+        String headerParameter = propertyResource.security().getToken().getHeaderParameter();
+        if (StringUtils.isBlank(headerParameter)) {
+            headerParameter = TokenConstant.TOKEN_HEADER_PARAM;
         }
-        return request.getHeader(headerParamter);
+        String authorization = request.getHeader(headerParameter);
+        if (!StringUtils.startsWithIgnoreCase(authorization, AUTHORIZATION_TYPE)) {
+            return null;
+        }
+        Matcher matcher = authorizationPattern.matcher(authorization);
+        if (!matcher.matches()) {
+            return null;
+        }
+        return matcher.group("token");
     }
+
+    /**
+     * 从请求参数里获取tokenValue
+     *
+     * @param request          HttpServletRequest
+     * @param propertyResource 资源管理器
+     * @return tokenValue
+     */
+    private String resolveFromRequestParameters(HttpServletRequest request, PropertyResource propertyResource) {
+        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+        if (StringUtils.isBlank(requestParameter)) {
+            requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
+        String[] values = request.getParameterValues(requestParameter);
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        if (values.length == 1) {
+            return values[0];
+        }
+        return null;
+    }
+
 
 }
