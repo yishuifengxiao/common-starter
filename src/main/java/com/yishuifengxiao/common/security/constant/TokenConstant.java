@@ -33,9 +33,9 @@ public class TokenConstant {
 
 
     /**
-     * 从请求URL参数里取出认证信息时的参数名，默认为 access_token
+     * 从请求URL参数里取出认证信息时的参数名，默认为 xtoken
      */
-    public final static String TOKEN_REQUEST_PARAM = "access_token";
+    public final static String TOKEN_REQUEST_PARAM = "xtoken";
     /**
      * 从请求头参数里取出认证信息时的参数名，默认为 Authorization
      */

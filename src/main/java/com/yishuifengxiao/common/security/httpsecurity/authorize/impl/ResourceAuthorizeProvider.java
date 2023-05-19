@@ -4,11 +4,14 @@ import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.utils.ExcludeRequestMatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 资源设置处理器
@@ -30,7 +33,8 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
 
 
-        final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
+        final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry =
+                http.authorizeRequests();
 
         registry.mvcMatchers(HttpMethod.OPTIONS).permitAll();
         registry.antMatchers(HttpMethod.OPTIONS).permitAll();
@@ -50,12 +54,18 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         // 所有自定义权限路径的资源
         if (null != this.customResourceProviders) {
             customResourceProviders.forEach((providerName, provider) -> {
-                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission(request, authentication)");
+                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" +
+                        "(request, authentication)");
             });
         }
 
+        Set<String> urls = new HashSet<>();
+        urls.addAll(Arrays.stream(propertyResource.allIgnoreUrls()).collect(Collectors.toSet()));
+        urls.addAll(propertyResource.allPermitUrs());
+        urls.addAll(propertyResource.anonymousUrls());
+        List<String> list = urls.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
         //只要经过了授权就能访问
-        registry.anyRequest().authenticated();
+        registry.requestMatchers(new ExcludeRequestMatcher(list)).authenticated();
 
     }
 

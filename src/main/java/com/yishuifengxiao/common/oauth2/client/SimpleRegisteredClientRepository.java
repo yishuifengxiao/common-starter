@@ -7,7 +7,7 @@ import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
 import java.util.UUID;
 
@@ -94,7 +94,10 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
                 .clientSecret(this.passwordEncoder.encode("secret"))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri("http://127.0.0.1:8600/authorized")
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
+                .redirectUri("http://127.0.0.1:8080/authorized")
                 .scope("scope-a")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();

@@ -2,8 +2,9 @@ package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
+import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.TokenValidateFilter;
+import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityTokenValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
@@ -32,8 +33,8 @@ import javax.servlet.ServletException;
  */
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
-        "enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing =
+        true)
 public class SecurityFilterAutoConfiguration {
 
     @Bean
@@ -51,15 +52,18 @@ public class SecurityFilterAutoConfiguration {
     }
 
 
-
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                                                             SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) throws ServletException {
+    public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource,
+                                                             SecurityHandler securityHandler,
+                                                             SecurityTokenResolver securityTokenResolver,
+                                                             TokenBuilder tokenBuilder,
+                                                             Oauth2Properties oauth2Properties) throws ServletException {
 
-        TokenValidateFilter tokenValidateFilter = new TokenValidateFilter(propertyResource, securityHandler, securityTokenResolver, tokenBuilder);
-        tokenValidateFilter.afterPropertiesSet();
-        return tokenValidateFilter;
+        SecurityTokenValidateFilter securityTokenValidateFilter = new SecurityTokenValidateFilter(propertyResource,
+                securityHandler, securityTokenResolver, tokenBuilder, oauth2Properties);
+        securityTokenValidateFilter.afterPropertiesSet();
+        return securityTokenValidateFilter;
     }
 
     /**
@@ -73,7 +77,8 @@ public class SecurityFilterAutoConfiguration {
     @Bean("validateCodeFilter")
     @ConditionalOnMissingBean(name = "validateCodeFilter")
     @ConditionalOnBean({CodeHolder.class})
-    public SecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, PropertyResource propertyResource, SecurityHandler securityHandler) {
+    public SecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, PropertyResource propertyResource,
+                                                    SecurityHandler securityHandler) {
         ValidateCodeFilter validateCodeFilter = new ValidateCodeFilter();
         validateCodeFilter.setCodeProducer(codeProducer);
         validateCodeFilter.setPropertyResource(propertyResource);

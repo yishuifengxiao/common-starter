@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
+import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
@@ -22,7 +23,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import javax.servlet.FilterChain;
@@ -56,7 +57,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Slf4j
-public class TokenValidateFilter extends SecurityRequestFilter implements InitializingBean {
+public class SecurityTokenValidateFilter extends SecurityRequestFilter implements InitializingBean {
 
     private Map<String, AntPathRequestMatcher> map = new HashMap<>();
 
@@ -67,6 +68,8 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     private SecurityTokenResolver securityTokenResolver;
 
+    private Oauth2Properties oauth2Properties;
+
     /**
      * token生成器
      */
@@ -76,18 +79,19 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     {
         try {
-            TokenValidateFilter.class.getClassLoader().loadClass("org.springframework.security.oauth2.core" +
+            SecurityTokenValidateFilter.class.getClassLoader().loadClass("org.springframework.security.oauth2.core" +
                     ".OAuth2AccessToken");
-            oauth2Model = true;
+            SecurityTokenValidateFilter.oauth2Model = true;
         } catch (ClassNotFoundException e) {
-            oauth2Model = false;
+            SecurityTokenValidateFilter.oauth2Model = false;
         }
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (!oauth2Model && !StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name()) && BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
+        if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name()) && BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
             // 先判断请求是否需要经过授权校验
             boolean noRequiresAuthentication =
                     propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
@@ -111,11 +115,16 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
                     // 将认证信息注入到spring Security中
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (AccessDeniedException e) {
-                    securityHandler.whenAccessDenied(propertyResource, request, response, e);
-                    return;
+                    if (!SecurityTokenValidateFilter.oauth2Model && BooleanUtils.isTrue(oauth2Properties.getEnable())) {
+                        securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                        return;
+                    }
+
                 } catch (CustomException e) {
-                    securityHandler.onException(propertyResource, request, response, e);
-                    return;
+                    if (!SecurityTokenValidateFilter.oauth2Model && BooleanUtils.isTrue(oauth2Properties.getEnable())) {
+                        securityHandler.onException(propertyResource, request, response, e);
+                        return;
+                    }
                 }
 
             }
@@ -197,7 +206,7 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(this, LogoutFilter.class);
+        http.addFilterAfter(this, BasicAuthenticationFilter.class);
 
     }
 
@@ -207,13 +216,14 @@ public class TokenValidateFilter extends SecurityRequestFilter implements Initia
 
     }
 
-    public TokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                               SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
+    public SecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
+                                       SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder,
+                                       Oauth2Properties oauth2Properties) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenResolver = securityTokenResolver;
         this.tokenBuilder = tokenBuilder;
-
+        this.oauth2Properties = oauth2Properties;
     }
 
 }

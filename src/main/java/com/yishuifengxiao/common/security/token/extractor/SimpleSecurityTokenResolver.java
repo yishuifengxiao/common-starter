@@ -4,8 +4,10 @@ import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,10 +23,10 @@ import java.util.regex.Pattern;
  */
 public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
 
-    private static final Pattern authorizationPattern = Pattern.compile("^Bearer (?<token>[a-zA-Z0-9-._~+/]+=*)$",
+    private static final Pattern authorizationPattern = Pattern.compile("^xtoken (?<token>[a-zA-Z0-9-._~+/]+=*)$",
             Pattern.CASE_INSENSITIVE);
 
-    private static final String AUTHORIZATION_TYPE = "bearer";
+    private static final String AUTHORIZATION_TYPE = "xtoken";
 
 
     @Override
@@ -33,8 +35,20 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
 
 
         String tokenVal = resolveFromAuthorizationHeader(request, propertyResource);
-        return StringUtils.isNotBlank(tokenVal) ? tokenVal : resolveFromRequestParameters(request,
-                propertyResource);
+        if (StringUtils.isBlank(tokenVal)) {
+            //从请求参数中获取
+            tokenVal = resolveFromRequestParameters(request, propertyResource);
+        }
+        if (StringUtils.isBlank(tokenVal)) {
+            //从session参数中获取
+            tokenVal = resolveFromHttpSession(request, propertyResource);
+        }
+
+        if (StringUtils.isBlank(tokenVal)) {
+            //从cookies中获取
+            tokenVal = resolveFromCookies(request, propertyResource);
+        }
+        return tokenVal;
     }
 
     /**
@@ -82,5 +96,48 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
         return null;
     }
 
+    /**
+     * 从session里获取tokenValue
+     *
+     * @param request          HttpServletRequest
+     * @param propertyResource 资源管理器
+     * @return tokenValue
+     */
+    private String resolveFromHttpSession(HttpServletRequest request, PropertyResource propertyResource) {
+        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+        if (StringUtils.isBlank(requestParameter)) {
+            requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
+        final Object value = request.getSession().getAttribute(requestParameter);
+        if (null == value || StringUtils.isBlank(value.toString())) {
+            return null;
+        }
+        return value.toString();
+    }
+
+    /**
+     * 从Cookie里获取tokenValue
+     *
+     * @param request          HttpServletRequest
+     * @param propertyResource 资源管理器
+     * @return tokenValue
+     */
+    private String resolveFromCookies(HttpServletRequest request, PropertyResource propertyResource) {
+        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+        if (StringUtils.isBlank(requestParameter)) {
+            requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
+        final Cookie[] cookies = request.getCookies();
+        if (null == cookies || cookies.length == 0) {
+            return null;
+        }
+        String cookieName = requestParameter;
+        final Cookie cookie =
+                Arrays.stream(cookies).filter(v -> StringUtils.equals(v.getName(), cookieName)).findFirst().orElse(null);
+        if (null == cookie) {
+            return null;
+        }
+        return cookie.getValue();
+    }
 
 }

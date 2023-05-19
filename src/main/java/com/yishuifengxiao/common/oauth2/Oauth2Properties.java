@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @ConfigurationProperties(prefix = "yishuifengxiao.security.oauth2")
 public class Oauth2Properties {
     /**
-     * 是否开启OAUTH2增强的功能
+     * 是否开启OAUTH2增强的功能,默认为false
      */
     private Boolean enable = false;
     /**

@@ -26,9 +26,11 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * <p>
@@ -101,8 +103,19 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                             propertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
 
                     // 将生成的token存储在session中
-                    request.getSession().setAttribute(propertyResource.security().getToken().getUserDeviceId(),
+                    request.getSession().setAttribute(propertyResource.security().getToken().getRequestParameter(),
                             token.getValue());
+                    // 将生成的token存储在cookie中
+                    Cookie cookie = new Cookie(propertyResource.security().getToken().getRequestParameter(),
+                            token.getValue());
+                    //Cookie的路径为“/”，这意味着Cookie在整个应用程序中都可用
+                    cookie.setPath("/");
+                    //如果设置为true，则仅在使用安全协议（HTTPS或SSL）时将cookie从浏览器发送到服务器。默认为false
+                    cookie.setSecure(false);
+                    //指定cookie在用户计算机中存储的时间，以秒为单位。如果未设置，则退出Web浏览器时将删除cookie
+                    cookie.setMaxAge(token.getValidSeconds());
+                    response.addCookie(cookie);
+                    response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                     // 登陆成功
                     securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication,
                             token);

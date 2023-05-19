@@ -9,9 +9,10 @@ import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationCo
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationService;
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.configurer.SimpleOAuth2ClientAuthenticationConfigurer;
+import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,11 +22,14 @@ import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguratio
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.authorization.OAuth2ClientAuthenticationConfigurer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -34,9 +38,14 @@ import org.springframework.security.oauth2.server.authorization.InMemoryOAuth2Au
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.config.ProviderSettings;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2ClientAuthenticationConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.security.KeyPair;
@@ -58,7 +67,7 @@ import java.util.UUID;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({OAuth2AccessToken.class, WebMvcConfigurer.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({Oauth2Properties.class})
@@ -84,11 +93,11 @@ public class Oauth2EnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean({ProviderSettings.class})
-    public ProviderSettings authorizationServerSettings() {
+    @ConditionalOnMissingBean({AuthorizationServerSettings.class})
+    public AuthorizationServerSettings authorizationServerSettings() {
 
 
-        return ProviderSettings.builder().build();
+        return AuthorizationServerSettings.builder().build();
     }
 
     /**
@@ -115,22 +124,47 @@ public class Oauth2EnhanceAutoConfiguration {
     }
 
 
+    @Bean
+    @ConditionalOnMissingBean({OAuth2AuthorizationProvider.class})
+    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository, AuthorizationServerSettings authorizationServerSettings, Customizer<OAuth2ClientAuthenticationConfigurer> clientAuthentication, OAuth2AuthorizationService authorizationService, OAuth2AuthorizationConsentService authorizationConsentService) {
+        OAuth2AuthorizationProvider auth2AuthorizationProvider =
+                new SimpleOAuth2AuthorizationProvider(registeredClientRepository, authorizationServerSettings,
+                        clientAuthentication, authorizationService, authorizationConsentService);
+        return auth2AuthorizationProvider;
+    }
+
     // @formatter:off
-
-    @SuppressWarnings("rawtypes")
 	@Bean
-    @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true", matchIfMissing = true)
-    public AuthorizeProvider oAuth2AuthorizeProvider(RegisteredClientRepository registeredClientRepository,
-                                                     ProviderSettings providerSettings,
-                                                    @Qualifier("oAuth2ClientAuthenticationConfigurer")  Customizer<OAuth2ClientAuthenticationConfigurer> clientAuthentication,
-                                                     OAuth2AuthorizationService authorizationService,
-                                                     OAuth2AuthorizationConsentService authorizationConsentService
-                                                  ) {
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true")
+    public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
+                                                                      AuthenticationConfiguration authenticationConfiguration,
+                                                                      OAuth2AuthorizationProvider auth2AuthorizationProvider )throws Exception  {
 
-        return new OAuth2AuthorizeProvider(registeredClientRepository,providerSettings,clientAuthentication,
-                authorizationService,authorizationConsentService);
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                new OAuth2AuthorizationServerConfigurer();
+
+        // Enable OpenID Connect 1.0
+        authorizationServerConfigurer.oidc(Customizer.withDefaults());
+        RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
+        http
+                .requestMatcher(endpointsMatcher)
+                .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
+        // Accept access tokens for User Info and/or Client Registration
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
+        ;
+        http.apply(authorizationServerConfigurer);
+        //应用自定义配置
+        auth2AuthorizationProvider.apply(authorizationServerConfigurer);
+        return http.build();
     }
     // @formatter:on
+
+    @Bean
+    public AuthorizeProvider oAuth2AuthorizationProvider(AuthenticationConfiguration authenticationConfiguration,
+                                                         AuthenticationPoint authenticationPoint) throws Exception {
+        return new OAuth2AuthorizeProvider(authenticationPoint);
+    }
 
 
     @Configuration

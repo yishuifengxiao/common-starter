@@ -268,7 +268,7 @@ public class SecurityEnhanceAutoConfiguration {
      * @throws Exception
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
         httpSecurityManager.apply(http);
         return http.build();
     }

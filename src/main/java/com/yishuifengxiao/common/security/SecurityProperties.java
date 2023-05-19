@@ -195,7 +195,7 @@ public class SecurityProperties {
         private String headerParameter = TokenConstant.TOKEN_HEADER_PARAM;
 
         /**
-         * 从请求URL参数里取出认证信息时的参数名，默认为 access_token
+         * 从请求URL参数里取出认证信息时的参数名，默认为 xtoken
          */
         private String requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
