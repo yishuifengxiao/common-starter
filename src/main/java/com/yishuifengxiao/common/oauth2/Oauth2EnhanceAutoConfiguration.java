@@ -8,7 +8,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationConsentService;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationService;
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
-import com.yishuifengxiao.common.oauth2.configurer.SimpleOAuth2ClientAuthenticationConfigurer;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
@@ -117,42 +116,34 @@ public class Oauth2EnhanceAutoConfiguration {
     }
 
 
-    @ConditionalOnMissingBean(name = {"oAuth2ClientAuthenticationConfigurer"})
-    @Bean("oAuth2ClientAuthenticationConfigurer")
-    public Customizer<OAuth2ClientAuthenticationConfigurer> oAuth2ClientAuthenticationConfigurer(AuthenticationSuccessHandler authenticationSuccessHandler, AuthenticationFailureHandler errorResponseHandler) {
-        return new SimpleOAuth2ClientAuthenticationConfigurer(authenticationSuccessHandler, errorResponseHandler);
-    }
-
-
     @Bean
     @ConditionalOnMissingBean({OAuth2AuthorizationProvider.class})
-    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository, AuthorizationServerSettings authorizationServerSettings, Customizer<OAuth2ClientAuthenticationConfigurer> clientAuthentication, OAuth2AuthorizationService authorizationService, OAuth2AuthorizationConsentService authorizationConsentService) {
+    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository,
+                                                                  AuthorizationServerSettings authorizationServerSettings,
+                                                                  AuthenticationPoint authenticationPoint,
+                                                                  OAuth2AuthorizationService authorizationService,
+                                                                  OAuth2AuthorizationConsentService authorizationConsentService) {
         OAuth2AuthorizationProvider auth2AuthorizationProvider =
                 new SimpleOAuth2AuthorizationProvider(registeredClientRepository, authorizationServerSettings,
-                        clientAuthentication, authorizationService, authorizationConsentService);
+                        authenticationPoint, authorizationService, authorizationConsentService);
         return auth2AuthorizationProvider;
     }
 
     // @formatter:off
-	@Bean
+    @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true")
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
-                                                                      AuthenticationConfiguration authenticationConfiguration,
-                                                                      OAuth2AuthorizationProvider auth2AuthorizationProvider )throws Exception  {
+                                                                      AuthenticationConfiguration authenticationConfiguration, OAuth2AuthorizationProvider auth2AuthorizationProvider) throws Exception {
 
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
-                new OAuth2AuthorizationServerConfigurer();
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
         // Enable OpenID Connect 1.0
         authorizationServerConfigurer.oidc(Customizer.withDefaults());
         RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
-        http
-                .requestMatcher(endpointsMatcher)
-                .csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-        // Accept access tokens for User Info and/or Client Registration
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt)
-        ;
+        http.requestMatcher(endpointsMatcher).csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
+                // Accept access tokens for User Info and/or Client Registration
+                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         http.apply(authorizationServerConfigurer);
         //应用自定义配置
         auth2AuthorizationProvider.apply(authorizationServerConfigurer);
@@ -160,7 +151,8 @@ public class Oauth2EnhanceAutoConfiguration {
     }
     // @formatter:on
 
-    @Bean
+    @Bean("oAuth2AuthorizationProvider")
+    @ConditionalOnMissingBean(name = "oAuth2AuthorizationProvider")
     public AuthorizeProvider oAuth2AuthorizationProvider(AuthenticationConfiguration authenticationConfiguration,
                                                          AuthenticationPoint authenticationPoint) throws Exception {
         return new OAuth2AuthorizeProvider(authenticationPoint);

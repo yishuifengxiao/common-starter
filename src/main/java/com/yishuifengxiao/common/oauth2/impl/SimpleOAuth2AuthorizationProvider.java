@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.oauth2.impl;
 
 import com.yishuifengxiao.common.oauth2.OAuth2AuthorizationProvider;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
@@ -20,7 +21,7 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
 
     private AuthorizationServerSettings authorizationServerSettings;
 
-    private Customizer<OAuth2ClientAuthenticationConfigurer> clientAuthentication;
+    private AuthenticationPoint authenticationPoint;
 
     private OAuth2AuthorizationService authorizationService;
 
@@ -29,12 +30,12 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
 
     public SimpleOAuth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository,
                                              AuthorizationServerSettings authorizationServerSettings,
-                                             Customizer<OAuth2ClientAuthenticationConfigurer> clientAuthentication,
+                                             AuthenticationPoint authenticationPoint,
                                              OAuth2AuthorizationService authorizationService,
                                              OAuth2AuthorizationConsentService authorizationConsentService) {
         this.registeredClientRepository = registeredClientRepository;
         this.authorizationServerSettings = authorizationServerSettings;
-        this.clientAuthentication = clientAuthentication;
+        this.authenticationPoint = authenticationPoint;
         this.authorizationService = authorizationService;
         this.authorizationConsentService = authorizationConsentService;
     }
@@ -52,7 +53,16 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
                 //用于管理新的和现有的授权同意的OAuth2AuthorizationConsentService。
                 .authorizationConsentService(authorizationConsentService)
                 //Configures OAuth 2.0 Client Authentication
-                .clientAuthentication(clientAuthentication);
+                .clientAuthentication(clientAuthentication -> clientAuthentication.errorResponseHandler(authenticationPoint))
+                //
+                .tokenEndpoint(tokenEndpoint -> tokenEndpoint.errorResponseHandler(authenticationPoint))
+                //
+                .tokenIntrospectionEndpoint(tokenIntrospectionEndpoint -> tokenIntrospectionEndpoint.errorResponseHandler(authenticationPoint))
+                //
+                .tokenRevocationEndpoint(tokenRevocationEndpoint -> tokenRevocationEndpoint.errorResponseHandler(authenticationPoint))
+
+        //
+        ;
 
     }
 }
