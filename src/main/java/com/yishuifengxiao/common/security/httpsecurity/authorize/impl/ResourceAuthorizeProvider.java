@@ -59,6 +59,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
             });
         }
 
+        // 所有已经明确了权限的路径
         Set<String> urls = new HashSet<>();
         urls.addAll(Arrays.stream(propertyResource.allIgnoreUrls()).collect(Collectors.toSet()));
         urls.addAll(propertyResource.allPermitUrs());

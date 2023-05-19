@@ -1,13 +1,13 @@
 package com.yishuifengxiao.common.security.utils;
 
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * <p>黑名单路径匹配器</p>
@@ -21,7 +21,7 @@ import java.util.Map;
  */
 public class ExcludeRequestMatcher implements RequestMatcher {
 
-    private static final Map<String, AntPathRequestMatcher> MAP = new HashMap<>();
+    private Set<AntPathRequestMatcher> requestMatchers = new HashSet<>();
 
     private String httpMethod;
     private boolean caseSensitive;
@@ -43,32 +43,24 @@ public class ExcludeRequestMatcher implements RequestMatcher {
         this.httpMethod = httpMethod;
         this.caseSensitive = caseSensitive;
         this.patterns = patterns;
+        this.init();
     }
+
 
     @Override
     public boolean matches(HttpServletRequest request) {
 
 
-        boolean anyMatch = MAP.values().stream().anyMatch(v -> v.matches(request));
+        boolean anyMatch = requestMatchers.stream().anyMatch(v -> v.matches(request));
 
         return !anyMatch;
     }
 
-    /**
-     * 获取路径匹配器
-     *
-     * @param pattern 匹配规则
-     * @return AntPathRequestMatcher
-     */
-    private synchronized AntPathRequestMatcher getMatcher(String pattern) {
-        // 存储的键
-        StringBuilder key = new StringBuilder(pattern).append(httpMethod).append(caseSensitive);
-        AntPathRequestMatcher matcher = MAP.get(key.toString());
-        if (null == matcher) {
-            matcher = new AntPathRequestMatcher(pattern, this.httpMethod, this.caseSensitive);
-            MAP.put(key.toString(), matcher);
-        }
-        return matcher;
-    }
 
+    private void init() {
+        if (null != this.patterns) {
+            this.requestMatchers =
+                    this.patterns.parallelStream().filter(StringUtils::isNotBlank).distinct().map(pattern -> new AntPathRequestMatcher(pattern, this.httpMethod, this.caseSensitive)).collect(Collectors.toSet());
+        }
+    }
 }

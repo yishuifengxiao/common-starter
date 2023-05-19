@@ -68,29 +68,21 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
 
     private SecurityTokenResolver securityTokenResolver;
 
-    private Oauth2Properties oauth2Properties;
 
     /**
      * token生成器
      */
     private TokenBuilder tokenBuilder;
 
-    private static boolean oauth2Model = false;
-
-    {
-        try {
-            SecurityTokenValidateFilter.class.getClassLoader().loadClass("org.springframework.security.oauth2.core" +
-                    ".OAuth2AccessToken");
-            SecurityTokenValidateFilter.oauth2Model = true;
-        } catch (ClassNotFoundException e) {
-            SecurityTokenValidateFilter.oauth2Model = false;
-        }
-    }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (null != authentication) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name()) && BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
             // 先判断请求是否需要经过授权校验
             boolean noRequiresAuthentication =
@@ -110,21 +102,14 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
 
                 try {
                     // 该请求携带了认证信息
-                    Authentication authentication = authorize(request, tokenValue);
+                    authentication = authorize(request, tokenValue);
 
                     // 将认证信息注入到spring Security中
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (AccessDeniedException e) {
-                    if (!SecurityTokenValidateFilter.oauth2Model && BooleanUtils.isTrue(oauth2Properties.getEnable())) {
-                        securityHandler.whenAccessDenied(propertyResource, request, response, e);
-                        return;
-                    }
-
+                    securityHandler.whenAccessDenied(propertyResource, request, response, e);
                 } catch (CustomException e) {
-                    if (!SecurityTokenValidateFilter.oauth2Model && BooleanUtils.isTrue(oauth2Properties.getEnable())) {
-                        securityHandler.onException(propertyResource, request, response, e);
-                        return;
-                    }
+                    securityHandler.onException(propertyResource, request, response, e);
                 }
 
             }
@@ -217,13 +202,11 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
     }
 
     public SecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                                       SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder,
-                                       Oauth2Properties oauth2Properties) {
+                                       SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenResolver = securityTokenResolver;
         this.tokenBuilder = tokenBuilder;
-        this.oauth2Properties = oauth2Properties;
     }
 
 }

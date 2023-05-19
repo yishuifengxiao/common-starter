@@ -57,11 +57,10 @@ public class SecurityFilterAutoConfiguration {
     public SecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource,
                                                              SecurityHandler securityHandler,
                                                              SecurityTokenResolver securityTokenResolver,
-                                                             TokenBuilder tokenBuilder,
-                                                             Oauth2Properties oauth2Properties) throws ServletException {
+                                                             TokenBuilder tokenBuilder) throws ServletException {
 
         SecurityTokenValidateFilter securityTokenValidateFilter = new SecurityTokenValidateFilter(propertyResource,
-                securityHandler, securityTokenResolver, tokenBuilder, oauth2Properties);
+                securityHandler, securityTokenResolver, tokenBuilder);
         securityTokenValidateFilter.afterPropertiesSet();
         return securityTokenValidateFilter;
     }
