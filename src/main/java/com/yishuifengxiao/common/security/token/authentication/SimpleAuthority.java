@@ -28,7 +28,8 @@ public class SimpleAuthority implements GrantedAuthority, Serializable {
         return this.role;
     }
 
-    private SimpleAuthority() {
+    @SuppressWarnings("unused")
+	private SimpleAuthority() {
         this.role = "";
     }
 

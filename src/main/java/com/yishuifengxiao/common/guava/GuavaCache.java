@@ -139,7 +139,8 @@ public class GuavaCache {
      *
      * @return 获取到的存储数据
      */
-    public static synchronized <T> T currentGet(Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+	public static synchronized <T> T currentGet(Class<T> clazz) {
         return (T) get(Thread.currentThread().getId() + clazz.getName());
     }
 

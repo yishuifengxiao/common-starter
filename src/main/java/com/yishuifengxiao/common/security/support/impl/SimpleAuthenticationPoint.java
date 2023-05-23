@@ -11,8 +11,10 @@ import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
+import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -116,6 +118,10 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     cookie.setMaxAge(token.getValidSeconds());
                     response.addCookie(cookie);
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                            HttpUtils.accessControlAllowHeaders(request, response));
+                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                            HttpUtils.accessControlAllowOrigin(request));
                     // 登陆成功
                     securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication,
                             token);

@@ -51,22 +51,24 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         for (String url : propertyResource.anonymousUrls()) {
             registry.antMatchers(url).anonymous();
         }
-        // 所有自定义权限路径的资源
-        if (null != this.customResourceProviders) {
-            customResourceProviders.forEach((providerName, provider) -> {
-                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" +
-                        "(request, authentication)");
-            });
-        }
-
         // 所有已经明确了权限的路径
         Set<String> urls = new HashSet<>();
         urls.addAll(Arrays.stream(propertyResource.allIgnoreUrls()).collect(Collectors.toSet()));
         urls.addAll(propertyResource.allPermitUrs());
         urls.addAll(propertyResource.anonymousUrls());
         List<String> list = urls.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
+        final ExcludeRequestMatcher matcher = new ExcludeRequestMatcher(list);
+        // 所有自定义权限路径的资源
+        if (null != this.customResourceProviders) {
+            customResourceProviders.forEach((providerName, provider) -> {
+                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" +
+                        "(request, authentication)");
+                // 增加配置
+                matcher.addRequestMatcher(provider.requestMatcher());
+            });
+        }
         //只要经过了授权就能访问
-        registry.requestMatchers(new ExcludeRequestMatcher(list)).authenticated();
+        registry.requestMatchers(matcher).authenticated();
 
     }
 

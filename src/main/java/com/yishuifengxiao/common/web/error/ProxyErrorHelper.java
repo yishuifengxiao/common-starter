@@ -157,7 +157,8 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
         this.exceptionProperties = exceptionProperties;
     }
 
-    private ProxyErrorHelper() {
+    @SuppressWarnings("unused")
+	private ProxyErrorHelper() {
     }
 
     public ProxyErrorHelper(ErrorHelper errorHelper, WebEnhanceProperties.WebExceptionProperties exceptionProperties) {

@@ -14,7 +14,11 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class SimpleWebAuthenticationDetails extends WebAuthenticationDetails {
 
-    private SecurityToken token;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -2611043652615636956L;
+	private SecurityToken token;
 
     public SimpleWebAuthenticationDetails(HttpServletRequest request, SecurityToken token) {
         super(request);

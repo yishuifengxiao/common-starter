@@ -11,7 +11,11 @@ import org.springframework.security.access.AccessDeniedException;
  */
 public class IllegalTokenException extends AccessDeniedException {
 
-    private int code;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 27959461095842618L;
+	private int code;
 
     public IllegalTokenException(String msg) {
         super(msg);
@@ -25,5 +29,9 @@ public class IllegalTokenException extends AccessDeniedException {
     public IllegalTokenException(int code, String msg, Throwable cause) {
         super(msg, cause);
         this.code = code;
+    }
+
+    public int getCode() {
+        return code;
     }
 }

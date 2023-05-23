@@ -3,17 +3,14 @@
  */
 package com.yishuifengxiao.common.web;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import ch.qos.logback.classic.Level;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.UID;
 import com.yishuifengxiao.common.tool.utils.SystemUtil;
+import com.yishuifengxiao.common.utils.HttpUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -30,7 +27,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -44,6 +40,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.annotation.PostConstruct;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -69,7 +69,8 @@ public class WebEnhanceAutoConfiguration {
      */
     @Bean("corsAllowedFilter")
     @ConditionalOnMissingBean(name = "corsAllowedFilter")
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web.cors", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web.cors", name = {"enable"}, havingValue = "true",
+            matchIfMissing = true)
     public FilterRegistrationBean<CustomCorsFilter> corsAllowedFilter() {
         CustomCorsFilter corsFilter = new CustomCorsFilter(webEnhanceProperties.getCors());
         FilterRegistrationBean<CustomCorsFilter> registration = new FilterRegistrationBean<>(corsFilter);
@@ -109,7 +110,8 @@ public class WebEnhanceAutoConfiguration {
         /**
          * 定义切入点
          */
-        @Pointcut("@annotation(org.springframework.web.bind.annotation.ResponseBody) || @annotation(com.yishuifengxiao.common.web.annotation.DataValid)")
+        @Pointcut("@annotation(org.springframework.web.bind.annotation.ResponseBody) || @annotation(com" +
+                ".yishuifengxiao.common.web.annotation.DataValid)")
         public void pointCut() {
         }
 
@@ -162,13 +164,16 @@ public class WebEnhanceAutoConfiguration {
         }
 
         @Override
-        public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+        public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
+                                      Class selectedConverterType, ServerHttpRequest request,
+                                      ServerHttpResponse response) {
             try {
                 if (null != body && body instanceof Response) {
                     Response result = (Response) body;
                     Object attribute = null;
                     if (request instanceof ServletServerHttpRequest) {
-                        HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
+                        HttpServletRequest httpServerHttpRequest =
+                                ((ServletServerHttpRequest) request).getServletRequest();
                         attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
                     }
                     if (null == attribute || StringUtils.isBlank(attribute.toString())) {
@@ -180,7 +185,8 @@ public class WebEnhanceAutoConfiguration {
                     return result;
                 }
             } catch (Exception e) {
-                log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem obtaining the request tracking id {}", e);
+                log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem obtaining the request " +
+                        "tracking id {}", e);
             }
 
             return body;
@@ -220,7 +226,8 @@ public class WebEnhanceAutoConfiguration {
         }
 
         @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                        FilterChain filterChain) throws ServletException, IOException {
             try {
                 try {
                     String ssid = UID.uuid();
@@ -228,7 +235,8 @@ public class WebEnhanceAutoConfiguration {
                     TraceContext.set(ssid);
                     // 动态设置日志
                     String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
-                    if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase("false", dynamicLogLevel)) {
+                    if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase("false",
+                            dynamicLogLevel)) {
                         // 开启动态日志功能
                         String[] tokens = dynamicLogLevel(request.getHeader(webEnhanceProperties.getDynamicLogLevel()));
                         if (null == tokens) {
@@ -239,7 +247,8 @@ public class WebEnhanceAutoConfiguration {
                         }
                     }
                 } catch (Exception e) {
-                    log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem when setting the tracking log and dynamic modification log level. The problem is {}", e);
+                    log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem when setting the " +
+                            "tracking log and dynamic modification log level. The problem is {}", e);
                 }
 
                 filterChain.doFilter(request, response);
@@ -285,17 +294,33 @@ public class WebEnhanceAutoConfiguration {
         private WebEnhanceProperties.CorsProperties corsProperties;
 
         @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
+                ServletException {
 
             try {
                 if (response instanceof HttpServletResponse) {
 
                     HttpServletResponse httpServletResponse = ((HttpServletResponse) response);
 
-                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, corsProperties.getAllowedOrigins());
-                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, corsProperties.getAllowedHeaders());
-                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, corsProperties.getAllowCredentials() + "");
-                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, corsProperties.getAllowedMethods());
+                    //Access-Control-Allow-Origin
+                    String accessControlAllowOrigin = HttpUtils.accessControlAllowOrigin((HttpServletRequest) request);
+                    //controlAllowHeaders
+                    String controlAllowHeaders = HttpUtils.accessControlAllowHeaders((HttpServletRequest) request,
+                            httpServletResponse);
+                    
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                            StringUtils.isBlank(corsProperties.getAllowedOrigins()) ? accessControlAllowOrigin :
+                                    corsProperties.getAllowedOrigins());
+
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                            StringUtils.isBlank(corsProperties.getAllowedHeaders()) ? controlAllowHeaders :
+                                    corsProperties.getAllowedHeaders());
+
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                            corsProperties.getAllowCredentials() + "");
+
+                    httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                            corsProperties.getAllowedMethods());
                     corsProperties.getHeaders().forEach((k, v) -> {
                         if (StringUtils.isNoneBlank(k, v)) {
                             httpServletResponse.setHeader(k, v);

@@ -9,6 +9,7 @@ import org.springframework.security.oauth2.server.authorization.client.Registere
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -92,10 +93,20 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("client")
                 .clientSecret(this.passwordEncoder.encode("secret"))
-                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .clientAuthenticationMethods(methods->
+                        methods.addAll(Arrays.asList(
+                                ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+                                ClientAuthenticationMethod.CLIENT_SECRET_POST,
+                                ClientAuthenticationMethod.CLIENT_SECRET_JWT,
+                                ClientAuthenticationMethod.PRIVATE_KEY_JWT,
+                                ClientAuthenticationMethod.NONE)))
+                .authorizationGrantTypes(types->types.addAll(Arrays.asList(
+                        AuthorizationGrantType.AUTHORIZATION_CODE,
+                        AuthorizationGrantType.REFRESH_TOKEN,
+                        AuthorizationGrantType.CLIENT_CREDENTIALS,
+                        AuthorizationGrantType.JWT_BEARER,
+                        AuthorizationGrantType.PASSWORD
+                        )))
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
                 .redirectUri("http://127.0.0.1:8080/authorized")
                 .scope("scope-a")

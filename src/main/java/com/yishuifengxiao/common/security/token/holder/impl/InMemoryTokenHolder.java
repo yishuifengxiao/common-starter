@@ -6,9 +6,9 @@ import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -23,13 +23,13 @@ public class InMemoryTokenHolder implements TokenHolder {
     /**
      * 存储用户所有的令牌
      */
-    private final Map<String, List<SecurityToken>> map = new HashMap<>();
+    private final Map<String, List<SecurityToken>> map = new ConcurrentHashMap<>();
 
     /**
      * key : SecurityToken tokenVal
      * value :SecurityToken
      */
-    private final Map<String, SecurityToken> tokenValMap = new HashMap<>();
+    private final Map<String, SecurityToken> tokenValMap = new ConcurrentHashMap<>();
 
     /**
      * <p>

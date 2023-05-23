@@ -1,19 +1,22 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
-import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.exception.CustomException;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
+import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.holder.TokenHolder;
+import com.yishuifengxiao.common.tool.exception.CustomException;
 
 /**
  * 基于redis的token存取工具类
@@ -22,7 +25,6 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
 public class RedisTokenHolder implements TokenHolder {
 
     /**

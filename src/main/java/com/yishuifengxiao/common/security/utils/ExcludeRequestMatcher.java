@@ -1,12 +1,14 @@
 package com.yishuifengxiao.common.security.utils;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
  */
 public class ExcludeRequestMatcher implements RequestMatcher {
 
-    private Set<AntPathRequestMatcher> requestMatchers = new HashSet<>();
+    private Set<RequestMatcher> requestMatchers = new HashSet<>();
 
     private String httpMethod;
     private boolean caseSensitive;
@@ -54,6 +56,19 @@ public class ExcludeRequestMatcher implements RequestMatcher {
         boolean anyMatch = requestMatchers.stream().anyMatch(v -> v.matches(request));
 
         return !anyMatch;
+    }
+
+    /**
+     * 添加RequestMatcher
+     *
+     * @param requestMatcher 待添加的RequestMatcher
+     * @return ExcludeRequestMatcher
+     */
+    public ExcludeRequestMatcher addRequestMatcher(RequestMatcher requestMatcher) {
+        if (null != requestMatcher) {
+            this.requestMatchers.add(requestMatcher);
+        }
+        return this;
     }
 
 

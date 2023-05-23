@@ -9,7 +9,6 @@ import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleAuthority;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.tool.exception.CustomException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -23,7 +22,6 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
 public class SimpleTokenBuilder implements TokenBuilder {
 
 
@@ -95,7 +93,8 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @return
      * @throws CustomException
      */
-    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds,
+    @SuppressWarnings("unchecked")
+	private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds,
                                          boolean preventsLogin, int maxSessions, Collection<?
             extends GrantedAuthority> authorities) throws CustomException {
         // 先取出该用户所有可用的token

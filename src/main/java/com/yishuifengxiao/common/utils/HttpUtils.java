@@ -17,8 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * http工具
@@ -58,17 +59,36 @@ public class HttpUtils {
      * @param response 响应
      * @param data     输出的指定信息
      */
-    public synchronized static void out(HttpServletResponse response, Object data) {
+    public synchronized static void write(HttpServletResponse response, Object data) {
+        write(null, response, data);
+    }
+
+    /**
+     * 将指定的信息按照json格式输出到指定的响应
+     *
+     * @param request  HttpServletRequest
+     * @param response 响应
+     * @param data     输出的指定信息
+     */
+    public synchronized static void write(HttpServletRequest request, HttpServletResponse response, Object data) {
         response.setStatus(HttpStatus.OK.value());
-        // 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"
-        response.setHeader("Access-Control-Allow-Origin", "*");
-        // 允许使用的请求方法，以逗号隔开
-        response.setHeader("Access-Control-Allow-Methods", "*");
-        // 是否允许请求带有验证信息，
-        response.setHeader("Access-Control-Allow-Credentials", "true");
-        response.setHeader("Access-Control-Allow-Headers", "*");
+        if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN))) {
+            // 允许跨域访问的域，可以是一个域的列表，也可以是通配符"*"
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, accessControlAllowOrigin(request));
+        }
+        if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS))) {
+            // 允许使用的请求方法，以逗号隔开
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
+        }
+        if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS))) {
+            // 是否允许请求带有验证信息，
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true");
+        }
+        if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS))) {
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, accessControlAllowHeaders(request, response));
+        }
         response.setContentType("application/json;charset=UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         try {
             response.getWriter().write(MAPPER.writeValueAsString(data));
             response.getWriter().flush();
@@ -178,12 +198,65 @@ public class HttpUtils {
         final Enumeration<String> headerNames = request.getHeaderNames();
         while (headerNames.hasMoreElements()) {
             final String element = headerNames.nextElement();
-            if (StringUtils.equalsIgnoreCase(element, HttpHeaders.USER_AGENT) || StringUtils.equalsIgnoreCase(element,
-                    "UserAgent")) {
+            if (StringUtils.equalsIgnoreCase(element, HttpHeaders.USER_AGENT) || StringUtils.equalsIgnoreCase(element
+                    , "UserAgent")) {
                 headerName = element;
                 break;
             }
         }
         return StringUtils.isBlank(headerName) ? null : request.getHeader(headerName);
     }
+
+    /**
+     * <p>从HttpServletRequest提取出合适的Access-Control-Allow-Origin值</p>
+     * <p>优先从请求头的<code>Origin</code>中获取，然后从优先从请求头的<code>Referer</code>中获取获取协议和域名；最后默认设置为*</p>
+     *
+     * @param request HttpServletRequest
+     * @return
+     */
+    public static String accessControlAllowOrigin(HttpServletRequest request) {
+        String value = request.getHeader(HttpHeaders.ORIGIN);
+        if (StringUtils.isBlank(value)) {
+            value = request.getHeader(HttpHeaders.REFERER);
+            if (StringUtils.isNotBlank(value)) {
+                int indexOf = StringUtils.indexOf(value, "/", StringUtils.indexOf(value, "//") + 2);
+                value = indexOf != -1 ? value.substring(0, indexOf) : StringUtils.substringBefore(value,
+                        "?");
+            }
+        }
+        return StringUtils.isBlank(value) ? "*" : value;
+    }
+
+
+    /**
+     * <p>从HttpServletRequest和HttpServletResponse提取出所有的请求头</p>
+     * <p>不包含原始的Access-Control-Allow-Headers</p>
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @return HttpServletRequest和HttpServletResponse提取出所有的请求头
+     */
+    public static String accessControlAllowHeaders(HttpServletRequest request, HttpServletResponse response) {
+        Set<String> sets = new HashSet<>();
+        if (null != request) {
+            Enumeration<String> headerNames = request.getHeaderNames();
+            if (null != headerNames) {
+                while (headerNames.hasMoreElements()) {
+                    sets.add(headerNames.nextElement());
+                }
+            }
+        }
+        if (null != response) {
+            Collection<String> headerNames = response.getHeaderNames();
+            if (null != headerNames) {
+                headerNames.stream().forEach(sets::add);
+            }
+        }
+        sets.add(HttpHeaders.AUTHORIZATION);
+        String accessControlAllowHeaders = sets.stream().filter(v -> !StringUtils.equalsIgnoreCase(v,
+                HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).collect(Collectors.joining(","));
+        return accessControlAllowHeaders;
+    }
+
+
 }

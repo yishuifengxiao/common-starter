@@ -81,7 +81,7 @@ public class WebEnhanceProperties {
         /**
          * 跨域设置允许的Origins，默认为所有
          */
-        private String allowedOrigins = "*";
+        private String allowedOrigins;
         /**
          * 跨域设置允许的请求方法，默认为所有，也可以为 GET,POST,OPTIONS,PUT,DELETE这种形式
          */
@@ -89,7 +89,7 @@ public class WebEnhanceProperties {
         /**
          * 跨域设置允许的请求头，默认为所有
          */
-        private String allowedHeaders = "*";
+        private String allowedHeaders;
         /**
          * 跨域设置是否允许携带凭据，默认为true
          */

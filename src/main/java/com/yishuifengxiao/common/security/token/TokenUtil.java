@@ -276,7 +276,8 @@ public class TokenUtil {
     }
 
 
-    private TokenUtil() {
+    @SuppressWarnings("unused")
+	private TokenUtil() {
     }
 
     public TokenUtil(PropertyResource propertyResource, PasswordEncoder passwordEncoder,

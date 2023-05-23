@@ -74,12 +74,12 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
         if (null != attribute && StringUtils.isNotBlank(attribute.toString())) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected that" +
-                    " the historical blocking path is {}, and will be redirected to this address", attribute);
+            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " +
+                    "that" + " the historical blocking path is {}, and will be redirected to this address", attribute);
             redirectStrategy.sendRedirect(request, response, attribute.toString());
         }
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.sucData(token).setMsg("认证成功"));
+            HttpUtils.write(request, response, Response.sucData(token).setMsg("认证成功"));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginSuccessUrl(), token);
@@ -121,8 +121,9 @@ public class BaseSecurityHandler implements SecurityHandler {
             msg = propertyResource.security().getMsg().getPasswordExpired();
         }
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
-                    exception.getMessage()));
+            HttpUtils.write(request, response,
+                    Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
+                            exception.getMessage()));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginFailUrl(), exception);
@@ -143,7 +144,7 @@ public class BaseSecurityHandler implements SecurityHandler {
 
 
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.suc(authentication).setMsg("退出成功"));
+            HttpUtils.write(request, response, Response.suc(authentication).setMsg("退出成功"));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getLoginOutUrl(), authentication);
@@ -171,11 +172,13 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(),
-                        propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
+                HttpUtils.write(request, response,
+                        Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(),
+                                propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
             } else {
-                HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
-                        propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
+                HttpUtils.write(request, response,
+                        Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
+                                propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
             }
             return;
         }
@@ -203,8 +206,8 @@ public class BaseSecurityHandler implements SecurityHandler {
                 request.getRequestURL(), exception);
         saveReferer(request, response);
         if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.out(response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
-                    propertyResource.security().getMsg().getVisitOnError(), exception));
+            HttpUtils.write(request, response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode()
+                    , propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
         HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);

@@ -1,6 +1,5 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
-import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
