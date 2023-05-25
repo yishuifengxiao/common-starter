@@ -8,6 +8,7 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationConsentService;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationService;
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
+import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
@@ -41,6 +42,7 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -115,11 +117,7 @@ public class Oauth2EnhanceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({OAuth2AuthorizationProvider.class})
-    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository,
-                                                                  AuthorizationServerSettings authorizationServerSettings,
-                                                                  AuthenticationPoint authenticationPoint,
-                                                                  OAuth2AuthorizationService authorizationService,
-                                                                  OAuth2AuthorizationConsentService authorizationConsentService) {
+    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository, AuthorizationServerSettings authorizationServerSettings, AuthenticationPoint authenticationPoint, OAuth2AuthorizationService authorizationService, OAuth2AuthorizationConsentService authorizationConsentService) {
         OAuth2AuthorizationProvider auth2AuthorizationProvider =
                 new SimpleOAuth2AuthorizationProvider(registeredClientRepository, authorizationServerSettings,
                         authenticationPoint, authorizationService, authorizationConsentService);
@@ -131,7 +129,9 @@ public class Oauth2EnhanceAutoConfiguration {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true")
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
-                                                                      AuthenticationConfiguration authenticationConfiguration, OAuth2AuthorizationProvider auth2AuthorizationProvider) throws Exception {
+                                                                      AuthenticationConfiguration authenticationConfiguration,
+                                                                      AuthenticationPoint authenticationPoint,
+                                                                      OAuth2AuthorizationProvider auth2AuthorizationProvider) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
 
@@ -142,8 +142,13 @@ public class Oauth2EnhanceAutoConfiguration {
                 // Accept access tokens for User Info and/or Client Registration
                 .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
         http.apply(authorizationServerConfigurer);
+
         //应用自定义配置
         auth2AuthorizationProvider.apply(authorizationServerConfigurer);
+
+        http.addFilterBefore(new OAuth2AuthorizationEndpointEnhanceFilter(authorizationServerConfigurer,authenticationPoint)   ,
+                ExceptionTranslationFilter.class);
+
         return http.build();
     }
     // @formatter:on
@@ -162,8 +167,9 @@ public class Oauth2EnhanceAutoConfiguration {
 
         @Bean
         @ConditionalOnMissingBean({OAuth2AuthorizationService.class})
-        public OAuth2AuthorizationService redisOAuth2AuthorizationService(RedisTemplate<String, Object> redisTemplate) {
-            return new RedisOAuth2AuthorizationService(redisTemplate);
+        public OAuth2AuthorizationService redisOAuth2AuthorizationService(RedisTemplate<String, Object> redisTemplate
+                , RegisteredClientRepository registeredClientRepository) {
+            return new RedisOAuth2AuthorizationService(redisTemplate, registeredClientRepository);
         }
 
 

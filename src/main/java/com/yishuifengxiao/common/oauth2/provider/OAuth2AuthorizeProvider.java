@@ -19,6 +19,7 @@ public class OAuth2AuthorizeProvider implements AuthorizeProvider {
         OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer = http.oauth2ResourceServer();
         oauth2ResourceServer.jwt();
         oauth2ResourceServer.accessDeniedHandler(this.authenticationPoint).authenticationEntryPoint(this.authenticationPoint);
+
     }
 
     @Override

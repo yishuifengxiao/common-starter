@@ -9,6 +9,7 @@ import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.Strategy;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -19,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -71,18 +73,21 @@ public class BaseSecurityHandler implements SecurityHandler {
                                           HttpServletResponse response, Authentication authentication,
                                           SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
-
+        preHandle(request, response, propertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
         final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
         if (null != attribute && StringUtils.isNotBlank(attribute.toString())) {
             log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " +
                     "that" + " the historical blocking path is {}, and will be redirected to this address", attribute);
+            request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, "");
             redirectStrategy.sendRedirect(request, response, attribute.toString());
-        }
-        if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.write(request, response, Response.sucData(token).setMsg("认证成功"));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getLoginSuccessUrl(), token);
+        if (isJsonRequest(request, response)) {
+            sendJson(request, response, Strategy.AUTHENTICATION_SUCCESS, Response.sucData(token).setMsg("认证成功"));
+            return;
+        }
+        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS, propertyResource.security().getLoginSuccessUrl()
+                , token);
 
     }
 
@@ -101,7 +106,8 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 
-
+        preHandle(request, response, propertyResource, Strategy.AUTHENTICATION_FAILURE,
+                SecurityContextHolder.getContext().getAuthentication(), exception);
         String msg = "认证失败";
 
         if (exception instanceof CustomException) {
@@ -120,13 +126,14 @@ public class BaseSecurityHandler implements SecurityHandler {
         } else if (exception instanceof CredentialsExpiredException) {
             msg = propertyResource.security().getMsg().getPasswordExpired();
         }
-        if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.write(request, response,
+        if (isJsonRequest(request, response)) {
+            sendJson(request, response, Strategy.AUTHENTICATION_FAILURE,
                     Response.of(propertyResource.security().getMsg().getInvalidLoginParamCode(), msg,
                             exception.getMessage()));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getLoginFailUrl(), exception);
+        redirect(request, response, Strategy.AUTHENTICATION_FAILURE, propertyResource.security().getLoginFailUrl(),
+                exception);
     }
 
     /**
@@ -142,12 +149,13 @@ public class BaseSecurityHandler implements SecurityHandler {
                                   HttpServletResponse response, Authentication authentication) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
-
-        if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.write(request, response, Response.suc(authentication).setMsg("退出成功"));
+        preHandle(request, response, propertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
+        if (isJsonRequest(request, response)) {
+            sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getLoginOutUrl(), authentication);
+        redirect(request, response, Strategy.LOGOUT_SUCCESS, propertyResource.security().getLoginOutUrl(),
+                authentication);
     }
 
     /**
@@ -169,20 +177,22 @@ public class BaseSecurityHandler implements SecurityHandler {
         // 引起跳转的uri
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}",
                 request.getRequestURL(), exception);
+        preHandle(request, response, propertyResource, Strategy.ACCESS_DENIED,
+                SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
-        if (HttpUtils.isJsonRequest(request)) {
+        if (isJsonRequest(request, response)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
-                HttpUtils.write(request, response,
+                sendJson(request, response, Strategy.ACCESS_DENIED,
                         Response.of(propertyResource.security().getMsg().getInvalidTokenValueCode(),
                                 propertyResource.security().getMsg().getTokenIsNull(), exception.getMessage()));
             } else {
-                HttpUtils.write(request, response,
+                sendJson(request, response, Strategy.ACCESS_DENIED,
                         Response.of(propertyResource.security().getMsg().getAccessDeniedCode(),
                                 propertyResource.security().getMsg().getAccessIsDenied(), exception.getMessage()));
             }
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
+        redirect(request, response, Strategy.ACCESS_DENIED, propertyResource.security().getRedirectUrl(), exception);
     }
 
     /**
@@ -204,13 +214,16 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}",
                 request.getRequestURL(), exception);
+        preHandle(request, response, propertyResource, Strategy.ON_EXCEPTION,
+                SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
-        if (HttpUtils.isJsonRequest(request)) {
-            HttpUtils.write(request, response, Response.of(propertyResource.security().getMsg().getVisitOnErrorCode()
-                    , propertyResource.security().getMsg().getVisitOnError(), exception));
+        if (isJsonRequest(request, response)) {
+            sendJson(request, response, Strategy.ON_EXCEPTION,
+                    Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
+                            propertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
-        HttpUtils.redirect(request, response, propertyResource.security().getRedirectUrl(), exception);
+        redirect(request, response, Strategy.ON_EXCEPTION, propertyResource.security().getRedirectUrl(), exception);
 
     }
 
@@ -227,7 +240,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             // 不是get请求，放弃
             return;
         }
-        if (HttpUtils.isJsonRequest(request)) {
+        if (isJsonRequest(request, response)) {
             // json 请求，放弃
             return;
         }
@@ -245,5 +258,58 @@ public class BaseSecurityHandler implements SecurityHandler {
         }
     }
 
+    /**
+     * 当前请求是否为json请求
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @return true表示当前请求是为json请求
+     */
+    protected boolean isJsonRequest(HttpServletRequest request, HttpServletResponse response) {
+
+        return HttpUtils.isJsonRequest(request);
+    }
+
+    /**
+     * 前置处理
+     *
+     * @param request
+     * @param response
+     * @param propertyResource
+     * @param strategy
+     * @param authentication
+     * @param exception
+     */
+    protected void preHandle(HttpServletRequest request, HttpServletResponse response,
+                             PropertyResource propertyResource, Strategy strategy, Authentication authentication,
+                             Exception exception) {
+    }
+
+    /**
+     * 重定向到指定的地址
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @param strategy 处理类型
+     * @param url      重定向地址
+     * @param data     附带信息
+     * @throws IOException
+     */
+    protected void redirect(HttpServletRequest request, HttpServletResponse response, Strategy strategy, String url,
+                            Object data) throws IOException {
+        HttpUtils.redirect(request, response, url, data);
+    }
+
+    /**
+     * 发送json格式的响应数据
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @param strategy 处理类型
+     * @param data     附带信息
+     */
+    protected void sendJson(HttpServletRequest request, HttpServletResponse response, Strategy strategy, Object data) {
+        HttpUtils.write(request, response, data);
+    }
 
 }

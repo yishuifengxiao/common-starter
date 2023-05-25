@@ -108,7 +108,7 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
                         AuthorizationGrantType.PASSWORD
                         )))
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
-                .redirectUri("http://127.0.0.1:8080/authorized")
+                .redirectUri("http://www.yishuifengxiao.com")
                 .scope("scope-a")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();

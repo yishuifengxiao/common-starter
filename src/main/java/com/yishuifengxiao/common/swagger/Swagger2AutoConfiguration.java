@@ -50,7 +50,8 @@ import java.util.stream.Collectors;
 @EnableSwagger2
 @EnableOpenApi
 @EnableConfigurationProperties(SwaggerProperties.class)
-@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.swagger", name = {"enable"}, havingValue = "true", matchIfMissing =
+        true)
 public class Swagger2AutoConfiguration implements WebMvcConfigurer {
 
     @Autowired
@@ -63,10 +64,17 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath*:/swagger-ui/webjars/springfox-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/", "classpath*:/META-INF/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger-ui/");
-        registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
+        registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath*:/swagger-ui/webjars/springfox" +
+                "-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/", "classpath*:/META-INF" +
+                "/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger" +
+                "-ui/");
+        
+        registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger" +
+                "-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
 
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath*:/swagger-ui/webjars/", "classpath:/swagger-ui/webjars/", "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath*:/swagger-ui/webjars/", "classpath" +
+                ":/swagger-ui/webjars/", "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources" +
+                "/webjars/");
     }
 
     @Override
@@ -159,7 +167,8 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     private List<RequestParameter> buildParameter() {
         if (BooleanUtils.isTrue(this.swaggerProperties.getShowDetail())) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】 swagger-ui 授权参数为 {}", this.swaggerProperties.getAuths());
+            log.info("【yishuifengxiao-common-spring-boot-starter】 swagger-ui 授权参数为 {}",
+                    this.swaggerProperties.getAuths());
         }
 
         List<RequestParameter> pars = new ArrayList<>();

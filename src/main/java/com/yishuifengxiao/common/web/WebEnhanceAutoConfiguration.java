@@ -307,7 +307,7 @@ public class WebEnhanceAutoConfiguration {
                     //controlAllowHeaders
                     String controlAllowHeaders = HttpUtils.accessControlAllowHeaders((HttpServletRequest) request,
                             httpServletResponse);
-                    
+
                     httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                             StringUtils.isBlank(corsProperties.getAllowedOrigins()) ? accessControlAllowOrigin :
                                     corsProperties.getAllowedOrigins());

@@ -67,6 +67,9 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
                 .tokenIntrospectionEndpoint(tokenIntrospectionEndpoint -> tokenIntrospectionEndpoint.errorResponseHandler(authenticationPoint))
                 //
                 .tokenRevocationEndpoint(tokenRevocationEndpoint -> tokenRevocationEndpoint.errorResponseHandler(authenticationPoint))
+                //
+                .authorizationEndpoint(endpoint -> endpoint.errorResponseHandler(authenticationPoint))
+                //
                 .oidc(Customizer.withDefaults())
 
 

@@ -107,8 +107,10 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (AccessDeniedException e) {
                     securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                    return;
                 } catch (CustomException e) {
                     securityHandler.onException(propertyResource, request, response, e);
+                    return;
                 }
 
             }

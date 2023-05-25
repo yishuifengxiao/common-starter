@@ -35,10 +35,17 @@ public class WebEnhanceProperties {
      */
     private Boolean aop = true;
 
+
     /**
      * 是否开启响应增强功能
      */
     private Boolean response = true;
+
+    /**
+     * 出现异常时默认的视图的名字: error
+     */
+    private String defaultView = "error";
+
     /**
      * 请求追踪标识符的名字
      */
