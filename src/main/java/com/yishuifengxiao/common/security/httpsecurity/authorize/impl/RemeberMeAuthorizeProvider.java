@@ -3,17 +3,15 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
 
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
+import com.yishuifengxiao.common.security.support.PropertyResource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
-
 /**
  * spring security记住我功能而定相关配置
- *
  *
  * @author yishui
  * @version 1.0.0
@@ -35,7 +33,7 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		//记住我的功能
-        http.rememberMe()
+        http.rememberMe().alwaysRemember(propertyResource.security().getRemeberMe().getAlwaysRemember())
 		//是否使用安全cookie
 		.useSecureCookie(propertyResource.security().getRemeberMe().getUseSecureCookie())
 		//记住我产生的token的key

@@ -8,9 +8,11 @@ import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityEvent;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.Strategy;
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -26,12 +28,13 @@ import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
-import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * <p>抽象协助处理器</p>
@@ -74,12 +77,22 @@ public class BaseSecurityHandler implements SecurityHandler {
                                           SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
         preHandle(request, response, propertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
-        final Object attribute = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
-        if (null != attribute && StringUtils.isNotBlank(attribute.toString())) {
+
+        // 发布事件
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, propertyResource,
+                Strategy.AUTHENTICATION_SUCCESS, token, null));
+
+
+        String redirectUrl = redirectUrl(request, response);
+
+        if (StringUtils.isNotBlank(redirectUrl)) {
             log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " +
-                    "that" + " the historical blocking path is {}, and will be redirected to this address", attribute);
-            request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, "");
-            redirectStrategy.sendRedirect(request, response, attribute.toString());
+                            "that" + " the historical blocking path is {}, and will be redirected to this address",
+                    redirectUrl);
+            String requestParameter = propertyResource.security().getToken().getRequestParameter();
+            redirectUrl = UriComponentsBuilder.fromUriString(redirectUrl).queryParam(requestParameter,
+                    token.getValue()).build(true).toUriString();
+            redirectStrategy.sendRedirect(request, response, redirectUrl);
             return;
         }
         if (isJsonRequest(request, response)) {
@@ -108,6 +121,9 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         preHandle(request, response, propertyResource, Strategy.AUTHENTICATION_FAILURE,
                 SecurityContextHolder.getContext().getAuthentication(), exception);
+        // 发布事件
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, propertyResource,
+                Strategy.AUTHENTICATION_FAILURE, null, exception));
         String msg = "认证失败";
 
         if (exception instanceof CustomException) {
@@ -150,6 +166,11 @@ public class BaseSecurityHandler implements SecurityHandler {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
         preHandle(request, response, propertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
+
+        // 发布事件
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, propertyResource,
+                Strategy.LOGOUT_SUCCESS, authentication, null));
+
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
             return;
@@ -180,6 +201,11 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, propertyResource, Strategy.ACCESS_DENIED,
                 SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
+
+        // 发布事件
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, propertyResource,
+                Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception));
+
         if (isJsonRequest(request, response)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
                 sendJson(request, response, Strategy.ACCESS_DENIED,
@@ -217,6 +243,11 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, propertyResource, Strategy.ON_EXCEPTION,
                 SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
+
+        // 发布事件
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, propertyResource,
+                Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception));
+
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.ON_EXCEPTION,
                     Response.of(propertyResource.security().getMsg().getVisitOnErrorCode(),
@@ -244,18 +275,21 @@ public class BaseSecurityHandler implements SecurityHandler {
             // json 请求，放弃
             return;
         }
-        // 引起跳转的uri
-        String redirectUrl = null;
-        SavedRequest savedRequest = cache.getRequest(request, response);
-        if (null != savedRequest) {
-            redirectUrl = savedRequest.getRedirectUrl();
-        }
-        if (StringUtils.isBlank(redirectUrl)) {
-            redirectUrl = null == request.getRequestURL() ? null : request.getRequestURL().toString();
-        }
-        if (StringUtils.isNotBlank(redirectUrl)) {
+        try {
+            // 引起跳转的uri
+            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString());
+            Map<String, String[]> parameterMap = request.getParameterMap();
+            if (null != parameterMap) {
+                parameterMap.forEach((k, v) -> {
+                    uriBuilder.queryParam(k, v);
+                });
+            }
+            // build(true) -> Components are explicitly encoded
+            String redirectUrl = uriBuilder.build(true).toUriString();
             request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, redirectUrl);
+        } catch (Exception e) {
         }
+
     }
 
     /**
@@ -310,6 +344,23 @@ public class BaseSecurityHandler implements SecurityHandler {
      */
     protected void sendJson(HttpServletRequest request, HttpServletResponse response, Strategy strategy, Object data) {
         HttpUtils.write(request, response, data);
+    }
+
+    /**
+     * 获取重定向地址
+     *
+     * @param request  HttpServletRequest
+     * @param response HttpServletResponse
+     * @return 重定向地址
+     */
+    protected String redirectUrl(HttpServletRequest request, HttpServletResponse response) {
+        Object url = request.getSession().getAttribute(SecurityConstant.HISTORY_REQUEST_URL);
+        request.getSession().setAttribute(SecurityConstant.HISTORY_REQUEST_URL, "");
+        if (null != url && StringUtils.isNotBlank(url.toString()) && !StringUtils.equalsIgnoreCase(url.toString(),
+                "null")) {
+            return url.toString();
+        }
+        return null;
     }
 
 }

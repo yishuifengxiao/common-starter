@@ -117,7 +117,11 @@ public class AuthorizationConsentController {
     }
 
     public static class ScopeWithDescription implements Serializable {
-        private static final String DEFAULT_DESCRIPTION =
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = -7611280858999143294L;
+		private static final String DEFAULT_DESCRIPTION =
                 "UNKNOWN SCOPE - We cannot provide information about this " + "permission, use caution when granting "
                         + "this.";
         private static final Map<String, String> scopeDescriptions = new HashMap<>();

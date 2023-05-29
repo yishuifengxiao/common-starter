@@ -15,16 +15,16 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme;
 
+import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.springframework.security.web.authentication.rememberme.PersistentRememberMeToken;
-import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-
 /**
- * <p>Simple <tt>PersistentTokenRepository</tt> implementation backed by a Map.
+ * <p>SimpleSecurityGlobalEnhance <tt>PersistentTokenRepository</tt> implementation backed by a Map.
  * Intended for testing only. </p>
  * <p>
  * 解决原生类报错DataIntegrityViolationException再未引入数据库相关的包时出错的问题

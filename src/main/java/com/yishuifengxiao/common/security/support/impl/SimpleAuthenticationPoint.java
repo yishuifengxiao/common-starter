@@ -12,6 +12,7 @@ import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenti
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.utils.HttpUtils;
+import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
@@ -67,6 +68,8 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     private SecurityHandler securityHandler;
 
+    private WebEnhanceProperties.CorsProperties corsProperties;
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
@@ -118,8 +121,13 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     cookie.setMaxAge(token.getValidSeconds());
                     response.addCookie(cookie);
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
-                            HttpUtils.accessControlAllowHeaders(request, response));
+                    //controlAllowHeaders
+
+                    String controlAllowHeaders = StringUtils.isBlank(corsProperties.getAllowedHeaders()) ?
+                            HttpUtils.accessControlAllowHeaders(request, response) :
+                            corsProperties.getAllowedHeaders();
+
+                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, controlAllowHeaders);
                     response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                             HttpUtils.accessControlAllowOrigin(request));
                     // 登陆成功
@@ -205,5 +213,13 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     public void setSecurityHandler(SecurityHandler securityHandler) {
         this.securityHandler = securityHandler;
+    }
+
+    public WebEnhanceProperties.CorsProperties getCorsProperties() {
+        return corsProperties;
+    }
+
+    public void setCorsProperties(WebEnhanceProperties.CorsProperties corsProperties) {
+        this.corsProperties = corsProperties;
     }
 }

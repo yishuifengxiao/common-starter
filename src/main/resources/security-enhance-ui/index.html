@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>登录页面</title>
+    <link rel="stylesheet" href="/security-enhance-ui/layui/css/layui.css">
+    <style>
+        .right-panel {
+            margin-top: 20vh;
+        }
+
+        .layui-container {
+            width: 100%;
+            height: 100%;
+            background-image: url("/security-enhance-ui/img/bg.png");
+            background-size: 100% 100%;
+
+        }
+
+        .right_content {
+            padding: 100px;
+            height: 100%;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <!-- 左侧 -->
+        <div class=" layui-col-md8">
+            <div class="grid-demo grid-demo-bg1" style="visibility: hidden">
+                <!--                左侧-->
+                left
+            </div>
+        </div>
+        <!-- 左侧 -->
+        <!-- 右侧 -->
+        <div class="layui-col-xs12 layui-col-md4 right_content">
+
+            <div class="layui-panel right-panel">
+                <div style="padding: 32px;">
+                    <!-- 表单 -->
+                    <form class="layui-form" action="/login" id="form" method="post"
+                          enctype="application/x-www-form-urlencoded">
+                        <div class="demo-login-container">
+                            <div class="layui-form-item">
+                                <div class="layui-input-wrap">
+                                    <div class="layui-input-prefix">
+                                        <i class="layui-icon layui-icon-username"></i>
+                                    </div>
+                                    <input type="text" name="username" value="" lay-verify="required"
+                                           placeholder="用户名"
+                                           lay-reqtext="请填写用户名" autocomplete="off" class="layui-input"
+                                           lay-affix="clear">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <div class="layui-input-wrap">
+                                    <div class="layui-input-prefix">
+                                        <i class="layui-icon layui-icon-password"></i>
+                                    </div>
+                                    <input type="password" name="password" value="" lay-verify="required"
+                                           placeholder="密   码"
+                                           lay-reqtext="请填写密码" autocomplete="off" class="layui-input"
+                                           lay-affix="eye">
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <input id="remember_input" type="checkbox" name="remember" lay-skin="primary"
+                                       title="记住密码" value="true">
+                                <a id="forgotPasswordUrl" href="javascript:void(0)"
+                                   style="float: right; margin-top: 7px;">忘记密码？</a>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-login">登录
+                                </button>
+                            </div>
+
+                        </div>
+                    </form>
+                    <!-- 表单 -->
+                </div>
+            </div>
+
+        </div>
+        <!-- 右侧 -->
+    </div>
+</div>
+
+<!-- body 末尾处引入 layui -->
+<script src="/security-enhance-ui/layui/jquery-3.7.0.min.js"></script>
+<script src="/security-enhance-ui/layui/layui.js"></script>
+<script>
+    $(function () {
+
+        $.getJSON("/.well-known/security/meta", function (result, status, xhr) {
+            if (result.code != 200) {
+                layer.msg(result.msg);
+            } else {
+                $("#form").attr("action", result.data.formActionUrl);
+                $("#remember_input").attr("name", result.data.rememberMeParameter);
+                if (typeof result.data.forgotPasswordUrl != "undefined" && result.data.forgotPasswordUrl != null &&
+                    result.data.forgotPasswordUrl.length != 0) {
+                    $("#forgotPasswordUrl").attr("href", result.data.forgotPasswordUrl);
+                }
+            }
+        });
+
+    });
+</script>
+</body>
+
+</html>

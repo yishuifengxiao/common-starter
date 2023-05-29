@@ -1,6 +1,9 @@
 package com.yishuifengxiao.common.oauth2.authorization;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
@@ -14,10 +17,6 @@ import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.util.Assert;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * 此接口的实现负责OAuth 2.0授权的管理。
  *
@@ -25,7 +24,6 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
 public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationService {
 
     private final static String PREFIX_BY_OAUTH2AUTHORIZATION = "oauth2authorization";
@@ -35,7 +33,6 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     private RegisteredClientRepository registeredClientRepository;
 
-    private int maxInitializedAuthorizations = 100;
 
 
     @Override
@@ -138,7 +135,8 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
         return refreshToken != null && refreshToken.getToken().getTokenValue().equals(token);
     }
 
-    private static final class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
+    @SuppressWarnings({ "unused", "serial" })
+	private static final class MaxSizeHashMap<K, V> extends LinkedHashMap<K, V> {
         private final int maxSize;
 
         private MaxSizeHashMap(int maxSize) {

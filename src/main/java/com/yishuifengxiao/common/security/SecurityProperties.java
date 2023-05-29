@@ -74,11 +74,11 @@ public class SecurityProperties {
      */
     private String passwordParameter = SecurityConstant.PASSWORD_PARAMETER;
     /**
-     * 系统登陆页面的地址 ,默认为 /toLogin
+     * 系统登陆页面的地址 ,默认为 /security-enhance-ui/
      */
     private String loginPage = UriConstant.DEFAULT_LOGIN_URL;
     /**
-     * 权限拦截时默认的跳转地址，默认为 /toLogin
+     * 权限拦截时默认的跳转地址，默认为 /security-enhance-ui/
      */
     private String redirectUrl = UriConstant.DEFAULT_LOGIN_URL;
     /**
@@ -91,7 +91,7 @@ public class SecurityProperties {
     private String loginSuccessUrl = UriConstant.DEFAULT_REDIRECT_LOGIN_URL;
 
     /**
-     * 默认的处理登录失败后跳转的URL的路径 ，默认为/toLogin
+     * 默认的处理登录失败后跳转的URL的路径 ，默认为/security-enhance-ui/
      */
     private String loginFailUrl = UriConstant.DEFAULT_LOGIN_URL;
     /**
@@ -103,6 +103,11 @@ public class SecurityProperties {
      * 需要删除的cookie的名字 JSESSIONID
      */
     private String cookieName = SecurityConstant.DEFAULT_COOKIE_NAME;
+
+    /**
+     * 忘记密码的地址
+     */
+    private String forgotPasswordUrl;
 
 
     /**
@@ -308,6 +313,11 @@ public class SecurityProperties {
          * 默认过期时间为60分钟
          */
         private Integer rememberMeSeconds = 60 * 60;
+
+        /**
+         * 是否开启记住我功能
+         */
+        private Boolean alwaysRemember = true;
 
     }
 

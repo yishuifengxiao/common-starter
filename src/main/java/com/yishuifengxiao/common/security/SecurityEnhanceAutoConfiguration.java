@@ -5,15 +5,20 @@ import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfig
 import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.httpsecurity.*;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityGlobalEnhance;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
+import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhance;
+import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
@@ -25,6 +30,7 @@ import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
+import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -221,12 +227,15 @@ public class SecurityEnhanceAutoConfiguration {
     @ConditionalOnMissingBean
     public AuthenticationPoint authenticationPoint(PropertyResource propertyResource,
                                                    SecurityValueExtractor securityValueExtractor,
-                                                   SecurityHandler securityHandler, TokenBuilder tokenBuilder) {
+                                                   SecurityHandler securityHandler,
+                                                   WebEnhanceProperties webEnhanceProperties,
+                                                   TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
         authenticationPoint.setPropertyResource(propertyResource);
         authenticationPoint.setTokenBuilder(tokenBuilder);
         authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
         authenticationPoint.setSecurityHandler(securityHandler);
+        authenticationPoint.setCorsProperties(webEnhanceProperties.getCors());
         return authenticationPoint;
     }
 
@@ -299,6 +308,18 @@ public class SecurityEnhanceAutoConfiguration {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    /**
+     * 全局增强功能
+     *
+     * @param securityProperties
+     * @return
+     */
+    @Bean
+    @ConditionalOnMissingBean({SecurityGlobalEnhance.class})
+    public SecurityGlobalEnhance securityGlobalEnhance(SecurityProperties securityProperties) {
+        return new SimpleSecurityGlobalEnhance(securityProperties);
     }
 
     @PostConstruct

@@ -17,7 +17,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class AccessToken implements Serializable {
-    private String id;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4604869630498772717L;
+	private String id;
     private String registeredClientId;
     private String principalName;
     private String authorizationGrantType;

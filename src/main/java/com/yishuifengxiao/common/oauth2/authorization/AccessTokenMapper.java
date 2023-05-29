@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  * @see JdbcOAuth2AuthorizationService
  * @since 1.0.0
  */
+@SuppressWarnings("deprecation")
 public class AccessTokenMapper {
 
 
@@ -63,7 +64,8 @@ public class AccessTokenMapper {
         objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
     }
 
-    public OAuth2Authorization deserialize(AccessToken val, RegisteredClientRepository registeredClientRepository) {
+    @SuppressWarnings("unchecked")
+	public OAuth2Authorization deserialize(AccessToken val, RegisteredClientRepository registeredClientRepository) {
         if (null == val) {
             return null;
         }
@@ -272,7 +274,8 @@ public class AccessTokenMapper {
 
     }
 
-    private String map2String(Map map) throws JsonProcessingException {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+	private String map2String(Map map) throws JsonProcessingException {
         Map hashMap = new HashMap();
         if (null != map) {
             map.forEach((k, v) -> hashMap.put(k, v));
@@ -280,7 +283,8 @@ public class AccessTokenMapper {
         return objectMapper.writeValueAsString(hashMap);
     }
 
-    private Map string2Map(String text) {
+    @SuppressWarnings("rawtypes")
+	private Map string2Map(String text) {
         Map map = new HashMap<>();
         if (org.apache.commons.lang3.StringUtils.isBlank(text)) {
             return map;

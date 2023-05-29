@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +20,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +55,8 @@ public class HttpUtils {
     public synchronized static void redirect(HttpServletRequest request, HttpServletResponse response, String url,
                                              Object data) throws IOException {
         request.getSession().setAttribute("info", data);
+        response.setContentType(MediaType.TEXT_HTML_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.sendRedirect(url);
     }
 
@@ -87,7 +94,7 @@ public class HttpUtils {
         if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS))) {
             response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, accessControlAllowHeaders(request, response));
         }
-        response.setContentType("application/json;charset=UTF-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         try {
             response.getWriter().write(MAPPER.writeValueAsString(data));
@@ -238,21 +245,10 @@ public class HttpUtils {
      */
     public static String accessControlAllowHeaders(HttpServletRequest request, HttpServletResponse response) {
         Set<String> sets = new HashSet<>();
-        if (null != request) {
-            Enumeration<String> headerNames = request.getHeaderNames();
-            if (null != headerNames) {
-                while (headerNames.hasMoreElements()) {
-                    sets.add(headerNames.nextElement());
-                }
-            }
-        }
-        if (null != response) {
-            Collection<String> headerNames = response.getHeaderNames();
-            if (null != headerNames) {
-                headerNames.stream().forEach(sets::add);
-            }
-        }
+        sets.add(TokenConstant.TOKEN_REQUEST_PARAM);
+        sets.add(TokenConstant.TOKEN_HEADER_PARAM);
         sets.add(HttpHeaders.AUTHORIZATION);
+        sets.add(HttpHeaders.CONTENT_TYPE);
         String accessControlAllowHeaders = sets.stream().filter(v -> !StringUtils.equalsIgnoreCase(v,
                 HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).collect(Collectors.joining(","));
         return accessControlAllowHeaders;

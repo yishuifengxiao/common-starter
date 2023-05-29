@@ -1,8 +1,8 @@
 package com.yishuifengxiao.common.oauth2.impl;
 
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,17 +26,14 @@ import java.util.Objects;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Slf4j
 public class OAuth2AuthorizationEndpointEnhanceFilter extends OncePerRequestFilter {
 
-    /**
-     * The default endpoint {@code URI} for authorization requests.
-     */
-    private static final String DEFAULT_AUTHORIZATION_ENDPOINT_URI = "/oauth2/authorize";
+
 
     private final RequestMatcher authorizationEndpointMatcher;
 
-    private final OAuth2AuthorizationServerConfigurer authorizationServerConfigurer;
+    @SuppressWarnings("unused")
+	private final OAuth2AuthorizationServerConfigurer authorizationServerConfigurer;
 
     private AuthenticationPoint authenticationPoint;
 
@@ -48,7 +45,6 @@ public class OAuth2AuthorizationEndpointEnhanceFilter extends OncePerRequestFilt
     public OAuth2AuthorizationEndpointEnhanceFilter(OAuth2AuthorizationServerConfigurer authorizationServerConfigurer
             , AuthenticationPoint authenticationPoint) {
         this.authorizationServerConfigurer = authorizationServerConfigurer;
-
         this.authorizationEndpointMatcher = authorizationServerConfigurer.getEndpointsMatcher();
         this.authenticationPoint = authenticationPoint;
     }
@@ -57,7 +53,8 @@ public class OAuth2AuthorizationEndpointEnhanceFilter extends OncePerRequestFilt
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        if (!this.authorizationEndpointMatcher.matches(request)) {
+        if (!this.authorizationEndpointMatcher.matches(request) || !StringUtils.equalsIgnoreCase(request.getMethod(),
+                HttpMethod.GET.name())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -79,6 +76,7 @@ public class OAuth2AuthorizationEndpointEnhanceFilter extends OncePerRequestFilt
             this.authenticationPoint.handle(request, response, new AccessDeniedException("oauth2 enhance"));
             return;
         }
+
         filterChain.doFilter(request, response);
     }
 }

@@ -214,7 +214,7 @@ public class TokenUtil {
             maxSessions = propertyResource.security().getToken().getMaxSessions();
         }
         if (null == preventsLogin) {
-            propertyResource.security().getToken().getPreventsLogin();
+            preventsLogin = propertyResource.security().getToken().getPreventsLogin();
         }
 
         // 检查用户信息
@@ -277,7 +277,7 @@ public class TokenUtil {
 
 
     @SuppressWarnings("unused")
-	private TokenUtil() {
+    private TokenUtil() {
     }
 
     public TokenUtil(PropertyResource propertyResource, PasswordEncoder passwordEncoder,

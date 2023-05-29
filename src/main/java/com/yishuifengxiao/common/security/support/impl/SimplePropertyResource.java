@@ -6,6 +6,7 @@ package com.yishuifengxiao.common.security.support.impl;
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.support.SecurityGlobalEnhance;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,12 +27,15 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**.png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**",
+            "/**/**" + ".png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff",
+            "/**/**.ttf"};
 
     /**
      * 系统默认包含的swagger-ui资源路径
      */
-    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**", "/v2/api-docs", "/swagger-ui/**", "/v3/**"};
+    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**",
+            "/v2/api" + "-docs", "/swagger-ui/**", "/v3/**"};
     /**
      * 系统默认包含actuator相关的路径
      */
@@ -133,7 +137,10 @@ public class SimplePropertyResource implements PropertyResource {
             // 错误页面
             set.add(UriConstant.ERROR_PAGE);
         }
+        //security全局增强元数据
+        set.add(SecurityGlobalEnhance.DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
 
+        set.add(UriConstant.DEFAULT_LOGIN_URL + "**");
         set.addAll(this.getUrls(ignore.getUrls()));
 
         if (show) {
