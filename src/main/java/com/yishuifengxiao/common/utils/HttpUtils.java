@@ -2,6 +2,7 @@ package com.yishuifengxiao.common.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -227,13 +225,41 @@ public class HttpUtils {
             value = request.getHeader(HttpHeaders.REFERER);
             if (StringUtils.isNotBlank(value)) {
                 int indexOf = StringUtils.indexOf(value, "/", StringUtils.indexOf(value, "//") + 2);
-                value = indexOf != -1 ? value.substring(0, indexOf) : StringUtils.substringBefore(value,
-                        "?");
+                value = indexOf != -1 ? value.substring(0, indexOf) : StringUtils.substringBefore(value, "?");
             }
         }
         return StringUtils.isBlank(value) ? "*" : value;
     }
 
+
+    /**
+     * 默认的Access-Control-Allow-Headers的值
+     */
+    private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = DataUtil.asSet(
+            TokenConstant.TOKEN_REQUEST_PARAM,
+            TokenConstant.TOKEN_HEADER_PARAM,
+            HttpHeaders.AUTHORIZATION,
+            HttpHeaders.CACHE_CONTROL,
+            HttpHeaders.CONTENT_TYPE,
+            HttpHeaders.CONTENT_LENGTH,
+            HttpHeaders.CONTENT_DISPOSITION,
+            HttpHeaders.COOKIE,
+            HttpHeaders.DATE,
+            HttpHeaders.WWW_AUTHENTICATE,
+            HttpHeaders.HOST,
+            HttpHeaders.ORIGIN,
+            HttpHeaders.REFERER,
+            HttpHeaders.SET_COOKIE,
+            HttpHeaders.USER_AGENT,
+            HttpHeaders.SERVER,
+            HttpHeaders.EXPIRES,
+            HttpHeaders.ACCEPT,
+            HttpHeaders.ACCEPT_CHARSET,
+            HttpHeaders.ACCEPT_LANGUAGE,
+            HttpHeaders.VARY,
+            "x-requested-with",
+            "X-Custom-Header"
+    );
 
     /**
      * <p>从HttpServletRequest和HttpServletResponse提取出所有的请求头</p>
@@ -245,12 +271,14 @@ public class HttpUtils {
      */
     public static String accessControlAllowHeaders(HttpServletRequest request, HttpServletResponse response) {
         Set<String> sets = new HashSet<>();
-        sets.add(TokenConstant.TOKEN_REQUEST_PARAM);
-        sets.add(TokenConstant.TOKEN_HEADER_PARAM);
-        sets.add(HttpHeaders.AUTHORIZATION);
-        sets.add(HttpHeaders.CONTENT_TYPE);
-        String accessControlAllowHeaders = sets.stream().filter(v -> !StringUtils.equalsIgnoreCase(v,
-                HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)).collect(Collectors.joining(","));
+        String header = response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS);
+        if (StringUtils.isNotBlank(header)) {
+            sets.addAll(Arrays.asList(StringUtils.splitByWholeSeparatorPreserveAllTokens(header, ",")));
+        }
+        sets.addAll(DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS);
+        String accessControlAllowHeaders =
+                sets.stream().filter(StringUtils::isNotBlank).map(String::toLowerCase).distinct().collect(Collectors.joining(
+                        ","));
         return accessControlAllowHeaders;
     }
 
