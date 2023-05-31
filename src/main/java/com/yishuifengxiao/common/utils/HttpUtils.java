@@ -234,31 +234,23 @@ public class HttpUtils {
 
     /**
      * 默认的Access-Control-Allow-Headers的值
+     *
+     * @see
+     * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
      */
     private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = DataUtil.asSet(
+            // @formatter:off
             TokenConstant.TOKEN_REQUEST_PARAM,
             TokenConstant.TOKEN_HEADER_PARAM,
             HttpHeaders.AUTHORIZATION,
-            HttpHeaders.CACHE_CONTROL,
             HttpHeaders.CONTENT_TYPE,
-            HttpHeaders.CONTENT_LENGTH,
-            HttpHeaders.CONTENT_DISPOSITION,
-            HttpHeaders.COOKIE,
-            HttpHeaders.DATE,
             HttpHeaders.WWW_AUTHENTICATE,
             HttpHeaders.HOST,
             HttpHeaders.ORIGIN,
             HttpHeaders.REFERER,
-            HttpHeaders.SET_COOKIE,
-            HttpHeaders.USER_AGENT,
-            HttpHeaders.SERVER,
-            HttpHeaders.EXPIRES,
-            HttpHeaders.ACCEPT,
-            HttpHeaders.ACCEPT_CHARSET,
-            HttpHeaders.ACCEPT_LANGUAGE,
             HttpHeaders.VARY,
-            "x-requested-with",
-            "X-Custom-Header"
+            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
+            // @formatter:on
     );
 
     /**
@@ -271,14 +263,25 @@ public class HttpUtils {
      */
     public static String accessControlAllowHeaders(HttpServletRequest request, HttpServletResponse response) {
         Set<String> sets = new HashSet<>();
-        String header = response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS);
-        if (StringUtils.isNotBlank(header)) {
-            sets.addAll(Arrays.asList(StringUtils.splitByWholeSeparatorPreserveAllTokens(header, ",")));
+        //注意以下这些特定的首部是一直允许的：Accept, Accept-Language, Content-Language, Content-Type（但只在其值属于 MIME 类型
+        // application/x-www-form-urlencoded, multipart/form-data 或 text/plain中的一种时）。这些被称作simple headers，你无需特意声明它们
+//        在使用CORS方式跨域时，浏览器只会返回 默认的头部 Header，认情况下可用的响应头包括：
+//        Cache-Control 、 Content-Language、 Content-Type 、 Expires、  Last-Modified、 Pragma CORS规范将这些头称为 简单响应头
+//        Access-Control-Expose-Headers 是一个 CORS（跨域资源共享）头部，用于指定允许客户端访问的响应头信息。默认情况下，浏览器会阻止跨域请求获取响应头信息，因此需要在服务器端设置
+//        Access-Control-Expose-Headers 来允许客户端访问指定的响应头。
+        String accessControlAllowHeaders = response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS);
+        if (StringUtils.isNotBlank(accessControlAllowHeaders)) {
+            sets.addAll(Arrays.asList(StringUtils.splitByWholeSeparatorPreserveAllTokens(accessControlAllowHeaders,
+                    ",")));
+        }
+        String accessControlRequestHeaders = request.getHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+        if (StringUtils.isNotBlank(accessControlRequestHeaders)) {
+            sets.addAll(Arrays.asList(StringUtils.splitByWholeSeparatorPreserveAllTokens(accessControlRequestHeaders,
+                    ",")));
         }
         sets.addAll(DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS);
-        String accessControlAllowHeaders =
-                sets.stream().filter(StringUtils::isNotBlank).map(String::toLowerCase).distinct().collect(Collectors.joining(
-                        ","));
+        accessControlAllowHeaders =
+                sets.stream().filter(StringUtils::isNotBlank).map(String::toLowerCase).distinct().collect(Collectors.joining(","));
         return accessControlAllowHeaders;
     }
 

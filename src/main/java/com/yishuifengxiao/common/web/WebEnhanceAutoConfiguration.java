@@ -45,6 +45,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
 
 /**
  * web增强支持配置
@@ -302,6 +303,19 @@ public class WebEnhanceAutoConfiguration {
 
                     HttpServletResponse httpServletResponse = ((HttpServletResponse) response);
 
+
+                    Collection<String> varyHeaders = httpServletResponse.getHeaders(HttpHeaders.VARY);
+                    if (!varyHeaders.contains(HttpHeaders.ORIGIN)) {
+                        httpServletResponse.addHeader(HttpHeaders.VARY, HttpHeaders.ORIGIN);
+                    }
+                    if (!varyHeaders.contains(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)) {
+                        httpServletResponse.addHeader(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+                    }
+                    if (!varyHeaders.contains(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS)) {
+                        httpServletResponse.addHeader(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+                    }
+
+
                     //Access-Control-Allow-Origin
                     String accessControlAllowOrigin = HttpUtils.accessControlAllowOrigin((HttpServletRequest) request);
                     //controlAllowHeaders
@@ -314,8 +328,7 @@ public class WebEnhanceAutoConfiguration {
                     httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
                             StringUtils.isBlank(corsProperties.getAllowedHeaders()) ?
                                     HttpUtils.accessControlAllowHeaders((HttpServletRequest) request,
-                                            httpServletResponse) :
-                                    corsProperties.getAllowedHeaders());
+                                            httpServletResponse) : corsProperties.getAllowedHeaders());
 
                     httpServletResponse.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
                             corsProperties.getAllowCredentials() + "");
