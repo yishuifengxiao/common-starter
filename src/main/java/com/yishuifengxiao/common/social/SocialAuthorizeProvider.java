@@ -47,7 +47,9 @@ public class SocialAuthorizeProvider implements AuthorizeProvider, InitializingB
 
         final OAuth2LoginConfigurer<HttpSecurity> oauth2Login = http.oauth2Login();
 
-        oauth2Login.failureHandler(authenticationPoint).successHandler(authenticationPoint).loginPage(propertyResource.security().getLoginPage());
+        oauth2Login.failureHandler(authenticationPoint)
+                .successHandler(authenticationPoint)
+                .loginPage(propertyResource.security().getLoginPage());
 //        The default redirect URI template is . The registrationId is a unique identifier for the . {baseUrl}/login/oauth2/code/{registrationId}ClientRegistration
 //                .loginProcessingUrl(propertyResource.security().getFormActionUrl());
 
@@ -75,12 +77,16 @@ public class SocialAuthorizeProvider implements AuthorizeProvider, InitializingB
 
         //客户端用于交换访问令牌的授权授权，通常与客户端身份验证一起使用。
         // 使用CompositeOAuth2AccessTokenResponseClient
-        oauth2Login.tokenEndpoint().accessTokenResponseClient(this.accessTokenResponseClient(providers));
+        oauth2Login.tokenEndpoint()
+                .accessTokenResponseClient(this.accessTokenResponseClient(providers));
 
         //是一个OAuth 2.0受保护资源，它返回有关经过身份验证的最终用户的声明。
         // 为了获得有关最终用户的请求声明，客户端使用通过OpenID Connect Authentication获得的访问令牌向UserInfo Endpoint发出请求。
         // 这些声明通常由包含声明的名称-值对集合的JSON对象表示。
-        OAuth2LoginConfigurer<HttpSecurity>.UserInfoEndpointConfig userService = oauth2Login.userInfoEndpoint().userService(oauth2UserService(providers));
+        OAuth2LoginConfigurer<HttpSecurity>.UserInfoEndpointConfig userService = oauth2Login
+                .userInfoEndpoint()
+                .userService(oauth2UserService(providers));
+
         for (SocialProvider provider : providers) {
             userService.customUserType(provider.customUserType(), provider.clientRegistrationId());
         }
