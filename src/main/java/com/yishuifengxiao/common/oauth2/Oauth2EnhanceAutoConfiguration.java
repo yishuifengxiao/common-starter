@@ -11,6 +11,7 @@ import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
+import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhance;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -46,6 +47,7 @@ import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import javax.servlet.Filter;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -117,10 +119,10 @@ public class Oauth2EnhanceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({OAuth2AuthorizationProvider.class})
-    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository, AuthorizationServerSettings authorizationServerSettings, AuthenticationPoint authenticationPoint, OAuth2AuthorizationService authorizationService, OAuth2AuthorizationConsentService authorizationConsentService) {
+    public OAuth2AuthorizationProvider auth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository, AuthorizationServerSettings authorizationServerSettings, AuthenticationPoint authenticationPoint, OAuth2AuthorizationService authorizationService, OAuth2AuthorizationConsentService authorizationConsentService, Oauth2Properties oauth2Properties) {
         OAuth2AuthorizationProvider auth2AuthorizationProvider =
                 new SimpleOAuth2AuthorizationProvider(registeredClientRepository, authorizationServerSettings,
-                        authenticationPoint, authorizationService, authorizationConsentService);
+                        authenticationPoint, authorizationService, authorizationConsentService, oauth2Properties);
         return auth2AuthorizationProvider;
     }
 
@@ -228,5 +230,16 @@ public class Oauth2EnhanceAutoConfiguration {
     @ConditionalOnMissingBean({JwtDecoder.class})
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
+    }
+
+
+    @Bean("oauth2SecurityGlobalEnhance")
+    @ConditionalOnMissingBean(name = "oauth2SecurityGlobalEnhance")
+    public Filter oauth2SecurityGlobalEnhance(RegisteredClientRepository registeredClientRepository,
+                                              OAuth2AuthorizationConsentService authorizationConsentService,
+                                              Oauth2Properties oauth2Properties,
+                                              AuthorizationServerSettings authorizationServerSettings) {
+        return new Oauth2SecurityGlobalEnhance(oauth2Properties, registeredClientRepository,
+                authorizationConsentService, authorizationServerSettings);
     }
 }

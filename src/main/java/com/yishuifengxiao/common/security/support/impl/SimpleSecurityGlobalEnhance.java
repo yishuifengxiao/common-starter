@@ -60,16 +60,18 @@ public class SimpleSecurityGlobalEnhance extends SecurityGlobalEnhance {
         // @formatter:off
         registry.addResourceHandler(UriConstant.DEFAULT_LOGIN_URL + "**")
                 .addResourceLocations(
-                        "classpath*:/security-enhance-ui/",
-                        "classpath:/security-enhance-ui/",
-                        "classpath*:/META-INF/security-enhance-ui/",
-                        "classpath:/META-INF/security-enhance-ui/");
+                        "classpath:/webjars/security-enhance-ui/",
+                        "classpath*:/webjars/security-enhance-ui/"
+                );
         // @formatter:on
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController(UriConstant.DEFAULT_LOGIN_URL).setViewName("forward:" + UriConstant.DEFAULT_LOGIN_URL + "index" + ".html");
+        // @formatter:off
+        registry.addViewController(UriConstant.DEFAULT_LOGIN_URL)
+                .setViewName("forward:" + UriConstant.DEFAULT_LOGIN_URL + "index" + ".html");
+        // @formatter:on
     }
 
     @Data
@@ -77,11 +79,11 @@ public class SimpleSecurityGlobalEnhance extends SecurityGlobalEnhance {
     @NoArgsConstructor
     public static class SecurityMeta implements Serializable {
         /**
-		 * 
-		 */
-		private static final long serialVersionUID = 7993354065107286911L;
+         *
+         */
+        private static final long serialVersionUID = 7993354065107286911L;
 
-		private String formActionUrl;
+        private String formActionUrl;
 
         private String defaultLoginUrl;
 

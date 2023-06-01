@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+    <link href="/security-enhance-ui/layui/bootstrap.min.css" rel="stylesheet"/>
+    <title>Consent required</title>
+    <script>
+        function cancelConsent() {
+            document.consent_form.reset()
+            document.consent_form.submit()
+        }
+    </script>
+</head>
+
+<body>
+<div class="container">
+    <div class="py-5">
+        <h1 class="text-center">Consent required</h1>
+    </div>
+    <div class="row">
+        <div class="col text-center">
+            <p>
+                <span class="font-weight-bold text-primary" id="clientIdName"></span>
+                wants to access your account
+                <span class="font-weight-bold" id="principalName"></span>
+            </p>
+        </div>
+    </div>
+    <div class="row pb-3">
+        <div class="col text-center">
+            <p>
+                The following permissions are requested by the above app.
+                <br/>
+                Please review these and consent if you approve.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col text-center">
+            <form action="" id="form" method="post" name="consent_form">
+                <input id="clientId" name="client_id" type="hidden" value=""/>
+                <input id="state" name="state" type="hidden" value=""/>
+                <!--                <div class="form-group form-check py-1">-->
+                <!--                    <input class="form-check-input" type="checkbox" name="scope" value="scope-a" id="scope-a"/>-->
+                <!--                    <label class="form-check-label" for="scope-a">scope-a</label>-->
+                <!--                </div>-->
+                <div class="form-group pt-3">
+                    <button class="btn btn-info btn-lg" id="submit-consent" type="submit">
+                        Submit Consent
+                    </button>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-link regular" id="cancel-consent" onclick="cancelConsent();"
+                            type="button">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="row pt-4">
+        <div class="col text-center">
+            <p>
+                <small>
+                    Your consent to provide access is required.
+                    <br/>
+                    If you do not approve, click Cancel, in which case no information
+                    will be shared with the app.
+                </small>
+            </p>
+        </div>
+    </div>
+</div>
+<!-- body 末尾处引入 layui -->
+<script src="/security-enhance-ui/layui/jquery-3.7.0.min.js"></script>
+<script src="/security-enhance-ui/layui/layui.js"></script>
+<script>
+    $(function () {
+        $.getJSON("/.well-known/oauth2/meta" + window.location.search, function (result, status, xhr) {
+            if (result.code != 200) {
+                layer.msg(result.msg);
+            } else {
+                $("#form").attr("action", result.data.authorizationEndpoint);
+                $("#clientId").val(result.data.clientId);
+                $("#state").val(result.data.state);
+                $("#clientIdName").text(result.data.clientId)
+                $("#principalName").text(result.data.principalName)
+                var scopes = result.data.scopes;
+                for (var item of scopes) {
+                    console.log(item)
+                    var dom = "  <div class=\"form-group form-check py-1\">\n" +
+                        "                    <input class=\"form-check-input\" type=\"checkbox\" name=\"scope\" value=\"" + item.scope + "\" id=\"" + item.scope + "\"/>\n" +
+                        "                    <label class=\"form-check-label\" for=\"" + item.scope + "\">" + item.scope + "</label>\n" +
+                        "                </div>"
+                    $("#state").after(dom);
+                }
+            }
+        });
+
+    });
+</script>
+</body>
+
+</html>

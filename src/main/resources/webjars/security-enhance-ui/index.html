@@ -3,9 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
     <title>登录页面</title>
-    <link rel="stylesheet" href="/security-enhance-ui/layui/css/layui.css">
+    <link href="layui/css/layui.css" rel="stylesheet">
     <style>
         .right-panel {
             margin-top: 20vh;
@@ -14,7 +14,7 @@
         .layui-container {
             width: 100%;
             height: 100%;
-            background-image: url("/security-enhance-ui/img/bg.png");
+            background-image: url("img/bg.png");
             background-size: 100% 100%;
 
         }
@@ -50,18 +50,19 @@
             <div class="layui-panel right-panel">
                 <div style="padding: 32px;">
                     <!-- 表单 -->
-                    <form class="layui-form" action="/login" id="form" method="post"
-                          enctype="application/x-www-form-urlencoded">
+                    <form action="/login" class="layui-form" enctype="application/x-www-form-urlencoded" id="form"
+                          method="post">
                         <div class="demo-login-container">
                             <div class="layui-form-item">
                                 <div class="layui-input-wrap">
                                     <div class="layui-input-prefix">
                                         <i class="layui-icon layui-icon-username"></i>
                                     </div>
-                                    <input type="text" name="username" value="" lay-verify="required"
-                                           placeholder="用户名"
-                                           lay-reqtext="请填写用户名" autocomplete="off" class="layui-input"
-                                           lay-affix="clear">
+                                    <input autocomplete="off" class="layui-input" lay-affix="clear"
+                                           lay-reqtext="请填写用户名"
+                                           lay-verify="required"
+                                           name="username" placeholder="用户名" type="text"
+                                           value="">
                                 </div>
                             </div>
                             <div class="layui-form-item">
@@ -69,21 +70,22 @@
                                     <div class="layui-input-prefix">
                                         <i class="layui-icon layui-icon-password"></i>
                                     </div>
-                                    <input type="password" name="password" value="" lay-verify="required"
-                                           placeholder="密   码"
-                                           lay-reqtext="请填写密码" autocomplete="off" class="layui-input"
-                                           lay-affix="eye">
+                                    <input autocomplete="off" class="layui-input" lay-affix="eye"
+                                           lay-reqtext="请填写密码"
+                                           lay-verify="required"
+                                           name="password" placeholder="密   码" type="password"
+                                           value="">
                                 </div>
                             </div>
                             <div class="layui-form-item">
-                                <input id="remember_input" type="checkbox" name="remember" lay-skin="primary"
-                                       title="记住密码" value="true">
-                                <a id="forgotPasswordUrl" href="javascript:void(0)"
+                                <input id="remember_input" lay-skin="primary" name="remember" title="记住密码"
+                                       type="checkbox" value="true">
+                                <a href="javascript:void(0)" id="forgotPasswordUrl"
                                    style="float: right; margin-top: 7px;">忘记密码？</a>
                             </div>
 
                             <div class="layui-form-item">
-                                <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="demo-login">登录
+                                <button class="layui-btn layui-btn-fluid" lay-filter="demo-login" lay-submit>登录
                                 </button>
                             </div>
 
@@ -99,8 +101,8 @@
 </div>
 
 <!-- body 末尾处引入 layui -->
-<script src="/security-enhance-ui/layui/jquery-3.7.0.min.js"></script>
-<script src="/security-enhance-ui/layui/layui.js"></script>
+<script src="layui/jquery-3.7.0.min.js"></script>
+<script src="layui/layui.js"></script>
 <script>
     $(function () {
 

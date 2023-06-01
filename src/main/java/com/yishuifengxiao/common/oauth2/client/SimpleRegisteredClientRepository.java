@@ -8,9 +8,10 @@ import org.springframework.security.oauth2.server.authorization.client.InMemoryR
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
+import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
 
+import java.time.Duration;
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * <p>默认实现的RegisteredClientRepository</p>
@@ -90,7 +91,7 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
     @Override
     public void afterPropertiesSet() throws Exception {
         // @formatter:off
-        RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
+        RegisteredClient registeredClient = RegisteredClient.withId("yishuifengxiao")
                 .clientId("client")
                 .clientSecret(this.passwordEncoder.encode("secret"))
                 .clientAuthenticationMethods(methods->
@@ -111,6 +112,11 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
                 .redirectUri("http://www.yishuifengxiao.com")
                 .scope("scope-a")
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+                .tokenSettings(TokenSettings.builder()
+                        .accessTokenTimeToLive(Duration.ofHours(1))
+                        .authorizationCodeTimeToLive(Duration.ofHours(2))
+                        .refreshTokenTimeToLive(Duration.ofHours(6))
+                        .build())
                 .build();
         // @formatter:on
         this.registeredClientRepository = new InMemoryRegisteredClientRepository(registeredClient);

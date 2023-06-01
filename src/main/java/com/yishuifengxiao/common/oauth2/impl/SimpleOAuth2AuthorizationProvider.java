@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.oauth2.impl;
 
 import com.yishuifengxiao.common.oauth2.OAuth2AuthorizationProvider;
+import com.yishuifengxiao.common.oauth2.Oauth2Properties;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
@@ -26,17 +27,21 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
 
     private final OAuth2AuthorizationConsentService authorizationConsentService;
 
+    private final Oauth2Properties oauth2Properties;
+
 
     public SimpleOAuth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository,
                                              AuthorizationServerSettings authorizationServerSettings,
                                              AuthenticationPoint authenticationPoint,
                                              OAuth2AuthorizationService authorizationService,
-                                             OAuth2AuthorizationConsentService authorizationConsentService) {
+                                             OAuth2AuthorizationConsentService authorizationConsentService,
+                                             Oauth2Properties oauth2Properties) {
         this.registeredClientRepository = registeredClientRepository;
         this.authorizationServerSettings = authorizationServerSettings;
         this.authenticationPoint = authenticationPoint;
         this.authorizationService = authorizationService;
         this.authorizationConsentService = authorizationConsentService;
+        this.oauth2Properties = oauth2Properties;
     }
 
     @Override
@@ -68,10 +73,9 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
                 //
                 .tokenRevocationEndpoint(tokenRevocationEndpoint -> tokenRevocationEndpoint.errorResponseHandler(authenticationPoint))
                 //
-                .authorizationEndpoint(endpoint -> endpoint.errorResponseHandler(authenticationPoint))
+                .authorizationEndpoint(endpoint -> endpoint.errorResponseHandler(authenticationPoint).consentPage(oauth2Properties.getConsentPage()))
                 //
                 .oidc(Customizer.withDefaults())
-
 
         //
         ;

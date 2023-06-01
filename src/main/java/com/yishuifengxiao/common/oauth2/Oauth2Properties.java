@@ -1,12 +1,10 @@
 package com.yishuifengxiao.common.oauth2;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import com.yishuifengxiao.common.tool.entity.Response;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
  * oauth2扩展支持属性配置
@@ -63,5 +61,16 @@ public class Oauth2Properties {
      * 终端信息不正确时的响应码，默认为500
      */
     private Integer invalidClientCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
+
+    /**
+     * 授权确认页面
+     */
+    private String consentPage = "/security-enhance-ui/oauth2.html";
+
+
+    /**
+     * 授权信息页面
+     */
+    private String consentInfoPath = "/.well-known/oauth2/meta";
 
 }

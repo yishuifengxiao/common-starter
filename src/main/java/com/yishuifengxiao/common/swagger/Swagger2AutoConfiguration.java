@@ -64,22 +64,33 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/swagger-ui/**").addResourceLocations("classpath*:/swagger-ui/webjars/springfox" +
-                "-swagger-ui/", "classpath:/swagger-ui/webjars/springfox-swagger-ui/", "classpath*:/META-INF" +
-                "/resources/webjars/springfox-swagger-ui/", "classpath:/META-INF/resources/webjars/springfox-swagger" +
-                "-ui/");
-        
-        registry.addResourceHandler("doc.html").addResourceLocations("classpath*:/swagger-ui/", "classpath:/swagger" +
-                "-ui/", "classpath*:/META-INF/resources/", "classpath:/META-INF/resources/");
 
-        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath*:/swagger-ui/webjars/", "classpath" +
-                ":/swagger-ui/webjars/", "classpath*:/META-INF/resources/webjars/", "classpath:/META-INF/resources" +
-                "/webjars/");
+        //@formatter off
+        registry.addResourceHandler("/swagger-ui/**")
+                .addResourceLocations(
+                        "classpath*:/META-INF/META-INF/resources/webjars.springfox-swagger-ui/"
+                );
+
+        registry.addResourceHandler("doc.html")
+                .addResourceLocations(
+                        "classpath:/webjars/swagger-ui/",
+                        "classpath*:/webjars/swagger-ui/"
+                );
+
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations(
+                        "classpath:/webjars/swagger-ui/webjars/",
+                        "classpath*:/webjars/swagger-ui/webjars/"
+                );
+        //@formatter on
     }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/swagger-ui/").setViewName("forward:/swagger-ui/index.html");
+        // @formatter:off
+        registry.addViewController("/swagger-ui/")
+                .setViewName("forward:/swagger-ui/index.html");
+        // @formatter:on
     }
 
     // @formatter:off
