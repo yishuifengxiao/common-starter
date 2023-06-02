@@ -33,7 +33,7 @@
 <dependency>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>6.0.0</version>
+    <version>6.3.0</version>
 </dependency>
 ```
 

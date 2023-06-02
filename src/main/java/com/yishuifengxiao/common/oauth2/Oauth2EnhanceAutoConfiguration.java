@@ -11,7 +11,7 @@ import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
-import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhance;
+import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -233,13 +233,13 @@ public class Oauth2EnhanceAutoConfiguration {
     }
 
 
-    @Bean("oauth2SecurityGlobalEnhance")
-    @ConditionalOnMissingBean(name = "oauth2SecurityGlobalEnhance")
-    public Filter oauth2SecurityGlobalEnhance(RegisteredClientRepository registeredClientRepository,
+    @Bean("oauth2SecurityGlobalEnhanceFilter")
+    @ConditionalOnMissingBean(name = "oauth2SecurityGlobalEnhanceFilter")
+    public Filter oauth2SecurityGlobalEnhanceFilter(RegisteredClientRepository registeredClientRepository,
                                               OAuth2AuthorizationConsentService authorizationConsentService,
                                               Oauth2Properties oauth2Properties,
                                               AuthorizationServerSettings authorizationServerSettings) {
-        return new Oauth2SecurityGlobalEnhance(oauth2Properties, registeredClientRepository,
+        return new Oauth2SecurityGlobalEnhanceFilter(oauth2Properties, registeredClientRepository,
                 authorizationConsentService, authorizationServerSettings);
     }
 }

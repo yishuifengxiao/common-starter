@@ -12,12 +12,12 @@ import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityGlobalEnhance;
+import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhance;
+import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -317,9 +317,9 @@ public class SecurityEnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean({SecurityGlobalEnhance.class})
-    public SecurityGlobalEnhance securityGlobalEnhance(SecurityProperties securityProperties) {
-        return new SimpleSecurityGlobalEnhance(securityProperties);
+    @ConditionalOnMissingBean({SecurityGlobalEnhanceFilter.class})
+    public SecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityProperties securityProperties) {
+        return new SimpleSecurityGlobalEnhanceFilter(securityProperties);
     }
 
     @PostConstruct

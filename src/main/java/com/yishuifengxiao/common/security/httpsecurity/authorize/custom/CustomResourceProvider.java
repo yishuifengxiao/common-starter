@@ -33,7 +33,7 @@ public interface CustomResourceProvider {
     boolean hasPermission(HttpServletRequest request, Authentication authentication);
 
     /**
-     * SimpleSecurityGlobalEnhance strategy to match an HttpServletRequest.
+     * SimpleSecurityGlobalEnhanceFilter strategy to match an HttpServletRequest.
      *
      * @return RequestMatcher
      */

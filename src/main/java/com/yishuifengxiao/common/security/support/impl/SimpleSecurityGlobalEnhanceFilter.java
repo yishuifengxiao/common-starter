@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
-import com.yishuifengxiao.common.security.support.SecurityGlobalEnhance;
+import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleSecurityGlobalEnhance extends SecurityGlobalEnhance {
+public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilter {
 
 
     private final RequestMatcher requestMatcher =
@@ -96,7 +96,7 @@ public class SimpleSecurityGlobalEnhance extends SecurityGlobalEnhance {
         private String forgotPasswordUrl;
     }
 
-    public SimpleSecurityGlobalEnhance(SecurityProperties securityProperties) {
+    public SimpleSecurityGlobalEnhanceFilter(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
     }
 }

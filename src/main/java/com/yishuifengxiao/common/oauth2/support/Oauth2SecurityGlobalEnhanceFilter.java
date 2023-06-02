@@ -34,7 +34,7 @@ import java.util.*;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class Oauth2SecurityGlobalEnhance extends OncePerRequestFilter {
+public class Oauth2SecurityGlobalEnhanceFilter extends OncePerRequestFilter {
 
     private RequestMatcher authorizationEnhanceEndpointMatcher;
 
@@ -44,10 +44,10 @@ public class Oauth2SecurityGlobalEnhance extends OncePerRequestFilter {
 
     private AuthorizationServerSettings authorizationServerSettings;
 
-    public Oauth2SecurityGlobalEnhance(Oauth2Properties oauth2Properties,
-                                       RegisteredClientRepository registeredClientRepository,
-                                       OAuth2AuthorizationConsentService authorizationConsentService,
-                                       AuthorizationServerSettings authorizationServerSettings) {
+    public Oauth2SecurityGlobalEnhanceFilter(Oauth2Properties oauth2Properties,
+                                             RegisteredClientRepository registeredClientRepository,
+                                             OAuth2AuthorizationConsentService authorizationConsentService,
+                                             AuthorizationServerSettings authorizationServerSettings) {
         this.oauth2Properties = oauth2Properties;
         this.registeredClientRepository = registeredClientRepository;
         this.authorizationConsentService = authorizationConsentService;
@@ -63,6 +63,11 @@ public class Oauth2SecurityGlobalEnhance extends OncePerRequestFilter {
             return;
         }
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (null == authentication) {
+            HttpUtils.write(request, response, Response.unAuth("The current request requires identity authentication." +
+                    " Please verify your identity first"));
+            return;
+        }
         String clientId = request.getParameter(OAuth2ParameterNames.CLIENT_ID);
         String scope = request.getParameter(OAuth2ParameterNames.SCOPE);
         String state = request.getParameter(OAuth2ParameterNames.STATE);
@@ -70,8 +75,17 @@ public class Oauth2SecurityGlobalEnhance extends OncePerRequestFilter {
         Set<String> scopesToApprove = new HashSet<>();
         Set<String> previouslyApprovedScopes = new HashSet<>();
         RegisteredClient registeredClient = this.registeredClientRepository.findByClientId(clientId);
+        if (null == registeredClient) {
+            HttpUtils.write(request, response, Response.error("Wrong clientId value, corresponding client not found"));
+            return;
+        }
         OAuth2AuthorizationConsent currentAuthorizationConsent =
                 this.authorizationConsentService.findById(registeredClient.getId(), authentication.getName());
+        if (null == currentAuthorizationConsent) {
+            HttpUtils.write(request, response, Response.error("Incorrect authentication information, please request " +
+                    "authentication first"));
+            return;
+        }
         Set<String> authorizedScopes;
         if (currentAuthorizationConsent != null) {
             authorizedScopes = currentAuthorizationConsent.getScopes();

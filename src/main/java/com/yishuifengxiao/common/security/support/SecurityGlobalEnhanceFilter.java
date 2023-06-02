@@ -10,15 +10,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class SecurityGlobalEnhance extends OncePerRequestFilter implements WebMvcConfigurer {
+public abstract class SecurityGlobalEnhanceFilter extends OncePerRequestFilter implements WebMvcConfigurer {
     /**
      * The default endpoint {@code URI} for security Server Metadata requests.
      */
     public static final String DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI =
             "/.well-known/security/meta";
 
-    /**
-     * 默认的security曾倩ui前缀
-     */
-    public static final String DEFAULT_SECURITY_UI_PREFIX = "/security-enhance-ui/";
+
 }
