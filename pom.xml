@@ -55,7 +55,7 @@
         <yishuifengxiao.tool.version>4.2.2</yishuifengxiao.tool.version>
 
         <springfox.version>3.0.0</springfox.version>
-        <guava.version>31.0-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <oauth2-authorization-server.version>0.4.1</oauth2-authorization-server.version>
     </properties>
     <dependencies>
