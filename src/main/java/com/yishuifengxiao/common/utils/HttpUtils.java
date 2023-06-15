@@ -250,7 +250,7 @@ public class HttpUtils {
             HttpHeaders.ORIGIN,
             HttpHeaders.REFERER,
             HttpHeaders.VARY,
-            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
+            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
             // @formatter:on
     );
 

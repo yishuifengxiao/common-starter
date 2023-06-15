@@ -8,7 +8,7 @@ import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.UID;
-import com.yishuifengxiao.common.tool.utils.SystemUtil;
+import com.yishuifengxiao.common.tool.utils.OsUtils;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -267,7 +267,7 @@ public class WebEnhanceAutoConfiguration {
          * @return 解析出来的数据
          */
         private String[] dynamicLogLevel(String text) {
-            String[] tokens = StringUtils.splitByWholeSeparator(text, SystemUtil.COLON);
+            String[] tokens = StringUtils.splitByWholeSeparator(text, OsUtils.COLON);
             if (null == tokens || tokens.length != 2) {
                 return null;
             }
