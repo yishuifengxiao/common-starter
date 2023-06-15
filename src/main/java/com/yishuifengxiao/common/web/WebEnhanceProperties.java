@@ -92,7 +92,8 @@ public class WebEnhanceProperties {
         /**
          * 跨域设置允许的请求方法，默认为所有，也可以为 GET,POST,OPTIONS,PUT,DELETE这种形式
          */
-        private String allowedMethods = "*";
+        private String allowedMethods = "GET,HEAD,POST,PUT,PATCH,DELETE,OPTIONS,TRACE";
+
         /**
          * 跨域设置允许的请求头，默认为所有
          */

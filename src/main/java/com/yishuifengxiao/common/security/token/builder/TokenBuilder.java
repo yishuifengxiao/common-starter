@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * token生成器
@@ -68,4 +69,12 @@ public interface TokenBuilder {
      */
     SecurityToken refreshExpireTime(SecurityToken token) throws CustomException;
 
+
+    /**
+     * 根据认证信息获取所有的token
+     *
+     * @param authentication 认证信息
+     * @return 此认证信息下所有的token
+     */
+    List<SecurityToken> loadAll(Authentication authentication);
 }

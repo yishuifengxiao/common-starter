@@ -94,7 +94,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @throws CustomException
      */
     @SuppressWarnings("unchecked")
-	private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds,
+    private SecurityToken createNewToken(String username, String deviceId, Integer validSeconds,
                                          boolean preventsLogin, int maxSessions, Collection<?
             extends GrantedAuthority> authorities) throws CustomException {
         // 先取出该用户所有可用的token
@@ -167,6 +167,11 @@ public class SimpleTokenBuilder implements TokenBuilder {
         tokenHolder.remove(token);
         tokenHolder.save(securityToken);
         return securityToken;
+    }
+
+    @Override
+    public List<SecurityToken> loadAll(Authentication authentication) {
+        return tokenHolder.getAll(authentication.getName());
     }
 
     public TokenHolder getTokenHolder() {

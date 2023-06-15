@@ -83,7 +83,8 @@ public class HttpUtils {
         }
         if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS))) {
             // 允许使用的请求方法，以逗号隔开
-            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, "*");
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                    Arrays.stream(HttpMethod.values()).map(Objects::toString).collect(Collectors.joining(",")));
         }
         if (StringUtils.isBlank(response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS))) {
             // 是否允许请求带有验证信息，
@@ -249,7 +250,7 @@ public class HttpUtils {
             HttpHeaders.ORIGIN,
             HttpHeaders.REFERER,
             HttpHeaders.VARY,
-            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS
+            HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS,
             // @formatter:on
     );
 

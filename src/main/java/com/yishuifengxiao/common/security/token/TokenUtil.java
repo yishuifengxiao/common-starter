@@ -17,6 +17,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 令牌生成工具
@@ -267,14 +269,48 @@ public class TokenUtil {
     }
 
     /**
-     * 删除指定账号下所有的令牌
+     * <p>删除指定账号下所有的令牌</p>
+     * <p style="color:red;">支持多终端登录的情况下该操作会导致所有的登录会话全部失效</p>
      *
      * @param authentication 用户认证信息
      */
-    public static void clearAuthentication(Authentication authentication) {
+    public static void clearAllToken(Authentication authentication) {
         TokenUtil.tokenBuilder.clearAll(authentication);
     }
 
+
+    /**
+     * 删除指定的令牌
+     *
+     * @param token 待删除的令牌
+     */
+    public static void removeToken(SecurityToken token) {
+        TokenUtil.tokenBuilder.remove(token);
+    }
+
+    /**
+     * 根据认证信息获取所有的令牌
+     *
+     * @param authentication 认证信息
+     * @return 获取的令牌
+     */
+    public static List<SecurityToken> loadAllToken(Authentication authentication) {
+        return TokenUtil.tokenBuilder.loadAll(authentication);
+    }
+
+    /**
+     * 清除该会话中的认证信息
+     *
+     * @param request        HttpServletRequest
+     * @param response       HttpServletResponse
+     * @param authentication Authentication
+     */
+    public static void clearAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                           Authentication authentication) {
+        List<SecurityToken> list = TokenUtil.tokenBuilder.loadAll(authentication);
+        String deviceId = securityValueExtractor.extractDeviceId(request, response);
+        list.stream().filter(v -> v.getDeviceId().equals(deviceId)).forEach(TokenUtil.tokenBuilder::remove);
+    }
 
     @SuppressWarnings("unused")
     private TokenUtil() {
