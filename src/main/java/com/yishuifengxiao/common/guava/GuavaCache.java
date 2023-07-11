@@ -2,13 +2,12 @@ package com.yishuifengxiao.common.guava;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Supplier;
 
 /**
  * <p>
@@ -24,62 +23,37 @@ import java.util.concurrent.TimeUnit;
  */
 public class GuavaCache {
 
-    private static final Cache<String, Object> GUAVA_CACHE = CacheBuilder.newBuilder().maximumSize(1000).expireAfterAccess(24, TimeUnit.HOURS).build();
+    private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+
+    private static final Cache<String, Object> GUAVA_CACHE =
+            CacheBuilder.newBuilder().maximumSize(1000).expireAfterAccess(24, TimeUnit.HOURS).build();
 
 
     /**
-     * Returns the value associated with {@code key} in this cache, obtaining that value from {@code
-     * loader} if necessary. The method improves upon the conventional "if cached, return; otherwise
-     * create, cache and return" pattern. For further improvements, use {@link LoadingCache} and its
-     * {@link LoadingCache#get(Object) get(K)} method instead of this one.
+     * <p>从缓存中根据key获取一个指定数据</p>
+     * <p>当缓存中不存在该key对应的值是否则调用Supplier函数获取结果，并将结果放入到缓存中，然后输出该结果</p>
      *
-     * <p>Among the improvements that this method and {@code LoadingCache.get(K)} both provide are:
-     *
-     * <ul>
-     * <li>{@linkplain LoadingCache#get(Object) awaiting the result of a pending load} rather than
-     *     starting a redundant one
-     * <li>eliminating the error-prone caching boilerplate
-     * </ul>
-     *
-     * <p>Among the further improvements that {@code LoadingCache} can provide but this method cannot:
-     *
-     * <ul>
-     * <li>consolidation of the loader logic to {@linkplain CacheBuilder#build(CacheLoader) a single
-     *     authoritative location}
-     * <li>{@linkplain LoadingCache#refresh refreshing of entries}, including {@linkplain
-     *     CacheBuilder#refreshAfterWrite automated refreshing}
-     * <li>{@linkplain LoadingCache#getAll bulk loading requests}, including {@linkplain
-     *     CacheLoader#loadAll bulk loading implementations}
-     * </ul>
-     *
-     * <p><b>Warning:</b> For any given key, every {@code loader} used with it should compute the same
-     * value. Otherwise, a call that passes one {@code loader} may return the result of another call
-     * with a differently behaving {@code loader}. For example, a call that requests a short timeout
-     * for an RPC may wait for a similar call that requests a long timeout, or a call by an
-     * unprivileged user may return a resource accessible only to a privileged user making a similar
-     * call. To prevent this problem, create a key object that includes all values that affect the
-     * result of the query. Or use {@code LoadingCache.get(K)}, which lacks the ability to refer to
-     * state other than that in the key.
-     *
-     * <p><b>Warning:</b> as with {@link CacheLoader#load}, {@code loader} <b>must not</b> return
-     * {@code null}; it may either return a non-null value or throw an exception.
-     *
-     * <p>No observable state associated with this cache is modified until loading completes.
-     *
-     * @since 11.0
+     * @param key      缓存的key
+     * @param supplier 若缓存的key对应的数据不存在，则调用此函数获取结果并输出
+     * @param <V>      数据类型
+     * @return 获取的结果
      */
-    @SuppressWarnings("unchecked")
-    public static synchronized <V> V get(String key, Callable<? extends V> loader) {
-        if (null == key) {
+    public static <V> V get(String key, Supplier<V> supplier) {
+
+        Object val = get(key);
+        if (null != val) {
+            return (V) val;
+        }
+        if (null == supplier) {
             return null;
         }
-
-        try {
-            return (V) GUAVA_CACHE.get(key.trim(), null != loader ? loader : () -> null);
-        } catch (Exception e) {
+        synchronized (GuavaCache.class) {
+            if (val == null) {
+                val = supplier.get();
+                GUAVA_CACHE.put(key, val);
+            }
         }
-        return null;
-
+        return (V) val;
     }
 
     /**
@@ -88,7 +62,7 @@ public class GuavaCache {
      *
      * @param value 待存储的数据
      */
-    public static synchronized void put(Object value) {
+    public static void put(Object value) {
         if (null == value) {
             return;
         }
@@ -101,7 +75,7 @@ public class GuavaCache {
      *
      * @param value 待存储的数据
      */
-    public static synchronized void currentPut(Object value) {
+    public static void currentPut(Object value) {
         if (null == value) {
             return;
         }
@@ -114,11 +88,18 @@ public class GuavaCache {
      * @param key   待存储的数据的key
      * @param value 待存储的数据
      */
-    public static synchronized void put(String key, Object value) {
+    public static void put(String key, Object value) {
         if (StringUtils.isBlank(key) || null == value) {
             return;
         }
-        GUAVA_CACHE.put(key.trim(), value);
+
+        try {
+            lock.writeLock().lock();
+            GUAVA_CACHE.put(key.trim(), value);
+        } finally {
+            lock.writeLock().unlock();
+        }
+
     }
 
     /**
@@ -127,11 +108,18 @@ public class GuavaCache {
      * @param key 待存储的数据的key
      * @return 获取到的存储数据
      */
-    public static synchronized Object get(String key) {
+    public static Object get(String key) {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-        return GUAVA_CACHE.getIfPresent(key.trim());
+
+        try {
+            lock.readLock().lock();
+            return GUAVA_CACHE.getIfPresent(key.trim());
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /**
@@ -140,7 +128,7 @@ public class GuavaCache {
      * @return 获取到的存储数据
      */
     @SuppressWarnings("unchecked")
-	public static synchronized <T> T currentGet(Class<T> clazz) {
+    public static <T> T currentGet(Class<T> clazz) {
         return (T) get(Thread.currentThread().getId() + clazz.getName());
     }
 
@@ -154,7 +142,7 @@ public class GuavaCache {
      * @return 获取到的存储数据
      */
     @SuppressWarnings("unchecked")
-    public static synchronized <T> T get(String key, Class<T> clazz) {
+    public static <T> T get(String key, Class<T> clazz) {
         try {
             return (T) get(key.trim());
         } catch (Exception e) {
@@ -171,7 +159,7 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @return 获取到的存储数据
      */
-    public static synchronized <T> T get(Class<T> clazz) {
+    public static <T> T get(Class<T> clazz) {
         if (null == clazz) {
             return null;
         }
@@ -186,7 +174,7 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @return 获取到的存储数据
      */
-    public static synchronized <T> T getAndRemove(String key, Class<T> clazz) {
+    public static <T> T getAndRemove(String key, Class<T> clazz) {
         if (StringUtils.isBlank(key)) {
             return null;
         }
@@ -210,7 +198,7 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @return 获取到的存储数据
      */
-    public static synchronized <T> T getAndRemove(Class<T> clazz) {
+    public static <T> T getAndRemove(Class<T> clazz) {
         if (null == clazz) {
             return null;
         }
@@ -224,7 +212,7 @@ public class GuavaCache {
      * @param key 待存储的数据的key
      * @return 获取到的存储数据
      */
-    public static synchronized Object getAndRemove(String key) {
+    public static Object getAndRemove(String key) {
 
         Object value = get(key);
         if (null != value) {
@@ -238,7 +226,7 @@ public class GuavaCache {
      *
      * @return 获取到的存储数据
      */
-    public static synchronized <T> T currentAndRemove(Class<T> clazz) {
+    public static <T> T currentAndRemove(Class<T> clazz) {
 
         return getAndRemove(Thread.currentThread().getId() + clazz.getName(), clazz);
     }
@@ -248,11 +236,17 @@ public class GuavaCache {
      *
      * @param key 待移除的数据的key
      */
-    public static synchronized void remove(String key) {
+    public static void remove(String key) {
         if (StringUtils.isBlank(key)) {
             return;
         }
-        GUAVA_CACHE.invalidate(key.trim());
+        try {
+            lock.writeLock().lock();
+            GUAVA_CACHE.invalidate(key.trim());
+        } finally {
+            lock.writeLock().unlock();
+        }
+
     }
 
     /**
@@ -262,7 +256,7 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @param clazz 待移除的数据的key
      */
-    public static synchronized <T> void remove(Class<T> clazz) {
+    public static <T> void remove(Class<T> clazz) {
         if (null == clazz) {
             return;
         }
@@ -274,8 +268,14 @@ public class GuavaCache {
      *
      * @return 所有存储的数据的key
      */
-    public static synchronized Set<String> keys() {
-        return GUAVA_CACHE.asMap().keySet();
+    public static Set<String> keys() {
+        try {
+            lock.readLock().lock();
+            return GUAVA_CACHE.asMap().keySet();
+        } finally {
+            lock.readLock().unlock();
+        }
+
     }
 
     /**
@@ -284,18 +284,29 @@ public class GuavaCache {
      * @param key 指定的key
      * @return 包含返回为true, 否则为false
      */
-    public static synchronized boolean containsKey(String key) {
+    public static boolean containsKey(String key) {
         if (StringUtils.isBlank(key)) {
             return false;
         }
-        return GUAVA_CACHE.asMap().containsKey(key);
+        try {
+            lock.readLock().lock();
+            return GUAVA_CACHE.asMap().containsKey(key);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     /**
      * 清空所有存储的数据
      */
-    public static synchronized void clear() {
-        GUAVA_CACHE.cleanUp();
+    public static void clear() {
+
+        try {
+            lock.writeLock().lock();
+            GUAVA_CACHE.cleanUp();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
 }

@@ -36,7 +36,7 @@ import java.util.Map;
 @EnableConfigurationProperties({CodeProperties.class})
 @Import({MailExtendAutoConfiguration.class, RedisExtendAutoConfiguration.class})
 @AutoConfigureAfter(value = {RedisExtendAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.code", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.code", name = {"enable"}, havingValue = "true")
 public class CodeAutoConfiguration {
 
     /**
