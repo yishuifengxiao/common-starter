@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.http.HttpMethod;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -81,6 +80,8 @@ public class WebEnhanceProperties {
          * 是否开启跨域支持,默认开启
          */
         private Boolean enable = true;
+
+
         /**
          * 跨域设置允许的路径，默认为所有路径(/*)
          */
@@ -90,9 +91,10 @@ public class WebEnhanceProperties {
          */
         private String allowedOrigins;
         /**
-         * 跨域设置允许的请求方法，默认为所有，也可以为 GET,POST,OPTIONS,PUT,DELETE这种形式
+         * 跨域设置允许的请求方法，*表示为所有，也可以为 GET,POST,OPTIONS,PUT,DELETE这种形式
          */
-        private String allowedMethods = "*";
+        private String allowedMethods =
+                Arrays.stream(HttpMethod.values()).map(Objects::toString).collect(Collectors.joining(","));
         /**
          * 跨域设置允许的请求头，默认为所有
          */
