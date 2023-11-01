@@ -1,6 +1,7 @@
 package com.yishuifengxiao.common.swagger;
 
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
+
+import com.yishuifengxiao.common.tool.collections.CollectionUtil;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
@@ -183,7 +184,7 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
         }
 
         List<RequestParameter> pars = new ArrayList<>();
-        if (SizeUtil.isNotEmpty(this.swaggerProperties.getAuths())) {
+        if (CollectionUtil.isNotEmpty(this.swaggerProperties.getAuths())) {
             this.swaggerProperties.getAuths().forEach(t -> {
                 pars.add(new RequestParameterBuilder().name(t.getName()).description(t.getDescription()).required(t.getRequired()).in(ParameterType.QUERY).required(true).query(q -> q.model(m -> m.scalarModel(ScalarType.STRING))).build());
             });

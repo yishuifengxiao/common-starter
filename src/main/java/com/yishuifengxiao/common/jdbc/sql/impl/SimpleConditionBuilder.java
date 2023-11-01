@@ -9,8 +9,7 @@ import com.yishuifengxiao.common.jdbc.entity.Order.Direction;
 import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
-
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
+import com.yishuifengxiao.common.tool.collections.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -280,7 +279,7 @@ public class SimpleConditionBuilder implements ConditionBuilder {
 
 		StringBuilder sql = new StringBuilder("select ");
 
-		if (SizeUtil.isEmpty(list)) {
+		if (CollectionUtil.isEmpty(list)) {
 			sql.append(" * ");
 		} else {
 			for (FieldValue field : list) {

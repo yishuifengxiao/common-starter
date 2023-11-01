@@ -74,11 +74,11 @@
     </div>
 </div>
 <!-- body 末尾处引入 layui -->
-<script src="/security-enhance-ui/layui/jquery-3.7.0.min.js"></script>
-<script src="/security-enhance-ui/layui/layui.js"></script>
+<script src="layui/jquery-3.7.0.min.js"></script>
+<script src="layui/layui.js"></script>
 <script>
     $(function () {
-        $.getJSON("/.well-known/oauth2/meta" + window.location.search, function (result, status, xhr) {
+        $.getJSON("../.well-known/oauth2/meta" + window.location.search, function (result, status, xhr) {
             if (result.code != 200) {
                 layer.msg(result.msg);
             } else {

@@ -109,6 +109,11 @@ public class SecurityProperties {
      */
     private String forgotPasswordUrl;
 
+    /**
+     * 注册地址
+     */
+    private String registerUrl;
+
 
     /**
      * spring security session相关的配置

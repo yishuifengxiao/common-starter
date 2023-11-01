@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.support.impl;
 
-import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
+import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -30,25 +30,27 @@ import java.io.Serializable;
 public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilter {
 
 
-    private final RequestMatcher requestMatcher =
-            new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI,
-                    HttpMethod.GET.name());
+    private RequestMatcher requestMatcher = null;
 
-    private SecurityProperties securityProperties;
+    private PropertyResource propertyResource;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         if (!this.requestMatcher.matches(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String formActionUrl = securityProperties.getFormActionUrl();
-        final String forgotPasswordUrl = securityProperties.getForgotPasswordUrl();
+        String formActionUrl = propertyResource.contextPath() + propertyResource.security().getFormActionUrl();
+        String forgotPasswordUrl = StringUtils.isNotBlank(propertyResource.security().getForgotPasswordUrl()) ? propertyResource.contextPath() + propertyResource.security().getForgotPasswordUrl().trim() : "";
+        String loginPage = propertyResource.contextPath() + propertyResource.security().getLoginPage();
+        String registerUrl = StringUtils.isNotBlank(propertyResource.security().getRegisterUrl()) ? propertyResource.contextPath() + propertyResource.security().getRegisterUrl().trim() : "";
         HttpUtils.write(request, response, Response.sucData(new SecurityMeta(formActionUrl,
-                securityProperties.getLoginPage(), securityProperties.getRemeberMe().getRememberMeParameter(),
-                StringUtils.isNotBlank(forgotPasswordUrl) ? forgotPasswordUrl.trim() : "")));
+                loginPage,
+                propertyResource.security().getRemeberMe().getRememberMeParameter(),
+                forgotPasswordUrl,
+                registerUrl
+        )));
         return;
     }
 
@@ -83,8 +85,14 @@ public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilt
          */
         private static final long serialVersionUID = 7993354065107286911L;
 
+        /**
+         * 登录页面表单提交地址
+         */
         private String formActionUrl;
 
+        /**
+         * 默认的登录页面地址
+         */
         private String defaultLoginUrl;
 
         private String rememberMeParameter;
@@ -94,9 +102,15 @@ public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilt
          * 忘记密码的地址
          */
         private String forgotPasswordUrl;
+
+        /**
+         * 注册地址
+         */
+        private String registerUrl;
     }
 
-    public SimpleSecurityGlobalEnhanceFilter(SecurityProperties securityProperties) {
-        this.securityProperties = securityProperties;
+    public SimpleSecurityGlobalEnhanceFilter(PropertyResource propertyResource) {
+        this.propertyResource = propertyResource;
+        this.requestMatcher = new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI, HttpMethod.GET.name());
     }
 }

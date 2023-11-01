@@ -34,93 +34,113 @@
 
 <body>
 
-<div class="layui-container">
-    <div class="layui-row">
-        <!-- 左侧 -->
-        <div class=" layui-col-md8">
-            <div class="grid-demo grid-demo-bg1" style="visibility: hidden">
-                <!--                左侧-->
-                left
-            </div>
-        </div>
-        <!-- 左侧 -->
-        <!-- 右侧 -->
-        <div class="layui-col-xs12 layui-col-md4 right_content">
-
-            <div class="layui-panel right-panel">
-                <div style="padding: 32px;">
-                    <!-- 表单 -->
-                    <form action="/login" class="layui-form" enctype="application/x-www-form-urlencoded" id="form"
-                          method="post">
-                        <div class="demo-login-container">
-                            <div class="layui-form-item">
-                                <div class="layui-input-wrap">
-                                    <div class="layui-input-prefix">
-                                        <i class="layui-icon layui-icon-username"></i>
-                                    </div>
-                                    <input autocomplete="off" class="layui-input" lay-affix="clear"
-                                           lay-reqtext="请填写用户名"
-                                           lay-verify="required"
-                                           name="username" placeholder="用户名" type="text"
-                                           value="">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <div class="layui-input-wrap">
-                                    <div class="layui-input-prefix">
-                                        <i class="layui-icon layui-icon-password"></i>
-                                    </div>
-                                    <input autocomplete="off" class="layui-input" lay-affix="eye"
-                                           lay-reqtext="请填写密码"
-                                           lay-verify="required"
-                                           name="password" placeholder="密   码" type="password"
-                                           value="">
-                                </div>
-                            </div>
-                            <div class="layui-form-item">
-                                <input id="remember_input" lay-skin="primary" name="remember" title="记住密码"
-                                       type="checkbox" value="true">
-                                <a href="javascript:void(0)" id="forgotPasswordUrl"
-                                   style="float: right; margin-top: 7px;">忘记密码？</a>
-                            </div>
-
-                            <div class="layui-form-item">
-                                <button class="layui-btn layui-btn-fluid" lay-filter="demo-login" lay-submit>登录
-                                </button>
-                            </div>
-
-                        </div>
-                    </form>
-                    <!-- 表单 -->
+    <div class="layui-container">
+        <div class="layui-row">
+            <!-- 左侧 -->
+            <div class=" layui-col-md8">
+                <div class="grid-demo grid-demo-bg1" style="visibility: hidden">
+                    <!--                左侧-->
+                    left
                 </div>
             </div>
+            <!-- 左侧 -->
+            <!-- 右侧 -->
+            <div class="layui-col-xs12 layui-col-md4 right_content">
 
+                <div class="layui-panel right-panel">
+                    <div style="padding: 32px 32px 12px 32px;">
+                        <!-- 表单 -->
+                        <form action="/login" class="layui-form" enctype="application/x-www-form-urlencoded" id="form"
+                            method="post">
+                            <div class="demo-login-container">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-wrap">
+                                        <div class="layui-input-prefix">
+                                            <i class="layui-icon layui-icon-username"></i>
+                                        </div>
+                                        <input autocomplete="off" class="layui-input" lay-affix="clear"
+                                            lay-reqtext="请填写用户名" lay-verify="required" name="username" placeholder="用户名"
+                                            type="text" value="">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <div class="layui-input-wrap">
+                                        <div class="layui-input-prefix">
+                                            <i class="layui-icon layui-icon-password"></i>
+                                        </div>
+                                        <input autocomplete="off" class="layui-input" lay-affix="eye"
+                                            lay-reqtext="请填写密码" lay-verify="required" name="password"
+                                            placeholder="密   码" type="password" value="">
+                                    </div>
+                                </div>
+                                <div class="layui-form-item">
+                                    <input id="remember_input" lay-skin="primary" name="remember" title="记住密码"
+                                        type="checkbox" value="true">
+
+                                </div>
+
+                                <div style="visibility: hidden;"><input type="hidden" name="__response_strategy"
+                                        value="redirect"></div>
+                                <div class="layui-form-item">
+                                    <button class="layui-btn layui-btn-fluid" lay-filter="demo-login" lay-submit>登录
+                                    </button>
+                                </div>
+                                <div class="layui-form-item">
+                                    <a href="javascript:void(0)" id="registerUrl"
+                                        style="float: left; margin-top: 7px;visibility: hidden;">注册账号</a>
+                                    <a href="javascript:void(0)" id="forgotPasswordUrl"
+                                        style="float: right; margin-top: 7px;visibility: hidden;">忘记密码？</a>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- 表单 -->
+                    </div>
+                </div>
+
+            </div>
+            <!-- 右侧 -->
         </div>
-        <!-- 右侧 -->
     </div>
-</div>
 
-<!-- body 末尾处引入 layui -->
-<script src="layui/jquery-3.7.0.min.js"></script>
-<script src="layui/layui.js"></script>
-<script>
-    $(function () {
+    <!-- body 末尾处引入 layui -->
+    <script src="layui/jquery-3.7.0.min.js"></script>
+    <script src="layui/layui.js"></script>
+    <script>
+        $(function () {
 
-        $.getJSON("/.well-known/security/meta", function (result, status, xhr) {
-            if (result.code != 200) {
-                layer.msg(result.msg);
-            } else {
-                $("#form").attr("action", result.data.formActionUrl);
-                $("#remember_input").attr("name", result.data.rememberMeParameter);
-                if (typeof result.data.forgotPasswordUrl != "undefined" && result.data.forgotPasswordUrl != null &&
-                    result.data.forgotPasswordUrl.length != 0) {
-                    $("#forgotPasswordUrl").attr("href", result.data.forgotPasswordUrl);
+            $.getJSON("../.well-known/security/meta", function (result, status, xhr) {
+                if (result.code != 200) {
+                    layer.msg(result.msg);
+                } else {
+                    $("#form").attr("action", result.data.formActionUrl);
+                    $("#remember_input").attr("name", result.data.rememberMeParameter);
+                    if (typeof result.data.forgotPasswordUrl != "undefined" && result.data.forgotPasswordUrl != null &&
+                        result.data.forgotPasswordUrl.length > 0) {
+                        //忘记地址页面
+                        $("#forgotPasswordUrl").attr("href", result.data.forgotPasswordUrl);
+                        $("#forgotPasswordUrl").css("visibility", "visible");
+                    }
+
+                    if (typeof result.data.registerUrl != "undefined" && result.data.registerUrl != null &&
+                        result.data.registerUrl.length > 0) {
+                        //忘记地址页面
+                        $("#registerUrl").attr("href", result.data.registerUrl);
+                        $("#registerUrl").css("visibility", "visible");
+                    }
+
+                    const error_msg = new URL(location.href).searchParams.get('error_msg')
+                    if (null != error_msg && error_msg.length > 0) {
+                        layer.msg(error_msg, { icon: 5 });
+                        // 不含参数
+                        var url = window.location.protocol + "//" + window.location.host + "" + window.location.pathname;
+                        window.history.replaceState({}, '', url);
+                    }
+
                 }
-            }
-        });
+            });
 
-    });
-</script>
+        });
+    </script>
 </body>
 
 </html>

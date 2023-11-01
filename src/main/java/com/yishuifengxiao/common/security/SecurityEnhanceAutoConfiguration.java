@@ -41,6 +41,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
@@ -139,9 +140,10 @@ public class SecurityEnhanceAutoConfiguration {
      * @return 资源管理器
      */
     @Bean
-    public PropertyResource propertyResource(SecurityProperties securityProperties) {
+    public PropertyResource propertyResource(SecurityProperties securityProperties, Environment environment) {
         SimplePropertyResource propertyResource = new SimplePropertyResource();
         propertyResource.setSecurityProperties(securityProperties);
+        propertyResource.setContextPath(environment.getProperty("server.servlet.context-path"));
         return propertyResource;
     }
 
@@ -313,13 +315,13 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * 全局增强功能
      *
-     * @param securityProperties
+     * @param propertyResource
      * @return
      */
     @Bean
     @ConditionalOnMissingBean({SecurityGlobalEnhanceFilter.class})
-    public SecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityProperties securityProperties) {
-        return new SimpleSecurityGlobalEnhanceFilter(securityProperties);
+    public SecurityGlobalEnhanceFilter securityGlobalEnhance(PropertyResource propertyResource) {
+        return new SimpleSecurityGlobalEnhanceFilter(propertyResource);
     }
 
     @PostConstruct

@@ -27,15 +27,12 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**",
-            "/**/**" + ".png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff",
-            "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**" + ".png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
 
     /**
      * 系统默认包含的swagger-ui资源路径
      */
-    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**",
-            "/v2/api" + "-docs", "/swagger-ui/**", "/v3/**"};
+    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**", "/v2/api" + "-docs", "/swagger-ui/**", "/v3/**"};
     /**
      * 系统默认包含actuator相关的路径
      */
@@ -59,6 +56,8 @@ public class SimplePropertyResource implements PropertyResource {
      * 是否显示详细信息日志
      */
     private boolean show = false;
+
+    private String contextPath;
 
     @Override
     public SecurityProperties security() {
@@ -154,6 +153,11 @@ public class SimplePropertyResource implements PropertyResource {
         return BooleanUtils.isTrue(this.security().getShowDetail());
     }
 
+    @Override
+    public String contextPath() {
+        return StringUtils.isBlank(this.contextPath) ? "" : this.contextPath.trim();
+    }
+
     /**
      * 提取出Map里存储的URL
      *
@@ -177,5 +181,7 @@ public class SimplePropertyResource implements PropertyResource {
         this.show = BooleanUtils.isTrue(securityProperties.getShowDetail());
     }
 
-
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
 }

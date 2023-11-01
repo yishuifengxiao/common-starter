@@ -62,4 +62,11 @@ public interface PropertyResource {
      */
     boolean showDetail();
 
+    /**
+     * 获取项目的context-path
+     *
+     * @return 项目的context-path,若未配置则返回为空字符串""
+     */
+    String contextPath();
+
 }

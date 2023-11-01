@@ -10,6 +10,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,9 +25,8 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
  */
 @Configuration
 @AutoConfigureAfter(value = {RedisCoreAutoConfiguration.class})
-@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {
-        "enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class, RedisOperations.class})
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 public class SecurityRedisAutoConfiguration {
 
     @Bean

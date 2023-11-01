@@ -1,16 +1,5 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import javax.servlet.ServletException;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
@@ -23,6 +12,16 @@ import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExtractor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+
+import javax.servlet.ServletException;
 
 /**
  * spring security扩展支持自动配置
@@ -33,8 +32,7 @@ import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExt
  */
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing =
-        true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 public class SecurityFilterAutoConfiguration {
 
     @Bean

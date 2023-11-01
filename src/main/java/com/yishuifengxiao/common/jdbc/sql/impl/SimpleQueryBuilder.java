@@ -1,9 +1,5 @@
 package com.yishuifengxiao.common.jdbc.sql.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.yishuifengxiao.common.jdbc.entity.Condition;
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.entity.Order;
@@ -11,7 +7,11 @@ import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
 import com.yishuifengxiao.common.jdbc.sql.QueryBuilder;
-import com.yishuifengxiao.common.tool.collections.SizeUtil;
+import com.yishuifengxiao.common.tool.collections.CollectionUtil;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -75,7 +75,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(fieldExtractor, t, true);
 		sql.append(condtion.getSql());
 
-		if (SizeUtil.isNotEmpty(condtion.getArgs())) {
+		if (CollectionUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 
@@ -109,7 +109,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(clazz, fieldExtractor, true, conditions);
 		sql.append(condtion.getSql());
 
-		if (SizeUtil.isNotEmpty(condtion.getArgs())) {
+		if (CollectionUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 
