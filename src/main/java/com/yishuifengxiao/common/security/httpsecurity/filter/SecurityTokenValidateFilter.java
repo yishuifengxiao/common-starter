@@ -75,47 +75,49 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (null != authentication) {
-            filterChain.doFilter(request, response);
-            return;
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+
+        // 从请求中获取到携带的认证
+        String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
+
+
+        if (requiresAuthentication(request)) {
+            if (propertyResource.showDetail()) {
+                log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
+            }
+            try {
+                if (StringUtils.isBlank(tokenValue)) {
+                    throw new IllegalTokenException(propertyResource.security().getMsg().getTokenValueIsNull());
+                }
+
+                // 该请求携带了认证信息
+                Authentication authentication = authorize(request, tokenValue);
+
+                // 将认证信息注入到spring Security中
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (AccessDeniedException e) {
+                securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                return;
+            } catch (CustomException e) {
+                securityHandler.onException(propertyResource, request, response, e);
+                return;
+            }
         }
+
+        filterChain.doFilter(request, response);
+    }
+
+
+    private boolean requiresAuthentication(HttpServletRequest request) {
         if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name()) && BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
             // 先判断请求是否需要经过授权校验
-            boolean noRequiresAuthentication =
-                    propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
+            boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
             if (propertyResource.showDetail()) {
-                log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}",
-                        request.getRequestURI(), !noRequiresAuthentication);
+                log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), !noRequiresAuthentication);
             }
-            if (!noRequiresAuthentication) {
-                // 从请求中获取到携带的认证
-                String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
-
-                if (propertyResource.showDetail()) {
-                    log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(),
-                            tokenValue);
-                }
-
-                try {
-                    // 该请求携带了认证信息
-                    authentication = authorize(request, tokenValue);
-
-                    // 将认证信息注入到spring Security中
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                } catch (AccessDeniedException e) {
-                    securityHandler.whenAccessDenied(propertyResource, request, response, e);
-                    return;
-                } catch (CustomException e) {
-                    securityHandler.onException(propertyResource, request, response, e);
-                    return;
-                }
-
-            }
+            return !noRequiresAuthentication;
         }
-        filterChain.doFilter(request, response);
+        return false;
     }
 
 
@@ -144,18 +146,13 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
      * @throws AccessDeniedException
      * @throws CustomException
      */
-    protected Authentication authorize(HttpServletRequest request, String tokenValue) throws AccessDeniedException,
-            CustomException {
-        if (StringUtils.isBlank(tokenValue)) {
-            throw new IllegalTokenException(propertyResource.security().getMsg().getTokenValueIsNull());
-        }
+    protected Authentication authorize(HttpServletRequest request, String tokenValue) throws AccessDeniedException, CustomException {
 
         // 解析token
         SecurityToken token = tokenBuilder.loadByTokenValue(tokenValue);
 
         if (null == token) {
-            throw new IllegalTokenException(ErrorCode.INVALID_TOKEN,
-                    propertyResource.security().getMsg().getTokenIsNull());
+            throw new IllegalTokenException(ErrorCode.INVALID_TOKEN, propertyResource.security().getMsg().getTokenIsNull());
         }
 
         if (token.isExpired()) {
@@ -165,8 +162,7 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
             // 删除失效的token
             tokenBuilder.remove(token);
 
-            throw new ExpireTokenException(ErrorCode.EXPIRED_ROKEN,
-                    propertyResource.security().getMsg().getTokenIsExpired());
+            throw new ExpireTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsExpired());
         }
 
         if (!token.isActive()) {
@@ -176,17 +172,20 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
             // 删除失效的token
             tokenBuilder.remove(token);
 
-            throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN,
-                    propertyResource.security().getMsg().getTokenIsInvalid());
+            throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsInvalid());
         }
 
         // 刷新令牌的过期时间
         token = tokenBuilder.refreshExpireTime(token);
 
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(token.getPrincipal(), null, token.getAuthorities());
-        authentication.setDetails(new SimpleWebAuthenticationDetails(request, token));
-        return authentication;
+        if (null != SecurityContextHolder.getContext().getAuthentication()) {
+            return SecurityContextHolder.getContext().getAuthentication();
+        }
+
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(token.getPrincipal(), null, token.getAuthorities());
+        usernamePasswordAuthenticationToken.setDetails(new SimpleWebAuthenticationDetails(request, token));
+        return usernamePasswordAuthenticationToken;
     }
 
 
@@ -202,8 +201,7 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
 
     }
 
-    public SecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler,
-                                       SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
+    public SecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenResolver = securityTokenResolver;

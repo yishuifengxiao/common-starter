@@ -75,7 +75,7 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
             return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前媒体类型");
         } else if (e instanceof NullPointerException) {
             if (log.isWarnEnabled()) {
-                log.warn("[NPE] 请求出现NPE");
+                log.warn("[NPE] 请求出现NPE ,错误原因为 {}", e);
             }
             return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
         } else if (e instanceof IOException) {
@@ -158,7 +158,7 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
     }
 
     @SuppressWarnings("unused")
-	private ProxyErrorHelper() {
+    private ProxyErrorHelper() {
     }
 
     public ProxyErrorHelper(ErrorHelper errorHelper, WebEnhanceProperties.WebExceptionProperties exceptionProperties) {

@@ -88,7 +88,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         if (StringUtils.isNotBlank(redirectUrl)) {
             log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " + "that" + " the historical blocking path is {}, and will be redirected to this address", redirectUrl);
             String requestParameter = propertyResource.security().getToken().getRequestParameter();
-            redirectUrl = UriComponentsBuilder.fromUriString(redirectUrl).queryParam(requestParameter, token.getValue()).build(true).toUriString();
+            redirectUrl = UriComponentsBuilder.fromUriString(redirectUrl).replaceQueryParam(requestParameter, token.getValue()).build(true).toUriString();
             redirectStrategy.sendRedirect(request, response, redirectUrl);
             return;
         }
