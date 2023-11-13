@@ -1,14 +1,12 @@
 package com.yishuifengxiao.common.jdbc.executor.impl;
 
-import java.util.List;
-
+import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
+import com.yishuifengxiao.common.jdbc.mapper.ColumnNameRowMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
 
 /**
  * 系统语句执行器
@@ -79,7 +77,7 @@ public class SimpleExecuteExecutor implements ExecuteExecutor {
 		log.trace("【yishuifengxiao-common-spring-boot-starter】  (查询记录) ============= start ================ ");
 		log.trace("【yishuifengxiao-common-spring-boot-starter】   (查询记录) 执行的sql语句为 {}", sql);
 		log.trace("【yishuifengxiao-common-spring-boot-starter】  (查询记录) 执行的sql语句参数数量为 {} ,参数值为 {}", StringUtils.countMatches(sql, "?"), args);
-		List<T> list = jdbcTemplate.query(sql, new BeanPropertyRowMapper(clazz), this.list2Array(args));
+		List<T> list = jdbcTemplate.query(sql, new ColumnNameRowMapper(clazz), this.list2Array(args));
 		log.trace("【yishuifengxiao-common-spring-boot-starter】  (查询记录) 执行的sql语句对应的记录的数量为 {} ,对应的结果为 {}", null == list ? 0 : list.size(), list);
 		log.trace("【yishuifengxiao-common-spring-boot-starter】  (查询记录) ============= end  ================ ");
 		log.trace("【yishuifengxiao-common-spring-boot-starter】 \r\n");
