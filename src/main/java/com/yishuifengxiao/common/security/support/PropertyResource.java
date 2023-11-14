@@ -69,4 +69,11 @@ public interface PropertyResource {
      */
     String contextPath();
 
+    /**
+     * 所有已经定义过权限的资源
+     *
+     * @return
+     */
+    Set<String> definedUrls();
+
 }

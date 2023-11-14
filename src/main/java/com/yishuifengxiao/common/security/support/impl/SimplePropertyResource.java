@@ -158,6 +158,16 @@ public class SimplePropertyResource implements PropertyResource {
         return StringUtils.isBlank(this.contextPath) ? "" : this.contextPath.trim();
     }
 
+    @Override
+    public Set<String> definedUrls() {
+        // 所有已经明确了权限的路径
+        Set<String> urls = new HashSet<>();
+        urls.addAll(Arrays.stream(this.allIgnoreUrls()).collect(Collectors.toSet()));
+        urls.addAll(this.allPermitUrs());
+        urls.addAll(this.anonymousUrls());
+        return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+    }
+
     /**
      * 提取出Map里存储的URL
      *

@@ -5,12 +5,12 @@ import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomRe
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.utils.ExcludeRequestMatcher;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +35,6 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry =
                 http.authorizeRequests();
-
         registry.mvcMatchers(HttpMethod.OPTIONS).permitAll();
         registry.antMatchers(HttpMethod.OPTIONS).permitAll();
 //        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
@@ -52,12 +51,8 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
             registry.antMatchers(url).anonymous();
         }
         // 所有已经明确了权限的路径
-        Set<String> urls = new HashSet<>();
-        urls.addAll(Arrays.stream(propertyResource.allIgnoreUrls()).collect(Collectors.toSet()));
-        urls.addAll(propertyResource.allPermitUrs());
-        urls.addAll(propertyResource.anonymousUrls());
-        List<String> list = urls.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
-        final ExcludeRequestMatcher matcher = new ExcludeRequestMatcher(list);
+        List<String> urls = propertyResource.definedUrls().stream().collect(Collectors.toList());
+        final ExcludeRequestMatcher matcher = new ExcludeRequestMatcher(urls);
         // 所有自定义权限路径的资源
         if (null != this.customResourceProviders) {
             customResourceProviders.forEach((providerName, provider) -> {
