@@ -58,7 +58,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> T findByPrimaryKey(Class<T> clazz, Object primaryKey) {
-        return queryTranslator.findByPrimaryKey(jdbcTemplate, fieldExtractor, executeExecutor, clazz, primaryKey);
+        return queryTranslator.findByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, primaryKey);
     }
 
     /**
@@ -70,7 +70,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Long countAll(T t) {
-        return queryTranslator.countAll(jdbcTemplate, fieldExtractor, executeExecutor, t);
+        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t);
     }
 
     /**
@@ -83,7 +83,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Long countAll(Class<T> clazz, Condition... conditions) {
-        return queryTranslator.countAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions));
+        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions));
     }
 
     /**
@@ -96,7 +96,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Long countAll(Class<T> clazz, Example example) {
-        return queryTranslator.countAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition());
+        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition());
     }
 
     /**
@@ -177,7 +177,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(T t) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, t, null);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null);
     }
 
     /**
@@ -190,7 +190,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, Condition... conditions) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions), null);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), null);
     }
 
     /**
@@ -203,7 +203,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, Example example) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null);
     }
 
     /**
@@ -216,7 +216,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, List<Condition> conditions) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, null);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, null);
     }
 
     /**
@@ -229,7 +229,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(T t, Order order) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, t, order);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order);
     }
 
     /**
@@ -243,7 +243,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, Order order, Condition... conditions) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions), order);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order);
     }
 
     /**
@@ -257,7 +257,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, Order order, Example example) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order);
     }
 
     /**
@@ -271,7 +271,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, Order order, List<Condition> conditions) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, order);
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, order);
     }
 
     /**
@@ -284,7 +284,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(T t, String orderName) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, t, Order.of(orderName));
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName));
     }
 
     /**
@@ -298,7 +298,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(T t, String orderName, Order.Direction direction) {
-        return queryTranslator.findAll(jdbcTemplate, fieldExtractor, executeExecutor, t, Order.of(orderName, direction));
+        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName, direction));
     }
 
     /**
@@ -312,7 +312,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findTop(T t, Order order, int topNum) {
-        return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, t, order, topNum);
+        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order, topNum);
     }
 
     /**
@@ -327,7 +327,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Example example) {
-        return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, clazz, example.toCondition(), order, topNum);
+        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, example.toCondition(), order, topNum);
     }
 
     /**
@@ -342,7 +342,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Condition... conditions) {
-        return queryTranslator.findTop(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, topNum);
+        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, topNum);
     }
 
     /**
@@ -356,7 +356,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(T t, int pageSize, int pageNum) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
     }
 
     /**
@@ -371,7 +371,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Condition... conditions) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions), null, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), null, pageSize, pageNum);
     }
 
     /**
@@ -386,7 +386,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Example example) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null, pageSize, pageNum);
     }
 
     /**
@@ -401,7 +401,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, List<Condition> conditions) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, null, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, null, pageSize, pageNum);
     }
 
     /**
@@ -417,7 +417,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Condition... conditions) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, pageSize, pageNum);
     }
 
     /**
@@ -433,7 +433,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Example example) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order, pageSize, pageNum);
     }
 
     /**
@@ -449,7 +449,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, List<Condition> conditions) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, clazz, conditions, order, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, order, pageSize, pageNum);
     }
 
     /**
@@ -464,7 +464,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(T t, int pageSize, int pageNum, Order order) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, order, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order, pageSize, pageNum);
     }
 
     /**
@@ -479,7 +479,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
     }
 
     /**
@@ -495,7 +495,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName, Order.Direction direction) {
-        return queryTranslator.findPage(jdbcTemplate, fieldExtractor, executeExecutor, t, Order.of(orderName, direction), pageSize, pageNum);
+        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName, direction), pageSize, pageNum);
     }
 
     /**
@@ -507,7 +507,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKey(T t) {
-        return updateTranslator.updateByPrimaryKey(jdbcTemplate, fieldExtractor, executeExecutor, false, t);
+        return updateTranslator.updateByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t);
     }
 
     /**
@@ -519,7 +519,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKeySelective(T t) {
-        return updateTranslator.updateByPrimaryKey(jdbcTemplate, fieldExtractor, executeExecutor, true, t);
+        return updateTranslator.updateByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t);
     }
 
     /**
@@ -532,7 +532,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int update(T t, Example example) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, false, t, null == example ? new ArrayList<>() : example.toCondition());
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, null == example ? new ArrayList<>() : example.toCondition());
     }
 
     /**
@@ -545,7 +545,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int update(T t, List<Condition> conditions) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, false, t, conditions);
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, conditions);
     }
 
     /**
@@ -558,7 +558,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int update(T t, T condition) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, false, t, condition);
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, condition);
     }
 
     /**
@@ -571,7 +571,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateSelective(T t, T condition) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, true, t, condition);
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, condition);
     }
 
     /**
@@ -584,7 +584,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateSelective(T t, Example example) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, true, t, null == example ? new ArrayList<>() : example.toCondition());
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, null == example ? new ArrayList<>() : example.toCondition());
     }
 
     /**
@@ -597,7 +597,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateSelective(T t, List<Condition> conditions) {
-        return updateTranslator.update(jdbcTemplate, fieldExtractor, executeExecutor, true, t, conditions);
+        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, conditions);
     }
 
     /**
@@ -610,7 +610,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int deleteByPrimaryKey(Class<T> clazz, Object primaryKey) {
-        return deleteTranslator.deleteByPrimaryKey(jdbcTemplate, fieldExtractor, executeExecutor, clazz, primaryKey);
+        return deleteTranslator.deleteByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, primaryKey);
 
     }
 
@@ -623,7 +623,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int delete(T t) {
-        return deleteTranslator.delete(jdbcTemplate, fieldExtractor, executeExecutor, true, t);
+        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t);
     }
 
     /**
@@ -636,7 +636,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int delete(Class<T> clazz, Condition... conditions) {
-        return deleteTranslator.delete(jdbcTemplate, fieldExtractor, executeExecutor, clazz, true, this.collect(conditions));
+        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, this.collect(conditions));
     }
 
     /**
@@ -649,7 +649,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int delete(Class<T> clazz, Example example) {
-        return deleteTranslator.delete(jdbcTemplate, fieldExtractor, executeExecutor, clazz, true, null == example ? new ArrayList<>() : example.toCondition());
+        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, null == example ? new ArrayList<>() : example.toCondition());
     }
 
     /**
@@ -662,7 +662,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int delete(Class<T> clazz, List<Condition> conditions) {
-        return deleteTranslator.delete(jdbcTemplate, fieldExtractor, executeExecutor, clazz, true, conditions);
+        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, conditions);
     }
 
     /**
@@ -674,7 +674,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int insert(T t) {
-        return insertTranslator.insert(jdbcTemplate, fieldExtractor, false, executeExecutor, t);
+        return insertTranslator.insert(this.jdbcTemplate(), fieldExtractor, false, executeExecutor, t);
     }
 
     /**
@@ -686,7 +686,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int insertSelective(T t) {
-        return insertTranslator.insert(jdbcTemplate, fieldExtractor, true, executeExecutor, t);
+        return insertTranslator.insert(this.jdbcTemplate(), fieldExtractor, true, executeExecutor, t);
     }
 
     @Override
@@ -728,26 +728,26 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
 
     @Override
-    public <T> Optional<T> queryForObject(Class<T> clazz, String sql, Object... params) {
+    public <T> Optional<T> queryOne(Class<T> clazz, String sql, Object... params) {
         List<Object> args = Arrays.asList(params);
-        List<T> list = executeExecutor.findAll(jdbcTemplate, clazz, sql, args);
-        return null == list ? Optional.empty() : Optional.ofNullable(list.get(0));
+        List<T> list = executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, args);
+        return null == list || list.isEmpty() ? Optional.empty() : Optional.ofNullable(list.get(0));
     }
 
     @Override
     public <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params) {
         List<Object> args = Arrays.asList(params);
-        return Optional.ofNullable(executeExecutor.findAll(jdbcTemplate, clazz, sql, args));
+        return Optional.ofNullable(executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, args));
     }
 
-
-    @Override
-    public void execute(String sql) {
-        jdbcTemplate.execute(sql);
-    }
 
     public JdbcTemplate getJdbcTemplate() {
-        return jdbcTemplate;
+        return this.jdbcTemplate;
+    }
+
+    @Override
+    public JdbcTemplate jdbcTemplate() {
+        return this.jdbcTemplate;
     }
 
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {

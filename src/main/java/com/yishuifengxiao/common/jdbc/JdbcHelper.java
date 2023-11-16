@@ -7,6 +7,7 @@ import com.yishuifengxiao.common.jdbc.entity.Condition;
 import com.yishuifengxiao.common.jdbc.entity.Example;
 import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.tool.entity.Page;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -535,7 +536,7 @@ public interface JdbcHelper {
      * @param <T>    POJO类
      * @return 查询出来的数据
      */
-    <T> Optional<T> queryForObject(Class<T> clazz, String sql, Object... params);
+    <T> Optional<T> queryOne(Class<T> clazz, String sql, Object... params);
 
     /**
      * 根据sql查询数据
@@ -548,12 +549,5 @@ public interface JdbcHelper {
      */
     <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params);
 
-    /**
-     * 执行sql
-     *
-     * @param sql 待执行的sql
-     */
-    void execute(String sql);
-
-
+    JdbcTemplate jdbcTemplate();
 }

@@ -4,13 +4,18 @@ import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.utils.ExcludeRequestMatcher;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -50,20 +55,21 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         for (String url : propertyResource.anonymousUrls()) {
             registry.antMatchers(url).anonymous();
         }
+        List<RequestMatcher> requestMatchers = new ArrayList<>();
         // 所有已经明确了权限的路径
-        List<String> urls = propertyResource.definedUrls().stream().collect(Collectors.toList());
-        final ExcludeRequestMatcher matcher = new ExcludeRequestMatcher(urls);
+        propertyResource.definedUrls().stream().map(AntPathRequestMatcher::new).forEach(requestMatchers::add);
         // 所有自定义权限路径的资源
         if (null != this.customResourceProviders) {
             customResourceProviders.forEach((providerName, provider) -> {
                 registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" +
                         "(request, authentication)");
                 // 增加配置
-                matcher.addRequestMatcher(provider.requestMatcher());
+                requestMatchers.add(provider.requestMatcher());
             });
         }
         //只要经过了授权就能访问
-        registry.requestMatchers(matcher).authenticated();
+        registry.requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers.stream()
+                .filter(Objects::nonNull).distinct().collect(Collectors.toList())))).authenticated();
 
     }
 
