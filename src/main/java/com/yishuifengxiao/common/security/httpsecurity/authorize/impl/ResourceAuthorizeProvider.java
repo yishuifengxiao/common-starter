@@ -38,8 +38,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
 
 
-        final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry =
-                http.authorizeRequests();
+        final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
         registry.mvcMatchers(HttpMethod.OPTIONS).permitAll();
         registry.antMatchers(HttpMethod.OPTIONS).permitAll();
 //        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
@@ -61,15 +60,16 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         // 所有自定义权限路径的资源
         if (null != this.customResourceProviders) {
             customResourceProviders.forEach((providerName, provider) -> {
-                registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" +
-                        "(request, authentication)");
-                // 增加配置
-                requestMatchers.add(provider.requestMatcher());
+                if (null != provider && null != provider.requestMatcher()) {
+                    registry.requestMatchers(provider.requestMatcher()).access("@" + providerName + ".hasPermission" + "(request, authentication)");
+                    // 增加配置
+                    requestMatchers.add(provider.requestMatcher());
+                }
+
             });
         }
         //只要经过了授权就能访问
-        registry.requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers.stream()
-                .filter(Objects::nonNull).distinct().collect(Collectors.toList())))).authenticated();
+        registry.requestMatchers(new NegatedRequestMatcher(new OrRequestMatcher(requestMatchers.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList())))).authenticated();
 
     }
 
