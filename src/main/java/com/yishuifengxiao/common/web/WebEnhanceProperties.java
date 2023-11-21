@@ -56,6 +56,11 @@ public class WebEnhanceProperties {
     private String dynamicLogLevel = "dynamicLogLevel";
 
     /**
+     * 是否统一响应格式，默认为false,开启为true
+     */
+    private Boolean unifiedResponseFormat = false;
+
+    /**
      * 跨域支持功能配置
      */
     private CorsProperties cors = new CorsProperties();

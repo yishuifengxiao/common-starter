@@ -230,26 +230,36 @@ public class WebEnhanceAutoConfiguration {
         @Override
         public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
             try {
-                if (null != body && body instanceof Response) {
-                    Response result = (Response) body;
-                    Object attribute = null;
-                    if (request instanceof ServletServerHttpRequest) {
-                        HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                        attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
-                    }
-                    if (null == attribute || StringUtils.isBlank(attribute.toString())) {
-                        attribute = TraceContext.get();
-                    }
-                    if (null != attribute) {
-                        result.setId(attribute.toString());
-                    }
+                if (true == webEnhanceProperties.getUnifiedResponseFormat() && MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
+                    //开启全局响应数据格式统一
+                    Response<Object> result = body instanceof Response ? (Response) body : Response.sucData(body);
+                    result.setId(getTracked(request));
                     return result;
+                } else {
+                    if (null != body && body instanceof Response) {
+                        Response result = (Response) body;
+                        result.setId(getTracked(request));
+                        return result;
+                    }
                 }
+
             } catch (Exception e) {
                 log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem obtaining the request " + "tracking id {}", e);
             }
 
             return body;
+        }
+
+        private String getTracked(ServerHttpRequest request) {
+            Object attribute = null;
+            if (request instanceof ServletServerHttpRequest) {
+                HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
+                attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
+            }
+            if (null == attribute || StringUtils.isBlank(attribute.toString())) {
+                attribute = TraceContext.get();
+            }
+            return null != attribute ? attribute.toString() : null;
         }
 
 
