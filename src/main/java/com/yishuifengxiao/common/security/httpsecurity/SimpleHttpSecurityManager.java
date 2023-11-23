@@ -23,7 +23,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     /**
      * 系统中所有的Security 请求过滤器 实例
      */
-    private List<SecurityRequestFilter> securityRequestFilters;
+    private List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters;
     /**
      * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
      */
@@ -39,13 +39,13 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     @Override
     public void apply(HttpSecurity http) throws Exception {
 
-        if (null != this.securityRequestFilters) {
-            for (SecurityRequestFilter securityRequestFilter : this.securityRequestFilters) {
+        if (null != this.abstractSecurityRequestFilters) {
+            for (AbstractSecurityRequestFilter abstractSecurityRequestFilter : this.abstractSecurityRequestFilters) {
                 if (propertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}",
-                            securityRequestFilter);
+                            abstractSecurityRequestFilter);
                 }
-                securityRequestFilter.configure(http);
+                abstractSecurityRequestFilter.configure(http);
             }
         }
 
@@ -70,12 +70,12 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     public SimpleHttpSecurityManager(List<AuthorizeProvider> authorizeProviders,
                                      PropertyResource propertyResource,
                                      AuthenticationPoint authenticationPoint,
-                                     List<SecurityRequestFilter> securityRequestFilters) {
+                                     List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters) {
 
         this.authorizeProviders = authorizeProviders;
         this.propertyResource = propertyResource;
         this.authenticationPoint = authenticationPoint;
-        this.securityRequestFilters = securityRequestFilters;
+        this.abstractSecurityRequestFilters = abstractSecurityRequestFilters;
     }
     // @formatter:on
 

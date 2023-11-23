@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.security.support.impl;
 import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -137,7 +137,7 @@ public class SimplePropertyResource implements PropertyResource {
             set.add(UriConstant.ERROR_PAGE);
         }
         //security全局增强元数据
-        set.add(SecurityGlobalEnhanceFilter.DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
+        set.add(AbstractSecurityGlobalEnhanceFilter.DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
 
         set.add(UriConstant.DEFAULT_LOGIN_URL + "**");
         set.addAll(this.getUrls(ignore.getUrls()));

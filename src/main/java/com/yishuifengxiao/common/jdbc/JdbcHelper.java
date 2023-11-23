@@ -7,6 +7,7 @@ import com.yishuifengxiao.common.jdbc.entity.Condition;
 import com.yishuifengxiao.common.jdbc.entity.Example;
 import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.List;
@@ -548,6 +549,18 @@ public interface JdbcHelper {
      * @return 查询出来的数据
      */
     <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params);
+
+    /**
+     * 根据原生sql进行分页查询
+     *
+     * @param clazz  数据类型
+     * @param slice  分页参数
+     * @param sql    原生sql
+     * @param params 查询参数
+     * @param <T>    结果数据的类型
+     * @return
+     */
+    <T> Page<T> query(Class<T> clazz, Slice slice, String sql, Object... params);
 
     JdbcTemplate jdbcTemplate();
 }

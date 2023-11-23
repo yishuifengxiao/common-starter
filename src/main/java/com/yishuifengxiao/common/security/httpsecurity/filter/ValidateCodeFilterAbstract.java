@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -31,7 +31,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Slf4j
-public class ValidateCodeFilter extends SecurityRequestFilter implements InitializingBean {
+public class ValidateCodeFilterAbstract extends AbstractSecurityRequestFilter implements InitializingBean {
     /**
      * 用于定义路由规则，因为下面的路径里有统配符，验证请求的URL与配置的URL是否匹配的类
      */

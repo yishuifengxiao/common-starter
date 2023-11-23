@@ -7,17 +7,17 @@ import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfigu
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
-import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
-import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.support.impl.SimpleAbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -172,7 +172,7 @@ public class SecurityEnhanceAutoConfiguration {
      * 注入一个HttpSecurity安全管理器
      *
      * @param authorizeConfigProviders 系统中所有的授权提供器实例
-     * @param securityRequestFilters   系统中所有的 web安全授权器实例
+     * @param abstractSecurityRequestFilters   系统中所有的 web安全授权器实例
      * @param propertyResource         资源管理器
      * @return 安全管理器
      */
@@ -180,10 +180,10 @@ public class SecurityEnhanceAutoConfiguration {
     @ConditionalOnMissingBean({HttpSecurityManager.class})
     public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
                                                    AuthenticationPoint authenticationPoint,
-                                                   List<SecurityRequestFilter> securityRequestFilters,
+                                                   List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
                                                    PropertyResource propertyResource) {
         SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                propertyResource, authenticationPoint, securityRequestFilters);
+                propertyResource, authenticationPoint, abstractSecurityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -319,9 +319,9 @@ public class SecurityEnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    @ConditionalOnMissingBean({SecurityGlobalEnhanceFilter.class})
-    public SecurityGlobalEnhanceFilter securityGlobalEnhance(PropertyResource propertyResource) {
-        return new SimpleSecurityGlobalEnhanceFilter(propertyResource);
+    @ConditionalOnMissingBean({AbstractSecurityGlobalEnhanceFilter.class})
+    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(PropertyResource propertyResource) {
+        return new SimpleAbstractSecurityGlobalEnhanceFilter(propertyResource);
     }
 
     @PostConstruct

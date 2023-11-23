@@ -18,12 +18,11 @@ import com.yishuifengxiao.common.jdbc.translator.impl.SimpleQueryTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleUpdateTranslator;
 import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.Slice;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 系统JdbcTemplate操作器
@@ -738,6 +737,14 @@ public class SimpleJdbcHelper implements JdbcHelper {
     public <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params) {
         List<Object> args = Arrays.asList(params);
         return Optional.ofNullable(executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, args));
+    }
+
+    @Override
+    public <T> Page<T> query(Class<T> clazz, Slice slice, String sql, Object... params) {
+        sql = sql.trim().endsWith(";") ? StringUtils.substringAfterLast(sql.trim(), ";") : sql.trim();
+        String dataSql = new StringBuffer("SELECT * from (").append(sql).append(") as __tmp_result limit ").append(slice.startOffset().longValue()).append(",").append(slice.endOffset().longValue()).toString();
+        String countSql = new StringBuffer("SELECT count(*) from (").append(sql).append(") as __tmp_result").toString();
+        return Page.of(this.query(clazz, dataSql, params).orElse(Collections.EMPTY_LIST), this.jdbcTemplate().queryForObject(countSql, Long.class, params), slice.size(), slice.num());
     }
 
 

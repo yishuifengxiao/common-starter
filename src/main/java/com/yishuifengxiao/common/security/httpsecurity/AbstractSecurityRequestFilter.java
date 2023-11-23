@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class SecurityRequestFilter extends OncePerRequestFilter {
+public abstract class AbstractSecurityRequestFilter extends OncePerRequestFilter {
 
     /**
      * 用于标明将该过滤器实例配置到spring security过滤器的那个点上

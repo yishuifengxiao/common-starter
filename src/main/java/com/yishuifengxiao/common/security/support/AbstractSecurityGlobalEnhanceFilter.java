@@ -10,7 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class SecurityGlobalEnhanceFilter extends OncePerRequestFilter implements WebMvcConfigurer {
+public abstract class AbstractSecurityGlobalEnhanceFilter extends OncePerRequestFilter implements WebMvcConfigurer {
     /**
      * The default endpoint {@code URI} for security Server Metadata requests.
      */

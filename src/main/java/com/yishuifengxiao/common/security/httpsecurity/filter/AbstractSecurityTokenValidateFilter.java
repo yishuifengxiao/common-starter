@@ -4,7 +4,7 @@ import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
-import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
@@ -56,7 +56,7 @@ import java.util.Map;
  * @since 1.0.0
  */
 @Slf4j
-public class SecurityTokenValidateFilter extends SecurityRequestFilter implements InitializingBean {
+public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequestFilter implements InitializingBean {
 
     private Map<String, AntPathRequestMatcher> map = new HashMap<>();
 
@@ -201,7 +201,7 @@ public class SecurityTokenValidateFilter extends SecurityRequestFilter implement
 
     }
 
-    public SecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
+    public AbstractSecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
         this.propertyResource = propertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenResolver = securityTokenResolver;

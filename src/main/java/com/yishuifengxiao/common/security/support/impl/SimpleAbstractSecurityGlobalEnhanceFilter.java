@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.support.SecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.AllArgsConstructor;
@@ -27,7 +27,7 @@ import java.io.Serializable;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilter {
+public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnhanceFilter {
 
 
     private RequestMatcher requestMatcher = null;
@@ -109,7 +109,7 @@ public class SimpleSecurityGlobalEnhanceFilter extends SecurityGlobalEnhanceFilt
         private String registerUrl;
     }
 
-    public SimpleSecurityGlobalEnhanceFilter(PropertyResource propertyResource) {
+    public SimpleAbstractSecurityGlobalEnhanceFilter(PropertyResource propertyResource) {
         this.propertyResource = propertyResource;
         this.requestMatcher = new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI, HttpMethod.GET.name());
     }
