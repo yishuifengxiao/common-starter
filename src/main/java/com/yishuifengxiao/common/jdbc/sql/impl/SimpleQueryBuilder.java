@@ -7,7 +7,7 @@ import com.yishuifengxiao.common.jdbc.entity.SqlData;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
 import com.yishuifengxiao.common.jdbc.sql.QueryBuilder;
-import com.yishuifengxiao.common.tool.collections.CollectionUtil;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -75,7 +75,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(fieldExtractor, t, true);
 		sql.append(condtion.getSql());
 
-		if (CollectionUtil.isNotEmpty(condtion.getArgs())) {
+		if (CollUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 
@@ -109,7 +109,7 @@ public class SimpleQueryBuilder implements QueryBuilder {
 		SqlData condtion = conditionBuilder.build(clazz, fieldExtractor, true, conditions);
 		sql.append(condtion.getSql());
 
-		if (CollectionUtil.isNotEmpty(condtion.getArgs())) {
+		if (CollUtil.isNotEmpty(condtion.getArgs())) {
 			data.addAll(condtion.getArgs());
 		}
 

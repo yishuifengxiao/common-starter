@@ -41,10 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Slf4j
 public class ColumnNameRowMapper<T> implements RowMapper<T> {
-    /**
-     * Logger available to subclasses.
-     */
-    protected final Log logger = LogFactory.getLog(getClass());
+
 
     private final FieldExtractor fieldExtractor = new SimpleFieldExtractor();
 
@@ -126,8 +123,7 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
             initialize(mappedClass);
         } else {
             if (this.mappedClass != mappedClass) {
-                throw new InvalidDataAccessApiUsageException("The mapped class can not be reassigned to map to " +
-                        mappedClass + " since it is already providing mapping for " + this.mappedClass);
+                throw new InvalidDataAccessApiUsageException("The mapped class can not be reassigned to map to " + mappedClass + " since it is already providing mapping for " + this.mappedClass);
             }
         }
     }
@@ -320,20 +316,16 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
             if (pd != null) {
                 try {
                     Object value = getColumnValue(rs, index, pd);
-                    if (rowNumber == 0 && logger.isDebugEnabled()) {
-                        logger.debug("Mapping column '" + column + "' to property '" + pd.getName() +
-                                "' of type '" + ClassUtils.getQualifiedName(pd.getPropertyType()) + "'");
+                    if (rowNumber == 0 && log.isDebugEnabled()) {
+                        log.debug("Mapping column '" + column + "' to property '" + pd.getName() + "' of type '" + ClassUtils.getQualifiedName(pd.getPropertyType()) + "'");
                     }
                     try {
                         bw.setPropertyValue(pd.getName(), value);
                     } catch (TypeMismatchException ex) {
                         if (value == null && this.primitivesDefaultedForNullValue) {
-                            if (logger.isDebugEnabled()) {
+                            if (log.isDebugEnabled()) {
                                 String propertyType = ClassUtils.getQualifiedName(pd.getPropertyType());
-                                logger.debug(String.format(
-                                        "Ignoring intercepted TypeMismatchException for row %d and column '%s' " +
-                                                "with null value when setting property '%s' of type '%s' on object: %s",
-                                        rowNumber, column, pd.getName(), propertyType, mappedObject), ex);
+                                log.debug(String.format("Ignoring intercepted TypeMismatchException for row %d and column '%s' " + "with null value when setting property '%s' of type '%s' on object: %s", rowNumber, column, pd.getName(), propertyType, mappedObject), ex);
                             }
                         } else {
                             throw ex;
@@ -343,15 +335,13 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
                         populatedProperties.add(pd.getName());
                     }
                 } catch (NotWritablePropertyException ex) {
-                    throw new DataRetrievalFailureException(
-                            "Unable to map column '" + column + "' to property '" + pd.getName() + "'", ex);
+                    throw new DataRetrievalFailureException("Unable to map column '" + column + "' to property '" + pd.getName() + "'", ex);
                 }
             }
         }
 
         if (populatedProperties != null && !populatedProperties.equals(this.mappedPropertyNames)) {
-            throw new InvalidDataAccessApiUsageException("Given ResultSet does not contain all properties " +
-                    "necessary to populate object of " + this.mappedClass + ": " + this.mappedPropertyNames);
+            throw new InvalidDataAccessApiUsageException("Given ResultSet does not contain all properties " + "necessary to populate object of " + this.mappedClass + ": " + this.mappedPropertyNames);
         }
 
         return mappedObject;
@@ -456,8 +446,7 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
      * @see #setConversionService
      * @since 5.2.3
      */
-    public static <T> ColumnNameRowMapper<T> newInstance(
-            Class<T> mappedClass, @Nullable ConversionService conversionService) {
+    public static <T> ColumnNameRowMapper<T> newInstance(Class<T> mappedClass, @Nullable ConversionService conversionService) {
 
         ColumnNameRowMapper<T> rowMapper = newInstance(mappedClass);
         rowMapper.setConversionService(conversionService);
