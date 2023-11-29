@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.guava;
 
+import com.google.common.eventbus.EventBus;
+
 /**
  * 事件发布者
  *
@@ -20,4 +22,11 @@ public interface EventPublisher {
      * @param event event to post.
      */
     void post(Object event);
+
+    /**
+     * 获取消息总线
+     *
+     * @return 消息总线
+     */
+    EventBus eventBus();
 }

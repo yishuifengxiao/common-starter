@@ -35,7 +35,12 @@ public class SimpleEventPublisher implements EventPublisher, InitializingBean {
             log.debug("The event publisher did not initialize successfully, but received a message call," +
                     " so the message was discarded. The discarded message is {}", event);
         }
-        asyncEventBus.post(event);
+        this.asyncEventBus.post(event);
+    }
+
+    @Override
+    public EventBus eventBus() {
+        return this.asyncEventBus;
     }
 
 
