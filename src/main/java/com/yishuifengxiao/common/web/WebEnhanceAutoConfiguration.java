@@ -12,6 +12,7 @@ import com.yishuifengxiao.common.tool.utils.OsUtils;
 import com.yishuifengxiao.common.tool.validate.BeanValidator;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -219,12 +220,19 @@ public class WebEnhanceAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(DispatcherServlet.class)
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"tracked"}, matchIfMissing = true)
     class WebResponseBodyAutoConfiguration implements ResponseBodyAdvice {
 
 
         @Override
         public boolean supports(MethodParameter returnType, Class converterType) {
+            if (BooleanUtils.isNotTrue(webEnhanceProperties.getResponse().getEnable())) {
+                return false;
+            }
+            String className = returnType.getDeclaringClass().getName();
+            boolean anyMatch = webEnhanceProperties.getResponse().getExcludes().stream().anyMatch(v -> StringUtils.equalsIgnoreCase(v, className));
+            if (anyMatch) {
+                return false;
+            }
 
             return returnType.hasMethodAnnotation(ResponseBody.class) || null != returnType.getDeclaringClass().getDeclaredAnnotation(RestController.class);
         }
@@ -232,7 +240,7 @@ public class WebEnhanceAutoConfiguration {
         @Override
         public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
             try {
-                if (true == webEnhanceProperties.getUnifiedResponseFormat() && MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
+                if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
                     Response<Object> result = body instanceof Response ? (Response) body : Response.sucData(body);
                     result.setId(getTracked(request));

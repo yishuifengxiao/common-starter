@@ -36,11 +36,6 @@ public class WebEnhanceProperties {
 
 
     /**
-     * 是否开启响应增强功能
-     */
-    private Boolean response = true;
-
-    /**
      * 出现异常时默认的视图的名字: error
      */
     private String defaultView = "error";
@@ -56,9 +51,10 @@ public class WebEnhanceProperties {
     private String dynamicLogLevel = "dynamicLogLevel";
 
     /**
-     * 是否统一响应格式，默认为false,开启为true
+     * 响应增强功能配置
      */
-    private Boolean unifiedResponseFormat = false;
+    private ResponseProperties response = new ResponseProperties();
+
 
     /**
      * 跨域支持功能配置
@@ -140,6 +136,30 @@ public class WebEnhanceProperties {
          * value：提示信息
          */
         private Map<String, String> map = new HashMap<>();
+
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ResponseProperties {
+
+        //@formatter:off
+        private final static List<String> list = Arrays.asList(
+                "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+                "springfox.documentation.swagger.web.ApiResourceController",
+                "springfox.documentation.swagger2.web.Swagger2ControllerWebMvc"
+        );
+        //@formatter:on
+        /**
+         * 是否开启响应增强功能配置，默认为开启
+         */
+        private Boolean enable = false;
+
+        /**
+         * 不进行响应增加的接口对应的class的全量名
+         */
+        private List<String> excludes = list;
 
     }
 
