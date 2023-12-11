@@ -39,6 +39,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
@@ -224,7 +225,8 @@ public class WebEnhanceAutoConfiguration {
 
         @Override
         public boolean supports(MethodParameter returnType, Class converterType) {
-            return returnType.hasMethodAnnotation(ResponseBody.class);
+
+            return returnType.hasMethodAnnotation(ResponseBody.class) || null != returnType.getDeclaringClass().getDeclaredAnnotation(RestController.class);
         }
 
         @Override
