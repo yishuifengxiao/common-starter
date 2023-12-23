@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.web;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.exception.IllegalParameterException;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.web.error.ErrorHelper;
 import com.yishuifengxiao.common.web.error.ProxyErrorHelper;
@@ -43,6 +44,27 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     private ErrorHelper errorHelper;
 
     private ErrorHelper proxyErrorHelper;
+
+    /**
+     * 400 - 无效参数异常
+     *
+     * @param request HttpServletRequest
+     * @param e       希望捕获的异常
+     * @return 发生异常捕获之后的响应
+     */
+    @ResponseStatus(HttpStatus.OK)
+    @ExceptionHandler({IllegalParameterException.class})
+    public Object catchIllegalParameterException(HttpServletRequest request, IllegalParameterException e) {
+        String ssid = this.getRequestId(request);
+        String uri = null != request ? request.getRequestURI() : null;
+        Response<String> response =
+                new Response<String>(HttpStatus.BAD_REQUEST.value(), e.getMessage()).setId(ssid);
+        if (log.isDebugEnabled()) {
+            log.debug("【Global exception interception】【 IllegalParameterException 】(Custom exception) traceId={} request {} " + "request failed, The intercepted custom exception is {}", ssid, uri, e);
+        }
+
+        return response;
+    }
 
     /**
      * 500 - 自定义异常
