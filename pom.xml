@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>BUILD-SNAPSHOT</version>
+    <version>6.4.0</version>
     <packaging>jar</packaging>
     <name>common-spring-boot-starter</name>
     <url>http://www.yishuifengxiao.com</url>
@@ -52,7 +52,7 @@
         <build.finalName>common-spring-boot-starter</build.finalName>
 
         <pagehelper.version>1.4.5</pagehelper.version>
-        <yishuifengxiao.tool.version>BUILD-SNAPSHOT</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>4.4.0</yishuifengxiao.tool.version>
 
         <springfox.version>3.0.0</springfox.version>
         <guava.version>31.0-jre</guava.version>
