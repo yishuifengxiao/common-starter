@@ -2,11 +2,11 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.session;
 
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
+import jakarta.servlet.ServletException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.session.SessionInformationExpiredEvent;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 
-import javax.servlet.ServletException;
 import java.io.IOException;
 
 /**

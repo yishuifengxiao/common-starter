@@ -2,9 +2,10 @@ package com.yishuifengxiao.common.utils;
 
 import java.util.Base64;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * http basic认证信息提取器

@@ -8,12 +8,15 @@ import com.nimbusds.jose.proc.SecurityContext;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationConsentService;
 import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationService;
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
+import com.yishuifengxiao.common.oauth2.impl.DeviceClientAuthenticationConverter;
+import com.yishuifengxiao.common.oauth2.impl.DeviceClientAuthenticationProvider;
 import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
 import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
 import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
+import jakarta.servlet.Filter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -27,6 +30,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,10 +48,12 @@ import org.springframework.security.oauth2.server.authorization.config.annotatio
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import javax.servlet.Filter;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
@@ -73,6 +79,7 @@ import java.util.UUID;
 @EnableConfigurationProperties({Oauth2Properties.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 public class Oauth2EnhanceAutoConfiguration {
+    private static final String CUSTOM_CONSENT_PAGE_URI = "/oauth2/consent";
 
     /**
      * <p>用于自定义OAuth2授权服务器配置设置的AuthorizationServerSettings（必需）</p>
@@ -131,25 +138,46 @@ public class Oauth2EnhanceAutoConfiguration {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2", name = {"enable"}, havingValue = "true")
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
-                                                                      AuthenticationConfiguration authenticationConfiguration,
+                                                                      RegisteredClientRepository registeredClientRepository,
+                                                                      AuthorizationServerSettings authorizationServerSettings,
                                                                       AuthenticationPoint authenticationPoint,
                                                                       OAuth2AuthorizationProvider auth2AuthorizationProvider) throws Exception {
+        OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
+        DeviceClientAuthenticationConverter deviceClientAuthenticationConverter =
+                new DeviceClientAuthenticationConverter(
+                        authorizationServerSettings.getDeviceAuthorizationEndpoint());
+        DeviceClientAuthenticationProvider deviceClientAuthenticationProvider =
+                new DeviceClientAuthenticationProvider(registeredClientRepository);
 
-        // Enable OpenID Connect 1.0
-        authorizationServerConfigurer.oidc(Customizer.withDefaults());
-        RequestMatcher endpointsMatcher = authorizationServerConfigurer.getEndpointsMatcher();
-        http.requestMatcher(endpointsMatcher).csrf(csrf -> csrf.ignoringRequestMatchers(endpointsMatcher))
-                // Accept access tokens for User Info and/or Client Registration
-                .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
-        http.apply(authorizationServerConfigurer);
+        // @formatter:off
+        http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .deviceAuthorizationEndpoint(deviceAuthorizationEndpoint ->
+                        deviceAuthorizationEndpoint.verificationUri("/activate")
+                )
+                .deviceVerificationEndpoint(deviceVerificationEndpoint ->
+                        deviceVerificationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI)
+                )
+                .clientAuthentication(clientAuthentication ->
+                        clientAuthentication
+                                .authenticationConverter(deviceClientAuthenticationConverter)
+                                .authenticationProvider(deviceClientAuthenticationProvider)
+                )
+                .authorizationEndpoint(authorizationEndpoint ->
+                        authorizationEndpoint.consentPage(CUSTOM_CONSENT_PAGE_URI))
+                .oidc(Customizer.withDefaults());	// Enable OpenID Connect 1.0
+        // @formatter:on
 
-        //应用自定义配置
-        auth2AuthorizationProvider.apply(authorizationServerConfigurer);
-
-        http.addFilterBefore(new OAuth2AuthorizationEndpointEnhanceFilter(authorizationServerConfigurer,authenticationPoint)   ,
-                ExceptionTranslationFilter.class);
+        // @formatter:off
+        http
+                .exceptionHandling((exceptions) -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                )
+                .oauth2ResourceServer(oauth2ResourceServer ->
+                        oauth2ResourceServer.jwt(Customizer.withDefaults()));
 
         return http.build();
     }
@@ -236,9 +264,9 @@ public class Oauth2EnhanceAutoConfiguration {
     @Bean("oauth2SecurityGlobalEnhanceFilter")
     @ConditionalOnMissingBean(name = "oauth2SecurityGlobalEnhanceFilter")
     public Filter oauth2SecurityGlobalEnhanceFilter(RegisteredClientRepository registeredClientRepository,
-                                              OAuth2AuthorizationConsentService authorizationConsentService,
-                                              Oauth2Properties oauth2Properties,
-                                              AuthorizationServerSettings authorizationServerSettings) {
+                                                    OAuth2AuthorizationConsentService authorizationConsentService,
+                                                    Oauth2Properties oauth2Properties,
+                                                    AuthorizationServerSettings authorizationServerSettings) {
         return new Oauth2SecurityGlobalEnhanceFilter(oauth2Properties, registeredClientRepository,
                 authorizationConsentService, authorizationServerSettings);
     }

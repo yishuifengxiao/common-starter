@@ -3,10 +3,11 @@
  */
 package com.yishuifengxiao.common.code.generator;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+
 
 import com.yishuifengxiao.common.guava.GuavaCache;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 

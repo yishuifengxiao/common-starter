@@ -1,8 +1,9 @@
 package com.yishuifengxiao.common.code.autoconfigure;
 
-import javax.activation.MimeType;
-import javax.mail.internet.MimeMessage;
 
+
+import jakarta.activation.MimeType;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

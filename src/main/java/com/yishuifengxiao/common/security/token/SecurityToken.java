@@ -12,8 +12,8 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.tool.encoder.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,7 +31,7 @@ import java.util.Objects;
  * @since 1.0.0
  */
 
-@ApiModel(value = "自定义访问令牌")
+@Schema(name = "自定义访问令牌")
 public class SecurityToken extends AbstractAuthenticationToken implements Serializable {
 
     /**
@@ -43,31 +43,31 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * <p>token的值，不区分大小写</p>
      * <p>一般值的内容为 username:deviceId:issueAt的DES加密值</p>
      */
-    @ApiModelProperty("token的值")
+    @Schema(name = "token的值")
     private final String value;
 
     /**
      * 用户名
      */
-    @ApiModelProperty("用户名")
+    @Schema(name = "用户名")
     private Object principal;
 
     /**
      * 设备id
      */
-    @ApiModelProperty("设备id")
+    @Schema(name = "设备id")
     private String deviceId;
 
     /**
      * token的有效时间，单位为秒
      */
-    @ApiModelProperty("token的有效时间，单位为秒")
+    @Schema(name = "token的有效时间，单位为秒")
     private Integer validSeconds;
 
     /**
      * token的首次生成时间
      */
-    @ApiModelProperty("token的首次生成时间")
+    @Schema(name = "token的首次生成时间")
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -76,7 +76,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     /**
      * token的过期时间点
      */
-    @ApiModelProperty("token的过期时间点")
+    @Schema(name = "token的过期时间点")
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -87,7 +87,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * <p>true表示有效，false无效</p>
      * 例如在token数量有限时，驱逐策略下，早期的token可能就处于失效状态
      */
-    @ApiModelProperty("当前token是否处于有效状态")
+    @Schema(name = "当前token是否处于有效状态")
     private Boolean isActive;
 
 

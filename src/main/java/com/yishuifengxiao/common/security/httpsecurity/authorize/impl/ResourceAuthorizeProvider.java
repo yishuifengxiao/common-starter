@@ -39,20 +39,19 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
 
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
-        registry.mvcMatchers(HttpMethod.OPTIONS).permitAll();
-        registry.antMatchers(HttpMethod.OPTIONS).permitAll();
+        registry.requestMatchers(HttpMethod.OPTIONS).permitAll();
 //        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
         // 所有忽视的资源
         for (String url : propertyResource.allIgnoreUrls()) {
-            registry.antMatchers(url).permitAll();
+            registry.requestMatchers(url).permitAll();
         }
         // 所有直接放行的资源
         for (String url : propertyResource.allPermitUrs()) {
-            registry.antMatchers(url).permitAll();
+            registry.requestMatchers(url).permitAll();
         }
 
         for (String url : propertyResource.anonymousUrls()) {
-            registry.antMatchers(url).anonymous();
+            registry.requestMatchers(url).anonymous();
         }
         List<RequestMatcher> requestMatchers = new ArrayList<>();
         // 所有已经明确了权限的路径

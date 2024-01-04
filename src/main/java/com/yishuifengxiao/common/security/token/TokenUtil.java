@@ -7,6 +7,7 @@ import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import com.yishuifengxiao.common.tool.utils.Assert;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,7 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * 令牌生成工具

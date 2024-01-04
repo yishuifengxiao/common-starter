@@ -45,18 +45,21 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.10</version>
+        <version>3.2.1</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-
-        <pagehelper.version>1.4.5</pagehelper.version>
         <yishuifengxiao.tool.version>BUILD-SNAPSHOT</yishuifengxiao.tool.version>
 
-        <springfox.version>3.0.0</springfox.version>
-        <guava.version>31.0-jre</guava.version>
-        <oauth2-authorization-server.version>0.4.1</oauth2-authorization-server.version>
+        <swagger.version>4.3.0</swagger.version>
+        <guava.version>33.0.0-jre</guava.version>
+        <oauth2-authorization-server.version>1.2.1</oauth2-authorization-server.version>
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -87,13 +90,13 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-        <!-- swagger2 -->
+        <!-- OpenAPI3 -->
         <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-boot-starter</artifactId>
-            <version>${springfox.version}</version>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>${swagger.version}</version>
         </dependency>
-        <!-- swagger2 -->
+        <!-- OpenAPI3 -->
         <!-- web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -178,8 +181,17 @@
         </plugins>
     </build>
     <profiles>
-        <!-- 本地开发环境 -->
         <profile>
+            <id>disable-javadoc-doclint</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
+        </profile>
+        <profile>
+            <!-- 本地开发环境 -->
             <id>dev</id>
             <properties>
                 <profiles.active>dev</profiles.active>
@@ -188,21 +200,43 @@
                 <!-- 设置默认激活这个配置 -->
                 <activeByDefault>true</activeByDefault>
             </activation>
+        </profile>
+        <profile>
+            <id>doc</id>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
             <build>
-                <finalName>${build.finalName}</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                                <configuration>
+                                    <encoding>UTF-8</encoding>
+                                    <additionalparam>-Xdoclint:none</additionalparam>
+                                    <useStandardDocletOptions>false</useStandardDocletOptions>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>${maven-compiler-plugin.version}</version>
                         <configuration>
-                            <skipTests>true</skipTests>
-                            <useSystemClassLoader>false</useSystemClassLoader>
+                            <source>17</source>
+                            <target>17</target>
                         </configuration>
                     </plugin>
                 </plugins>
             </build>
         </profile>
-        <!-- 本地开发环境 -->
         <!-- 发布环境 -->
         <profile>
             <id>release</id>
@@ -214,12 +248,11 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <build>
-                <finalName>${build.finalName}</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.13</version>
+                        <version>${nexus-staging-maven-plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
@@ -227,10 +260,11 @@
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
+                    <!-- 发布插件 -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>2.5</version>
+                        <version>${maven-release-plugin.version>}</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>
@@ -241,16 +275,16 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.0</version>
+                        <version>${maven-compiler-plugin.version}</version>
                         <configuration>
-                            <source>1.8</source>
-                            <target>1.8</target>
+                            <source>17</source>
+                            <target>17</target>
                         </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${maven-gpg-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>
@@ -264,7 +298,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>2.2.1</version>
+                        <version>${maven-source-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -277,7 +311,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>2.10.4</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>

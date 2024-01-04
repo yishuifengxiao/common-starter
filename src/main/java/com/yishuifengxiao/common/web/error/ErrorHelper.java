@@ -3,8 +3,9 @@
  */
 package com.yishuifengxiao.common.web.error;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * 异常信息补充提取工具

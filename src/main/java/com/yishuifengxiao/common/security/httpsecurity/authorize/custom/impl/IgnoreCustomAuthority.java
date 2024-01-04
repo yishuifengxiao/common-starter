@@ -4,13 +4,14 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl;
 
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.AntPathMatcher;
 
-import javax.servlet.http.HttpServletRequest;
+
 import java.util.HashSet;
 import java.util.Set;
 

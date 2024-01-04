@@ -11,6 +11,7 @@ import com.yishuifengxiao.common.code.holder.impl.SimpleCodeHolder;
 import com.yishuifengxiao.common.code.sender.CodeSender;
 import com.yishuifengxiao.common.code.sender.impl.ImageCodeSender;
 import com.yishuifengxiao.common.code.sender.impl.SmsCodeSender;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -21,7 +22,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 /**

@@ -1,8 +1,9 @@
 package com.yishuifengxiao.common.jdbc;
 
-import javax.annotation.PostConstruct;
+
 import javax.sql.DataSource;
 
+import jakarta.annotation.PostConstruct;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

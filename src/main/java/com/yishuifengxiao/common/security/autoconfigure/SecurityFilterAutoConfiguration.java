@@ -12,6 +12,7 @@ import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityTokenResolver;
 import com.yishuifengxiao.common.security.token.extractor.SimpleSecurityValueExtractor;
+import jakarta.servlet.ServletException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,7 +22,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
-import javax.servlet.ServletException;
+
 
 /**
  * spring security扩展支持自动配置

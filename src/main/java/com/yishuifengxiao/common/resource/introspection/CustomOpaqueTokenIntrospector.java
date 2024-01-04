@@ -29,7 +29,7 @@ import java.net.URI;
 import java.time.Instant;
 import java.util.*;
 
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.*;
+
 
 /**
  * <p>
@@ -95,7 +95,7 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			claims.put(OAuth2TokenIntrospectionClaimNames.AUD, Collections.unmodifiableList(audiences));
 		}
 		if (response.getClientID() != null) {
-			claims.put(CLIENT_ID, response.getClientID().getValue());
+			claims.put("client_id", response.getClientID().getValue());
 		}
 		if (response.getExpirationTime() != null) {
 			Instant exp = response.getExpirationTime().toInstant();
@@ -104,7 +104,7 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 
 		if (response.getScope() != null) {
 			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
-			claims.put(SCOPE, scopes);
+			claims.put("scope", scopes);
 		}
 
 		if (response.getAuthorities() != null) {

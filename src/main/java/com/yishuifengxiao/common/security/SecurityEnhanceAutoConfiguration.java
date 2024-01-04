@@ -31,6 +31,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
 import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
 import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
 import com.yishuifengxiao.common.web.WebEnhanceProperties;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -56,7 +57,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 
-import javax.annotation.PostConstruct;
+
 import java.util.List;
 
 /**

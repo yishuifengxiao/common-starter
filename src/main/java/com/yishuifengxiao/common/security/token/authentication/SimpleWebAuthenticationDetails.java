@@ -1,9 +1,10 @@
 package com.yishuifengxiao.common.security.token.authentication;
 
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 /**
  * A holder of selected HTTP details related to a web authentication request.
