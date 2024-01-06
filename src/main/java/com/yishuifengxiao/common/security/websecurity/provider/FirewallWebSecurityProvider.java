@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.websecurity.provider.impl;
+package com.yishuifengxiao.common.security.websecurity.provider;
 
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
-import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
 
 /**
  * 

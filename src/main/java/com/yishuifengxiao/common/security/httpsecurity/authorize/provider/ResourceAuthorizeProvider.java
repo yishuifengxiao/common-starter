@@ -1,9 +1,12 @@
-package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.PropertyResource;
+import jakarta.servlet.DispatcherType;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
@@ -12,10 +15,7 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
 
@@ -40,22 +41,19 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
 
         final ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry registry = http.authorizeRequests();
         registry.requestMatchers(HttpMethod.OPTIONS).permitAll();
-//        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
-        // 所有忽视的资源
-        for (String url : propertyResource.allIgnoreUrls()) {
-            registry.requestMatchers(url).permitAll();
-        }
-        // 所有直接放行的资源
-        for (String url : propertyResource.allPermitUrs()) {
-            registry.requestMatchers(url).permitAll();
+        registry.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll();
+        if (propertyResource.security().getResource().getPermitAll()) {
+            registry.anyRequest().permitAll();
+            return;
         }
 
-        for (String url : propertyResource.anonymousUrls()) {
-            registry.requestMatchers(url).anonymous();
-        }
+        // 所有直接放行的资源
+        registry.requestMatchers(propertyResource.permitAll()).permitAll();
+        registry.requestMatchers(propertyResource.anonymous()).anonymous();
+
         List<RequestMatcher> requestMatchers = new ArrayList<>();
-        // 所有已经明确了权限的路径
-        propertyResource.definedUrls().stream().map(AntPathRequestMatcher::new).forEach(requestMatchers::add);
+        requestMatchers.add(propertyResource.permitAll());
+        requestMatchers.add(propertyResource.anonymous());
         // 所有自定义权限路径的资源
         if (null != this.customResourceProviders) {
             customResourceProviders.forEach((providerName, provider) -> {

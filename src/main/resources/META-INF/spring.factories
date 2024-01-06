@@ -8,8 +8,8 @@ com.yishuifengxiao.common.cache.CacheAutoConfiguration,\
 com.yishuifengxiao.common.code.CodeAutoConfiguration,\
 com.yishuifengxiao.common.oauth2.Oauth2EnhanceAutoConfiguration,\
 com.yishuifengxiao.common.security.SecurityEnhanceAutoConfiguration,\
-com.yishuifengxiao.common.social.SpringSocialAutoConfiguration,\
 com.yishuifengxiao.common.resource.SecurityResourceEnhanceAutoConfiguration,\
+com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.guava.GuavaAutoConfiguration,\
 com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration
 

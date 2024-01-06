@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.PropertyResource;

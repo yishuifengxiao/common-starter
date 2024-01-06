@@ -4,13 +4,18 @@
 package com.yishuifengxiao.common.security.support;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
+import com.yishuifengxiao.common.security.utils.PermitAllRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.List;
 import java.util.Set;
 
 /**
  * <p>资源管理器</p>
- * 管理系统中所有的资源
+ * <p>管理系统中所有的资源</p>
+ * <p>
+ * 定义参见 <a href="https://springdoc.cn/spring-security/servlet/authorization/authorize-http-requests.html">https://springdoc.cn/spring-security/servlet/authorization/authorize-http-requests.html</a>
+ * </p>
  *
  * @author yishui
  * @version 1.0.0
@@ -25,35 +30,20 @@ public interface PropertyResource {
      */
     SecurityProperties security();
 
+    /**
+     * permitAll - 该请求不需要授权，是一个公共端点；请注意，在这种情况下，永远不会从 session 中检索 Authentication
+     *
+     * @return 不需要授权的请求资源
+     */
+    RequestMatcher permitAll();
 
     /**
-     * 获取所有直接放行的资源
+     * anonymous - 该请求允许匿名访问，anonymous() 用于只允许匿名用户访问的公开内容
      *
-     * @return 直接放行的资源
+     * @return 许匿名访问的请求资源
      */
-    Set<String> allPermitUrs();
+    RequestMatcher anonymous();
 
-    /**
-     * 获取所有允许匿名访问的资源
-     *
-     * @return 所有允许匿名访问的资源
-     */
-    List<String> anonymousUrls();
-
-
-    /**
-     * 获取所有不需要经过token校验的资源的路径
-     *
-     * @return 不需要经过token校验的资源的路径
-     */
-    Set<String> allUnCheckUrls();
-
-    /**
-     * 获取所有忽视的资源
-     *
-     * @return 忽视的资源
-     */
-    String[] allIgnoreUrls();
 
     /**
      * 是否显示加载细节
@@ -69,11 +59,5 @@ public interface PropertyResource {
      */
     String contextPath();
 
-    /**
-     * 所有已经定义过权限的资源
-     *
-     * @return
-     */
-    Set<String> definedUrls();
 
 }

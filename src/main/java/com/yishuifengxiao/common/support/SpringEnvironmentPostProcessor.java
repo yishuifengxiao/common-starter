@@ -71,17 +71,20 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
         }
         if (ClassUtils.isPresent(MATCHING_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
             log.debug("Spring Boot Version Getter than 2.4.0,handle MatchingStrategy");
+            Map<String, Object> sources = new HashMap<>();
             String matchingStrategy = environment.getProperty(SPRING_MVC_MATCHING_STRATEGY);
 
             if (matchingStrategy == null || "".equals(matchingStrategy)) {
                 // 当前对象为空，给定默认值ant_path_matcher
-                Map<String, Object> sources = new HashMap<>();
+
                 // springfox使用的策略是AntPathMatcher
-                sources.put(SPRING_MVC_MATCHING_STRATEGY, "ant_path_matcher");
-                DefaultPropertiesPropertySource defaultPropertiesPropertySource = new DefaultPropertiesPropertySource(sources);
-                // 更新，添加一个默认值
-                environment.getPropertySources().addLast(defaultPropertiesPropertySource);
+//                sources.put(SPRING_MVC_MATCHING_STRATEGY, "ant_path_matcher");
+
             }
+            sources.put("knife4j.enable", true);
+            DefaultPropertiesPropertySource defaultPropertiesPropertySource = new DefaultPropertiesPropertySource(sources);
+            // 更新，添加一个默认值
+            environment.getPropertySources().addLast(defaultPropertiesPropertySource);
         }
     }
 }

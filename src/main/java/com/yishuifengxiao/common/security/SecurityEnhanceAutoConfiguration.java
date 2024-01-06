@@ -26,10 +26,8 @@ import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
-import com.yishuifengxiao.common.security.websecurity.SimpleWebSecurityManager;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityManager;
-import com.yishuifengxiao.common.security.websecurity.provider.WebSecurityProvider;
-import com.yishuifengxiao.common.security.websecurity.provider.impl.FirewallWebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.provider.FirewallWebSecurityProvider;
 import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -169,12 +167,13 @@ public class SecurityEnhanceAutoConfiguration {
         return new FirewallWebSecurityProvider();
     }
 
+
     /**
      * 注入一个HttpSecurity安全管理器
      *
-     * @param authorizeConfigProviders 系统中所有的授权提供器实例
-     * @param abstractSecurityRequestFilters   系统中所有的 web安全授权器实例
-     * @param propertyResource         资源管理器
+     * @param authorizeConfigProviders       系统中所有的授权提供器实例
+     * @param abstractSecurityRequestFilters 系统中所有的 web安全授权器实例
+     * @param propertyResource               资源管理器
      * @return 安全管理器
      */
     @Bean
@@ -187,21 +186,6 @@ public class SecurityEnhanceAutoConfiguration {
                 propertyResource, authenticationPoint, abstractSecurityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
-    }
-
-    /**
-     * 注入一个WebSecurity安全管理器
-     *
-     * @param webSecurityProviders WebSecurity安全管理提供器
-     * @param propertyResource     资源管理器
-     * @return 安全管理器
-     */
-    @Bean
-    @ConditionalOnMissingBean({WebSecurityManager.class})
-    public WebSecurityManager webSecurityManager(List<WebSecurityProvider> webSecurityProviders,
-                                                 PropertyResource propertyResource) {
-        WebSecurityManager webSecurityManager = new SimpleWebSecurityManager(webSecurityProviders, propertyResource);
-        return webSecurityManager;
     }
 
 
@@ -293,10 +277,11 @@ public class SecurityEnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(WebSecurityManager webSecurityManager) {
+    public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityProvider> webSecurityProviders,
+                                                       PropertyResource propertyResource) {
 
         // 设置忽视的目录
-        return web -> webSecurityManager.apply(web);
+        return web -> webSecurityProviders.stream().forEach(v -> v.configure(propertyResource, web));
     }
 
     /**

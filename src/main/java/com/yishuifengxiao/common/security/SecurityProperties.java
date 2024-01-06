@@ -124,7 +124,8 @@ public class SecurityProperties {
     /**
      * 记住我相关的属性
      */
-    private RemeberMeProperties remeberMe = new RemeberMeProperties();
+    private RememberMeProperties rememberMe = new RememberMeProperties();
+
     /**
      * 验证码及短信登陆相关配置
      */
@@ -156,10 +157,32 @@ public class SecurityProperties {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class ResourceProperties {
+
         /**
-         * spring security 忽视目录配置，所有不经过权限校验的资源
+         * 是否默认包含静态资源
          */
-        private IgnoreProperties ignore = new IgnoreProperties();
+        private Boolean permitStaticResource = true;
+        /**
+         * 是否包含swagger-ui的资源
+         */
+        private Boolean permitSwaggerUiResource = true;
+        /**
+         * 是否包含actuator相关的路径
+         */
+        private Boolean permitActuator = true;
+
+        /**
+         * 是否包含错误页面相关的路径，默认为包含
+         */
+        private Boolean permitErrorPage = true;
+        /**
+         * 是否包含webJars资源
+         */
+        private Boolean permitWebjars = true;
+        /**
+         * 是否包含所有的资源
+         */
+        private Boolean permitAll = false;
 
         /**
          * 允许匿名访问的资源
@@ -245,50 +268,6 @@ public class SecurityProperties {
         private String sessionInvalidUrl = UriConstant.DEFAULT_SESSION_INVALID_URL;
     }
 
-    /**
-     * spring security忽视目录
-     *
-     * @author yishui
-     * @version 1.0.0
-     * @since 1.0.0
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class IgnoreProperties {
-
-        /**
-         * 是否默认包含静态资源
-         */
-        private Boolean containStaticResource = true;
-        /**
-         * 是否包含swagger-ui的资源
-         */
-        private Boolean containSwaggerUiResource = true;
-        /**
-         * 是否包含actuator相关的路径
-         */
-        private Boolean containActuator = true;
-
-        /**
-         * 是否包含错误页面相关的路径，默认为包含
-         */
-        private Boolean containErrorPage = true;
-        /**
-         * 是否包含webJars资源
-         */
-        private Boolean containWebjars = true;
-        /**
-         * 是否包含所有的资源
-         */
-        private Boolean containAll = false;
-
-        /**
-         * 所有需要忽视的目录
-         */
-        private List<String> urls = new ArrayList<>();
-
-    }
 
     /**
      * 记住我相关的属性配置
@@ -300,7 +279,7 @@ public class SecurityProperties {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class RemeberMeProperties {
+    public static class RememberMeProperties {
         /**
          * 是否使用安全cookie
          */

@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.httpsecurity.authorize.impl;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
@@ -33,16 +33,16 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		//记住我的功能
-        http.rememberMe().alwaysRemember(propertyResource.security().getRemeberMe().getAlwaysRemember())
+        http.rememberMe().alwaysRemember(propertyResource.security().getRememberMe().getAlwaysRemember())
 		//是否使用安全cookie
-		.useSecureCookie(propertyResource.security().getRemeberMe().getUseSecureCookie())
+		.useSecureCookie(propertyResource.security().getRememberMe().getUseSecureCookie())
 		//记住我产生的token的key
-		.key(propertyResource.security().getRemeberMe().getKey())
-		.rememberMeParameter(propertyResource.security().getRemeberMe().getRememberMeParameter())
+		.key(propertyResource.security().getRememberMe().getKey())
+		.rememberMeParameter(propertyResource.security().getRememberMe().getRememberMeParameter())
 		//记住我的实现
 		.tokenRepository(persistentTokenRepository)
 		//记住我的时间
-		.tokenValiditySeconds(propertyResource.security().getRemeberMe().getRememberMeSeconds())
+		.tokenValiditySeconds(propertyResource.security().getRememberMe().getRememberMeSeconds())
 		//记住我的验证逻辑
 		.userDetailsService(userDetailsService);
 		//@formatter:on  

@@ -7,9 +7,13 @@ import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.utils.PermitAllRequestMatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,12 +31,14 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"/js/**", "/css/**", "/images/**", "/fonts/**", "/**/**" + ".png", "/**/**.jpg", "/**/**.html", "/**/**.ico", "/**/**.js", "/**/**.css", "/**/**.woff", "/**/**.ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"html", "jpg", "png", "jpeg", "css", "js", "html", "ico", "woff", "ttf"};
+
 
     /**
      * 系统默认包含的swagger-ui资源路径
      */
-    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**", "/v2/api" + "-docs", "/swagger-ui/**", "/v3/**"};
+    private static String[] SWAGGER_UI_RESOURCE = new String[]{"/swagger-ui.html", "/swagger-resources/**", "/swagger" +
+            "-ui/**", "/v3/api-docs/swagger-config", "/v3/api-docs/default"};
     /**
      * 系统默认包含actuator相关的路径
      */
@@ -41,10 +47,7 @@ public class SimplePropertyResource implements PropertyResource {
      * 系统默认包含webjars相关的路径
      */
     private static String[] WEBJARS_RESOURCE = new String[]{"/webjars/**"};
-    /**
-     * 所有的资源
-     */
-    private static String[] ALL_RESOURCE = new String[]{"/**"};
+
 
     /**
      * spring security 属性配置文件
@@ -64,9 +67,9 @@ public class SimplePropertyResource implements PropertyResource {
         return this.securityProperties;
     }
 
-
     @Override
-    public Set<String> allPermitUrs() {
+    public RequestMatcher permitAll() {
+
         // 获取配置的资源
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getPermits());
         // 需要增加的资源
@@ -79,15 +82,33 @@ public class SimplePropertyResource implements PropertyResource {
                 securityProperties.getSession().getSessionInvalidUrl()
 
         ));
-        if (show) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】所有直接放行的资源的为 {}", StringUtils.join(urls, " ; "));
+        if (this.securityProperties.getResource().getPermitWebjars()) {
+            urls.addAll(Arrays.asList(WEBJARS_RESOURCE));
+        }
+        if (this.securityProperties.getResource().getPermitSwaggerUiResource()) {
+            urls.addAll(Arrays.asList(SWAGGER_UI_RESOURCE));
+        }
+        if (this.securityProperties.getResource().getPermitActuator()) {
+            urls.addAll(Arrays.asList(ACTUATOR_RESOURCE));
         }
 
-        return urls;
+        if (this.securityProperties.getResource().getPermitErrorPage()) {
+            // 错误页面
+            urls.add(UriConstant.ERROR_PAGE);
+        }
+        urls = urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
+        //security全局增强元数据
+        urls.add(AbstractSecurityGlobalEnhanceFilter.DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
+
+        urls.add(UriConstant.DEFAULT_LOGIN_URL + "**");
+        Collection<String> suffixes = this.securityProperties.getResource().getPermitStaticResource() ?
+                Arrays.asList(STATIC_RESOURCE) : Collections.EMPTY_LIST;
+
+        return new PermitAllRequestMatcher(urls, suffixes);
     }
 
     @Override
-    public List<String> anonymousUrls() {
+    public RequestMatcher anonymous() {
         Set<String> urls = this.getUrls(this.securityProperties.getResource().getAnonymous());
         urls.addAll(Arrays.asList(UriConstant.ERROR_PAGE,
                 // 权限拦截时默认的跳转地址
@@ -95,58 +116,11 @@ public class SimplePropertyResource implements PropertyResource {
                 // 登陆页面的URL
                 securityProperties.getLoginPage()));
 
-        return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        List<RequestMatcher> matchers = urls.stream().filter(StringUtils::isNotBlank).map(AntPathRequestMatcher::new).collect(Collectors.toList());
+
+        return new OrRequestMatcher(matchers);
     }
 
-
-    @Override
-    public Set<String> allUnCheckUrls() {
-        Set<String> urls = new HashSet<>();
-        // 所有直接放行的资源
-        urls.addAll(this.allPermitUrs());
-        // 所有允许匿名访问的资源
-        urls.addAll(this.anonymousUrls());
-        //表单登陆时form表单请求的地址
-        urls.add(securityProperties.getFormActionUrl());
-        // 所有忽视的资源
-        urls.addAll(Arrays.asList(this.allIgnoreUrls()));
-        return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
-    }
-
-    @Override
-    public String[] allIgnoreUrls() {
-        Set<String> set = new HashSet<>();
-        final SecurityProperties.IgnoreProperties ignore = this.securityProperties.getResource().getIgnore();
-        if (ignore.getContainStaticResource()) {
-            set.addAll(Arrays.asList(STATIC_RESOURCE));
-        }
-        if (ignore.getContainStaticResource()) {
-            set.addAll(Arrays.asList(SWAGGER_UI_RESOURCE));
-        }
-        if (ignore.getContainActuator()) {
-            set.addAll(Arrays.asList(ACTUATOR_RESOURCE));
-        }
-        if (ignore.getContainWebjars()) {
-            set.addAll(Arrays.asList(WEBJARS_RESOURCE));
-        }
-        if (ignore.getContainAll()) {
-            set.addAll(Arrays.asList(ALL_RESOURCE));
-        }
-        if (ignore.getContainErrorPage()) {
-            // 错误页面
-            set.add(UriConstant.ERROR_PAGE);
-        }
-        //security全局增强元数据
-        set.add(AbstractSecurityGlobalEnhanceFilter.DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
-
-        set.add(UriConstant.DEFAULT_LOGIN_URL + "**");
-        set.addAll(this.getUrls(ignore.getUrls()));
-
-        if (show) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】所有忽视管理的资源的为 {}", StringUtils.join(set, " ; "));
-        }
-        return set.toArray(new String[]{});
-    }
 
     @Override
     public boolean showDetail() {
@@ -156,16 +130,6 @@ public class SimplePropertyResource implements PropertyResource {
     @Override
     public String contextPath() {
         return StringUtils.isBlank(this.contextPath) ? "" : this.contextPath.trim();
-    }
-
-    @Override
-    public Set<String> definedUrls() {
-        // 所有已经明确了权限的路径
-        Set<String> urls = new HashSet<>();
-        urls.addAll(Arrays.stream(this.allIgnoreUrls()).collect(Collectors.toSet()));
-        urls.addAll(this.allPermitUrs());
-        urls.addAll(this.anonymousUrls());
-        return urls.stream().filter(StringUtils::isNotBlank).collect(Collectors.toSet());
     }
 
     /**

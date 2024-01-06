@@ -48,7 +48,7 @@ public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityG
         String registerUrl = StringUtils.isNotBlank(propertyResource.security().getRegisterUrl()) ? propertyResource.contextPath() + propertyResource.security().getRegisterUrl().trim() : "";
         HttpUtils.write(request, response, Response.sucData(new SecurityMeta(formActionUrl,
                 loginPage,
-                propertyResource.security().getRemeberMe().getRememberMeParameter(),
+                propertyResource.security().getRememberMe().getRememberMeParameter(),
                 forgotPasswordUrl,
                 registerUrl
         )));

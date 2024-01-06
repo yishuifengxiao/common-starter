@@ -4,7 +4,7 @@ import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.AbstractSecurityTokenValidateFilter;
-import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeFilterAbstract;
+import com.yishuifengxiao.common.security.httpsecurity.filter.AbstractValidateCodeFilter;
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -77,7 +77,7 @@ public class SecurityFilterAutoConfiguration {
     @ConditionalOnBean({CodeHolder.class})
     public AbstractSecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, PropertyResource propertyResource,
                                                             SecurityHandler securityHandler) {
-        ValidateCodeFilterAbstract validateCodeFilter = new ValidateCodeFilterAbstract();
+        AbstractValidateCodeFilter validateCodeFilter = new AbstractValidateCodeFilter();
         validateCodeFilter.setCodeProducer(codeProducer);
         validateCodeFilter.setPropertyResource(propertyResource);
         validateCodeFilter.setSecurityHandler(securityHandler);

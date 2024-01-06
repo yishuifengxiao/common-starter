@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.websecurity.provider;
+package com.yishuifengxiao.common.security.websecurity;
 
 import com.yishuifengxiao.common.security.support.PropertyResource;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;

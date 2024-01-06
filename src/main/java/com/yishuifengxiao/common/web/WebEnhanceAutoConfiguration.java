@@ -133,7 +133,7 @@ public class WebEnhanceAutoConfiguration {
         public void validatedParam() {
         }
 
-        @Pointcut("execution(public * *(.., @javax.validation.Valid (*), ..))")
+        @Pointcut("execution(public * *(.., @jakarta.validation.Valid (*), ..))")
         public void validParam() {
         }
 

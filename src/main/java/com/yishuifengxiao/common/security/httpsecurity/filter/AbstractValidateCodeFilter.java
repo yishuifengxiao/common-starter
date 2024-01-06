@@ -32,7 +32,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Slf4j
-public class ValidateCodeFilterAbstract extends AbstractSecurityRequestFilter implements InitializingBean {
+public class AbstractValidateCodeFilter extends AbstractSecurityRequestFilter implements InitializingBean {
     /**
      * 用于定义路由规则，因为下面的路径里有统配符，验证请求的URL与配置的URL是否匹配的类
      */

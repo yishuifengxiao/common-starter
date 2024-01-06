@@ -28,6 +28,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 
 
 import java.io.IOException;
@@ -110,31 +112,13 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
 
     private boolean requiresAuthentication(HttpServletRequest request) {
-        if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.OPTIONS.name()) && BooleanUtils.isTrue(propertyResource.security().isOpenTokenFilter())) {
-            // 先判断请求是否需要经过授权校验
-            boolean noRequiresAuthentication = propertyResource.allUnCheckUrls().parallelStream().anyMatch(url -> getMatcher(url).matches(request));
-            if (propertyResource.showDetail()) {
-                log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), !noRequiresAuthentication);
-            }
-            return !noRequiresAuthentication;
+        if (BooleanUtils.isNotTrue(propertyResource.security().isOpenTokenFilter())) {
+            return false;
         }
-        return false;
-    }
 
-
-    /**
-     * 根据url获取匹配器
-     *
-     * @param url
-     * @return
-     */
-    private synchronized AntPathRequestMatcher getMatcher(String url) {
-        AntPathRequestMatcher matcher = map.get(url);
-        if (null == matcher) {
-            matcher = new AntPathRequestMatcher(url);
-            map.put(url, matcher);
-        }
-        return matcher;
+        boolean matches = new NegatedRequestMatcher(new OrRequestMatcher(propertyResource.permitAll(), propertyResource.anonymous())).matches(request);
+        log.debug("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), matches);
+        return matches;
     }
 
 

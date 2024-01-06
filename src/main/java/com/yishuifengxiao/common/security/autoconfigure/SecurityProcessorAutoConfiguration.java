@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.impl.*;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.provider.*;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;

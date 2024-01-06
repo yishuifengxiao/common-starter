@@ -3,6 +3,8 @@
  */
 package com.yishuifengxiao.common.swagger;
 
+import io.swagger.v3.oas.models.ExternalDocumentation;
+import io.swagger.v3.oas.models.info.License;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,7 +54,7 @@ public class SwaggerProperties {
     /**
      * 版本号
      */
-    private String version = "v1.0";
+    private String version = "v1.0.0";
 
     /**
      * 项目联系人
@@ -82,52 +84,14 @@ public class SwaggerProperties {
     /**
      * 附加信息
      */
-    private List<AuthoriZationPar> auths = new ArrayList<>();
+    private ExternalDocumentation externalDocumentation = new ExternalDocumentation();
+
+    private License license=new License();
 
     /**
      * 是否显示加载日志，默认为false
      */
     private Boolean showDetail = false;
 
-    /**
-     * 附加信息
-     *
-     * @author yishui
-     * @version 1.0.0
-     * @since 1.0.0
-     */
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class AuthoriZationPar implements Serializable {
-        /**
-         *
-         */
-        private static final long serialVersionUID = 7046632466056115744L;
-        /**
-         * 附加参数的名字
-         */
-        private String name;
-        /**
-         * 附加参数的描述
-         */
-        private String description;
-        /**
-         * 参数值的类型，例如string
-         */
-        private String modelRef;
-        /**
-         * 参数的格式化类型，例如 email
-         */
-        private String format;
-        /**
-         * 参数的位置
-         */
-        private String parameterType;
-        /**
-         * 是否为必需参数,默认为false
-         */
-        private Boolean required = false;
-    }
 
 }
