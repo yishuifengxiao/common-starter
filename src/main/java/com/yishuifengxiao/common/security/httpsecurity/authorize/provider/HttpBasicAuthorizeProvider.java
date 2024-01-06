@@ -20,9 +20,12 @@ public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
         //@formatter:off
 		// 开启http baisc认证
 		if (propertyResource.security().getHttpBasic()) {
-			http.httpBasic() // 开启basic认证
-					.authenticationEntryPoint(authenticationPoint)
-					.realmName(propertyResource.security().getRealmName());
+			http.httpBasic(httpBasicCustomizer->{
+                        httpBasicCustomizer
+                        .authenticationEntryPoint(authenticationPoint)
+                        .realmName(propertyResource.security().getRealmName());
+                    });// 开启basic认证
+
 		}
 		//@formatter:on  
     }

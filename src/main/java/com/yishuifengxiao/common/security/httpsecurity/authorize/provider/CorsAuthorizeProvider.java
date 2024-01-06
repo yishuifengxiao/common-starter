@@ -22,7 +22,10 @@ public class CorsAuthorizeProvider implements AuthorizeProvider {
         //@formatter:off
 		// 关闭cors保护
 		if (propertyResource.security().getCloseCors()) {
-			http.cors().disable();
+			http.cors(corsCustomizer->{
+                corsCustomizer
+                        .disable();
+            });
 		}
 		//@formatter:on  
 

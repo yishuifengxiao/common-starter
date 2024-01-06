@@ -22,7 +22,12 @@ public class CsrfAuthorizeProvider implements AuthorizeProvider {
         //@formatter:off
 		// 关闭csrf防护
 		if (propertyResource.security().getCloseCsrf()) {
-			http.csrf().disable();
+			http.csrf(csrfCustomizer->{
+                csrfCustomizer
+                        .disable();
+
+
+            });
 		}
 		//@formatter:on  
 

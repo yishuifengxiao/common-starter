@@ -18,11 +18,15 @@ public class ExceptionAuthorizeProvider implements AuthorizeProvider {
     @Override
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
-        http.exceptionHandling()
-		// 定义的不存在access_token时候响应
-		.authenticationEntryPoint(authenticationPoint)
-                .accessDeniedHandler(authenticationPoint)
-		//自定义权限拒绝处理器
+        http.exceptionHandling(exceptionHandlingCustomizer->{
+                    exceptionHandlingCustomizer
+                            .authenticationEntryPoint(authenticationPoint)
+                            .accessDeniedHandler(authenticationPoint)
+
+                    ;
+
+
+                })
 		;
 		//@formatter:on  
     }

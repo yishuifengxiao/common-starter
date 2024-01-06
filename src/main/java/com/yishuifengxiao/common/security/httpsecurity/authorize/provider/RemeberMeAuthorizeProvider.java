@@ -33,18 +33,23 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		//记住我的功能
-        http.rememberMe().alwaysRemember(propertyResource.security().getRememberMe().getAlwaysRemember())
-		//是否使用安全cookie
-		.useSecureCookie(propertyResource.security().getRememberMe().getUseSecureCookie())
-		//记住我产生的token的key
-		.key(propertyResource.security().getRememberMe().getKey())
-		.rememberMeParameter(propertyResource.security().getRememberMe().getRememberMeParameter())
-		//记住我的实现
-		.tokenRepository(persistentTokenRepository)
-		//记住我的时间
-		.tokenValiditySeconds(propertyResource.security().getRememberMe().getRememberMeSeconds())
-		//记住我的验证逻辑
-		.userDetailsService(userDetailsService);
+        http.rememberMe(rememberMeCustomizer->{
+            rememberMeCustomizer
+                    .alwaysRemember(propertyResource.security().getRememberMe().getAlwaysRemember())
+                    //是否使用安全cookie
+                    .useSecureCookie(propertyResource.security().getRememberMe().getUseSecureCookie())
+                    //记住我产生的token的key
+                    .key(propertyResource.security().getRememberMe().getKey())
+                    .rememberMeParameter(propertyResource.security().getRememberMe().getRememberMeParameter())
+                    //记住我的实现
+                    .tokenRepository(persistentTokenRepository)
+                    //记住我的时间
+                    .tokenValiditySeconds(propertyResource.security().getRememberMe().getRememberMeSeconds())
+                    //记住我的验证逻辑
+                    .userDetailsService(userDetailsService);
+        });
+
+
 		//@formatter:on  
     }
 

@@ -21,12 +21,15 @@ public class LoginOutAuthorizeProvider implements AuthorizeProvider {
     @Override
     public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
-        http.logout()
-		//退出登陆的URL
-		.logoutUrl(propertyResource.security().getLoginOutUrl())
-		.logoutSuccessHandler(authenticationPoint)
-		//退出时删除cookie
-		.deleteCookies(propertyResource.security().getCookieName());
+        http.logout(logoutCustomizer->{
+            logoutCustomizer
+                    //退出登陆的URL
+		            .logoutUrl(propertyResource.security().getLoginOutUrl())
+                    .logoutSuccessHandler(authenticationPoint)
+                    //退出时删除cookie
+                    .deleteCookies(propertyResource.security().getCookieName());
+                });
+
 		//@formatter:on
     }
 
@@ -34,8 +37,6 @@ public class LoginOutAuthorizeProvider implements AuthorizeProvider {
     public int order() {
         return 200;
     }
-
-
 
 
 }
