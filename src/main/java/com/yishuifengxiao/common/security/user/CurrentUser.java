@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.yishuifengxiao.common.security;
+package com.yishuifengxiao.common.security.user;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 

@@ -1,5 +1,15 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.security.token.holder.TokenHolder;
+import com.yishuifengxiao.common.tool.exception.CustomException;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.BoundHashOperations;
+import org.springframework.data.redis.core.BoundValueOperations;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
+
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collections;
@@ -8,15 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.redis.core.BoundHashOperations;
-import org.springframework.data.redis.core.BoundValueOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-
-import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.exception.CustomException;
 
 /**
  * 基于redis的token存取工具类
@@ -37,6 +38,15 @@ public class RedisTokenHolder implements TokenHolder {
     private final static String TOKEN_VAL_PREFIX = "security_token_store_redis_val::";
 
     private RedisTemplate<String, Object> redisTemplate;
+
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    {
+
+        ClassLoader loader = RedisTokenHolder.class.getClassLoader();
+        List<com.fasterxml.jackson.databind.Module> modules = SecurityJackson2Modules.getModules(loader);
+        mapper.registerModules(modules);
+    }
 
     /**
      * <p>

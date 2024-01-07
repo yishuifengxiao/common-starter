@@ -11,6 +11,7 @@ import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
+import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,10 +22,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
@@ -62,11 +65,13 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
     private SecurityTokenResolver securityTokenResolver;
 
-
+    private UserDetailsChecker userDetailsChecker;
     /**
      * token生成器
      */
     private TokenBuilder tokenBuilder;
+
+    private UserDetailsService userDetailsService;
 
 
     @Override
@@ -127,6 +132,10 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
      */
     protected Authentication authorize(HttpServletRequest request, String tokenValue) throws AccessDeniedException, CustomException {
 
+        if (null != SecurityContextHolder.getContext().getAuthentication()) {
+            return SecurityContextHolder.getContext().getAuthentication();
+        }
+
         // 解析token
         SecurityToken token = tokenBuilder.loadByTokenValue(tokenValue);
 
@@ -154,17 +163,19 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
             throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, securityPropertyResource.security().getMsg().getTokenIsInvalid());
         }
 
+        UserDetails userDetails = userDetailsService.loadUserByUsername(token.getName());
+
+        // 检查 UserDetails
+        this.userDetailsChecker.check(userDetails);
         // 刷新令牌的过期时间
         token = tokenBuilder.refreshExpireTime(token);
 
-        if (null != SecurityContextHolder.getContext().getAuthentication()) {
-            return SecurityContextHolder.getContext().getAuthentication();
-        }
 
+        token.setDetails(new SimpleWebAuthenticationDetails(request, token));
 
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(token.getPrincipal(), null, token.getAuthorities());
-        usernamePasswordAuthenticationToken.setDetails(new SimpleWebAuthenticationDetails(request, token));
-        return usernamePasswordAuthenticationToken;
+        token.setUserDetails(userDetails);
+
+        return token;
     }
 
 
@@ -180,11 +191,17 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
     }
 
-    public AbstractSecurityTokenValidateFilter(SecurityPropertyResource securityPropertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
+    public AbstractSecurityTokenValidateFilter(SecurityPropertyResource securityPropertyResource,
+                                               UserDetailsService userDetailsService,
+                                               SecurityHandler securityHandler,
+                                               SecurityTokenResolver securityTokenResolver,
+                                               TokenBuilder tokenBuilder) {
         this.securityPropertyResource = securityPropertyResource;
         this.securityHandler = securityHandler;
+        this.userDetailsService = userDetailsService;
         this.securityTokenResolver = securityTokenResolver;
         this.tokenBuilder = tokenBuilder;
+        this.userDetailsChecker = new SimepleUserDetailsChecker(securityPropertyResource);
     }
 
 }

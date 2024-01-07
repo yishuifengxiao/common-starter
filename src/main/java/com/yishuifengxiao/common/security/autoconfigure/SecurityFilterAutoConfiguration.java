@@ -21,7 +21,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 
 /**
@@ -55,11 +55,13 @@ public class SecurityFilterAutoConfiguration {
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
     public AbstractSecurityRequestFilter securityTokenValidateFilter(SecurityPropertyResource securityPropertyResource,
                                                                      SecurityHandler securityHandler,
+                                                                     UserDetailsService userDetailsService,
                                                                      SecurityTokenResolver securityTokenResolver,
                                                                      TokenBuilder tokenBuilder) throws ServletException {
 
-        AbstractSecurityTokenValidateFilter securityTokenValidateFilter = new AbstractSecurityTokenValidateFilter(securityPropertyResource,
-                securityHandler, securityTokenResolver, tokenBuilder);
+        AbstractSecurityTokenValidateFilter securityTokenValidateFilter =
+                new AbstractSecurityTokenValidateFilter(securityPropertyResource, userDetailsService,
+                        securityHandler, securityTokenResolver, tokenBuilder);
         securityTokenValidateFilter.afterPropertiesSet();
         return securityTokenValidateFilter;
     }
@@ -67,9 +69,9 @@ public class SecurityFilterAutoConfiguration {
     /**
      * 注入一个验证码过滤器
      *
-     * @param codeProducer     验证码处理器
+     * @param codeProducer             验证码处理器
      * @param securityPropertyResource 安全属性配置
-     * @param securityHandler  协助处理器
+     * @param securityHandler          协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")

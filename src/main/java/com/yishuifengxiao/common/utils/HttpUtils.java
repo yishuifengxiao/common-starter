@@ -194,7 +194,7 @@ public class HttpUtils {
      * 获取请求中的浏览器标识
      *
      * @param request HttpServletRequest
-     * @return User-Agent
+     * @return CurrentUserDetails-Agent
      */
     public static String userAgent(HttpServletRequest request) {
         String header = request.getHeader(HttpHeaders.USER_AGENT);

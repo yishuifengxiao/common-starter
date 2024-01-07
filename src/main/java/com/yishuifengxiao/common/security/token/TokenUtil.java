@@ -1,22 +1,21 @@
 package com.yishuifengxiao.common.security.token;
 
-import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
+import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import com.yishuifengxiao.common.tool.utils.Assert;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 
 
 /**
@@ -40,6 +39,7 @@ public class TokenUtil {
     private static TokenBuilder tokenBuilder;
 
     private static SecurityValueExtractor securityValueExtractor;
+    private static UserDetailsChecker userDetailsChecker;
 
     /**
      * 生成一个令牌
@@ -226,9 +226,6 @@ public class TokenUtil {
         SecurityToken token = TokenUtil.tokenBuilder.creatNewToken(authentication, deviceId, validSeconds,
                 preventsLogin, maxSessions, userDetails.getAuthorities());
 
-        // 将认证信息注入到spring Security中
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
         return token;
 
     }
@@ -239,31 +236,8 @@ public class TokenUtil {
         }
         // 获取认证信息
         UserDetails userDetails = TokenUtil.userDetailsService.loadUserByUsername(username);
+        TokenUtil.userDetailsChecker.check(userDetails);
 
-        if (null == userDetails) {
-            throw new CustomException(ErrorCode.USERNAME_NO_EXTIS,
-                    securityPropertyResource.security().getMsg().getAccountNoExtis());
-        }
-
-        if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
-            throw new CustomException(ErrorCode.ACCOUNT_EXPIRED,
-                    securityPropertyResource.security().getMsg().getAccountExpired());
-        }
-
-        if (BooleanUtils.isFalse(userDetails.isAccountNonLocked())) {
-            throw new CustomException(ErrorCode.ACCOUNT_LOCKED,
-                    securityPropertyResource.security().getMsg().getAccountLocked());
-        }
-
-        if (BooleanUtils.isFalse(userDetails.isCredentialsNonExpired())) {
-            throw new CustomException(ErrorCode.PASSWORD_EXPIRED,
-                    securityPropertyResource.security().getMsg().getPasswordExpired());
-        }
-
-        if (BooleanUtils.isFalse(userDetails.isEnabled())) {
-            throw new CustomException(ErrorCode.ACCOUNT_UNENABLE,
-                    securityPropertyResource.security().getMsg().getAccountNoEnable());
-        }
         return userDetails;
     }
 
@@ -290,6 +264,7 @@ public class TokenUtil {
         TokenUtil.userDetailsService = userDetailsService;
         TokenUtil.tokenBuilder = tokenBuilder;
         TokenUtil.securityValueExtractor = securityValueExtractor;
+        TokenUtil.userDetailsChecker = new SimepleUserDetailsChecker(securityPropertyResource);
 
     }
 

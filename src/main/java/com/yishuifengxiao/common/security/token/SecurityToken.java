@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -89,6 +90,9 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     @Schema(name = "当前token是否处于有效状态")
     private Boolean isActive;
+
+    @JsonIgnore
+    private transient UserDetails userDetails;
 
 
     /**
@@ -276,6 +280,14 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.value = null;
     }
 
+
+    public UserDetails getUserDetails() {
+        return userDetails;
+    }
+
+    public void setUserDetails(UserDetails userDetails) {
+        this.userDetails = userDetails;
+    }
 
     @Override
     public Object getCredentials() {

@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.security.user.userdetails;
 
+import com.yishuifengxiao.common.security.user.CurrentUserDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,12 +30,12 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService {
         // 在有需要获取当前用户的地方可以用户 @CurrentUser CustomUser currentUser 获取当前用户
         //例如：
 //        @GetMapping("/user")
-//        public CustomUser user(@CurrentUser CustomUser currentUser) {
+//        public CustomUser user(@CurrentUser CustomUserDetailsServiceImpl currentUser) {
 //            return currentUser;
 //        }
 
-        return new CustomUserDetails(new CustomUser(), username, encodePassword, true, true, true, true,
-                AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER"));
+        return new CurrentUserDetails(username, encodePassword, true, true, true, true,
+                AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER")).setCurrentUser(new Object());
     }
 
     public CustomeUserDetailsServiceImpl(PasswordEncoder passwordEncoder) {
