@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.oauth2.customizer;
+package com.yishuifengxiao.common.oauth2server.customizer;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 
 /**
  * @author yishui
@@ -16,9 +16,16 @@ public class OAuth2HttpSecurityEnhanceCustomizer implements HttpSecurityEnhanceC
 
     @Override
     public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
-        OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer = http.oauth2ResourceServer();
-        oauth2ResourceServer.jwt();
-        oauth2ResourceServer.accessDeniedHandler(this.authenticationPoint).authenticationEntryPoint(this.authenticationPoint);
+
+        http.oauth2ResourceServer(httpSecurityOAuth2ResourceServerConfigurer -> {
+
+            httpSecurityOAuth2ResourceServerConfigurer
+                    .accessDeniedHandler(this.authenticationPoint)
+                    .authenticationEntryPoint(this.authenticationPoint)
+                    .jwt(Customizer.withDefaults())
+            ;
+
+        });
 
     }
 

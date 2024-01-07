@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.resource;
+package com.yishuifengxiao.common.oauth2resource;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,10 +15,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties(prefix = "yishuifengxiao.security.resource")
+@ConfigurationProperties(prefix = "yishuifengxiao.security.oauth2resource")
 public class ResourceProperties {
     /**
-     * 指向认证服务器里token校验地址,一般默认的uri为/oauth2/check_token
+     * 指向认证服务器里token校验地址,一般默认的uri为/oauth2server/check_token
      */
     private String tokenCheckUrl;
 

@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.oauth2.client;
+package com.yishuifengxiao.common.oauth2server.client;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,7 +40,7 @@ import java.util.Arrays;
  *     <code>
  * spring:
  *   security:
- *     oauth2:
+ *     oauth2server:
  *       client:
  *         registration:
  *           client-a:

@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.resource.introspection;
+package com.yishuifengxiao.common.oauth2resource.introspection;
 
 import com.nimbusds.oauth2.sdk.TokenIntrospectionErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
-import com.yishuifengxiao.common.resource.ResourceHttpSecurityEnhanceCustomizer;
+import com.yishuifengxiao.common.oauth2resource.ResourceHttpSecurityEnhanceCustomizer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;

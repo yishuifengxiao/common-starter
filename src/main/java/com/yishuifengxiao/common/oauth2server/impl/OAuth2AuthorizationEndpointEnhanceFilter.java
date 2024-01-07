@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.oauth2.impl;
+package com.yishuifengxiao.common.oauth2server.impl;
 
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import jakarta.servlet.FilterChain;
@@ -74,7 +74,7 @@ public class OAuth2AuthorizationEndpointEnhanceFilter extends OncePerRequestFilt
             anonymous = anonymousUser && roleAnonymous;
         }
         if (anonymous) {
-            this.authenticationPoint.handle(request, response, new AccessDeniedException("oauth2 enhance"));
+            this.authenticationPoint.handle(request, response, new AccessDeniedException("oauth2server enhance"));
             return;
         }
 

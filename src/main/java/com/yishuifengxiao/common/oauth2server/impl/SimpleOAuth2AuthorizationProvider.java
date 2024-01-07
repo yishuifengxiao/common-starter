@@ -1,14 +1,24 @@
-package com.yishuifengxiao.common.oauth2.impl;
+package com.yishuifengxiao.common.oauth2server.impl;
 
-import com.yishuifengxiao.common.oauth2.OAuth2AuthorizationProvider;
-import com.yishuifengxiao.common.oauth2.Oauth2Properties;
+import com.yishuifengxiao.common.oauth2server.OAuth2AuthorizationProvider;
+import com.yishuifengxiao.common.oauth2server.Oauth2Properties;
+import com.yishuifengxiao.common.oauth2server.token.SimpleOAuth2TokenGenerator;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsentService;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
+import org.springframework.security.oauth2.server.authorization.authentication.*;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author yishui
@@ -28,6 +38,7 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
     private final OAuth2AuthorizationConsentService authorizationConsentService;
 
     private final Oauth2Properties oauth2Properties;
+    private final JwtEncoder jwtEncoder;
 
 
     public SimpleOAuth2AuthorizationProvider(RegisteredClientRepository registeredClientRepository,
@@ -35,13 +46,15 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
                                              AuthenticationPoint authenticationPoint,
                                              OAuth2AuthorizationService authorizationService,
                                              OAuth2AuthorizationConsentService authorizationConsentService,
-                                             Oauth2Properties oauth2Properties) {
+                                             Oauth2Properties oauth2Properties,
+                                             JwtEncoder jwtEncoder) {
         this.registeredClientRepository = registeredClientRepository;
         this.authorizationServerSettings = authorizationServerSettings;
         this.authenticationPoint = authenticationPoint;
         this.authorizationService = authorizationService;
         this.authorizationConsentService = authorizationConsentService;
         this.oauth2Properties = oauth2Properties;
+        this.jwtEncoder = jwtEncoder;
     }
 
     @Override
@@ -54,6 +67,7 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
          *  client_secret_basic ,client_secret_post, private_key_jwt , client_secret_jwt, none
          */
 
+        //@formatter:off
         authorizationServerConfigurer
                 // (REQUIRED) for managing new and existing clients.
                 .registeredClientRepository(registeredClientRepository)
@@ -73,12 +87,34 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
                 //
                 .tokenRevocationEndpoint(tokenRevocationEndpoint -> tokenRevocationEndpoint.errorResponseHandler(authenticationPoint))
                 //
-                .authorizationEndpoint(endpoint -> endpoint.errorResponseHandler(authenticationPoint).consentPage(oauth2Properties.getConsentPage()))
+                .authorizationEndpoint(endpoint -> endpoint
+                        //Customizing Authorization Request Validation
+                        .authenticationProviders(configureAuthenticationValidator())
+                        .errorResponseHandler(authenticationPoint)
+                        .consentPage(oauth2Properties.getConsentPage()))
+
                 //
                 .oidc(Customizer.withDefaults())
 
         //
         ;
+        //@formatter:on
+
+        authorizationServerConfigurer
+                //The OAuth2TokenGenerator for generating tokens supported by the OAuth2 authorization server.
+                .tokenGenerator(new SimpleOAuth2TokenGenerator(this.jwtEncoder))
+                //	deviceAuthorizationEndpoint(): The configurer for the OAuth2 Device Authorization endpoint.
+                .deviceAuthorizationEndpoint(deviceAuthorizationEndpoint -> {
+                })
+                //	deviceVerificationEndpoint(): The configurer for the OAuth2 Device Verification endpoint.
+                .deviceVerificationEndpoint(deviceVerificationEndpoint -> {
+                })
+                //	authorizationServerMetadataEndpoint(): The configurer for the OAuth2 Authorization Server Metadata endpoint.
+                .authorizationServerMetadataEndpoint(authorizationServerMetadataEndpoint -> {
+                })
+        ;
+
+
         /**
          * registeredClientRepository()：用于管理新客户端和现有客户端的已注册客户端存储库（必需）。
          * authorizationService()：用于管理新授权和现有授权的OAuth2AuthorizationService。
@@ -96,5 +132,42 @@ public class SimpleOAuth2AuthorizationProvider implements OAuth2AuthorizationPro
          * clientRegistrationEndpoint()：OpenID Connect 1.0 客户端注册端点的配置程序。
          */
 
+    }
+
+    private Consumer<List<AuthenticationProvider>> configureAuthenticationValidator() {
+        return (authenticationProviders) ->
+                authenticationProviders.forEach((authenticationProvider) -> {
+                    if (authenticationProvider instanceof OAuth2AuthorizationCodeRequestAuthenticationProvider) {
+                        Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> authenticationValidator =
+                                // Override default redirect_uri validator
+                                new CustomRedirectUriValidator()
+                                        // Reuse default scope validator
+                                        .andThen(OAuth2AuthorizationCodeRequestAuthenticationValidator.DEFAULT_SCOPE_VALIDATOR);
+
+                        ((OAuth2AuthorizationCodeRequestAuthenticationProvider) authenticationProvider)
+                                .setAuthenticationValidator(authenticationValidator);
+                    }
+                });
+    }
+
+    static class CustomRedirectUriValidator implements Consumer<OAuth2AuthorizationCodeRequestAuthenticationContext> {
+
+        @Override
+        public void accept(OAuth2AuthorizationCodeRequestAuthenticationContext authenticationContext) {
+
+            OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication =
+                    authenticationContext.getAuthentication();
+
+            RegisteredClient registeredClient = authenticationContext.getRegisteredClient();
+
+            String requestedRedirectUri = authorizationCodeRequestAuthentication.getRedirectUri();
+
+
+            // Use exact string matching when comparing client redirect URIs against pre-registered URIs
+            if (!registeredClient.getRedirectUris().contains(requestedRedirectUri)) {
+                OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST);
+                throw new OAuth2AuthorizationCodeRequestAuthenticationException(error, null);
+            }
+        }
     }
 }

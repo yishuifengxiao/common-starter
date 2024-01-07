@@ -1,5 +1,5 @@
 /*
- * oauth2-oidc-sdk
+ * oauth2server-oidc-sdk
  *
  * Copyright 2012-2016, Connect2id Ltd and contributors.
  *
@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations under the License.
  */
 
-package com.yishuifengxiao.common.resource.introspection;
+package com.yishuifengxiao.common.oauth2resource.introspection;
 
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.util.Base64URL;
@@ -45,7 +45,7 @@ import java.util.Map;
  * <ul>
  * <li>OAuth 2.0 Token Introspection (RFC 7662).
  * <li>OAuth 2.0 Mutual TLS Client Authentication and Certificate Bound Access
- * Tokens (draft-ietf-oauth2-mtls-15).
+ * Tokens (draft-ietf-oauth2server-mtls-15).
  * </ul>
  */
 
@@ -124,7 +124,7 @@ public class CustomTokenIntrospectionSuccessResponse extends TokenIntrospectionR
         }
 
         /**
-         * Sets the username of the resource owner who authorised the token.
+         * Sets the username of the oauth2resource owner who authorised the token.
          *
          * @param username The username, {@code null} if not specified.
          * @return This builder.
@@ -408,7 +408,7 @@ public class CustomTokenIntrospectionSuccessResponse extends TokenIntrospectionR
     }
 
     /**
-     * Returns the username of the resource owner who authorised the token.
+     * Returns the username of the oauth2resource owner who authorised the token.
      * Corresponds to the {@code username} claim.
      *
      * @return The username, {@code null} if not specified.
@@ -480,7 +480,7 @@ public class CustomTokenIntrospectionSuccessResponse extends TokenIntrospectionR
 
     /**
      * Returns the subject of the token, usually a machine-readable identifier of
-     * the resource owner who authorised the token. Corresponds to the {@code sub}
+     * the oauth2resource owner who authorised the token. Corresponds to the {@code sub}
      * claim.
      *
      * @return The token subject, {@code null} if not specified.

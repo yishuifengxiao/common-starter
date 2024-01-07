@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 
 /**
  * <p>默认的系统令牌提取器</p>
- * <p>参考<code> org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver </code></p>
+ * <p>参考<code> org.springframework.security.oauth2server.server.oauth2resource.web.DefaultBearerTokenResolver </code></p>
  * <p>参见 HTTP 身份验证
  * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Authorization">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Authorization</a></p>
  *

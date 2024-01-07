@@ -1,9 +1,9 @@
-package com.yishuifengxiao.common.oauth2;
+package com.yishuifengxiao.common.oauth2server;
 
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 
 /**
- * oauth2.1增强扩展配置
+ * oauth2server.1增强扩展配置
  *
  * @author yishui
  * @version 1.0.0

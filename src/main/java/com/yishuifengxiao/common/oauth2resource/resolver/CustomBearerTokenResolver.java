@@ -14,11 +14,7 @@
  * limitations under the License.
  */
 
-package com.yishuifengxiao.common.resource.resolver;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+package com.yishuifengxiao.common.oauth2resource.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -28,6 +24,9 @@ import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.util.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The default {@link BearerTokenResolver} implementation based on RFC 6750.

@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.oauth2;
+package com.yishuifengxiao.common.oauth2server;
 
 import com.yishuifengxiao.common.tool.entity.Response;
 import lombok.AllArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ConfigurationProperties(prefix = "yishuifengxiao.security.oauth2")
+@ConfigurationProperties(prefix = "yishuifengxiao.security.oauth2server")
 public class Oauth2Properties {
     /**
      * 是否开启OAUTH2增强的功能,默认为false
@@ -65,12 +65,12 @@ public class Oauth2Properties {
     /**
      * 授权确认页面
      */
-    private String consentPage = "/security-enhance-ui/oauth2.html";
+    private String consentPage = "/security-enhance-ui/oauth2server.html";
 
 
     /**
      * 授权信息页面
      */
-    private String consentInfoPath = "/.well-known/oauth2/meta";
+    private String consentInfoPath = "/.well-known/oauth2server/meta";
 
 }

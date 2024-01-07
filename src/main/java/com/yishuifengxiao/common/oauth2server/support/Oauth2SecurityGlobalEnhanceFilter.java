@@ -1,6 +1,6 @@
-package com.yishuifengxiao.common.oauth2.support;
+package com.yishuifengxiao.common.oauth2server.support;
 
-import com.yishuifengxiao.common.oauth2.Oauth2Properties;
+import com.yishuifengxiao.common.oauth2server.Oauth2Properties;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.servlet.FilterChain;

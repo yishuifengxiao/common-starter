@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.oauth2.authorization;
+package com.yishuifengxiao.common.oauth2server.authorization;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationConsent;

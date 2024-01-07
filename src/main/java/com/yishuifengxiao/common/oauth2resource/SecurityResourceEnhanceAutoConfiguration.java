@@ -1,7 +1,7 @@
-package com.yishuifengxiao.common.resource;
+package com.yishuifengxiao.common.oauth2resource;
 
-import com.yishuifengxiao.common.resource.introspection.CustomOpaqueTokenIntrospector;
-import com.yishuifengxiao.common.resource.resolver.CustomBearerTokenResolver;
+import com.yishuifengxiao.common.oauth2resource.introspection.CustomOpaqueTokenIntrospector;
+import com.yishuifengxiao.common.oauth2resource.resolver.CustomBearerTokenResolver;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;

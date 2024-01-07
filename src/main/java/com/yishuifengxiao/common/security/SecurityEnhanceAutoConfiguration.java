@@ -58,7 +58,8 @@ import java.util.List;
  * @since 1.0.0
  */
 @Slf4j
-@Configuration
+@EnableWebSecurity
+@Configuration(proxyBeanMethods = false)
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
 @Import({SecuritySupportAutoConfiguration.class, SecurityCustomizerAutoConfiguration.class,
