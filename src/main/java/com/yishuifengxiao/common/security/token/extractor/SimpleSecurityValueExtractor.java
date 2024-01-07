@@ -4,7 +4,7 @@
 package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.tool.encoder.Md5;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,11 +26,11 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
     public static final String SPRING_SECURITY_FORM_USERNAME_KEY = "username";
     public static final String SPRING_SECURITY_FORM_PASSWORD_KEY = "password";
 
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
 
     @Override
     public String extractUsername(HttpServletRequest request, HttpServletResponse response) {
-        String usernameParameter = propertyResource.security().getUsernameParameter();
+        String usernameParameter = securityPropertyResource.security().getUsernameParameter();
         if (StringUtils.isBlank(usernameParameter)) {
             usernameParameter = SPRING_SECURITY_FORM_USERNAME_KEY;
         }
@@ -39,7 +39,7 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
 
     @Override
     public String extractPassword(HttpServletRequest request, HttpServletResponse response) {
-        String passwordParameter = propertyResource.security().getPasswordParameter();
+        String passwordParameter = securityPropertyResource.security().getPasswordParameter();
         if (StringUtils.isBlank(passwordParameter)) {
             passwordParameter = SPRING_SECURITY_FORM_PASSWORD_KEY;
         }
@@ -55,7 +55,7 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
      */
     @Override
     public String extractDeviceId(HttpServletRequest request, HttpServletResponse response) {
-        String deviceIdParameter = propertyResource.security().getToken().getUserDeviceId();
+        String deviceIdParameter = securityPropertyResource.security().getToken().getUserDeviceId();
         if (StringUtils.isBlank(deviceIdParameter)) {
             deviceIdParameter = TokenConstant.USER_DEVICE_ID;
         }
@@ -64,7 +64,7 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
             deviceIdValue = request.getParameter(deviceIdParameter);
         }
         if (StringUtils.isBlank(deviceIdValue)) {
-            if (BooleanUtils.isTrue(propertyResource.security().getToken().getUseUserAgent())) {
+            if (BooleanUtils.isTrue(securityPropertyResource.security().getToken().getUseUserAgent())) {
                 // 使用sessionId作为用户的唯一标识符
                 deviceIdValue = HttpUtils.userAgent(request);
                 if (null != deviceIdValue) {
@@ -75,8 +75,8 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
         return deviceIdValue;
     }
 
-    public SimpleSecurityValueExtractor(PropertyResource propertyResource) {
-        this.propertyResource = propertyResource;
+    public SimpleSecurityValueExtractor(SecurityPropertyResource securityPropertyResource) {
+        this.securityPropertyResource = securityPropertyResource;
     }
 
 }

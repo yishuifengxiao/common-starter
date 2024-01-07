@@ -4,7 +4,7 @@ import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 
 /**
  * csrf授权提供器
@@ -17,11 +17,11 @@ public class CsrfAuthorizeProvider implements AuthorizeProvider {
 
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http)
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http)
             throws Exception {
         //@formatter:off
 		// 关闭csrf防护
-		if (propertyResource.security().getCloseCsrf()) {
+		if (securityPropertyResource.security().getCloseCsrf()) {
 			http.csrf(csrfCustomizer->{
                 csrfCustomizer
                         .disable();

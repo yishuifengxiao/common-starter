@@ -1,5 +1,6 @@
 package com.yishuifengxiao.common.security.support;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationEvent;
@@ -23,7 +24,7 @@ public class SecurityEvent extends ApplicationEvent implements Serializable {
 	private static final long serialVersionUID = 1221005789127655917L;
 	private HttpServletRequest request;
     private HttpServletResponse response;
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
     private Strategy strategy;
     private Authentication authentication;
     private Exception exception;
@@ -35,12 +36,12 @@ public class SecurityEvent extends ApplicationEvent implements Serializable {
 
 
     public SecurityEvent(Object source, HttpServletRequest request, HttpServletResponse response,
-                         PropertyResource propertyResource, Strategy strategy, Authentication authentication,
+                         SecurityPropertyResource securityPropertyResource, Strategy strategy, Authentication authentication,
                          Exception exception) {
         super(source);
         this.request = request;
         this.response = response;
-        this.propertyResource = propertyResource;
+        this.securityPropertyResource = securityPropertyResource;
         this.strategy = strategy;
         this.authentication = authentication;
         this.exception = exception;
@@ -54,8 +55,8 @@ public class SecurityEvent extends ApplicationEvent implements Serializable {
         return response;
     }
 
-    public PropertyResource getPropertyResource() {
-        return propertyResource;
+    public SecurityPropertyResource getPropertyResource() {
+        return securityPropertyResource;
     }
 
     public Strategy getStrategy() {

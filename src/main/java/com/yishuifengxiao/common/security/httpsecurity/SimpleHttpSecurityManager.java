@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.httpsecurity;
 
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -61,7 +61,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     /**
      * 资源路径器
      */
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
 
     private UserDetailsService userDetailsService;
 
@@ -72,7 +72,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
         if (null != this.abstractSecurityRequestFilters) {
             for (AbstractSecurityRequestFilter abstractSecurityRequestFilter : this.abstractSecurityRequestFilters) {
-                if (propertyResource.showDetail()) {
+                if (securityPropertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}",
                             abstractSecurityRequestFilter);
                 }
@@ -83,12 +83,12 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
         // 加入自定义的授权配置
         if (null != this.authorizeProviders) {
             for (AuthorizeProvider authorizeConfigProvider : authorizeProviders) {
-                if (propertyResource.showDetail()) {
+                if (securityPropertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}",
                             authorizeConfigProvider.order(), authorizeConfigProvider);
                 }
 
-                authorizeConfigProvider.apply(propertyResource, authenticationPoint, http);
+                authorizeConfigProvider.apply(securityPropertyResource, authenticationPoint, http);
 
             }
 
@@ -99,13 +99,13 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
     // @formatter:off
     public SimpleHttpSecurityManager(List<AuthorizeProvider> authorizeProviders,
-                                     PropertyResource propertyResource,
+                                     SecurityPropertyResource securityPropertyResource,
                                      UserDetailsService userDetailsService,
                                      AuthenticationPoint authenticationPoint,
                                      List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters) {
 
         this.authorizeProviders = authorizeProviders;
-        this.propertyResource = propertyResource;
+        this.securityPropertyResource = securityPropertyResource;
         this.authenticationPoint = authenticationPoint;
         this.abstractSecurityRequestFilters = abstractSecurityRequestFilters;
         this.userDetailsService=userDetailsService;

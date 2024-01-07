@@ -4,7 +4,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
@@ -19,15 +19,15 @@ public class LoginOutAuthorizeProvider implements AuthorizeProvider {
 
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
         http.logout(logoutCustomizer->{
             logoutCustomizer
                     //退出登陆的URL
-		            .logoutUrl(propertyResource.security().getLoginOutUrl())
+		            .logoutUrl(securityPropertyResource.security().getLoginOutUrl())
                     .logoutSuccessHandler(authenticationPoint)
                     //退出时删除cookie
-                    .deleteCookies(propertyResource.security().getCookieName());
+                    .deleteCookies(securityPropertyResource.security().getCookieName());
                 });
 
 		//@formatter:on

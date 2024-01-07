@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.token;
 
 import com.yishuifengxiao.common.security.constant.ErrorCode;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
@@ -28,7 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 public class TokenUtil {
 
-    private static PropertyResource propertyResource;
+    private static SecurityPropertyResource securityPropertyResource;
 
 
     private static PasswordEncoder passwordEncoder;
@@ -199,23 +199,23 @@ public class TokenUtil {
 
         if (null == userDetails) {
             throw new CustomException(ErrorCode.NO_USERDETAILS,
-                    TokenUtil.propertyResource.security().getMsg().getUserDetailsIsNull());
+                    TokenUtil.securityPropertyResource.security().getMsg().getUserDetailsIsNull());
         }
         if (null != password && !passwordEncoder.matches(password, userDetails.getPassword())) {
             throw new CustomException(ErrorCode.PASSWORD_ERROR,
-                    propertyResource.security().getMsg().getPasswordIsError());
+                    securityPropertyResource.security().getMsg().getPasswordIsError());
         }
 
 
         if (null == validSeconds || CompareUtil.lteZero(validSeconds)) {
-            validSeconds = propertyResource.security().getToken().getValidSeconds();
+            validSeconds = securityPropertyResource.security().getToken().getValidSeconds();
         }
 
         if (null == maxSessions || CompareUtil.lteZero(maxSessions)) {
-            maxSessions = propertyResource.security().getToken().getMaxSessions();
+            maxSessions = securityPropertyResource.security().getToken().getMaxSessions();
         }
         if (null == preventsLogin) {
-            preventsLogin = propertyResource.security().getToken().getPreventsLogin();
+            preventsLogin = securityPropertyResource.security().getToken().getPreventsLogin();
         }
 
         // 检查用户信息
@@ -242,27 +242,27 @@ public class TokenUtil {
 
         if (null == userDetails) {
             throw new CustomException(ErrorCode.USERNAME_NO_EXTIS,
-                    propertyResource.security().getMsg().getAccountNoExtis());
+                    securityPropertyResource.security().getMsg().getAccountNoExtis());
         }
 
         if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
             throw new CustomException(ErrorCode.ACCOUNT_EXPIRED,
-                    propertyResource.security().getMsg().getAccountExpired());
+                    securityPropertyResource.security().getMsg().getAccountExpired());
         }
 
         if (BooleanUtils.isFalse(userDetails.isAccountNonLocked())) {
             throw new CustomException(ErrorCode.ACCOUNT_LOCKED,
-                    propertyResource.security().getMsg().getAccountLocked());
+                    securityPropertyResource.security().getMsg().getAccountLocked());
         }
 
         if (BooleanUtils.isFalse(userDetails.isCredentialsNonExpired())) {
             throw new CustomException(ErrorCode.PASSWORD_EXPIRED,
-                    propertyResource.security().getMsg().getPasswordExpired());
+                    securityPropertyResource.security().getMsg().getPasswordExpired());
         }
 
         if (BooleanUtils.isFalse(userDetails.isEnabled())) {
             throw new CustomException(ErrorCode.ACCOUNT_UNENABLE,
-                    propertyResource.security().getMsg().getAccountNoEnable());
+                    securityPropertyResource.security().getMsg().getAccountNoEnable());
         }
         return userDetails;
     }
@@ -281,11 +281,11 @@ public class TokenUtil {
     private TokenUtil() {
     }
 
-    public TokenUtil(PropertyResource propertyResource, PasswordEncoder passwordEncoder,
+    public TokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
                      UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
                      SecurityValueExtractor securityValueExtractor) {
 
-        TokenUtil.propertyResource = propertyResource;
+        TokenUtil.securityPropertyResource = securityPropertyResource;
         TokenUtil.passwordEncoder = passwordEncoder;
         TokenUtil.userDetailsService = userDetailsService;
         TokenUtil.tokenBuilder = tokenBuilder;

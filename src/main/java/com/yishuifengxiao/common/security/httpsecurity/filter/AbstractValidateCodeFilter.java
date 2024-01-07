@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.eunm.CodeType;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import jakarta.servlet.FilterChain;
@@ -54,14 +54,14 @@ public class AbstractValidateCodeFilter extends AbstractSecurityRequestFilter im
      */
     private CodeProducer codeProducer;
 
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
 
     @Override
     public void afterPropertiesSet() throws ServletException {
         super.afterPropertiesSet();
 
         // 需要拦截的路径
-        propertyResource.security().getCode().getFilter().forEach((codeType, urls) -> {
+        securityPropertyResource.security().getCode().getFilter().forEach((codeType, urls) -> {
             addUrlTpMap(urls, CodeType.parse(codeType));
         });
     }
@@ -87,23 +87,23 @@ public class AbstractValidateCodeFilter extends AbstractSecurityRequestFilter im
             throws ServletException, IOException {
         CodeType validateCodeType = getValidateCodeType(request);
         if (validateCodeType != null) {
-            if (propertyResource.showDetail()) {
+            if (securityPropertyResource.showDetail()) {
                 log.info("【验证码过滤器】 获取校验码类型时的URL为 {}，请求类型为 {}", request.getRequestURI(), request.getMethod());
             }
 
             try {
 
-                if (propertyResource.showDetail()) {
+                if (securityPropertyResource.showDetail()) {
                     log.info("【验证码过滤器】  请求校验{}中的验证码的的类型是 {} ,校验器类型为 {}", request.getRequestURI(), validateCodeType,
                             codeProducer);
                 }
 
                 codeProducer.validate(new ServletWebRequest(request, response), validateCodeType);
             } catch (CustomException exception) {
-                if (propertyResource.showDetail()) {
+                if (securityPropertyResource.showDetail()) {
                     log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
                 }
-                securityHandler.onException(propertyResource, request, response, exception);
+                securityHandler.onException(securityPropertyResource, request, response, exception);
 
                 // 失败后不执行后面的过滤器
                 return;
@@ -121,7 +121,7 @@ public class AbstractValidateCodeFilter extends AbstractSecurityRequestFilter im
     private CodeType getValidateCodeType(HttpServletRequest request) {
         CodeType result = null;
 
-        if (!propertyResource.security().getCode().getIsFilterGet()
+        if (!securityPropertyResource.security().getCode().getIsFilterGet()
                 && StringUtils.equalsIgnoreCase(request.getMethod(), "get")) {
             return null;
         }
@@ -143,12 +143,12 @@ public class AbstractValidateCodeFilter extends AbstractSecurityRequestFilter im
 
     }
 
-    public PropertyResource getPropertyResource() {
-        return propertyResource;
+    public SecurityPropertyResource getPropertyResource() {
+        return securityPropertyResource;
     }
 
-    public void setPropertyResource(PropertyResource propertyResource) {
-        this.propertyResource = propertyResource;
+    public void setPropertyResource(SecurityPropertyResource securityPropertyResource) {
+        this.securityPropertyResource = securityPropertyResource;
     }
 
     public CodeProducer getCodeProducer() {

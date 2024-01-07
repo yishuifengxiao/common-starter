@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.websecurity;
 
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 
 /**
@@ -14,8 +14,8 @@ public interface WebSecurityProvider {
     /**
      * 配置WebSecurity 管理
      *
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @param web              WebSecurity
      */
-    void configure(PropertyResource propertyResource, WebSecurity web) ;
+    void configure(SecurityPropertyResource securityPropertyResource, WebSecurity web) ;
 }

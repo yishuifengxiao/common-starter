@@ -4,7 +4,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -26,7 +26,7 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
     private SessionInformationExpiredStrategy sessionInformationExpiredStrategy;
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
         http.sessionManagement(sessionManagementCustomizer->{
             sessionManagementCustomizer
@@ -37,9 +37,9 @@ public class SessionAuthorizeProvider implements AuthorizeProvider {
                     .sessionAuthenticationFailureHandler(authenticationPoint)
                     //.invalidSessionUrl(securityProperties.getSession().getSessionInvalidUrl()) //session过期时的跳转的url
                     //同一个用户最大的session数量
-                    .maximumSessions(propertyResource.security().getSession().getMaximumSessions())
+                    .maximumSessions(securityPropertyResource.security().getSession().getMaximumSessions())
                     //session数量达到最大时，是否阻止第二个用户登陆
-                    .maxSessionsPreventsLogin(propertyResource.security().getSession().isMaxSessionsPreventsLogin())
+                    .maxSessionsPreventsLogin(securityPropertyResource.security().getSession().isMaxSessionsPreventsLogin())
                     //.invalidSessionUrl(customProperties.getSecurity().getSession().getSessionInvalidUrl())//session过期后的跳转
                     //session过期时的处理策略
                     .expiredSessionStrategy(sessionInformationExpiredStrategy)

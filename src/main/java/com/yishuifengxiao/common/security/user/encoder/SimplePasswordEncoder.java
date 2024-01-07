@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.user.encoder;
 
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.tool.encoder.DES;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -56,9 +56,9 @@ public class SimplePasswordEncoder implements PasswordEncoder {
 
     }
 
-    public SimplePasswordEncoder(PropertyResource propertyResource) {
-        this.show = propertyResource.showDetail();
-        this.key = propertyResource.security().getSecretKey();
+    public SimplePasswordEncoder(SecurityPropertyResource securityPropertyResource) {
+        this.show = securityPropertyResource.showDetail();
+        this.key = securityPropertyResource.security().getSecretKey();
     }
 
 }

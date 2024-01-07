@@ -5,7 +5,7 @@ package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.guava.GuavaCache;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
@@ -54,7 +54,7 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
-    protected PropertyResource propertyResource;
+    protected SecurityPropertyResource securityPropertyResource;
     /**
      * 信息提取器
      */
@@ -73,7 +73,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
                        AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        securityHandler.whenAccessDenied(propertyResource, request, response, accessDeniedException);
+        securityHandler.whenAccessDenied(securityPropertyResource, request, response, accessDeniedException);
     }
 
     @Override
@@ -84,7 +84,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                                                 AuthenticationException authenticationException) throws IOException {
 
-                securityHandler.whenAuthenticationFailure(propertyResource, request, response, authenticationException);
+                securityHandler.whenAuthenticationFailure(securityPropertyResource, request, response, authenticationException);
 
             }
         }.onAuthenticationFailure(request, response, exception);
@@ -103,15 +103,15 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     // 根据登陆信息生成一个token
                     String deviceId = securityValueExtractor.extractDeviceId(request, response);
                     SecurityToken token = tokenBuilder.creatNewToken(authentication, deviceId,
-                            propertyResource.security().getToken().getValidSeconds(),
-                            propertyResource.security().getToken().getPreventsLogin(),
-                            propertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
+                            securityPropertyResource.security().getToken().getValidSeconds(),
+                            securityPropertyResource.security().getToken().getPreventsLogin(),
+                            securityPropertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
 
                     // 将生成的token存储在session中
-                    request.getSession().setAttribute(propertyResource.security().getToken().getRequestParameter(),
+                    request.getSession().setAttribute(securityPropertyResource.security().getToken().getRequestParameter(),
                             token.getValue());
                     // 将生成的token存储在cookie中
-                    Cookie cookie = new Cookie(propertyResource.security().getToken().getRequestParameter(),
+                    Cookie cookie = new Cookie(securityPropertyResource.security().getToken().getRequestParameter(),
                             token.getValue());
                     //Cookie的路径为“/”，这意味着Cookie在整个应用程序中都可用
                     cookie.setPath("/");
@@ -131,10 +131,10 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                             HttpUtils.accessControlAllowOrigin(request));
                     // 登陆成功
-                    securityHandler.whenAuthenticationSuccess(propertyResource, request, response, authentication,
+                    securityHandler.whenAuthenticationSuccess(securityPropertyResource, request, response, authentication,
                             token);
                 } catch (Exception e) {
-                    securityHandler.whenAuthenticationFailure(propertyResource, request, response,
+                    securityHandler.whenAuthenticationFailure(securityPropertyResource, request, response,
                             new AuthenticationServiceException(e.getMessage()));
                 }
 
@@ -167,10 +167,10 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}",
                             e.getMessage());
 
-                    securityHandler.onException(propertyResource, request, response, e);
+                    securityHandler.onException(securityPropertyResource, request, response, e);
                 }
 
-                securityHandler.whenLogoutSuccess(propertyResource, request, response, authentication);
+                securityHandler.whenLogoutSuccess(securityPropertyResource, request, response, authentication);
 
             }
         }.onLogoutSuccess(request, response, authentication);
@@ -179,16 +179,16 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        securityHandler.onException(propertyResource, request, response, authException);
+        securityHandler.onException(securityPropertyResource, request, response, authException);
     }
 
 
-    public PropertyResource getPropertyResource() {
-        return propertyResource;
+    public SecurityPropertyResource getPropertyResource() {
+        return securityPropertyResource;
     }
 
-    public void setPropertyResource(PropertyResource propertyResource) {
-        this.propertyResource = propertyResource;
+    public void setPropertyResource(SecurityPropertyResource securityPropertyResource) {
+        this.securityPropertyResource = securityPropertyResource;
     }
 
     public SecurityValueExtractor getSecurityContextExtractor() {

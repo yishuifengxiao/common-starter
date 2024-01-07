@@ -5,7 +5,7 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
@@ -30,21 +30,21 @@ public class RemeberMeAuthorizeProvider implements AuthorizeProvider {
     protected UserDetailsService userDetailsService;
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		//记住我的功能
         http.rememberMe(rememberMeCustomizer->{
             rememberMeCustomizer
-                    .alwaysRemember(propertyResource.security().getRememberMe().getAlwaysRemember())
+                    .alwaysRemember(securityPropertyResource.security().getRememberMe().getAlwaysRemember())
                     //是否使用安全cookie
-                    .useSecureCookie(propertyResource.security().getRememberMe().getUseSecureCookie())
+                    .useSecureCookie(securityPropertyResource.security().getRememberMe().getUseSecureCookie())
                     //记住我产生的token的key
-                    .key(propertyResource.security().getRememberMe().getKey())
-                    .rememberMeParameter(propertyResource.security().getRememberMe().getRememberMeParameter())
+                    .key(securityPropertyResource.security().getRememberMe().getKey())
+                    .rememberMeParameter(securityPropertyResource.security().getRememberMe().getRememberMeParameter())
                     //记住我的实现
                     .tokenRepository(persistentTokenRepository)
                     //记住我的时间
-                    .tokenValiditySeconds(propertyResource.security().getRememberMe().getRememberMeSeconds())
+                    .tokenValiditySeconds(securityPropertyResource.security().getRememberMe().getRememberMeSeconds())
                     //记住我的验证逻辑
                     .userDetailsService(userDetailsService);
         });

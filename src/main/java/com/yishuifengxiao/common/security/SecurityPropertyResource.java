@@ -1,14 +1,9 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.support;
+package com.yishuifengxiao.common.security;
 
-import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.utils.PermitAllRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * <p>资源管理器</p>
@@ -21,7 +16,7 @@ import java.util.Set;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface PropertyResource {
+public interface SecurityPropertyResource {
 
     /**
      * spring security 相关的配置

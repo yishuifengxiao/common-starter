@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.DispatcherType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -37,7 +37,7 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
     private Map<String, CustomResourceProvider> customResourceProviders;
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
 //        permitAll - 该请求不需要授权即可调用；注意，在这种情况下，将不会从 session 中检索 Authentication。
 //        denyAll - 该请求在任何情况下都是不允许的；注意在这种情况下，永远不会从会话中检索 Authentication。
 //        hasAuthority - 请求要求 Authentication 的 GrantedAuthority 符合给定值。
@@ -52,19 +52,19 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         // 否则会话不再被 ping。由于现在已经解决了对性能的影响，Spring Security 建议对所有请求至少使用 permitAll
 
         http.authorizeHttpRequests((authorizeHttpRequests) -> {
-            if (propertyResource.security().getResource().getPermitAll()) {
+            if (securityPropertyResource.security().getResource().getPermitAll()) {
                 authorizeHttpRequests.anyRequest().permitAll();
             } else {
                 authorizeHttpRequests.requestMatchers(HttpMethod.OPTIONS).permitAll();
                 authorizeHttpRequests.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR).permitAll();
                 // 所有直接放行的资源
-                authorizeHttpRequests.requestMatchers(propertyResource.permitAll()).permitAll();
+                authorizeHttpRequests.requestMatchers(securityPropertyResource.permitAll()).permitAll();
                 // 所有匿名访问的资源
-                authorizeHttpRequests.requestMatchers(propertyResource.anonymous()).anonymous();
+                authorizeHttpRequests.requestMatchers(securityPropertyResource.anonymous()).anonymous();
 
                 List<RequestMatcher> requestMatchers = new ArrayList<>();
-                requestMatchers.add(propertyResource.permitAll());
-                requestMatchers.add(propertyResource.anonymous());
+                requestMatchers.add(securityPropertyResource.permitAll());
+                requestMatchers.add(securityPropertyResource.anonymous());
                 // 所有自定义权限路径的资源
                 if (null != this.customResourceProviders) {
                     customResourceProviders.forEach((providerName, provider) -> {

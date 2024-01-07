@@ -5,7 +5,7 @@ import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -64,7 +63,7 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
     private Map<String, AntPathRequestMatcher> map = new HashMap<>();
 
 
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
 
     private SecurityHandler securityHandler;
 
@@ -81,16 +80,16 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         // 从请求中获取到携带的认证
-        String tokenValue = securityTokenResolver.extractTokenValue(request, response, propertyResource);
+        String tokenValue = securityTokenResolver.extractTokenValue(request, response, securityPropertyResource);
 
 
         if (requiresAuthentication(request)) {
-            if (propertyResource.showDetail()) {
+            if (securityPropertyResource.showDetail()) {
                 log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
             }
             try {
                 if (StringUtils.isBlank(tokenValue)) {
-                    throw new IllegalTokenException(propertyResource.security().getMsg().getTokenValueIsNull());
+                    throw new IllegalTokenException(securityPropertyResource.security().getMsg().getTokenValueIsNull());
                 }
 
                 // 该请求携带了认证信息
@@ -99,10 +98,10 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
                 // 将认证信息注入到spring Security中
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (AccessDeniedException e) {
-                securityHandler.whenAccessDenied(propertyResource, request, response, e);
+                securityHandler.whenAccessDenied(securityPropertyResource, request, response, e);
                 return;
             } catch (CustomException e) {
-                securityHandler.onException(propertyResource, request, response, e);
+                securityHandler.onException(securityPropertyResource, request, response, e);
                 return;
             }
         }
@@ -112,11 +111,11 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
 
     private boolean requiresAuthentication(HttpServletRequest request) {
-        if (BooleanUtils.isNotTrue(propertyResource.security().isOpenTokenFilter())) {
+        if (BooleanUtils.isNotTrue(securityPropertyResource.security().isOpenTokenFilter())) {
             return false;
         }
 
-        boolean matches = new NegatedRequestMatcher(new OrRequestMatcher(propertyResource.permitAll(), propertyResource.anonymous())).matches(request);
+        boolean matches = new NegatedRequestMatcher(new OrRequestMatcher(securityPropertyResource.permitAll(), securityPropertyResource.anonymous())).matches(request);
         log.debug("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), matches);
         return matches;
     }
@@ -137,27 +136,27 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
         SecurityToken token = tokenBuilder.loadByTokenValue(tokenValue);
 
         if (null == token) {
-            throw new IllegalTokenException(ErrorCode.INVALID_TOKEN, propertyResource.security().getMsg().getTokenIsNull());
+            throw new IllegalTokenException(ErrorCode.INVALID_TOKEN, securityPropertyResource.security().getMsg().getTokenIsNull());
         }
 
         if (token.isExpired()) {
-            if (propertyResource.showDetail()) {
+            if (securityPropertyResource.showDetail()) {
                 log.debug("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已过期 ", token);
             }
             // 删除失效的token
             tokenBuilder.remove(token);
 
-            throw new ExpireTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsExpired());
+            throw new ExpireTokenException(ErrorCode.EXPIRED_ROKEN, securityPropertyResource.security().getMsg().getTokenIsExpired());
         }
 
         if (!token.isActive()) {
-            if (propertyResource.showDetail()) {
+            if (securityPropertyResource.showDetail()) {
                 log.debug("【yishuifengxiao-common-spring-boot-starter】访问令牌 {} 已失效 ", token);
             }
             // 删除失效的token
             tokenBuilder.remove(token);
 
-            throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, propertyResource.security().getMsg().getTokenIsInvalid());
+            throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, securityPropertyResource.security().getMsg().getTokenIsInvalid());
         }
 
         // 刷新令牌的过期时间
@@ -186,8 +185,8 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
     }
 
-    public AbstractSecurityTokenValidateFilter(PropertyResource propertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
-        this.propertyResource = propertyResource;
+    public AbstractSecurityTokenValidateFilter(SecurityPropertyResource securityPropertyResource, SecurityHandler securityHandler, SecurityTokenResolver securityTokenResolver, TokenBuilder tokenBuilder) {
+        this.securityPropertyResource = securityPropertyResource;
         this.securityHandler = securityHandler;
         this.securityTokenResolver = securityTokenResolver;
         this.tokenBuilder = tokenBuilder;

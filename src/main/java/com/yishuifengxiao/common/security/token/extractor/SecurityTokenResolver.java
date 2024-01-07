@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.token.extractor;
 
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -19,9 +19,9 @@ public interface SecurityTokenResolver {
      *
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return 访问令牌信息
      */
     String extractTokenValue(HttpServletRequest request, HttpServletResponse response,
-                             PropertyResource propertyResource);
+                             SecurityPropertyResource securityPropertyResource);
 }

@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.UriConstant;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -33,7 +33,7 @@ public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityG
 
     private RequestMatcher requestMatcher = null;
 
-    private PropertyResource propertyResource;
+    private SecurityPropertyResource securityPropertyResource;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -42,13 +42,13 @@ public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityG
             return;
         }
 
-        String formActionUrl = propertyResource.contextPath() + propertyResource.security().getFormActionUrl();
-        String forgotPasswordUrl = StringUtils.isNotBlank(propertyResource.security().getForgotPasswordUrl()) ? propertyResource.contextPath() + propertyResource.security().getForgotPasswordUrl().trim() : "";
-        String loginPage = propertyResource.contextPath() + propertyResource.security().getLoginPage();
-        String registerUrl = StringUtils.isNotBlank(propertyResource.security().getRegisterUrl()) ? propertyResource.contextPath() + propertyResource.security().getRegisterUrl().trim() : "";
+        String formActionUrl = securityPropertyResource.contextPath() + securityPropertyResource.security().getFormActionUrl();
+        String forgotPasswordUrl = StringUtils.isNotBlank(securityPropertyResource.security().getForgotPasswordUrl()) ? securityPropertyResource.contextPath() + securityPropertyResource.security().getForgotPasswordUrl().trim() : "";
+        String loginPage = securityPropertyResource.contextPath() + securityPropertyResource.security().getLoginPage();
+        String registerUrl = StringUtils.isNotBlank(securityPropertyResource.security().getRegisterUrl()) ? securityPropertyResource.contextPath() + securityPropertyResource.security().getRegisterUrl().trim() : "";
         HttpUtils.write(request, response, Response.sucData(new SecurityMeta(formActionUrl,
                 loginPage,
-                propertyResource.security().getRememberMe().getRememberMeParameter(),
+                securityPropertyResource.security().getRememberMe().getRememberMeParameter(),
                 forgotPasswordUrl,
                 registerUrl
         )));
@@ -110,8 +110,8 @@ public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityG
         private String registerUrl;
     }
 
-    public SimpleAbstractSecurityGlobalEnhanceFilter(PropertyResource propertyResource) {
-        this.propertyResource = propertyResource;
+    public SimpleAbstractSecurityGlobalEnhanceFilter(SecurityPropertyResource securityPropertyResource) {
+        this.securityPropertyResource = securityPropertyResource;
         this.requestMatcher = new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI, HttpMethod.GET.name());
     }
 }

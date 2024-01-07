@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.security.websecurity.provider;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
 
 /**
@@ -21,7 +21,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
 public class FirewallWebSecurityProvider implements WebSecurityProvider {
 
 	@Override
-	public void configure(PropertyResource propertyResource, WebSecurity web) {
+	public void configure(SecurityPropertyResource securityPropertyResource, WebSecurity web) {
 		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
 		firewall.setAllowUrlEncodedSlash(true);
 		web.httpFirewall(firewall);

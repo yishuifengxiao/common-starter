@@ -5,7 +5,7 @@ import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.AbstractSecurityTokenValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.AbstractValidateCodeFilter;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
@@ -45,20 +45,20 @@ public class SecurityFilterAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({SecurityValueExtractor.class})
-    public SecurityValueExtractor securityContextExtractor(PropertyResource propertyResource) {
-        SimpleSecurityValueExtractor simpleSecurityExtractor = new SimpleSecurityValueExtractor(propertyResource);
+    public SecurityValueExtractor securityContextExtractor(SecurityPropertyResource securityPropertyResource) {
+        SimpleSecurityValueExtractor simpleSecurityExtractor = new SimpleSecurityValueExtractor(securityPropertyResource);
         return simpleSecurityExtractor;
     }
 
 
     @Bean("securityTokenValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public AbstractSecurityRequestFilter securityTokenValidateFilter(PropertyResource propertyResource,
+    public AbstractSecurityRequestFilter securityTokenValidateFilter(SecurityPropertyResource securityPropertyResource,
                                                                      SecurityHandler securityHandler,
                                                                      SecurityTokenResolver securityTokenResolver,
                                                                      TokenBuilder tokenBuilder) throws ServletException {
 
-        AbstractSecurityTokenValidateFilter securityTokenValidateFilter = new AbstractSecurityTokenValidateFilter(propertyResource,
+        AbstractSecurityTokenValidateFilter securityTokenValidateFilter = new AbstractSecurityTokenValidateFilter(securityPropertyResource,
                 securityHandler, securityTokenResolver, tokenBuilder);
         securityTokenValidateFilter.afterPropertiesSet();
         return securityTokenValidateFilter;
@@ -68,18 +68,18 @@ public class SecurityFilterAutoConfiguration {
      * 注入一个验证码过滤器
      *
      * @param codeProducer     验证码处理器
-     * @param propertyResource 安全属性配置
+     * @param securityPropertyResource 安全属性配置
      * @param securityHandler  协助处理器
      * @return 验证码过滤器
      */
     @Bean("validateCodeFilter")
     @ConditionalOnMissingBean(name = "validateCodeFilter")
     @ConditionalOnBean({CodeHolder.class})
-    public AbstractSecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, PropertyResource propertyResource,
+    public AbstractSecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, SecurityPropertyResource securityPropertyResource,
                                                             SecurityHandler securityHandler) {
         AbstractValidateCodeFilter validateCodeFilter = new AbstractValidateCodeFilter();
         validateCodeFilter.setCodeProducer(codeProducer);
-        validateCodeFilter.setPropertyResource(propertyResource);
+        validateCodeFilter.setPropertyResource(securityPropertyResource);
         validateCodeFilter.setSecurityHandler(securityHandler);
         return validateCodeFilter;
     }

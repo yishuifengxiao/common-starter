@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,22 +32,22 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
 
     @Override
     public String extractTokenValue(HttpServletRequest request, HttpServletResponse response,
-                                    PropertyResource propertyResource) {
+                                    SecurityPropertyResource securityPropertyResource) {
 
 
-        String tokenVal = resolveFromAuthorizationHeader(request, propertyResource);
+        String tokenVal = resolveFromAuthorizationHeader(request, securityPropertyResource);
         if (StringUtils.isBlank(tokenVal)) {
             //从请求参数中获取
-            tokenVal = resolveFromRequestParameters(request, propertyResource);
+            tokenVal = resolveFromRequestParameters(request, securityPropertyResource);
         }
         if (StringUtils.isBlank(tokenVal)) {
             //从session参数中获取
-            tokenVal = resolveFromHttpSession(request, propertyResource);
+            tokenVal = resolveFromHttpSession(request, securityPropertyResource);
         }
 
         if (StringUtils.isBlank(tokenVal)) {
             //从cookies中获取
-            tokenVal = resolveFromCookies(request, propertyResource);
+            tokenVal = resolveFromCookies(request, securityPropertyResource);
         }
         return tokenVal;
     }
@@ -56,11 +56,11 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
      * 从请求头里获取到tokenValue
      *
      * @param request          HttpServletRequest
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return tokenValue
      */
-    private String resolveFromAuthorizationHeader(HttpServletRequest request, PropertyResource propertyResource) {
-        String headerParameter = propertyResource.security().getToken().getHeaderParameter();
+    private String resolveFromAuthorizationHeader(HttpServletRequest request, SecurityPropertyResource securityPropertyResource) {
+        String headerParameter = securityPropertyResource.security().getToken().getHeaderParameter();
         if (StringUtils.isBlank(headerParameter)) {
             headerParameter = TokenConstant.TOKEN_HEADER_PARAM;
         }
@@ -79,11 +79,11 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
      * 从请求参数里获取tokenValue
      *
      * @param request          HttpServletRequest
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return tokenValue
      */
-    private String resolveFromRequestParameters(HttpServletRequest request, PropertyResource propertyResource) {
-        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+    private String resolveFromRequestParameters(HttpServletRequest request, SecurityPropertyResource securityPropertyResource) {
+        String requestParameter = securityPropertyResource.security().getToken().getRequestParameter();
         if (StringUtils.isBlank(requestParameter)) {
             requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         }
@@ -101,11 +101,11 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
      * 从session里获取tokenValue
      *
      * @param request          HttpServletRequest
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return tokenValue
      */
-    private String resolveFromHttpSession(HttpServletRequest request, PropertyResource propertyResource) {
-        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+    private String resolveFromHttpSession(HttpServletRequest request, SecurityPropertyResource securityPropertyResource) {
+        String requestParameter = securityPropertyResource.security().getToken().getRequestParameter();
         if (StringUtils.isBlank(requestParameter)) {
             requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         }
@@ -120,11 +120,11 @@ public class SimpleSecurityTokenResolver implements SecurityTokenResolver {
      * 从Cookie里获取tokenValue
      *
      * @param request          HttpServletRequest
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return tokenValue
      */
-    private String resolveFromCookies(HttpServletRequest request, PropertyResource propertyResource) {
-        String requestParameter = propertyResource.security().getToken().getRequestParameter();
+    private String resolveFromCookies(HttpServletRequest request, SecurityPropertyResource securityPropertyResource) {
+        String requestParameter = securityPropertyResource.security().getToken().getRequestParameter();
         if (StringUtils.isBlank(requestParameter)) {
             requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         }

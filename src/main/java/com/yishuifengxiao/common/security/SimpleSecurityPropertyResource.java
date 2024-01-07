@@ -1,11 +1,9 @@
 /**
  *
  */
-package com.yishuifengxiao.common.security.support.impl;
+package com.yishuifengxiao.common.security;
 
-import com.yishuifengxiao.common.security.SecurityProperties;
 import com.yishuifengxiao.common.security.constant.UriConstant;
-import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.utils.PermitAllRequestMatcher;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 @Slf4j
-public class SimplePropertyResource implements PropertyResource {
+public class SimpleSecurityPropertyResource implements SecurityPropertyResource {
 
     /**
      * 系统默认包含的静态路径

@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
 
 import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.support.PropertyResource;
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 
@@ -16,14 +16,14 @@ public class HttpBasicAuthorizeProvider implements AuthorizeProvider {
 
 
     @Override
-    public void apply(PropertyResource propertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         //@formatter:off
 		// 开启http baisc认证
-		if (propertyResource.security().getHttpBasic()) {
+		if (securityPropertyResource.security().getHttpBasic()) {
 			http.httpBasic(httpBasicCustomizer->{
                         httpBasicCustomizer
                         .authenticationEntryPoint(authenticationPoint)
-                        .realmName(propertyResource.security().getRealmName());
+                        .realmName(securityPropertyResource.security().getRealmName());
                     });// 开启basic认证
 
 		}

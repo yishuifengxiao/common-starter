@@ -3,6 +3,7 @@
  */
 package com.yishuifengxiao.common.security.support;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,38 +38,38 @@ public interface SecurityHandler {
     /**
      * 登陆成功后的处理
      *
-     * @param propertyResource 系统里配置的资源
+     * @param securityPropertyResource 系统里配置的资源
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
      * @param authentication   认证信息
      * @param token            生成的token
      * @throws IOException 处理时发生问题
      */
-    void whenAuthenticationSuccess(PropertyResource propertyResource, HttpServletRequest request,
+    void whenAuthenticationSuccess(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
                                    HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException;
 
     /**
      * 登陆失败后的处理
      *
-     * @param propertyResource 系统里配置的资源
+     * @param securityPropertyResource 系统里配置的资源
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
      * @param exception        失败的原因
      * @throws IOException 处理时发生问题
      */
-    void whenAuthenticationFailure(PropertyResource propertyResource, HttpServletRequest request,
+    void whenAuthenticationFailure(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
                                    HttpServletResponse response, Exception exception) throws IOException;
 
     /**
      * 退出成功后的处理
      *
-     * @param propertyResource 系统里配置的资源
+     * @param securityPropertyResource 系统里配置的资源
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
      * @param authentication   认证信息
      * @throws IOException 处理时发生问题
      */
-    void whenLogoutSuccess(PropertyResource propertyResource, HttpServletRequest request,
+    void whenLogoutSuccess(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
                            HttpServletResponse response, Authentication authentication) throws IOException;
 
     /**
@@ -77,13 +78,13 @@ public interface SecurityHandler {
      * </p>
      * 本身是一个合法的用户，但是对于部分资源没有访问权限
      *
-     * @param propertyResource 系统里配置的资源
+     * @param securityPropertyResource 系统里配置的资源
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
      * @param exception        被拒绝的原因
      * @throws IOException 处理时发生问题
      */
-    void whenAccessDenied(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response
+    void whenAccessDenied(SecurityPropertyResource securityPropertyResource, HttpServletRequest request, HttpServletResponse response
             , AccessDeniedException exception) throws IOException;
 
     /**
@@ -92,13 +93,13 @@ public interface SecurityHandler {
      * </p>
      * 可能本身就不是一个合法的用户
      *
-     * @param propertyResource 系统里配置的资源
+     * @param securityPropertyResource 系统里配置的资源
      * @param request          HttpServletRequest
      * @param response         HttpServletResponse
      * @param exception        发生异常的原因
      * @throws IOException 处理时发生问题
      */
-    void onException(PropertyResource propertyResource, HttpServletRequest request, HttpServletResponse response,
+    void onException(SecurityPropertyResource securityPropertyResource, HttpServletRequest request, HttpServletResponse response,
                      Exception exception) throws IOException;
 
 

@@ -11,12 +11,10 @@ import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFi
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.support.PropertyResource;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
-import com.yishuifengxiao.common.security.support.impl.SimplePropertyResource;
 import com.yishuifengxiao.common.security.support.impl.SimpleAbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
@@ -83,13 +81,13 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * 注入自定义密码加密类
      *
-     * @param propertyResource 资源管理器
+     * @param securityPropertyResource 资源管理器
      * @return 加密器
      */
     @Bean
     @ConditionalOnMissingBean
-    public PasswordEncoder passwordEncoder(PropertyResource propertyResource) {
-        return new SimplePasswordEncoder(propertyResource);
+    public PasswordEncoder passwordEncoder(SecurityPropertyResource securityPropertyResource) {
+        return new SimplePasswordEncoder(securityPropertyResource);
     }
 
     /**
@@ -139,8 +137,8 @@ public class SecurityEnhanceAutoConfiguration {
      * @return 资源管理器
      */
     @Bean
-    public PropertyResource propertyResource(SecurityProperties securityProperties, Environment environment) {
-        SimplePropertyResource propertyResource = new SimplePropertyResource();
+    public SecurityPropertyResource propertyResource(SecurityProperties securityProperties, Environment environment) {
+        SimpleSecurityPropertyResource propertyResource = new SimpleSecurityPropertyResource();
         propertyResource.setSecurityProperties(securityProperties);
         propertyResource.setContextPath(environment.getProperty("server.servlet.context-path"));
         return propertyResource;
@@ -149,10 +147,10 @@ public class SecurityEnhanceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({TokenUtil.class})
-    public TokenUtil tokenUtil(PropertyResource propertyResource, PasswordEncoder passwordEncoder,
+    public TokenUtil tokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
                                UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
                                SecurityValueExtractor securityValueExtractor) {
-        return new TokenUtil(propertyResource, passwordEncoder, userDetailsService, tokenBuilder,
+        return new TokenUtil(securityPropertyResource, passwordEncoder, userDetailsService, tokenBuilder,
                 securityValueExtractor);
     }
 
@@ -173,7 +171,7 @@ public class SecurityEnhanceAutoConfiguration {
      *
      * @param authorizeConfigProviders       系统中所有的授权提供器实例
      * @param abstractSecurityRequestFilters 系统中所有的 web安全授权器实例
-     * @param propertyResource               资源管理器
+     * @param securityPropertyResource               资源管理器
      * @return 安全管理器
      */
     @Bean
@@ -182,9 +180,9 @@ public class SecurityEnhanceAutoConfiguration {
                                                    AuthenticationPoint authenticationPoint,
                                                    UserDetailsService userDetailsService,
                                                    List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
-                                                   PropertyResource propertyResource) {
+                                                   SecurityPropertyResource securityPropertyResource) {
         SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                propertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
+                securityPropertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -213,13 +211,13 @@ public class SecurityEnhanceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(PropertyResource propertyResource,
+    public AuthenticationPoint authenticationPoint(SecurityPropertyResource securityPropertyResource,
                                                    SecurityValueExtractor securityValueExtractor,
                                                    SecurityHandler securityHandler,
                                                    WebEnhanceProperties webEnhanceProperties,
                                                    TokenBuilder tokenBuilder) {
         SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
-        authenticationPoint.setPropertyResource(propertyResource);
+        authenticationPoint.setPropertyResource(securityPropertyResource);
         authenticationPoint.setTokenBuilder(tokenBuilder);
         authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
         authenticationPoint.setSecurityHandler(securityHandler);
@@ -279,10 +277,10 @@ public class SecurityEnhanceAutoConfiguration {
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityProvider> webSecurityProviders,
-                                                       PropertyResource propertyResource) {
+                                                       SecurityPropertyResource securityPropertyResource) {
 
         // 设置忽视的目录
-        return web -> webSecurityProviders.stream().forEach(v -> v.configure(propertyResource, web));
+        return web -> webSecurityProviders.stream().forEach(v -> v.configure(securityPropertyResource, web));
     }
 
     /**
@@ -302,13 +300,13 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * 全局增强功能
      *
-     * @param propertyResource
+     * @param securityPropertyResource
      * @return
      */
     @Bean
     @ConditionalOnMissingBean({AbstractSecurityGlobalEnhanceFilter.class})
-    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(PropertyResource propertyResource) {
-        return new SimpleAbstractSecurityGlobalEnhanceFilter(propertyResource);
+    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityPropertyResource securityPropertyResource) {
+        return new SimpleAbstractSecurityGlobalEnhanceFilter(securityPropertyResource);
     }
 
     @PostConstruct
