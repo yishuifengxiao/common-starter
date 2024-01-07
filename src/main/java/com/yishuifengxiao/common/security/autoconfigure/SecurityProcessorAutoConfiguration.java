@@ -43,7 +43,17 @@ public class SecurityProcessorAutoConfiguration {
 
     @Configuration
     static class SecurityProviderConfiguration {
-
+        /**
+         * 保存认证之间的请求
+         *
+         * @return 授权提供器实例
+         */
+        @Bean("requestCacheAuthorizeProvider")
+        @ConditionalOnMissingBean(name = "requestCacheAuthorizeProvider")
+        public AuthorizeProvider requestCacheAuthorizeProvider() {
+            RequestCacheAuthorizeProvider requestCacheAuthorizeProvider = new RequestCacheAuthorizeProvider();
+            return requestCacheAuthorizeProvider;
+        }
 
         /**
          * 自定义授权提供器

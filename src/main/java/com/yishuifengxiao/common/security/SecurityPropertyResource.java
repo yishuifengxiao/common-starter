@@ -39,6 +39,13 @@ public interface SecurityPropertyResource {
      */
     RequestMatcher anonymous();
 
+    /**
+     * 不需要经过全局token校验的资源
+     *
+     * @return 不需要经过全局token校验的资源
+     */
+    RequestMatcher globalVerificationExclude();
+
 
     /**
      * 是否显示加载细节

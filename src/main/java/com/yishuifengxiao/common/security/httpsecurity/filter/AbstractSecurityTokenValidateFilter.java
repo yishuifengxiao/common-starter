@@ -1,11 +1,11 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
-import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
@@ -26,14 +26,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
-
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>
@@ -59,8 +54,6 @@ import java.util.Map;
  */
 @Slf4j
 public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequestFilter implements InitializingBean {
-
-    private Map<String, AntPathRequestMatcher> map = new HashMap<>();
 
 
     private SecurityPropertyResource securityPropertyResource;
@@ -111,11 +104,13 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
 
     private boolean requiresAuthentication(HttpServletRequest request) {
-        if (BooleanUtils.isNotTrue(securityPropertyResource.security().isOpenTokenFilter())) {
+        if (BooleanUtils.isNotTrue(securityPropertyResource.security().getToken().getGlobalVerification())) {
             return false;
         }
-
-        boolean matches = new NegatedRequestMatcher(new OrRequestMatcher(securityPropertyResource.permitAll(), securityPropertyResource.anonymous())).matches(request);
+        if (BooleanUtils.isTrue(securityPropertyResource.security().getResource().getPermitAll())) {
+            return false;
+        }
+        boolean matches = new NegatedRequestMatcher(securityPropertyResource.globalVerificationExclude()).matches(request);
         log.debug("【yishuifengxiao-common-spring-boot-starter】请求 {} 是否需要进行校验校验的结果为 {}", request.getRequestURI(), matches);
         return matches;
     }

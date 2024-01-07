@@ -56,11 +56,6 @@ public class SecurityProperties {
     private String realmName = SecurityConstant.REAL_NAME;
 
     /**
-     * 是否开启token合法行校验,默认为开启
-     */
-    private boolean openTokenFilter = true;
-
-    /**
      * 是否显示加载日志，默认为false
      */
     private Boolean showDetail = false;
@@ -193,6 +188,8 @@ public class SecurityProperties {
          * 所有直接放行的资源
          */
         private List<String> permits = new ArrayList<>();
+
+
     }
 
 
@@ -241,6 +238,16 @@ public class SecurityProperties {
          */
         private Boolean useUserAgent = true;
 
+        /**
+         * 是否开启全局token校验功能，默认为true，表示开启
+         */
+        private Boolean globalVerification = true;
+
+        /**
+         * 在开启全局token校验时排除校验的资源
+         */
+        private List<String> globalVerificationExcludeUrls = new ArrayList<>();
+
     }
 
     /**
@@ -266,6 +273,15 @@ public class SecurityProperties {
          * session失效时跳转的地址
          */
         private String sessionInvalidUrl = UriConstant.DEFAULT_SESSION_INVALID_URL;
+
+        /**
+         * Specify the name of a query parameter that is added to the URL that specifies the
+         * request cache should be checked in
+         *
+         * @param matchingRequestParameterName the parameter name that must be in the request
+         * the session. Default is "continue".
+         */
+        private String matchingRequestParameterName = "continue";
     }
 
 

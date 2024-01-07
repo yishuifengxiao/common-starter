@@ -30,7 +30,7 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
      * 系统默认包含的静态路径
      */
     private static String[] STATIC_RESOURCE = new String[]{"html", "jpg", "png", "jpeg", "css", "js", "html", "ico",
-            "woff", "ttf","svg"};
+            "woff", "ttf", "svg"};
 
 
     /**
@@ -53,11 +53,6 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
      */
     private SecurityProperties securityProperties;
 
-
-    /**
-     * 是否显示详细信息日志
-     */
-    private boolean show = false;
 
     private String contextPath;
 
@@ -120,6 +115,15 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
         return new OrRequestMatcher(matchers);
     }
 
+    @Override
+    public RequestMatcher globalVerificationExclude() {
+        List<RequestMatcher> requestMatchers = new ArrayList<>();
+        requestMatchers.add(this.permitAll());
+        requestMatchers.add(this.anonymous());
+        this.getUrls(this.securityProperties.getToken().getGlobalVerificationExcludeUrls()).stream().map(AntPathRequestMatcher::new).forEach(requestMatchers::add);
+        return new OrRequestMatcher(requestMatchers);
+    }
+
 
     @Override
     public boolean showDetail() {
@@ -142,7 +146,7 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
             return new HashSet<>();
         }
         // @formatter:off
-        Set<String> urls = list.parallelStream().filter(StringUtils::isNotBlank).map(v -> Arrays.stream(v.split(","))
+        Set<String> urls = list.stream().filter(StringUtils::isNotBlank).map(v -> Arrays.stream(v.split(","))
                         .collect(Collectors.toSet())).flatMap(Collection::stream)
                 .filter(StringUtils::isNotBlank).map(String::trim).collect(Collectors.toSet());
         // @formatter:on
@@ -151,7 +155,6 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
 
     public void setSecurityProperties(SecurityProperties securityProperties) {
         this.securityProperties = securityProperties;
-        this.show = BooleanUtils.isTrue(securityProperties.getShowDetail());
     }
 
     public void setContextPath(String contextPath) {

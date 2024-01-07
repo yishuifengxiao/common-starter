@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -69,6 +72,20 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     @Override
     public void apply(HttpSecurity http) throws Exception {
         http.userDetailsService(this.userDetailsService);
+
+//        RequestAttributeSecurityContextRepository 将 SecurityContext 保存为请求属性（request attribute），
+//        以确保 SecurityContext 可用于跨调度（dispatch）类型发生的单个请求，这些调度类型可能会清除 SecurityContext。
+//        例如，假设一个客户发出请求，经过验证，然后发生了错误。根据servlet容器的实现，
+//        该错误意味着任何已建立的 SecurityContext 被清除，然后进行Error调度（dispatch）
+//        。当进行Error调度时，没有建立任何 SecurityContext。这意味着Error页面不能使用 SecurityContext 进行授权或显示当前用户
+//        ，除非 SecurityContext 以某种方式被持久化。
+        // 在Spring Security 6中，下面的例子是默认配置。
+        http.securityContext(httpSecuritySecurityContextConfigurer -> {
+            httpSecuritySecurityContextConfigurer.securityContextRepository(new DelegatingSecurityContextRepository(
+                    new RequestAttributeSecurityContextRepository(),
+                    new HttpSessionSecurityContextRepository()
+            )).requireExplicitSave(true);
+        });
 
         if (null != this.abstractSecurityRequestFilters) {
             for (AbstractSecurityRequestFilter abstractSecurityRequestFilter : this.abstractSecurityRequestFilters) {
