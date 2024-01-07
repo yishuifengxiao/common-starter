@@ -1,21 +1,21 @@
 package com.yishuifengxiao.common.security;
 
 import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.SecurityCustomizerAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
-import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
-import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
+import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
-import com.yishuifengxiao.common.security.support.impl.SimpleAbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -24,8 +24,7 @@ import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityCustomizer;
-import com.yishuifengxiao.common.security.websecurity.customizer.FirewallWebSecurityCustomizer;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -46,12 +45,12 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
-
 
 import java.util.List;
 
@@ -71,7 +70,7 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
-@Import({SecurityProcessorAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
+@Import({SecurityCustomizerAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
         SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @AutoConfigureAfter({RedisCoreAutoConfiguration.class})
@@ -104,6 +103,25 @@ public class SecurityEnhanceAutoConfiguration {
         return new CustomeUserDetailsServiceImpl(passwordEncoder);
     }
 
+
+    /**
+     * 解决DaoAuthenticationProvider 的hideUserNotFoundExceptions默认为true导致的UsernameNotFoundException被隐藏的问题
+     *
+     * @param passwordEncoder
+     * @param userDetailsService
+     * @return
+     */
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
+                                                               UserDetailsService userDetailsService) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
+        return provider;
+    }
+
     /**
      * 记住密码策略【存储内存中在redis数据库中】
      *
@@ -114,18 +132,6 @@ public class SecurityEnhanceAutoConfiguration {
     @ConditionalOnMissingClass({"org.springframework.data.redis.core.RedisOperations"})
     public PersistentTokenRepository inMemoryTokenRepository() {
         return new InMemoryTokenRepository();
-    }
-
-    /**
-     * 注入一个基于内存的token存取工具
-     *
-     * @return token存取工具
-     */
-    @Bean
-    @ConditionalOnMissingBean(value = {TokenHolder.class})
-    @ConditionalOnMissingClass({"org.springframework.data.redis.core.RedisOperations"})
-    public TokenHolder tokenHolder() {
-        return new InMemoryTokenHolder();
     }
 
 
@@ -145,68 +151,12 @@ public class SecurityEnhanceAutoConfiguration {
 
 
     @Bean
-    @ConditionalOnMissingBean({TokenUtil.class})
-    public TokenUtil tokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
-                               UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
-                               SecurityValueExtractor securityValueExtractor) {
-        return new TokenUtil(securityPropertyResource, passwordEncoder, userDetailsService, tokenBuilder,
-                securityValueExtractor);
-    }
-
-    /**
-     * 默认实现的HttpFirewall，主要是解决路径里包含 // 路径报错的问题
-     *
-     * @return web安全授权器实例
-     */
-    @Bean("firewallWebSecurityProvider")
-    @ConditionalOnMissingBean(name = {"firewallWebSecurityProvider"})
-    public WebSecurityCustomizer firewallWebSecurityProvider() {
-        return new FirewallWebSecurityCustomizer();
-    }
-
-
-    /**
-     * 注入一个HttpSecurity安全管理器
-     *
-     * @param authorizeConfigProviders       系统中所有的授权提供器实例
-     * @param abstractSecurityRequestFilters 系统中所有的 web安全授权器实例
-     * @param securityPropertyResource               资源管理器
-     * @return 安全管理器
-     */
-    @Bean
-    @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeCustomizer> authorizeConfigProviders,
-                                                   AuthenticationPoint authenticationPoint,
-                                                   UserDetailsService userDetailsService,
-                                                   List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
-                                                   SecurityPropertyResource securityPropertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                securityPropertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
-        httpSecurityManager.afterPropertiesSet();
-        return httpSecurityManager;
-    }
-
-
-    /**
-     * 注入一个TokenBuilder
-     *
-     * @param tokenHolder token存取工具
-     * @return TokenBuilder实例
-     */
-    @Bean
-    @ConditionalOnMissingBean({TokenBuilder.class})
-    public TokenBuilder tokenBuilder(TokenHolder tokenHolder) {
-        SimpleTokenBuilder simpleTokenBuilder = new SimpleTokenBuilder();
-        simpleTokenBuilder.setTokenHolder(tokenHolder);
-        return simpleTokenBuilder;
-    }
-
-    @Bean
     @ConditionalOnMissingBean
     public SecurityHandler securityHandler() {
         BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
         return baseSecurityHandler;
     }
+
 
     @Bean
     @ConditionalOnMissingBean
@@ -224,6 +174,65 @@ public class SecurityEnhanceAutoConfiguration {
         return authenticationPoint;
     }
 
+
+    @Bean
+    @ConditionalOnMissingBean({TokenUtil.class})
+    public TokenUtil tokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
+                               UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
+                               SecurityValueExtractor securityValueExtractor) {
+        return new TokenUtil(securityPropertyResource, passwordEncoder, userDetailsService, tokenBuilder,
+                securityValueExtractor);
+    }
+
+    /**
+     * 注入一个TokenBuilder
+     *
+     * @param tokenHolder token存取工具
+     * @return TokenBuilder实例
+     */
+    @Bean
+    @ConditionalOnMissingBean({TokenBuilder.class})
+    public TokenBuilder tokenBuilder(TokenHolder tokenHolder) {
+        SimpleTokenBuilder simpleTokenBuilder = new SimpleTokenBuilder();
+        simpleTokenBuilder.setTokenHolder(tokenHolder);
+        return simpleTokenBuilder;
+    }
+
+    /**
+     * 注入一个基于内存的token存取工具
+     *
+     * @return token存取工具
+     */
+    @Bean
+    @ConditionalOnMissingBean(value = {TokenHolder.class})
+    @ConditionalOnMissingClass({"org.springframework.data.redis.core.RedisOperations"})
+    public TokenHolder tokenHolder() {
+        return new InMemoryTokenHolder();
+    }
+
+
+    /**
+     * 注入一个HttpSecurity安全管理器
+     *
+     * @param authorizeConfigProviders       系统中所有的授权提供器实例
+     * @param abstractSecurityRequestFilters 系统中所有的 web安全授权器实例
+     * @param securityPropertyResource       资源管理器
+     * @return 安全管理器
+     */
+    @Bean
+    @ConditionalOnMissingBean({HttpSecurityManager.class})
+    public HttpSecurityManager httpSecurityManager(List<HttpSecurityEnhanceCustomizer> authorizeConfigProviders,
+                                                   AuthenticationPoint authenticationPoint,
+                                                   UserDetailsService userDetailsService,
+                                                   List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
+                                                   SecurityPropertyResource securityPropertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
+                securityPropertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
+        httpSecurityManager.afterPropertiesSet();
+        return httpSecurityManager;
+    }
+
+
     /**
      * 错误提示国际化
      *
@@ -235,21 +244,15 @@ public class SecurityEnhanceAutoConfiguration {
     }
 
     /**
-     * 解决DaoAuthenticationProvider 的hideUserNotFoundExceptions默认为true导致的UsernameNotFoundException被隐藏的问题
+     * 全局增强功能
      *
-     * @param passwordEncoder
-     * @param userDetailsService
+     * @param securityPropertyResource
      * @return
      */
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
-                                                               UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setHideUserNotFoundExceptions(false);
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder);
-        provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
-        return provider;
+    @ConditionalOnMissingBean({AbstractSecurityGlobalEnhanceFilter.class})
+    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityPropertyResource securityPropertyResource) {
+        return new SimpleSecurityGlobalEnhanceFilter(securityPropertyResource);
     }
 
 
@@ -275,11 +278,11 @@ public class SecurityEnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityCustomizer> webSecurityCustomizers,
-                                                                                                                        SecurityPropertyResource securityPropertyResource) {
+    public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityEnhanceCustomizer> webSecurityEnhanceCustomizers,
+                                                       SecurityPropertyResource securityPropertyResource) {
 
         // 设置忽视的目录
-        return web -> webSecurityCustomizers.stream().forEach(v -> v.configure(securityPropertyResource, web));
+        return web -> webSecurityEnhanceCustomizers.stream().forEach(v -> v.configure(securityPropertyResource, web));
     }
 
     /**
@@ -296,17 +299,6 @@ public class SecurityEnhanceAutoConfiguration {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * 全局增强功能
-     *
-     * @param securityPropertyResource
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean({AbstractSecurityGlobalEnhanceFilter.class})
-    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityPropertyResource securityPropertyResource) {
-        return new SimpleAbstractSecurityGlobalEnhanceFilter(securityPropertyResource);
-    }
 
     @PostConstruct
     public void checkConfig() {

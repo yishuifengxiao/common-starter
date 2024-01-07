@@ -10,9 +10,9 @@ import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationSe
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
-import com.yishuifengxiao.common.oauth2.customizer.OAuth2AuthorizeCustomizer;
+import com.yishuifengxiao.common.oauth2.customizer.OAuth2HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhanceFilter;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import jakarta.servlet.Filter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -158,11 +158,11 @@ public class Oauth2EnhanceAutoConfiguration {
     }
     // @formatter:on
 
-    @Bean("oAuth2AuthorizationProvider")
-    @ConditionalOnMissingBean(name = "oAuth2AuthorizationProvider")
-    public AuthorizeCustomizer oAuth2AuthorizationProvider(AuthenticationConfiguration authenticationConfiguration,
-                                                           AuthenticationPoint authenticationPoint) throws Exception {
-        return new OAuth2AuthorizeCustomizer(authenticationPoint);
+    @Bean("oAuth2HttpSecurityEnhanceCustomizer")
+    @ConditionalOnMissingBean(name = "oAuth2HttpSecurityEnhanceCustomizer")
+    public HttpSecurityEnhanceCustomizer oAuth2HttpSecurityEnhanceCustomizer(AuthenticationConfiguration authenticationConfiguration,
+                                                                             AuthenticationPoint authenticationPoint) throws Exception {
+        return new OAuth2HttpSecurityEnhanceCustomizer(authenticationPoint);
     }
 
 

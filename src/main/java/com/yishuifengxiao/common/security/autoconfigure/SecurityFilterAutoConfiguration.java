@@ -51,13 +51,13 @@ public class SecurityFilterAutoConfiguration {
     }
 
 
-    @Bean("securityTokenValidateFilter")
-    @ConditionalOnMissingBean(name = {"securityTokenValidateFilter"})
-    public AbstractSecurityRequestFilter securityTokenValidateFilter(SecurityPropertyResource securityPropertyResource,
-                                                                     SecurityHandler securityHandler,
-                                                                     UserDetailsService userDetailsService,
-                                                                     SecurityTokenResolver securityTokenResolver,
-                                                                     TokenBuilder tokenBuilder) throws ServletException {
+    @Bean("securityTokenGlobalValidateFilter")
+    @ConditionalOnMissingBean(name = {"securityTokenGlobalValidateFilter"})
+    public AbstractSecurityRequestFilter securityTokenGlobalValidateFilter(SecurityPropertyResource securityPropertyResource,
+                                                                           SecurityHandler securityHandler,
+                                                                           UserDetailsService userDetailsService,
+                                                                           SecurityTokenResolver securityTokenResolver,
+                                                                           TokenBuilder tokenBuilder) throws ServletException {
 
         SecurityTokenGlobalValidateFilter securityTokenValidateFilter =
                 new SecurityTokenGlobalValidateFilter(securityPropertyResource, userDetailsService,
@@ -74,11 +74,11 @@ public class SecurityFilterAutoConfiguration {
      * @param securityHandler          协助处理器
      * @return 验证码过滤器
      */
-    @Bean("validateCodeFilter")
-    @ConditionalOnMissingBean(name = "validateCodeFilter")
+    @Bean("validateCodeSecurityRequestFilter")
+    @ConditionalOnMissingBean(name = "validateCodeSecurityRequestFilter")
     @ConditionalOnBean({CodeHolder.class})
-    public AbstractSecurityRequestFilter validateCodeFilter(CodeProducer codeProducer, SecurityPropertyResource securityPropertyResource,
-                                                            SecurityHandler securityHandler) {
+    public AbstractSecurityRequestFilter validateCodeSecurityRequestFilter(CodeProducer codeProducer, SecurityPropertyResource securityPropertyResource,
+                                                                           SecurityHandler securityHandler) {
         ValidateCodeSecurityRequestFilter validateCodeFilter = new ValidateCodeSecurityRequestFilter();
         validateCodeFilter.setCodeProducer(codeProducer);
         validateCodeFilter.setPropertyResource(securityPropertyResource);

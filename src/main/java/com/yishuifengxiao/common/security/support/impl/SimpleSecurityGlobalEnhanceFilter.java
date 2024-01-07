@@ -28,7 +28,7 @@ import java.io.Serializable;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnhanceFilter {
+public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnhanceFilter {
 
 
     private RequestMatcher requestMatcher = null;
@@ -110,7 +110,7 @@ public class SimpleAbstractSecurityGlobalEnhanceFilter extends AbstractSecurityG
         private String registerUrl;
     }
 
-    public SimpleAbstractSecurityGlobalEnhanceFilter(SecurityPropertyResource securityPropertyResource) {
+    public SimpleSecurityGlobalEnhanceFilter(SecurityPropertyResource securityPropertyResource) {
         this.securityPropertyResource = securityPropertyResource;
         this.requestMatcher = new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI, HttpMethod.GET.name());
     }

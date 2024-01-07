@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.customizer;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -16,7 +16,7 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
  * @date 2024/1/7 12:07
  * @since 1.0.0
  */
-public class RequestCacheAuthorizeCustomizer implements AuthorizeCustomizer {
+public class RequestCacheHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanceCustomizer {
     @Override
     public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         HttpSessionRequestCache requestCache = new HttpSessionRequestCache();

@@ -4,7 +4,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityCustomizer;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityEnhanceCustomizer;
 
 /**
  * 
@@ -18,14 +18,13 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityCustomizer;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class FirewallWebSecurityCustomizer implements WebSecurityCustomizer {
+public class FirewallWebSecurityEnhanceCustomizer implements WebSecurityEnhanceCustomizer {
 
 	@Override
 	public void configure(SecurityPropertyResource securityPropertyResource, WebSecurity web) {
 		DefaultHttpFirewall firewall = new DefaultHttpFirewall();
 		firewall.setAllowUrlEncodedSlash(true);
 		web.httpFirewall(firewall);
-
 	}
 
 }

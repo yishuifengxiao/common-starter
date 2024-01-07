@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.custom_auth;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.custom_auth.sms.SmsAuthenticationFilter;
 import com.yishuifengxiao.common.security.custom_auth.sms.SmsAuthenticationProvider;
 import com.yishuifengxiao.common.security.custom_auth.sms.SmsUserDetailsService;
@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SmsAuthorizeCustomizer implements AuthorizeCustomizer {
+public class SmsHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanceCustomizer {
 
 
     private SmsUserDetailsService smsUserDetailsService;
@@ -42,12 +42,12 @@ public class SmsAuthorizeCustomizer implements AuthorizeCustomizer {
                 .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-    public SmsAuthorizeCustomizer(SmsUserDetailsService smsUserDetailsService, String url) {
+    public SmsHttpSecurityEnhanceCustomizer(SmsUserDetailsService smsUserDetailsService, String url) {
         this.smsUserDetailsService = smsUserDetailsService;
         this.url = url;
     }
 
-    public SmsAuthorizeCustomizer() {
+    public SmsHttpSecurityEnhanceCustomizer() {
 
     }
 

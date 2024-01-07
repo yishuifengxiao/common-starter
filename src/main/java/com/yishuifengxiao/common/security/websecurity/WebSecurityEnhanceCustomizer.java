@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface WebSecurityCustomizer {
+public interface WebSecurityEnhanceCustomizer {
     /**
      * 配置WebSecurity 管理
      *

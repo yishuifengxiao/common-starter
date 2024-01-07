@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.security.SecurityPropertyResource;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface AuthorizeCustomizer {
+public interface HttpSecurityEnhanceCustomizer {
 
     /**
      * 授权配置

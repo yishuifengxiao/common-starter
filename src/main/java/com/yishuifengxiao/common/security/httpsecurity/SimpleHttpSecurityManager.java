@@ -58,7 +58,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     /**
      * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
      */
-    private List<AuthorizeCustomizer> authorizeCustomizers;
+    private List<HttpSecurityEnhanceCustomizer> httpSecurityEnhanceCustomizers;
 
     private AuthenticationPoint authenticationPoint;
     /**
@@ -98,8 +98,8 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
         }
 
         // 加入自定义的授权配置
-        if (null != this.authorizeCustomizers) {
-            for (AuthorizeCustomizer authorizeConfigProvider : authorizeCustomizers) {
+        if (null != this.httpSecurityEnhanceCustomizers) {
+            for (HttpSecurityEnhanceCustomizer authorizeConfigProvider : httpSecurityEnhanceCustomizers) {
                 if (securityPropertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}",
                             authorizeConfigProvider.order(), authorizeConfigProvider);
@@ -115,13 +115,13 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     }
 
     // @formatter:off
-    public SimpleHttpSecurityManager(List<AuthorizeCustomizer> authorizeCustomizers,
+    public SimpleHttpSecurityManager(List<HttpSecurityEnhanceCustomizer> httpSecurityEnhanceCustomizers,
                                      SecurityPropertyResource securityPropertyResource,
                                      UserDetailsService userDetailsService,
                                      AuthenticationPoint authenticationPoint,
                                      List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters) {
 
-        this.authorizeCustomizers = authorizeCustomizers;
+        this.httpSecurityEnhanceCustomizers = httpSecurityEnhanceCustomizers;
         this.securityPropertyResource = securityPropertyResource;
         this.authenticationPoint = authenticationPoint;
         this.abstractSecurityRequestFilters = abstractSecurityRequestFilters;
@@ -131,7 +131,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
 
     @Override
     public void afterPropertiesSet() {
-        this.authorizeCustomizers =
-                this.authorizeCustomizers.stream().filter(Objects::nonNull).sorted(Comparator.comparing(AuthorizeCustomizer::order)).collect(Collectors.toList());
+        this.httpSecurityEnhanceCustomizers =
+                this.httpSecurityEnhanceCustomizers.stream().filter(Objects::nonNull).sorted(Comparator.comparing(HttpSecurityEnhanceCustomizer::order)).collect(Collectors.toList());
     }
 }

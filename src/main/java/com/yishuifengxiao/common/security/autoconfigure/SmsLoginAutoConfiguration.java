@@ -1,8 +1,8 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
-import com.yishuifengxiao.common.security.custom_auth.SmsAuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
+import com.yishuifengxiao.common.security.custom_auth.SmsHttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.custom_auth.sms.SmsUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -35,17 +35,17 @@ public class SmsLoginAutoConfiguration {
      * 先配置一个短信登陆地址属性(<code>yishuifengxiao.security.code.sms-login-url</code>), 2
      * 再配置一个名为 smsUserDetailsService 的 <code>UserDetailsService</code> 实例
      *
-     * @param smsUserDetailsService        短信登陆逻辑
-     * @param securityProperties           安全属性配置
+     * @param smsUserDetailsService 短信登陆逻辑
+     * @param securityProperties    安全属性配置
      * @return 资源授权拦截器实例
      */
-    @Bean("smsLoginInterceptor")
+    @Bean("smsHttpSecurityEnhanceCustomizer")
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "sms-login-url")
-    @ConditionalOnMissingBean(name = "smsLoginInterceptor")
+    @ConditionalOnMissingBean(name = "smsHttpSecurityEnhanceCustomizer")
     @ConditionalOnBean({SmsUserDetailsService.class})
-    public AuthorizeCustomizer smsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
+    public HttpSecurityEnhanceCustomizer smsHttpSecurityEnhanceCustomizer(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
 
-        return new SmsAuthorizeCustomizer(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
+        return new SmsHttpSecurityEnhanceCustomizer(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
     }
 
 

@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.customizer;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceConfigurator;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
@@ -27,14 +27,14 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @Slf4j
-public class ResourceAuthorizeCustomizer implements AuthorizeCustomizer {
+public class ResourceHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanceCustomizer {
 
 
     /**
      * key CustomResourceProvider的名字
      * value CustomResourceProvider的实例
      */
-    private Map<String, CustomResourceConfigurator> customResourceProviders;
+    private Map<String, CustomResourceConfigurator> customResourceConfigurators;
 
     @Override
     public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
@@ -66,8 +66,8 @@ public class ResourceAuthorizeCustomizer implements AuthorizeCustomizer {
                 requestMatchers.add(securityPropertyResource.permitAll());
                 requestMatchers.add(securityPropertyResource.anonymous());
                 // 所有自定义权限路径的资源
-                if (null != this.customResourceProviders) {
-                    customResourceProviders.forEach((providerName, provider) -> {
+                if (null != this.customResourceConfigurators) {
+                    customResourceConfigurators.forEach((providerName, provider) -> {
                         if (null != provider && null != provider.requestMatcher()) {
                             authorizeHttpRequests.requestMatchers(provider.requestMatcher()).access(new AuthorizationManager<>() {
                                 @Override
@@ -101,11 +101,11 @@ public class ResourceAuthorizeCustomizer implements AuthorizeCustomizer {
         return Integer.MAX_VALUE;
     }
 
-    public Map<String, CustomResourceConfigurator> getCustomResourceProviders() {
-        return customResourceProviders;
+    public Map<String, CustomResourceConfigurator> getCustomResourceConfigurators() {
+        return customResourceConfigurators;
     }
 
-    public void setCustomResourceProviders(Map<String, CustomResourceConfigurator> customResourceProviders) {
-        this.customResourceProviders = customResourceProviders;
+    public void setCustomResourceConfigurators(Map<String, CustomResourceConfigurator> customResourceConfigurators) {
+        this.customResourceConfigurators = customResourceConfigurators;
     }
 }
