@@ -180,10 +180,11 @@ public class SecurityEnhanceAutoConfiguration {
     @ConditionalOnMissingBean({HttpSecurityManager.class})
     public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
                                                    AuthenticationPoint authenticationPoint,
+                                                   UserDetailsService userDetailsService,
                                                    List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
                                                    PropertyResource propertyResource) {
         SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                propertyResource, authenticationPoint, abstractSecurityRequestFilters);
+                propertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -256,7 +257,7 @@ public class SecurityEnhanceAutoConfiguration {
 
 
     /**
-     * spring security 自定义入口
+     * <p style="color:red;"> spring security 自定义入口</p>
      *
      * @param http
      * @param httpSecurityManager
@@ -271,7 +272,7 @@ public class SecurityEnhanceAutoConfiguration {
 
 
     /**
-     * spring security 自定义入口
+     * <p style="color:red;"> spring security 自定义入口</p>
      *
      * @param webSecurityManager
      * @return

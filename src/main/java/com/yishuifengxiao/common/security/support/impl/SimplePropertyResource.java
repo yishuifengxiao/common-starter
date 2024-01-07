@@ -31,7 +31,8 @@ public class SimplePropertyResource implements PropertyResource {
     /**
      * 系统默认包含的静态路径
      */
-    private static String[] STATIC_RESOURCE = new String[]{"html", "jpg", "png", "jpeg", "css", "js", "html", "ico", "woff", "ttf"};
+    private static String[] STATIC_RESOURCE = new String[]{"html", "jpg", "png", "jpeg", "css", "js", "html", "ico",
+            "woff", "ttf","svg"};
 
 
     /**

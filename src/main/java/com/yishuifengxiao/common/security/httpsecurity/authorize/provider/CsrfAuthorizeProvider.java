@@ -25,8 +25,6 @@ public class CsrfAuthorizeProvider implements AuthorizeProvider {
 			http.csrf(csrfCustomizer->{
                 csrfCustomizer
                         .disable();
-
-
             });
 		}
 		//@formatter:on  

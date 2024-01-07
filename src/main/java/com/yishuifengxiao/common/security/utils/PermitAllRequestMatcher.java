@@ -2,6 +2,7 @@ package com.yishuifengxiao.common.security.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -37,6 +38,9 @@ public class PermitAllRequestMatcher implements RequestMatcher {
 
         if (!suffixes.isEmpty()) {
             requestMatchers.add(httpServletRequest -> {
+                if (!HttpMethod.GET.matches(httpServletRequest.getMethod())) {
+                    return false;
+                }
                 String suffix = StringUtils.substringAfterLast(httpServletRequest.getRequestURI(), ".");
                 if (StringUtils.isBlank(suffix)) {
                     return false;

@@ -22,10 +22,7 @@ public class ExceptionAuthorizeProvider implements AuthorizeProvider {
                     exceptionHandlingCustomizer
                             .authenticationEntryPoint(authenticationPoint)
                             .accessDeniedHandler(authenticationPoint)
-
                     ;
-
-
                 })
 		;
 		//@formatter:on  
