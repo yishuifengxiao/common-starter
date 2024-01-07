@@ -1,21 +1,13 @@
 package com.yishuifengxiao.common.security;
 
 import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityCustomizerAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
-import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
+import com.yishuifengxiao.common.security.autoconfigure.*;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
-import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.support.SecurityHandler;
-import com.yishuifengxiao.common.security.support.impl.BaseSecurityHandler;
-import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhanceFilter;
-import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint;
 import com.yishuifengxiao.common.security.token.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
@@ -25,7 +17,6 @@ import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityEnhanceCustomizer;
-import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -70,7 +61,8 @@ import java.util.List;
 @Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
-@Import({SecurityCustomizerAutoConfiguration.class, SecurityFilterAutoConfiguration.class,
+@Import({SecuritySupportAutoConfiguration.class, SecurityCustomizerAutoConfiguration.class,
+        SecurityFilterAutoConfiguration.class,
         SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @AutoConfigureAfter({RedisCoreAutoConfiguration.class})
@@ -123,7 +115,7 @@ public class SecurityEnhanceAutoConfiguration {
     }
 
     /**
-     * 记住密码策略【存储内存中在redis数据库中】
+     * rememberme 功能中 记住密码策略【存储内存中在redis数据库中】
      *
      * @return 记住密码策略
      */
@@ -147,31 +139,6 @@ public class SecurityEnhanceAutoConfiguration {
         propertyResource.setSecurityProperties(securityProperties);
         propertyResource.setContextPath(environment.getProperty("server.servlet.context-path"));
         return propertyResource;
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean
-    public SecurityHandler securityHandler() {
-        BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
-        return baseSecurityHandler;
-    }
-
-
-    @Bean
-    @ConditionalOnMissingBean
-    public AuthenticationPoint authenticationPoint(SecurityPropertyResource securityPropertyResource,
-                                                   SecurityValueExtractor securityValueExtractor,
-                                                   SecurityHandler securityHandler,
-                                                   WebEnhanceProperties webEnhanceProperties,
-                                                   TokenBuilder tokenBuilder) {
-        SimpleAuthenticationPoint authenticationPoint = new SimpleAuthenticationPoint();
-        authenticationPoint.setPropertyResource(securityPropertyResource);
-        authenticationPoint.setTokenBuilder(tokenBuilder);
-        authenticationPoint.setSecurityContextExtractor(securityValueExtractor);
-        authenticationPoint.setSecurityHandler(securityHandler);
-        authenticationPoint.setCorsProperties(webEnhanceProperties.getCors());
-        return authenticationPoint;
     }
 
 
@@ -241,18 +208,6 @@ public class SecurityEnhanceAutoConfiguration {
     @Bean
     public AcceptHeaderLocaleResolver acceptHeaderLocaleResolver() {
         return new AcceptHeaderLocaleResolver();
-    }
-
-    /**
-     * 全局增强功能
-     *
-     * @param securityPropertyResource
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean({AbstractSecurityGlobalEnhanceFilter.class})
-    public AbstractSecurityGlobalEnhanceFilter securityGlobalEnhance(SecurityPropertyResource securityPropertyResource) {
-        return new SimpleSecurityGlobalEnhanceFilter(securityPropertyResource);
     }
 
 
