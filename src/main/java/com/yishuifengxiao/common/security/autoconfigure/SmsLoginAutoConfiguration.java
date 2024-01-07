@@ -1,9 +1,9 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.security.SecurityProperties;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.smsauth.SmsAuthorizeProvider;
-import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.custom_auth.SmsAuthorizeCustomizer;
+import com.yishuifengxiao.common.security.custom_auth.sms.SmsUserDetailsService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -43,9 +43,9 @@ public class SmsLoginAutoConfiguration {
     @ConditionalOnProperty(prefix = "yishuifengxiao.security.code", name = "sms-login-url")
     @ConditionalOnMissingBean(name = "smsLoginInterceptor")
     @ConditionalOnBean({SmsUserDetailsService.class})
-    public AuthorizeProvider smsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
+    public AuthorizeCustomizer smsLoginInterceptor(SmsUserDetailsService smsUserDetailsService, SecurityProperties securityProperties) {
 
-        return new SmsAuthorizeProvider(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
+        return new SmsAuthorizeCustomizer(smsUserDetailsService, securityProperties.getCode().getSmsLoginUrl());
     }
 
 

@@ -56,7 +56,7 @@ import java.io.IOException;
  * @since 1.0.0
  */
 @Slf4j
-public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequestFilter implements InitializingBean {
+public class SecurityTokenGlobalValidateFilter extends AbstractSecurityRequestFilter implements InitializingBean {
 
 
     private SecurityPropertyResource securityPropertyResource;
@@ -77,11 +77,10 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // 从请求中获取到携带的认证
-        String tokenValue = securityTokenResolver.extractTokenValue(request, response, securityPropertyResource);
-
 
         if (requiresAuthentication(request)) {
+            // 从请求中获取到携带的认证
+            String tokenValue = securityTokenResolver.extractTokenValue(request, response, securityPropertyResource);
             if (securityPropertyResource.showDetail()) {
                 log.info("【yishuifengxiao-common-spring-boot-starter】请求 {} 携带的认证信息为 {}", request.getRequestURI(), tokenValue);
             }
@@ -191,11 +190,11 @@ public class AbstractSecurityTokenValidateFilter extends AbstractSecurityRequest
 
     }
 
-    public AbstractSecurityTokenValidateFilter(SecurityPropertyResource securityPropertyResource,
-                                               UserDetailsService userDetailsService,
-                                               SecurityHandler securityHandler,
-                                               SecurityTokenResolver securityTokenResolver,
-                                               TokenBuilder tokenBuilder) {
+    public SecurityTokenGlobalValidateFilter(SecurityPropertyResource securityPropertyResource,
+                                             UserDetailsService userDetailsService,
+                                             SecurityHandler securityHandler,
+                                             SecurityTokenResolver securityTokenResolver,
+                                             TokenBuilder tokenBuilder) {
         this.securityPropertyResource = securityPropertyResource;
         this.securityHandler = securityHandler;
         this.userDetailsService = userDetailsService;

@@ -1,6 +1,6 @@
-package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.customizer;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -12,7 +12,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ExceptionAuthorizeProvider implements AuthorizeProvider {
+public class ExceptionAuthorizeCustomizer implements AuthorizeCustomizer {
 
 
     @Override

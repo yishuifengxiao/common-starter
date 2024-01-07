@@ -1,6 +1,6 @@
-package com.yishuifengxiao.common.oauth2.provider;
+package com.yishuifengxiao.common.oauth2.customizer;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,7 +11,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
  * @version 1.0.0
  * @since 1.0.0
  */
-public class OAuth2AuthorizeProvider implements AuthorizeProvider {
+public class OAuth2AuthorizeCustomizer implements AuthorizeCustomizer {
     private AuthenticationPoint authenticationPoint;
 
     @Override
@@ -27,7 +27,7 @@ public class OAuth2AuthorizeProvider implements AuthorizeProvider {
         return 1500;
     }
 
-    public OAuth2AuthorizeProvider(AuthenticationPoint authenticationPoint) {
+    public OAuth2AuthorizeCustomizer(AuthenticationPoint authenticationPoint) {
         this.authenticationPoint = authenticationPoint;
     }
 }

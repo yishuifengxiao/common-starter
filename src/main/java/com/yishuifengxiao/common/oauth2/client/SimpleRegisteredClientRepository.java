@@ -44,13 +44,13 @@ import java.util.Arrays;
  *       client:
  *         registration:
  *           client-a:
- *             provider: spring
+ *             customizer: spring
  *             client-id: client
  *             client-secret: secret
  *             authorization-grant-type: authorization_code
  *             redirect-uri: "http://127.0.0.1:8080/authorized"
  *             scope: scope-a
- *         provider:
+ *         customizer:
  *           spring:
  *             issuer-uri: http://localhost:9000
  *     </code>

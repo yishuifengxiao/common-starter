@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.resource;
 
 import com.yishuifengxiao.common.resource.introspection.CustomOpaqueTokenIntrospector;
 import com.yishuifengxiao.common.resource.resolver.CustomBearerTokenResolver;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -46,8 +46,8 @@ public class SecurityResourceEnhanceAutoConfiguration {
 
     @Bean("resourceAuthorizeProvider")
     @ConditionalOnMissingBean(name = {"resourceAuthorizeProvider"})
-    public AuthorizeProvider resourceAuthorizeProvider(@Qualifier("customBearerTokenResolver") BearerTokenResolver customBearerTokenResolver, @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
-        ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
+    public AuthorizeCustomizer resourceAuthorizeProvider(@Qualifier("customBearerTokenResolver") BearerTokenResolver customBearerTokenResolver, @Qualifier("customOpaqueTokenIntrospector") OpaqueTokenIntrospector customOpaqueTokenIntrospector) {
+        ResourceAuthorizeCustomizer resourceAuthorizeProvider = new ResourceAuthorizeCustomizer();
         resourceAuthorizeProvider.setCustomBearerTokenResolver(customBearerTokenResolver);
         resourceAuthorizeProvider.setCustomOpaqueTokenIntrospector(customOpaqueTokenIntrospector);
         return resourceAuthorizeProvider;

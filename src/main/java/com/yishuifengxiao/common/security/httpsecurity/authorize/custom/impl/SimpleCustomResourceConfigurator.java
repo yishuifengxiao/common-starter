@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceConfigurator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -19,7 +19,7 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @Slf4j
-public class SimpleCustomResourceProvider implements CustomResourceProvider {
+public class SimpleCustomResourceConfigurator implements CustomResourceConfigurator {
 
 
     @Override

@@ -10,9 +10,9 @@ import com.yishuifengxiao.common.oauth2.authorization.RedisOAuth2AuthorizationSe
 import com.yishuifengxiao.common.oauth2.client.SimpleRegisteredClientRepository;
 import com.yishuifengxiao.common.oauth2.impl.OAuth2AuthorizationEndpointEnhanceFilter;
 import com.yishuifengxiao.common.oauth2.impl.SimpleOAuth2AuthorizationProvider;
-import com.yishuifengxiao.common.oauth2.provider.OAuth2AuthorizeProvider;
+import com.yishuifengxiao.common.oauth2.customizer.OAuth2AuthorizeCustomizer;
 import com.yishuifengxiao.common.oauth2.support.Oauth2SecurityGlobalEnhanceFilter;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import jakarta.servlet.Filter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -28,11 +28,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
-import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -162,9 +160,9 @@ public class Oauth2EnhanceAutoConfiguration {
 
     @Bean("oAuth2AuthorizationProvider")
     @ConditionalOnMissingBean(name = "oAuth2AuthorizationProvider")
-    public AuthorizeProvider oAuth2AuthorizationProvider(AuthenticationConfiguration authenticationConfiguration,
-                                                         AuthenticationPoint authenticationPoint) throws Exception {
-        return new OAuth2AuthorizeProvider(authenticationPoint);
+    public AuthorizeCustomizer oAuth2AuthorizationProvider(AuthenticationConfiguration authenticationConfiguration,
+                                                           AuthenticationPoint authenticationPoint) throws Exception {
+        return new OAuth2AuthorizeCustomizer(authenticationPoint);
     }
 
 

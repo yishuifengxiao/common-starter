@@ -5,7 +5,7 @@ import com.yishuifengxiao.common.security.autoconfigure.SecurityFilterAutoConfig
 import com.yishuifengxiao.common.security.autoconfigure.SecurityProcessorAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SecurityRedisAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.SmsLoginAutoConfiguration;
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
@@ -24,8 +24,8 @@ import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
-import com.yishuifengxiao.common.security.websecurity.provider.FirewallWebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityCustomizer;
+import com.yishuifengxiao.common.security.websecurity.customizer.FirewallWebSecurityCustomizer;
 import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -161,8 +160,8 @@ public class SecurityEnhanceAutoConfiguration {
      */
     @Bean("firewallWebSecurityProvider")
     @ConditionalOnMissingBean(name = {"firewallWebSecurityProvider"})
-    public WebSecurityProvider firewallWebSecurityProvider() {
-        return new FirewallWebSecurityProvider();
+    public WebSecurityCustomizer firewallWebSecurityProvider() {
+        return new FirewallWebSecurityCustomizer();
     }
 
 
@@ -176,7 +175,7 @@ public class SecurityEnhanceAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean({HttpSecurityManager.class})
-    public HttpSecurityManager httpSecurityManager(List<AuthorizeProvider> authorizeConfigProviders,
+    public HttpSecurityManager httpSecurityManager(List<AuthorizeCustomizer> authorizeConfigProviders,
                                                    AuthenticationPoint authenticationPoint,
                                                    UserDetailsService userDetailsService,
                                                    List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
@@ -276,11 +275,11 @@ public class SecurityEnhanceAutoConfiguration {
      * @return
      */
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityProvider> webSecurityProviders,
-                                                       SecurityPropertyResource securityPropertyResource) {
+    public org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityCustomizer> webSecurityCustomizers,
+                                                                                                                        SecurityPropertyResource securityPropertyResource) {
 
         // 设置忽视的目录
-        return web -> webSecurityProviders.stream().forEach(v -> v.configure(securityPropertyResource, web));
+        return web -> webSecurityCustomizers.stream().forEach(v -> v.configure(securityPropertyResource, web));
     }
 
     /**

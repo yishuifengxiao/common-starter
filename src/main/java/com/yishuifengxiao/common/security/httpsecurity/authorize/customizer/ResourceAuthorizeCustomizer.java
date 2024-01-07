@@ -1,7 +1,7 @@
-package com.yishuifengxiao.common.security.httpsecurity.authorize.provider;
+package com.yishuifengxiao.common.security.httpsecurity.authorize.customizer;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceConfigurator;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.DispatcherType;
@@ -27,14 +27,14 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @Slf4j
-public class ResourceAuthorizeProvider implements AuthorizeProvider {
+public class ResourceAuthorizeCustomizer implements AuthorizeCustomizer {
 
 
     /**
      * key CustomResourceProvider的名字
      * value CustomResourceProvider的实例
      */
-    private Map<String, CustomResourceProvider> customResourceProviders;
+    private Map<String, CustomResourceConfigurator> customResourceProviders;
 
     @Override
     public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
@@ -101,11 +101,11 @@ public class ResourceAuthorizeProvider implements AuthorizeProvider {
         return Integer.MAX_VALUE;
     }
 
-    public Map<String, CustomResourceProvider> getCustomResourceProviders() {
+    public Map<String, CustomResourceConfigurator> getCustomResourceProviders() {
         return customResourceProviders;
     }
 
-    public void setCustomResourceProviders(Map<String, CustomResourceProvider> customResourceProviders) {
+    public void setCustomResourceProviders(Map<String, CustomResourceConfigurator> customResourceProviders) {
         this.customResourceProviders = customResourceProviders;
     }
 }

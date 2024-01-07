@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.websecurity.provider;
+package com.yishuifengxiao.common.security.websecurity.customizer;
 
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
+import com.yishuifengxiao.common.security.websecurity.WebSecurityCustomizer;
 
 /**
  * 
@@ -18,7 +18,7 @@ import com.yishuifengxiao.common.security.websecurity.WebSecurityProvider;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class FirewallWebSecurityProvider implements WebSecurityProvider {
+public class FirewallWebSecurityCustomizer implements WebSecurityCustomizer {
 
 	@Override
 	public void configure(SecurityPropertyResource securityPropertyResource, WebSecurity web) {

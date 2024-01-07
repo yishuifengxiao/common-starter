@@ -62,6 +62,12 @@ public class AccessTokenMapper {
         List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
         objectMapper.registerModules(securityModules);
         objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
+        //  Spring Security为持久化Spring Security相关的类提供了Jackson支持。
+        //  这可以提高在使用分布式会话（会话复制、Spring Session等）时序列化Spring Security相关类的性能。
+        // https://springdoc.cn/spring-security/servlet/integrations/jackson.html
+        ClassLoader loader = AccessTokenMapper.class.getClassLoader();
+        List<com.fasterxml.jackson.databind.Module> modules = SecurityJackson2Modules.getModules(loader);
+        objectMapper.registerModules(modules);
     }
 
     @SuppressWarnings("unchecked")

@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.security.SecurityPropertyResource;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface AuthorizeProvider {
+public interface AuthorizeCustomizer {
 
     /**
      * 授权配置

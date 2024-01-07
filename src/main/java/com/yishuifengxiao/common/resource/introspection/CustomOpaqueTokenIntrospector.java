@@ -4,7 +4,7 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
-import com.yishuifengxiao.common.resource.ResourceAuthorizeProvider;
+import com.yishuifengxiao.common.resource.ResourceAuthorizeCustomizer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
@@ -40,9 +40,9 @@ import java.util.*;
  * 用于内省和验证OAuth 2.0令牌的协定。此接口的典型实现将向OAuth
  * 2.0自省终结点发出请求，以验证令牌并返回其属性，表示成功验证。另一个这个接口的合理实现是查询令牌的后备存储，例如分布式缓存。
  * </p>
- * 在<code>ResourceAuthorizeProvider</code>中被配置
+ * 在<code>ResourceAuthorizeCustomizer</code>中被配置
  * 
- * @see ResourceAuthorizeProvider
+ * @see ResourceAuthorizeCustomizer
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0

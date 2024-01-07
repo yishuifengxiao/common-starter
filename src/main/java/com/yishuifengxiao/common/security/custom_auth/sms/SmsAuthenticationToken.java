@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.smsauth.sms;
+package com.yishuifengxiao.common.security.custom_auth.sms;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;

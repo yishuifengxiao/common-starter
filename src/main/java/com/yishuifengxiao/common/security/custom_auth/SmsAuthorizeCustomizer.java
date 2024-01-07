@@ -1,14 +1,14 @@
-package com.yishuifengxiao.common.security.smsauth;
+package com.yishuifengxiao.common.security.custom_auth;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.custom_auth.sms.SmsAuthenticationFilter;
+import com.yishuifengxiao.common.security.custom_auth.sms.SmsAuthenticationProvider;
+import com.yishuifengxiao.common.security.custom_auth.sms.SmsUserDetailsService;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.yishuifengxiao.common.security.httpsecurity.authorize.AbstractAuthorizeProvider;
-import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationFilter;
-import com.yishuifengxiao.common.security.smsauth.sms.SmsAuthenticationProvider;
-import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
 
 /**
  * <p>短信登陆拦截器</p>
@@ -19,7 +19,7 @@ import com.yishuifengxiao.common.security.smsauth.sms.SmsUserDetailsService;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class SmsAuthorizeProvider extends AbstractAuthorizeProvider {
+public class SmsAuthorizeCustomizer implements AuthorizeCustomizer {
 
 
     private SmsUserDetailsService smsUserDetailsService;
@@ -29,8 +29,7 @@ public class SmsAuthorizeProvider extends AbstractAuthorizeProvider {
     private String url;
 
     @Override
-    public void configure(HttpSecurity http, AuthenticationPoint authenticationPoint) throws Exception {
-
+    public void apply(SecurityPropertyResource securityPropertyResource, AuthenticationPoint authenticationPoint, HttpSecurity http) throws Exception {
         SmsAuthenticationFilter smsCodeAuthenticationFilter = new SmsAuthenticationFilter(this.url);
         smsCodeAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
         smsCodeAuthenticationFilter.setAuthenticationSuccessHandler(authenticationPoint);
@@ -41,16 +40,16 @@ public class SmsAuthorizeProvider extends AbstractAuthorizeProvider {
 
         http.authenticationProvider(smsCodeAuthenticationProvider)
                 .addFilterAfter(smsCodeAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
     }
 
-    public SmsAuthorizeProvider(SmsUserDetailsService smsUserDetailsService, String url) {
+    public SmsAuthorizeCustomizer(SmsUserDetailsService smsUserDetailsService, String url) {
         this.smsUserDetailsService = smsUserDetailsService;
         this.url = url;
     }
 
-    public SmsAuthorizeProvider() {
+    public SmsAuthorizeCustomizer() {
 
     }
+
 
 }

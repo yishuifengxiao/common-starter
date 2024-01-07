@@ -3,7 +3,6 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.custom;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
@@ -36,7 +35,7 @@ import java.util.function.Supplier;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface CustomResourceProvider {
+public interface CustomResourceConfigurator {
 
     /**
      * <p>Determines if access is granted for a specific authentication and object.</p>

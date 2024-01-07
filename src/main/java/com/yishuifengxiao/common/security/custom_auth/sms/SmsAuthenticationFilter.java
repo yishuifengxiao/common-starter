@@ -1,4 +1,4 @@
-package com.yishuifengxiao.common.security.smsauth.sms;
+package com.yishuifengxiao.common.security.custom_auth.sms;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.resource;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ResourceAuthorizeProvider implements AuthorizeProvider {
+public class ResourceAuthorizeCustomizer implements AuthorizeCustomizer {
 
 
     private BearerTokenResolver customBearerTokenResolver;

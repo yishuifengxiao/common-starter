@@ -3,8 +3,7 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity.authorize.custom.impl;
 
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-import jakarta.servlet.http.HttpServletRequest;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceConfigurator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -26,7 +25,7 @@ import java.util.function.Supplier;
  * @since 1.0.0
  */
 @Slf4j
-public class IgnoreCustomAuthority implements CustomResourceProvider {
+public class IgnoreCustomAuthority implements CustomResourceConfigurator {
 
     /**
      * 请求路径前缀(防止设置了项目名)

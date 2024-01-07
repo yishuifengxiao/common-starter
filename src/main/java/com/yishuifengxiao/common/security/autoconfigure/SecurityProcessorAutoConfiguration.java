@@ -1,8 +1,8 @@
 package com.yishuifengxiao.common.security.autoconfigure;
 
-import com.yishuifengxiao.common.security.httpsecurity.AuthorizeProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceProvider;
-import com.yishuifengxiao.common.security.httpsecurity.authorize.provider.*;
+import com.yishuifengxiao.common.security.httpsecurity.AuthorizeCustomizer;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.custom.CustomResourceConfigurator;
+import com.yishuifengxiao.common.security.httpsecurity.authorize.customizer.*;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.session.SessionInformationExpiredStrategyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -50,8 +50,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("requestCacheAuthorizeProvider")
         @ConditionalOnMissingBean(name = "requestCacheAuthorizeProvider")
-        public AuthorizeProvider requestCacheAuthorizeProvider() {
-            RequestCacheAuthorizeProvider requestCacheAuthorizeProvider = new RequestCacheAuthorizeProvider();
+        public AuthorizeCustomizer requestCacheAuthorizeProvider() {
+            RequestCacheAuthorizeCustomizer requestCacheAuthorizeProvider = new RequestCacheAuthorizeCustomizer();
             return requestCacheAuthorizeProvider;
         }
 
@@ -63,8 +63,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("resourceAuthorizeProvider")
         @ConditionalOnMissingBean(name = "resourceAuthorizeProvider")
-        public AuthorizeProvider resourceAuthorizeProvider(@Autowired(required = false) Map<String, CustomResourceProvider> customResourceProviders) {
-            ResourceAuthorizeProvider resourceAuthorizeProvider = new ResourceAuthorizeProvider();
+        public AuthorizeCustomizer resourceAuthorizeProvider(@Autowired(required = false) Map<String, CustomResourceConfigurator> customResourceProviders) {
+            ResourceAuthorizeCustomizer resourceAuthorizeProvider = new ResourceAuthorizeCustomizer();
             resourceAuthorizeProvider.setCustomResourceProviders(customResourceProviders);
             return resourceAuthorizeProvider;
         }
@@ -76,8 +76,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("formLoginProvider")
         @ConditionalOnMissingBean(name = "formLoginProvider")
-        public AuthorizeProvider formLoginProvider() {
-            FormLoginAuthorizeProvider formLoginProvider = new FormLoginAuthorizeProvider();
+        public AuthorizeCustomizer formLoginProvider() {
+            FormLoginAuthorizeCustomizer formLoginProvider = new FormLoginAuthorizeCustomizer();
             return formLoginProvider;
         }
 
@@ -89,8 +89,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("loginOutProvider")
         @ConditionalOnMissingBean(name = "loginOutProvider")
-        public AuthorizeProvider loginOutProvider() {
-            LoginOutAuthorizeProvider loginOutProvider = new LoginOutAuthorizeProvider();
+        public AuthorizeCustomizer loginOutProvider() {
+            LoginOutAuthorizeCustomizer loginOutProvider = new LoginOutAuthorizeCustomizer();
             return loginOutProvider;
         }
 
@@ -103,8 +103,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("remeberMeProvider")
         @ConditionalOnMissingBean(name = "remeberMeProvider")
-        public AuthorizeProvider remeberMeProvider(PersistentTokenRepository persistentTokenRepository, UserDetailsService userDetailsService) {
-            RemeberMeAuthorizeProvider remeberMeProvider = new RemeberMeAuthorizeProvider();
+        public AuthorizeCustomizer remeberMeProvider(PersistentTokenRepository persistentTokenRepository, UserDetailsService userDetailsService) {
+            RemeberMeAuthorizeCustomizer remeberMeProvider = new RemeberMeAuthorizeCustomizer();
             remeberMeProvider.setPersistentTokenRepository(persistentTokenRepository);
             remeberMeProvider.setUserDetailsService(userDetailsService);
             return remeberMeProvider;
@@ -118,8 +118,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("sessionProvider")
         @ConditionalOnMissingBean(name = "sessionProvider")
-        public AuthorizeProvider sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
-            SessionAuthorizeProvider sessionProvider = new SessionAuthorizeProvider();
+        public AuthorizeCustomizer sessionProvider(SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
+            SessionAuthorizeCustomizer sessionProvider = new SessionAuthorizeCustomizer();
             sessionProvider.setSessionInformationExpiredStrategy(sessionInformationExpiredStrategy);
             return sessionProvider;
         }
@@ -132,8 +132,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("httpBasicAuthorizeProvider")
         @ConditionalOnMissingBean(name = "httpBasicAuthorizeProvider")
-        public AuthorizeProvider httpBasicAuthorizeProvider() {
-            HttpBasicAuthorizeProvider httpBasicAuthorizeProvider = new HttpBasicAuthorizeProvider();
+        public AuthorizeCustomizer httpBasicAuthorizeProvider() {
+            HttpBasicAuthorizeCustomizer httpBasicAuthorizeProvider = new HttpBasicAuthorizeCustomizer();
             return httpBasicAuthorizeProvider;
         }
 
@@ -144,8 +144,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("exceptionAuthorizeProvider")
         @ConditionalOnMissingBean(name = "exceptionAuthorizeProvider")
-        public AuthorizeProvider exceptionAuthorizeProvider() {
-            ExceptionAuthorizeProvider exceptionAuthorizeProvider = new ExceptionAuthorizeProvider();
+        public AuthorizeCustomizer exceptionAuthorizeProvider() {
+            ExceptionAuthorizeCustomizer exceptionAuthorizeProvider = new ExceptionAuthorizeCustomizer();
             return exceptionAuthorizeProvider;
         }
 
@@ -156,8 +156,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("corsAuthorizeProvider")
         @ConditionalOnMissingBean(name = "corsAuthorizeProvider")
-        public AuthorizeProvider corsAuthorizeProvider() {
-            CorsAuthorizeProvider corsAuthorizeProvider = new CorsAuthorizeProvider();
+        public AuthorizeCustomizer corsAuthorizeProvider() {
+            CorsAuthorizeCustomizer corsAuthorizeProvider = new CorsAuthorizeCustomizer();
             return corsAuthorizeProvider;
         }
 
@@ -168,8 +168,8 @@ public class SecurityProcessorAutoConfiguration {
          */
         @Bean("csrfAuthorizeProvider")
         @ConditionalOnMissingBean(name = "csrfAuthorizeProvider")
-        public AuthorizeProvider csrfAuthorizeProvider() {
-            CsrfAuthorizeProvider csrfAuthorizeProvider = new CsrfAuthorizeProvider();
+        public AuthorizeCustomizer csrfAuthorizeProvider() {
+            CsrfAuthorizeCustomizer csrfAuthorizeProvider = new CsrfAuthorizeCustomizer();
             return csrfAuthorizeProvider;
         }
     }
