@@ -102,7 +102,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                 try {
                     // 根据登陆信息生成一个token
                     String deviceId = securityValueExtractor.extractDeviceId(request, response);
-                    SecurityToken token = tokenBuilder.creatNewToken(authentication, deviceId,
+                    SecurityToken token = tokenBuilder.createNewToken(authentication, deviceId,
                             securityPropertyResource.security().getToken().getValidSeconds(),
                             securityPropertyResource.security().getToken().getPreventsLogin(),
                             securityPropertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());

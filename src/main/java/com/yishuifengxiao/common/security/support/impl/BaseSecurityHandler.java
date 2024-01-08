@@ -97,7 +97,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_SUCCESS, Response.sucData(token).setMsg("认证成功"));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS, securityPropertyResource.contextPath() + securityPropertyResource.security().getLoginSuccessUrl(), null, token);
+        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS,  securityPropertyResource.security().getLoginSuccessUrl(), null, token);
 
     }
 
@@ -141,7 +141,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_FAILURE, Response.of(securityPropertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_FAILURE, securityPropertyResource.contextPath() + securityPropertyResource.security().getLoginFailUrl(), msg, exception);
+        redirect(request, response, Strategy.AUTHENTICATION_FAILURE,  securityPropertyResource.security().getLoginFailUrl(), msg, exception);
     }
 
     /**
@@ -165,7 +165,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
             return;
         }
-        redirect(request, response, Strategy.LOGOUT_SUCCESS, securityPropertyResource.contextPath() + securityPropertyResource.security().getLoginOutUrl(), null, authentication);
+        redirect(request, response, Strategy.LOGOUT_SUCCESS, securityPropertyResource.security().getLoginOutUrl(), null, authentication);
     }
 
     /**
@@ -199,7 +199,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             }
             return;
         }
-        redirect(request, response, Strategy.ACCESS_DENIED, securityPropertyResource.contextPath() + securityPropertyResource.security().getRedirectUrl(), null, exception);
+        redirect(request, response, Strategy.ACCESS_DENIED, securityPropertyResource.security().getRedirectUrl(), null, exception);
     }
 
     /**
@@ -229,7 +229,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.ON_EXCEPTION, Response.of(securityPropertyResource.security().getMsg().getVisitOnErrorCode(), securityPropertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
-        redirect(request, response, Strategy.ON_EXCEPTION, securityPropertyResource.contextPath() + securityPropertyResource.security().getRedirectUrl(), null, exception);
+        redirect(request, response, Strategy.ON_EXCEPTION,  securityPropertyResource.security().getRedirectUrl(), null, exception);
 
     }
 
@@ -294,6 +294,7 @@ public class BaseSecurityHandler implements SecurityHandler {
     protected void preHandle(HttpServletRequest request, HttpServletResponse response, SecurityPropertyResource securityPropertyResource, Strategy strategy, Authentication authentication, Exception exception) {
     }
 
+
     /**
      * 重定向到指定的地址
      *
@@ -323,7 +324,8 @@ public class BaseSecurityHandler implements SecurityHandler {
 
 
         url = uriBuilder.build(true).toUriString();
-        HttpUtils.redirect(request, response, url, data);
+        request.getSession().setAttribute("info", data);
+        redirectStrategy.sendRedirect(request, response, url);
     }
 
     /**

@@ -138,7 +138,6 @@ public class SecurityEnhanceAutoConfiguration {
     public SecurityPropertyResource propertyResource(SecurityProperties securityProperties, Environment environment) {
         SimpleSecurityPropertyResource propertyResource = new SimpleSecurityPropertyResource();
         propertyResource.setSecurityProperties(securityProperties);
-        propertyResource.setContextPath(environment.getProperty("server.servlet.context-path"));
         return propertyResource;
     }
 

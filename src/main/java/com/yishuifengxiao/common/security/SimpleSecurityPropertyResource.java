@@ -54,8 +54,6 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
     private SecurityProperties securityProperties;
 
 
-    private String contextPath;
-
     @Override
     public SecurityProperties security() {
         return this.securityProperties;
@@ -130,10 +128,6 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
         return BooleanUtils.isTrue(this.security().getShowDetail());
     }
 
-    @Override
-    public String contextPath() {
-        return StringUtils.isBlank(this.contextPath) ? "" : this.contextPath.trim();
-    }
 
     /**
      * 提取出Map里存储的URL
@@ -157,7 +151,4 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
         this.securityProperties = securityProperties;
     }
 
-    public void setContextPath(String contextPath) {
-        this.contextPath = contextPath;
-    }
 }

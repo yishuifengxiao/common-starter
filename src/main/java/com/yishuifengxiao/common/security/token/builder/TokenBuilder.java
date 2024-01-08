@@ -33,9 +33,9 @@ public interface TokenBuilder {
      * @return SecurityToken 生成的token
      * @throws CustomException 生成时出现了问题
      */
-    SecurityToken creatNewToken(Authentication authentication, String deviceId, Integer validSeconds,
-                                boolean preventsLogin, int maxSessions,
-                                Collection<? extends GrantedAuthority> authorities) throws CustomException;
+    SecurityToken createNewToken(Authentication authentication, String deviceId, Integer validSeconds,
+                                 boolean preventsLogin, int maxSessions,
+                                 Collection<? extends GrantedAuthority> authorities) throws CustomException;
 
     /**
      * 删除指定账号下所有的令牌

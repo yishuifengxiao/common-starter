@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.support.impl;
 
-import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import com.yishuifengxiao.common.security.constant.UriConstant;
 import com.yishuifengxiao.common.security.support.AbstractSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -12,13 +12,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -41,12 +39,14 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
             filterChain.doFilter(request, response);
             return;
         }
-
-        String formActionUrl = securityPropertyResource.contextPath() + securityPropertyResource.security().getFormActionUrl();
-        String forgotPasswordUrl = StringUtils.isNotBlank(securityPropertyResource.security().getForgotPasswordUrl()) ? securityPropertyResource.contextPath() + securityPropertyResource.security().getForgotPasswordUrl().trim() : "";
-        String loginPage = securityPropertyResource.contextPath() + securityPropertyResource.security().getLoginPage();
-        String registerUrl = StringUtils.isNotBlank(securityPropertyResource.security().getRegisterUrl()) ? securityPropertyResource.contextPath() + securityPropertyResource.security().getRegisterUrl().trim() : "";
-        HttpUtils.write(request, response, Response.sucData(new SecurityMeta(formActionUrl,
+        String contextPath = request.getContextPath();
+        String formActionUrl = securityPropertyResource.security().getFormActionUrl();
+        String forgotPasswordUrl = securityPropertyResource.security().getForgotPasswordUrl();
+        String loginPage = securityPropertyResource.security().getLoginPage();
+        String registerUrl = securityPropertyResource.security().getRegisterUrl();
+        HttpUtils.write(request, response, Response.sucData(new SecurityMeta(
+                contextPath,
+                formActionUrl,
                 loginPage,
                 securityPropertyResource.security().getRememberMe().getRememberMeParameter(),
                 forgotPasswordUrl,
@@ -85,6 +85,8 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
          *
          */
         private static final long serialVersionUID = 7993354065107286911L;
+
+        private String contextPath;
 
         /**
          * 登录页面表单提交地址

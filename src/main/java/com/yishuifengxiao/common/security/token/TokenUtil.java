@@ -223,7 +223,7 @@ public class TokenUtil {
                 null, userDetails.getAuthorities());
 
         // 根据用户信息生成一个访问令牌
-        SecurityToken token = TokenUtil.tokenBuilder.creatNewToken(authentication, deviceId, validSeconds,
+        SecurityToken token = TokenUtil.tokenBuilder.createNewToken(authentication, deviceId, validSeconds,
                 preventsLogin, maxSessions, userDetails.getAuthorities());
 
         return token;

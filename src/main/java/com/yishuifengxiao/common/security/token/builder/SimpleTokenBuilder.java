@@ -48,9 +48,9 @@ public class SimpleTokenBuilder implements TokenBuilder {
      * @throws CustomException 生成时出现了问题
      */
     @Override
-    public synchronized SecurityToken creatNewToken(Authentication authentication, String deviceId,
-                                                    Integer validSeconds, boolean preventsLogin, int maxSessions,
-                                                    Collection<? extends GrantedAuthority> authorities) throws CustomException {
+    public synchronized SecurityToken createNewToken(Authentication authentication, String deviceId,
+                                                     Integer validSeconds, boolean preventsLogin, int maxSessions,
+                                                     Collection<? extends GrantedAuthority> authorities) throws CustomException {
         if (null == authentication) {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
