@@ -1,17 +1,13 @@
 package com.yishuifengxiao.common.swagger;
 
 
-import com.yishuifengxiao.common.tool.collections.CollUtil;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.Filter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +22,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -94,12 +89,13 @@ public class Swagger2AutoConfiguration implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingClass
     public GroupedOpenApi groupedOpenApi() {
-        Set<String> apis = context.getBeansWithAnnotation(Tag.class).values().stream().map(v->v.getClass().getName())
-                .map(v->StringUtils.substringBeforeLast(v,".")).collect(Collectors.toSet());
+        Set<String> apis = new HashSet<>();
+        apis.addAll(context.getBeansWithAnnotation(Tag.class).values().stream().map(v->v.getClass().getName())
+                .map(v->StringUtils.substringBeforeLast(v,".")).collect(Collectors.toSet()));
         String[] packagesToScan = apis.toArray(new String[apis.size()]);
         return GroupedOpenApi.builder()
                 .group(swaggerProperties.getGroupName())
-                .pathsToMatch("/sys/**")
+                .pathsToMatch("/**")
                 .packagesToScan(packagesToScan)
                 .build();
     }
