@@ -19,9 +19,9 @@ public interface ErrorHelper {
     /**
      * 根据异常原因生成对应的响应
      *
-     * @param request  HttpServletRequest
-     * @param response HttpServletResponse
-     * @param e        异常信息
+     * @param request     HttpServletRequest
+     * @param response    HttpServletResponse
+     * @param e           异常信息
      * @return 响应数据
      */
     Object extract(HttpServletRequest request, HttpServletResponse response, Throwable e);

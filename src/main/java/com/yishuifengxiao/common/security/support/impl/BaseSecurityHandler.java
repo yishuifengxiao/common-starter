@@ -3,15 +3,16 @@
  */
 package com.yishuifengxiao.common.security.support.impl;
 
+import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
-import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityEvent;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.support.Strategy;
 import com.yishuifengxiao.common.security.token.SecurityToken;
+import com.yishuifengxiao.common.support.I18nHelper;
 import com.yishuifengxiao.common.support.SpringContext;
 import com.yishuifengxiao.common.tool.collections.JsonUtil;
 import com.yishuifengxiao.common.tool.entity.Response;
@@ -33,7 +34,6 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.util.UriComponentsBuilder;
-
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -67,6 +67,15 @@ public class BaseSecurityHandler implements SecurityHandler {
     protected final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     /**
+     * 国际化功能组件
+     */
+    protected final I18nHelper i18nHelper;
+
+    public BaseSecurityHandler(I18nHelper i18nHelper) {
+        this.i18nHelper = i18nHelper;
+    }
+
+    /**
      * 登陆成功后的处理
      *
      * @param request        HttpServletRequest
@@ -97,7 +106,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_SUCCESS, Response.sucData(token).setMsg("认证成功"));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS,  securityPropertyResource.security().getLoginSuccessUrl(), null, token);
+        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS, securityPropertyResource.security().getLoginSuccessUrl(), null, token);
 
     }
 
@@ -105,9 +114,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 登陆失败后的处理
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        失败的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                失败的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -141,7 +150,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_FAILURE, Response.of(securityPropertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_FAILURE,  securityPropertyResource.security().getLoginFailUrl(), msg, exception);
+        redirect(request, response, Strategy.AUTHENTICATION_FAILURE, securityPropertyResource.security().getLoginFailUrl(), msg, exception);
     }
 
     /**
@@ -175,9 +184,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 本身是一个合法的用户，但是对于部分资源没有访问权限
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        被拒绝的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                被拒绝的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -209,9 +218,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 可能本身就不是一个合法的用户
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        发生异常的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                发生异常的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -229,7 +238,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.ON_EXCEPTION, Response.of(securityPropertyResource.security().getMsg().getVisitOnErrorCode(), securityPropertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
-        redirect(request, response, Strategy.ON_EXCEPTION,  securityPropertyResource.security().getRedirectUrl(), null, exception);
+        redirect(request, response, Strategy.ON_EXCEPTION, securityPropertyResource.security().getRedirectUrl(), null, exception);
 
     }
 
@@ -307,6 +316,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException
      */
     protected void redirect(HttpServletRequest request, HttpServletResponse response, Strategy strategy, String url, String msg, Object data) throws IOException {
+        if (null != msg) {
+            msg = this.i18nHelper.getMessage(request, msg);
+        }
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(url);
         if (StringUtils.isNotBlank(msg)) {
             uriBuilder.queryParam("error_msg", URLEncoder.encode(msg, StandardCharsets.UTF_8.name()));
@@ -336,7 +348,10 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @param strategy 处理类型
      * @param data     附带信息
      */
-    protected void sendJson(HttpServletRequest request, HttpServletResponse response, Strategy strategy, Object data) {
+    protected void sendJson(HttpServletRequest request, HttpServletResponse response, Strategy strategy, Response data) {
+        if (null != data) {
+            data.setMsg(this.i18nHelper.getMessage(request, data.getMsg()));
+        }
         HttpUtils.write(request, response, data);
     }
 

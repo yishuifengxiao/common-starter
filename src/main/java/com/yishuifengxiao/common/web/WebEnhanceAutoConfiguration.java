@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.web;
 import ch.qos.logback.classic.Level;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.IllegalParameterException;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.IdWorker;
 import com.yishuifengxiao.common.tool.utils.OsUtils;
@@ -39,6 +39,7 @@ import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -51,7 +52,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
-
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
@@ -154,11 +154,9 @@ public class WebEnhanceAutoConfiguration {
             }
             // 判断系统中是否使用了 BindingResult 进行接收
             BindingResult errors = (BindingResult) Arrays.asList(args).stream().filter(arg -> arg instanceof BindingResult).findFirst().orElse(null);
-            if (null != errors) {
+            if (null != errors && errors.hasErrors()) {
                 // 已使用 BindingResult 收集
-                if (errors.hasErrors()) {
-                    throw new IllegalParameterException(errors.getFieldErrors().get(0).getDefaultMessage());
-                }
+                throw new UncheckedException(errors.getFieldErrors().get(0).getDefaultMessage()).setCode(HttpStatus.BAD_REQUEST.value());
             } else {
                 // 未使用 BindingResult 收集
                 MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
@@ -173,7 +171,7 @@ public class WebEnhanceAutoConfiguration {
                             // 参数被@Valid注解修饰
                             String msg = BeanValidator.validateResult(args[i]);
                             if (null != msg) {
-                                throw new IllegalParameterException(msg);
+                                throw new UncheckedException(msg).setCode(HttpStatus.BAD_REQUEST.value());
                             }
                             break;
                         } else if (annotation.annotationType().equals(Validated.class)) {
@@ -186,13 +184,13 @@ public class WebEnhanceAutoConfiguration {
                                 for (Class<?> validatedGroup : validatedGroups) {
                                     String msg = BeanValidator.validateResult(args[i], validatedGroup);
                                     if (null != msg) {
-                                        throw new IllegalParameterException(msg);
+                                        throw new UncheckedException(msg).setCode(HttpStatus.BAD_REQUEST.value());
                                     }
                                 }
                             } else {
                                 String msg = BeanValidator.validateResult(args[i]);
                                 if (null != msg) {
-                                    throw new IllegalParameterException(msg);
+                                    throw new UncheckedException(msg).setCode(HttpStatus.BAD_REQUEST.value());
                                 }
                             }
                             break;
