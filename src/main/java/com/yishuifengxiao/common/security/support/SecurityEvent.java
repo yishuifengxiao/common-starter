@@ -1,11 +1,9 @@
 package com.yishuifengxiao.common.security.support;
 
-import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.core.Authentication;
-
 
 import java.io.Serializable;
 
@@ -19,29 +17,27 @@ import java.io.Serializable;
 public class SecurityEvent extends ApplicationEvent implements Serializable {
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1221005789127655917L;
-	private HttpServletRequest request;
+     *
+     */
+    private static final long serialVersionUID = 1221005789127655917L;
+    private HttpServletRequest request;
     private HttpServletResponse response;
-    private SecurityPropertyResource securityPropertyResource;
     private Strategy strategy;
     private Authentication authentication;
     private Exception exception;
 
     @SuppressWarnings("unused")
-	private SecurityEvent() {
-        this(null, null, null, null, null, null, null);
+    private SecurityEvent() {
+        this(null, null, null, null, null, null);
     }
 
 
     public SecurityEvent(Object source, HttpServletRequest request, HttpServletResponse response,
-                         SecurityPropertyResource securityPropertyResource, Strategy strategy, Authentication authentication,
+                         Strategy strategy, Authentication authentication,
                          Exception exception) {
         super(source);
         this.request = request;
         this.response = response;
-        this.securityPropertyResource = securityPropertyResource;
         this.strategy = strategy;
         this.authentication = authentication;
         this.exception = exception;
@@ -55,9 +51,6 @@ public class SecurityEvent extends ApplicationEvent implements Serializable {
         return response;
     }
 
-    public SecurityPropertyResource getPropertyResource() {
-        return securityPropertyResource;
-    }
 
     public Strategy getStrategy() {
         return strategy;
