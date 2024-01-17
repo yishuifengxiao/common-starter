@@ -219,7 +219,7 @@
                                 </goals>
                                 <configuration>
                                     <encoding>UTF-8</encoding>
-                                    <additionalparam>-Xdoclint:none</additionalparam>
+<!--                                    <additionalparam>-Xdoclint:none</additionalparam>-->
                                     <useStandardDocletOptions>false</useStandardDocletOptions>
                                 </configuration>
                             </execution>
@@ -318,7 +318,7 @@
                                     <goal>jar</goal>
                                 </goals>
                                 <configuration>
-                                    <additionalparam>-Xdoclint:none</additionalparam>
+<!--                                    <additionalparam>-Xdoclint:none</additionalparam>-->
                                 </configuration>
                             </execution>
                         </executions>
