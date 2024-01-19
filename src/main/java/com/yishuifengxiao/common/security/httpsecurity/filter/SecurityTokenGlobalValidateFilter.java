@@ -8,7 +8,6 @@ import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
 import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
@@ -28,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 
@@ -162,18 +162,15 @@ public class SecurityTokenGlobalValidateFilter extends AbstractSecurityRequestFi
             throw new InvalidTokenException(ErrorCode.EXPIRED_ROKEN, securityPropertyResource.security().getMsg().getTokenIsInvalid());
         }
 
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(token.getName());
 
         // 检查 UserDetails
         this.userDetailsChecker.check(userDetails);
         // 刷新令牌的过期时间
         token = tokenBuilder.refreshExpireTime(token);
-
-
-        token.setDetails(new SimpleWebAuthenticationDetails(request, token));
-
-        token.setUserDetails(userDetails);
-
+        token.setDetails(new WebAuthenticationDetails(request));
+        token.eraseCredentials();
         return token;
     }
 

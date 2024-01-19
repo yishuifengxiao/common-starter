@@ -12,12 +12,10 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.tool.encoder.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -90,9 +88,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     @Schema(name = "当前token是否处于有效状态")
     private Boolean isActive;
-
-    @JsonIgnore
-    private transient UserDetails userDetails;
 
 
     /**
@@ -252,8 +247,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by
      *                     this authentication object.
      */
-    public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<?
-            extends GrantedAuthority> authorities) {
+    public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         super.setAuthenticated(true);
         if (null == validSeconds || validSeconds <= 0) {
@@ -265,8 +259,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.issueAt = LocalDateTime.now();
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
         this.isActive = true;
-        this.value =
-                Md5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
+        this.value = Md5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
     }
 
 
@@ -280,14 +273,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.value = null;
     }
 
-
-    public UserDetails getUserDetails() {
-        return userDetails;
-    }
-
-    public void setUserDetails(UserDetails userDetails) {
-        this.userDetails = userDetails;
-    }
 
     @Override
     public Object getCredentials() {
@@ -304,14 +289,14 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         if (this == o) {
             return true;
         }
-        if (!(o instanceof SecurityToken)) {
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
         if (!super.equals(o)) {
             return false;
         }
         SecurityToken that = (SecurityToken) o;
-        return value.equals(that.value) && principal.equals(that.principal) && deviceId.equals(that.deviceId) && validSeconds.equals(that.validSeconds) && issueAt.equals(that.issueAt) && expireAt.equals(that.expireAt) && isActive.equals(that.isActive);
+        return Objects.equals(value, that.value) && Objects.equals(principal, that.principal) && Objects.equals(deviceId, that.deviceId) && Objects.equals(validSeconds, that.validSeconds) && Objects.equals(issueAt, that.issueAt) && Objects.equals(expireAt, that.expireAt) && Objects.equals(isActive, that.isActive);
     }
 
     @Override
@@ -321,14 +306,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     @Override
     public String toString() {
-        return "SecurityToken{" +
-                "value='" + value + '\'' +
-                ", principal=" + principal +
-                ", deviceId='" + deviceId + '\'' +
-                ", validSeconds=" + validSeconds +
-                ", issueAt=" + issueAt +
-                ", expireAt=" + expireAt +
-                ", isActive=" + isActive +
-                '}';
+        return "SecurityToken{" + "value='" + value + '\'' + ", principal=" + principal + ", deviceId='" + deviceId + '\'' + ", validSeconds=" + validSeconds + ", issueAt=" + issueAt + ", expireAt=" + expireAt + ", isActive=" + isActive + '}';
     }
 }

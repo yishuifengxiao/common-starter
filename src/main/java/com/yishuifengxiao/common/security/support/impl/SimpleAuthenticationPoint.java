@@ -4,11 +4,10 @@
 package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.guava.GuavaCache;
-import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -153,8 +152,8 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
                 try {
                     SecurityToken token = null;
-                    if (null != authentication.getDetails() && authentication.getDetails() instanceof SimpleWebAuthenticationDetails) {
-                        token = ((SimpleWebAuthenticationDetails) authentication.getDetails()).getToken();
+                    if (authentication instanceof SecurityToken) {
+                        token = (SecurityToken) authentication;
                     }
                     if (null == token) {
                         // 取出存储的信息
