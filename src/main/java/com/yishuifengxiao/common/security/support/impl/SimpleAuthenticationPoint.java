@@ -105,7 +105,7 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     SecurityToken token = tokenBuilder.createNewToken(authentication, deviceId,
                             securityPropertyResource.security().getToken().getValidSeconds(),
                             securityPropertyResource.security().getToken().getPreventsLogin(),
-                            securityPropertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
+                            securityPropertyResource.security().getToken().getMaxSessions());
 
                     // 将生成的token存储在session中
                     request.getSession().setAttribute(securityPropertyResource.security().getToken().getRequestParameter(),

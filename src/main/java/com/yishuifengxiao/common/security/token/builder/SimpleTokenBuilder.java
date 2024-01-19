@@ -49,8 +49,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
      */
     @Override
     public synchronized SecurityToken createNewToken(Authentication authentication, String deviceId,
-                                                     Integer validSeconds, boolean preventsLogin, int maxSessions,
-                                                     Collection<? extends GrantedAuthority> authorities) throws CustomException {
+                                                     Integer validSeconds, boolean preventsLogin, int maxSessions) throws CustomException {
         if (null == authentication) {
             throw new CustomException(ErrorCode.USERNAME_NULL, "用户名不能为空");
         }
@@ -77,7 +76,7 @@ public class SimpleTokenBuilder implements TokenBuilder {
         }
 
         return createNewToken(authentication.getName(), deviceId, validSeconds, preventsLogin, maxSessions,
-                authorities);
+                authentication.getAuthorities());
     }
 
     /**

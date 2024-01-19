@@ -87,7 +87,6 @@ public class BaseSecurityHandler implements SecurityHandler {
     @Override
     public void whenAuthenticationSuccess(SecurityPropertyResource securityPropertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication, SecurityToken token) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
-        preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
 
         // 发布事件
         SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_SUCCESS, token, null));
@@ -124,7 +123,6 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
 
-        preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_FAILURE, SecurityContextHolder.getContext().getAuthentication(), exception);
         // 发布事件
         SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_FAILURE, null, exception));
         String msg = "认证失败";
@@ -165,7 +163,6 @@ public class BaseSecurityHandler implements SecurityHandler {
     public void whenLogoutSuccess(SecurityPropertyResource securityPropertyResource, HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
-        preHandle(request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
 
         // 发布事件
         SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.LOGOUT_SUCCESS, authentication, null));
@@ -194,7 +191,6 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         // 引起跳转的uri
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源权限被拒绝,该资源的url为 {} , 失败的原因为 {}", request.getRequestURL(), exception);
-        preHandle(request, response, securityPropertyResource, Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
 
         // 发布事件
@@ -228,7 +224,6 @@ public class BaseSecurityHandler implements SecurityHandler {
 
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}", request.getRequestURL(), exception);
-        preHandle(request, response, securityPropertyResource, Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception);
         saveReferer(request, response);
 
         // 发布事件
@@ -289,20 +284,6 @@ public class BaseSecurityHandler implements SecurityHandler {
         }
         return HttpUtils.isJsonRequest(request);
     }
-
-    /**
-     * 前置处理
-     *
-     * @param request
-     * @param response
-     * @param securityPropertyResource
-     * @param strategy
-     * @param authentication
-     * @param exception
-     */
-    protected void preHandle(HttpServletRequest request, HttpServletResponse response, SecurityPropertyResource securityPropertyResource, Strategy strategy, Authentication authentication, Exception exception) {
-    }
-
 
     /**
      * 重定向到指定的地址

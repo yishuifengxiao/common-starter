@@ -6,9 +6,6 @@ package com.yishuifengxiao.common.security.token.builder;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 /**
  * token生成器
@@ -34,8 +31,7 @@ public interface TokenBuilder {
      * @throws CustomException 生成时出现了问题
      */
     SecurityToken createNewToken(Authentication authentication, String deviceId, Integer validSeconds,
-                                 boolean preventsLogin, int maxSessions,
-                                 Collection<? extends GrantedAuthority> authorities) throws CustomException;
+                                 boolean preventsLogin, int maxSessions) throws CustomException;
 
     /**
      * 删除指定账号下所有的令牌
