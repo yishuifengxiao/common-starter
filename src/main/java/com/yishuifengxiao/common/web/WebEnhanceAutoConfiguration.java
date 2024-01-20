@@ -5,6 +5,7 @@ package com.yishuifengxiao.common.web;
 
 import ch.qos.logback.classic.Level;
 import com.yishuifengxiao.common.support.TraceContext;
+import com.yishuifengxiao.common.tool.collections.JsonUtil;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
@@ -239,9 +240,14 @@ public class WebEnhanceAutoConfiguration {
             try {
                 if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
-                    Response<Object> result = body instanceof Response ? (Response) body : Response.sucData(body);
-                    result.setId(getTracked(request));
-                    return result;
+                    if (body instanceof String) {
+                        Response<Object> result = Response.sucData(body).setId(getTracked(request));
+                        return JsonUtil.toJSONString(result);
+                    } else {
+                        Response<Object> result = body instanceof Response ? (Response) body : Response.sucData(body);
+                        result.setId(getTracked(request));
+                        return result;
+                    }
                 } else {
                     if (null != body && body instanceof Response) {
                         Response result = (Response) body;
