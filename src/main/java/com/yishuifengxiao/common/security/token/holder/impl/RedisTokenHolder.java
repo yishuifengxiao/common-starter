@@ -94,7 +94,6 @@ public class RedisTokenHolder implements TokenHolder {
      * 删除指定的令牌
      *
      * @param token 令牌
-     * @throws CustomException 删除时出现问题
      */
     @Override
     public synchronized void remove(SecurityToken token) {

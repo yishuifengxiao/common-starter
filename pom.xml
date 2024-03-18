@@ -50,7 +50,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <yishuifengxiao.tool.version>BUILD-SNAPSHOT</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>5.0.0</yishuifengxiao.tool.version>
 
         <swagger.version>4.3.0</swagger.version>
         <guava.version>33.0.0-jre</guava.version>
@@ -277,7 +277,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-release-plugin</artifactId>
-                        <version>${maven-release-plugin.version>}</version>
+                        <version>${maven-release-plugin.version}</version>
                         <configuration>
                             <autoVersionSubmodules>true</autoVersionSubmodules>
                             <useReleaseProfile>false</useReleaseProfile>

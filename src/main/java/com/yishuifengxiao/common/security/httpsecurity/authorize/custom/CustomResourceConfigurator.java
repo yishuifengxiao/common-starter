@@ -45,7 +45,7 @@ public interface CustomResourceConfigurator {
      * <p>如果当前登录用户具备请求所需要的权限，则返回 new AuthorizationDecision(true);，否则返回 new AuthorizationDecision(false); 即可</p>
      *
      * @param authentication the {@link Supplier} of the {@link Authentication} to check
-     * @param object         the {@link T} object to check
+     * @param object         the  object to check
      * @return an {@link AuthorizationDecision} or null if no decision could be made
      */
     @Nullable

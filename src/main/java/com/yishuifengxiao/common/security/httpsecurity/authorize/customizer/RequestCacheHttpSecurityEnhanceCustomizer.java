@@ -13,7 +13,6 @@ import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
  *
  * @author qingteng
  * @version 1.0.0
- * @date 2024/1/7 12:07
  * @since 1.0.0
  */
 public class RequestCacheHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanceCustomizer {

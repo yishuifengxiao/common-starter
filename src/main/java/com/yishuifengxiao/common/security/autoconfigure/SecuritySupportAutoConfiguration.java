@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 /**
  * @author qingteng
  * @version 1.0.0
- * @date 2024/1/7 19:44
  * @since 1.0.0
  */
 @Configuration

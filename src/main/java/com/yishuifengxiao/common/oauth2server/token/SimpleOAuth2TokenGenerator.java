@@ -7,7 +7,6 @@ import org.springframework.security.oauth2.server.authorization.token.*;
 /**
  * @author qingteng
  * @version 1.0.0
- * @date 2024/1/7 21:25
  * @since 1.0.0
  */
 public class SimpleOAuth2TokenGenerator implements OAuth2TokenGenerator<OAuth2Token> {

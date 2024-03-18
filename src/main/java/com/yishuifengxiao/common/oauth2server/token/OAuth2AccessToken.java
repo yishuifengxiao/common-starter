@@ -10,7 +10,6 @@ import java.util.Collection;
 /**
  * @author qingteng
  * @version 1.0.0
- * @date 2024/1/7 21:26
  * @since 1.0.0
  */
 public class OAuth2AccessToken extends SecurityToken implements Serializable, OAuth2Token {

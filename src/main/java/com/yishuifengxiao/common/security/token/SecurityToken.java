@@ -244,7 +244,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * @param principal    用户名
      * @param deviceId     设备id
      * @param validSeconds token有效时间
-     * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the principal represented by
+     * @param authorities  authorities the collection of GrantedAuthority for the principal represented by
      *                     this authentication object.
      */
     public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<? extends GrantedAuthority> authorities) {

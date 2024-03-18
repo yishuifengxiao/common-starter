@@ -47,7 +47,7 @@ import java.util.List;
 
 /**
  * <p>
- * spring security扩展支持自动配置</p
+ * spring security扩展支持自动配置</p>
  * <p>
  * 新版文档参见
  * https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
@@ -229,7 +229,8 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * <p style="color:red;"> spring security 自定义入口</p>
      *
-     * @param webSecurityManager
+     * @param webSecurityEnhanceCustomizers
+     * @param securityPropertyResource
      * @return
      */
     @Bean

@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @auth <a href="xiaoymin@foxmail.com">xiaoymin@foxmail.com</a>
- * 2022/8/11 21:52
+ * <a href="xiaoymin@foxmail.com">xiaoymin@foxmail.com</a>
+ *
  * @since 4.0.0
  */
 @Slf4j
@@ -46,7 +46,8 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
     /**
      * 当前策略枚举类全路径
      */
-    final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties.MatchingStrategy";
+    final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties" +
+            ".MatchingStrategy";
 
 
     /**
@@ -82,7 +83,8 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
 
             }
             sources.put("knife4j.enable", true);
-            DefaultPropertiesPropertySource defaultPropertiesPropertySource = new DefaultPropertiesPropertySource(sources);
+            DefaultPropertiesPropertySource defaultPropertiesPropertySource =
+                    new DefaultPropertiesPropertySource(sources);
             // 更新，添加一个默认值
             environment.getPropertySources().addLast(defaultPropertiesPropertySource);
         }

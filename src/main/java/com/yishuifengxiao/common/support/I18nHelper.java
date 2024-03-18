@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author yishui
  * @version 1.0.0
- * @date 2024/1/16 18:27
  * @since 1.0.0
  */
 public interface I18nHelper {

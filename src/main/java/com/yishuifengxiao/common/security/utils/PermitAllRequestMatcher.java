@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
  *
  * @author qingteng
  * @version 1.0.0
- * @date 2024/1/6 21:40
  * @since 1.0.0
  */
 public class PermitAllRequestMatcher implements RequestMatcher {

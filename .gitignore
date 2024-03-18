@@ -10,3 +10,4 @@ target/
 .project
 .classpath
 .idea/
+common-spring-boot-starter.iml

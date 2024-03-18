@@ -44,7 +44,7 @@ import java.util.Map;
  * <p>抽象协助处理器</p>
  * <p>
  * 用于在各种 Handler 中根据情况相应地跳转到指定的页面或者输出json格式的数据
- *
+ *</p>
  * @author yishui
  * @version 1.0.0
  * @since 1.0.0
@@ -243,7 +243,7 @@ public class BaseSecurityHandler implements SecurityHandler {
      *
      * @param request  HttpServletRequest
      * @param response HttpServletResponse
-     * @return 请求的来源地址
+     *
      */
     protected void saveReferer(HttpServletRequest request, HttpServletResponse response) {
         if (!StringUtils.equalsIgnoreCase(request.getMethod(), HttpMethod.GET.name())) {
@@ -294,7 +294,7 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @param url      重定向地址
      * @param msg      异常提示信息
      * @param data     附带信息
-     * @throws IOException
+     * @throws IOException 重定向时发生异常
      */
     protected void redirect(HttpServletRequest request, HttpServletResponse response, Strategy strategy, String url, String msg, Object data) throws IOException {
         if (null != msg) {

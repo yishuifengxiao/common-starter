@@ -1,17 +1,15 @@
 package com.yishuifengxiao.common.jdbc.util;
 
+import com.yishuifengxiao.common.jdbc.entity.SqlData;
+import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
+import com.yishuifengxiao.common.jdbc.sql.impl.SimpleConditionBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.yishuifengxiao.common.jdbc.entity.SqlData;
-import com.yishuifengxiao.common.jdbc.sql.ConditionBuilder;
-import com.yishuifengxiao.common.jdbc.sql.impl.SimpleConditionBuilder;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * <p>
@@ -335,7 +333,6 @@ public class SqlBuilder {
 	 * 比较条件
 	 * 
 	 * @author qingteng
-	 * @date 2021年1月10日
 	 * @version 1.0.0
 	 */
 	private static class Condition {
