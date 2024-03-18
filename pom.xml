@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>BUILD-SNAPSHOT</version>
+    <version>7.0.x</version>
     <packaging>jar</packaging>
     <name>common-spring-boot-starter</name>
     <url>http://www.yishuifengxiao.com</url>
@@ -50,7 +50,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <yishuifengxiao.tool.version>BUILD-SNAPSHOT</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>5.0.0</yishuifengxiao.tool.version>
 
         <swagger.version>4.3.0</swagger.version>
         <guava.version>33.0.0-jre</guava.version>
