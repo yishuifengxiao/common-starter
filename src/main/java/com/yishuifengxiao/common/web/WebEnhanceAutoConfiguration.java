@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.web;
 import ch.qos.logback.classic.Level;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.IllegalParameterException;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.IdWorker;
 import com.yishuifengxiao.common.tool.utils.OsUtils;
@@ -157,7 +157,7 @@ public class WebEnhanceAutoConfiguration {
             if (null != errors) {
                 // 已使用 BindingResult 收集
                 if (errors.hasErrors()) {
-                    throw new IllegalParameterException(errors.getFieldErrors().get(0).getDefaultMessage());
+                    throw new UncheckedException(errors.getFieldErrors().get(0).getDefaultMessage());
                 }
             } else {
                 // 未使用 BindingResult 收集
@@ -173,7 +173,7 @@ public class WebEnhanceAutoConfiguration {
                             // 参数被@Valid注解修饰
                             String msg = BeanValidator.validateResult(args[i]);
                             if (null != msg) {
-                                throw new IllegalParameterException(msg);
+                                throw new UncheckedException(msg);
                             }
                             break;
                         } else if (annotation.annotationType().equals(Validated.class)) {
@@ -186,13 +186,13 @@ public class WebEnhanceAutoConfiguration {
                                 for (Class<?> validatedGroup : validatedGroups) {
                                     String msg = BeanValidator.validateResult(args[i], validatedGroup);
                                     if (null != msg) {
-                                        throw new IllegalParameterException(msg);
+                                        throw new UncheckedException(msg);
                                     }
                                 }
                             } else {
                                 String msg = BeanValidator.validateResult(args[i]);
                                 if (null != msg) {
-                                    throw new IllegalParameterException(msg);
+                                    throw new UncheckedException(msg);
                                 }
                             }
                             break;
