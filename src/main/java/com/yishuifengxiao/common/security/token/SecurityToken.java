@@ -10,9 +10,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.encoder.Md5;
+import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

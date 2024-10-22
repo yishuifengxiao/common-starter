@@ -1,10 +1,10 @@
 package com.yishuifengxiao.common.cache;
 
-import java.lang.reflect.Method;
-
+import com.yishuifengxiao.common.tool.codec.Md5;
 import org.springframework.cache.interceptor.KeyGenerator;
 
-import com.yishuifengxiao.common.tool.encoder.Md5;
+import java.lang.reflect.Method;
+
 
 /**
  * Cache key generator. Used for creating a key based on the given method(used

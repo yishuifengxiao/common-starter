@@ -157,7 +157,7 @@ public class WebEnhanceAutoConfiguration {
             if (null != errors) {
                 // 已使用 BindingResult 收集
                 if (errors.hasErrors()) {
-                    throw new UncheckedException(errors.getFieldErrors().get(0).getDefaultMessage());
+                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, errors.getFieldErrors().get(0).getDefaultMessage());
                 }
             } else {
                 // 未使用 BindingResult 收集
@@ -173,7 +173,7 @@ public class WebEnhanceAutoConfiguration {
                             // 参数被@Valid注解修饰
                             String msg = BeanValidator.validateResult(args[i]);
                             if (null != msg) {
-                                throw new UncheckedException(msg);
+                                throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
                             }
                             break;
                         } else if (annotation.annotationType().equals(Validated.class)) {
@@ -186,13 +186,13 @@ public class WebEnhanceAutoConfiguration {
                                 for (Class<?> validatedGroup : validatedGroups) {
                                     String msg = BeanValidator.validateResult(args[i], validatedGroup);
                                     if (null != msg) {
-                                        throw new UncheckedException(msg);
+                                        throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
                                     }
                                 }
                             } else {
                                 String msg = BeanValidator.validateResult(args[i]);
                                 if (null != msg) {
-                                    throw new UncheckedException(msg);
+                                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
                                 }
                             }
                             break;

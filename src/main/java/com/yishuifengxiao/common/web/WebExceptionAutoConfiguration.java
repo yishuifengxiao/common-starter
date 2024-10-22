@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.Objects;
+import java.util.Optional;
+
 
 /**
  * 全局异常捕获自动配置
@@ -32,8 +35,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Slf4j
 @ControllerAdvice
 @ResponseBody
-@ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue = "true", matchIfMissing =
-        true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue = "true", matchIfMissing = true)
 @Priority(1)
 public class WebExceptionAutoConfiguration implements InitializingBean {
     @Autowired
@@ -57,8 +59,14 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     public Object catchCustomException(HttpServletRequest request, Exception e) {
         String ssid = this.getRequestId(request);
         String uri = null != request ? request.getRequestURI() : null;
-        Response<String> response =
-                new Response<String>(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage()).setId(ssid);
+        Integer code = HttpStatus.INTERNAL_SERVER_ERROR.value();
+        if (e instanceof UncheckedException) {
+            code = Optional.ofNullable(((UncheckedException) e)).filter(Objects::nonNull).map(UncheckedException::getCode).orElse(null);
+        } else if (e instanceof CustomException) {
+            code = Optional.ofNullable(((CustomException) e)).filter(Objects::nonNull).map(CustomException::getCode).orElse(null);
+        }
+        code = null == code ? HttpStatus.INTERNAL_SERVER_ERROR.value() : code;
+        Response<String> response = new Response<String>(code, null == e ? "" : e.getMessage()).setId(ssid);
         if (log.isDebugEnabled()) {
             log.debug("【Global exception interception】【 CustomException 】(Custom exception) traceId={} request {} " + "request failed, The intercepted custom exception is {}", ssid, uri, e);
         }
@@ -80,8 +88,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         String uri = null != request ? request.getRequestURI() : null;
         Object result = proxyErrorHelper.extract(request, response, e);
         if (log.isInfoEnabled()) {
-            log.info("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} " +
-                    "request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
+            log.info("【Global exception interception】【 Throwable 】 (Global exception interception) traceId={} " + "request= {} request failed, The intercepted unknown exception is {}", ssid, uri, e);
         }
         return result;
     }

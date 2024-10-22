@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.user.encoder;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.tool.encoder.DES;
+import com.yishuifengxiao.common.tool.codec.DES;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;

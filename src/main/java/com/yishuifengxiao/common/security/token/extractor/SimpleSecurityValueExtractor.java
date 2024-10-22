@@ -3,9 +3,9 @@
  */
 package com.yishuifengxiao.common.security.token.extractor;
 
-import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
-import com.yishuifengxiao.common.tool.encoder.Md5;
+import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
