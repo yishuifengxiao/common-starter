@@ -81,7 +81,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS, token, null));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.AUTHENTICATION_SUCCESS, token, null));
 
 
         String redirectUrl = redirectUrl(request, response);
@@ -117,7 +117,7 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_FAILURE, SecurityContextHolder.getContext().getAuthentication(), exception);
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, securityPropertyResource, Strategy.AUTHENTICATION_FAILURE, null, exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.AUTHENTICATION_FAILURE, null, exception));
         String msg = "认证失败";
 
         if (exception instanceof CustomException) {
@@ -159,7 +159,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS, authentication, null));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.LOGOUT_SUCCESS, authentication, null));
 
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
@@ -189,7 +189,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, securityPropertyResource, Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
@@ -223,7 +223,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, securityPropertyResource, Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.ON_EXCEPTION, Response.of(securityPropertyResource.security().getMsg().getVisitOnErrorCode(), securityPropertyResource.security().getMsg().getVisitOnError(), exception));

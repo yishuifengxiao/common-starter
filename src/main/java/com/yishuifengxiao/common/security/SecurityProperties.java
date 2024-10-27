@@ -142,6 +142,11 @@ public class SecurityProperties {
     private ResourceProperties resource = new ResourceProperties();
 
     /**
+     * 登录界面的标题
+     */
+    private String title;
+
+    /**
      * spring security 资源权限相关的配置
      *
      * @author yishui

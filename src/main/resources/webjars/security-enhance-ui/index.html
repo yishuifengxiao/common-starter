@@ -8,7 +8,7 @@
     <link href="layui/css/layui.css" rel="stylesheet">
     <style>
         .right-panel {
-            margin-top: 20vh;
+            margin-top: 15vh;
         }
 
         .layui-container {
@@ -49,6 +49,7 @@
 
                 <div class="layui-panel right-panel">
                     <div style="padding: 32px 32px 12px 32px;">
+                        <h1 style="text-align: center;padding-bottom: 10px;" id="title">&nbsp;</h1>
                         <!-- 表单 -->
                         <form action="/login" class="layui-form" enctype="application/x-www-form-urlencoded" id="form"
                             method="post">
@@ -85,7 +86,7 @@
                                     <button class="layui-btn layui-btn-fluid" lay-filter="demo-login" lay-submit>登录
                                     </button>
                                 </div>
-                                <div class="layui-form-item">
+                                <div class="layui-form-item" id="suffix" style="display: none;">
                                     <a href="javascript:void(0)" id="registerUrl"
                                         style="float: left; margin-top: 7px;visibility: hidden;">注册账号</a>
                                     <a href="javascript:void(0)" id="forgotPasswordUrl"
@@ -114,11 +115,19 @@
                 } else {
                     $("#form").attr("action", result.data.formActionUrl);
                     $("#remember_input").attr("name", result.data.rememberMeParameter);
+
+                    if (typeof result.data.title != "undefined" && result.data.title != null &&
+                        result.data.title.length > 0) {
+                        //标题
+                        $("#title").text(result.data.title);
+                    }
+
                     if (typeof result.data.forgotPasswordUrl != "undefined" && result.data.forgotPasswordUrl != null &&
                         result.data.forgotPasswordUrl.length > 0) {
                         //忘记地址页面
                         $("#forgotPasswordUrl").attr("href", result.data.forgotPasswordUrl);
                         $("#forgotPasswordUrl").css("visibility", "visible");
+                        $("#suffix").css("display", "inline-block");
                     }
 
                     if (typeof result.data.registerUrl != "undefined" && result.data.registerUrl != null &&
@@ -126,6 +135,7 @@
                         //忘记地址页面
                         $("#registerUrl").attr("href", result.data.registerUrl);
                         $("#registerUrl").css("visibility", "visible");
+                        $("#suffix").css("display", "inline-block");
                     }
 
                     const error_msg = new URL(location.href).searchParams.get('error_msg')
