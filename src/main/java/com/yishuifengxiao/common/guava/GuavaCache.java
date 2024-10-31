@@ -50,7 +50,9 @@ public class GuavaCache {
         synchronized (GuavaCache.class) {
             if (val == null) {
                 val = supplier.get();
-                GUAVA_CACHE.put(key, val);
+                if (null != val) {
+                    GUAVA_CACHE.put(key, val);
+                }
             }
         }
         return (V) val;
