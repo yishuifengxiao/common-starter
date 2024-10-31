@@ -178,6 +178,19 @@
                     <useSystemClassLoader>false</useSystemClassLoader>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven-source-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -219,7 +232,6 @@
                                 </goals>
                                 <configuration>
                                     <encoding>UTF-8</encoding>
-                                    <additionalparam>-Xdoclint:none</additionalparam>
                                     <useStandardDocletOptions>false</useStandardDocletOptions>
                                 </configuration>
                             </execution>
@@ -321,6 +333,7 @@
                         </executions>
                         <configuration>
                             <doclint>none</doclint>
+                            <encoding>UTF-8</encoding>
                         </configuration>
                     </plugin>
                 </plugins>

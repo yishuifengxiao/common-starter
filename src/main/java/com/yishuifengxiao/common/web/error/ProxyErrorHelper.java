@@ -15,7 +15,7 @@ import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -81,6 +81,8 @@ public class ProxyErrorHelper implements ErrorHelper, InitializingBean {
             return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
         } else if (e instanceof IOException) {
             return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
+        } else if (e instanceof NoResourceFoundException) {
+            return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "目标资源不存在");
         }
         return null;
     }
