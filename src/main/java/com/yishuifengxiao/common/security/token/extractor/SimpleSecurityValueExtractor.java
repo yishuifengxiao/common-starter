@@ -9,9 +9,7 @@ import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-
 
 
 /**
@@ -64,12 +62,10 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
             deviceIdValue = request.getParameter(deviceIdParameter);
         }
         if (StringUtils.isBlank(deviceIdValue)) {
-            if (BooleanUtils.isTrue(securityPropertyResource.security().getToken().getUseUserAgent())) {
-                // 使用sessionId作为用户的唯一标识符
-                deviceIdValue = HttpUtils.userAgent(request);
-                if (null != deviceIdValue) {
-                    deviceIdValue = Md5.md5Short(deviceIdValue);
-                }
+            String userAgent = HttpUtils.userAgent(request);
+            String requestIp = HttpUtils.getRequestIp(request);
+            if (!StringUtils.isAllBlank(userAgent, requestIp)) {
+                deviceIdValue = Md5.md5Short(userAgent + "" + deviceIdValue);
             }
         }
         return deviceIdValue;

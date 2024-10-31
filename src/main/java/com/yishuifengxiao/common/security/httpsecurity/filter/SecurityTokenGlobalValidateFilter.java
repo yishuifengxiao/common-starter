@@ -94,6 +94,7 @@ public class SecurityTokenGlobalValidateFilter extends AbstractSecurityRequestFi
 
                 // 将认证信息注入到spring Security中
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
             } catch (AccessDeniedException e) {
                 securityHandler.whenAccessDenied(securityPropertyResource, request, response, e);
                 return;

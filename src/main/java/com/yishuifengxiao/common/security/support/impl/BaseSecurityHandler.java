@@ -4,6 +4,7 @@
 package com.yishuifengxiao.common.security.support.impl;
 
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
+import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.security.exception.ExpireTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
@@ -81,14 +82,19 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.AUTHENTICATION_SUCCESS, token, null));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_SUCCESS, token, null));
 
+
+        String requestParameter = securityPropertyResource.security().getToken().getRequestParameter();
+        if (StringUtils.isBlank(requestParameter)) {
+            requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+        }
+        request.getSession().setAttribute(requestParameter, token.getValue());
 
         String redirectUrl = redirectUrl(request, response);
 
         if (StringUtils.isNotBlank(redirectUrl)) {
             log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " + "that" + " the historical blocking path is {}, and will be redirected to this address", redirectUrl);
-            String requestParameter = securityPropertyResource.security().getToken().getRequestParameter();
             redirectUrl = UriComponentsBuilder.fromUriString(redirectUrl).replaceQueryParam(requestParameter, token.getValue()).build(true).toUriString();
             redirectStrategy.sendRedirect(request, response, redirectUrl);
             return;
@@ -97,7 +103,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_SUCCESS, Response.sucData(token).setMsg("认证成功"));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS,  securityPropertyResource.security().getLoginSuccessUrl(), null, token);
+        redirect(request, response, Strategy.AUTHENTICATION_SUCCESS, securityPropertyResource.security().getLoginSuccessUrl(), null, token);
 
     }
 
@@ -105,9 +111,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 登陆失败后的处理
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        失败的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                失败的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -117,7 +123,7 @@ public class BaseSecurityHandler implements SecurityHandler {
 
         preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_FAILURE, SecurityContextHolder.getContext().getAuthentication(), exception);
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.AUTHENTICATION_FAILURE, null, exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_FAILURE, null, exception));
         String msg = "认证失败";
 
         if (exception instanceof CustomException) {
@@ -141,7 +147,7 @@ public class BaseSecurityHandler implements SecurityHandler {
             sendJson(request, response, Strategy.AUTHENTICATION_FAILURE, Response.of(securityPropertyResource.security().getMsg().getInvalidLoginParamCode(), msg, exception.getMessage()));
             return;
         }
-        redirect(request, response, Strategy.AUTHENTICATION_FAILURE,  securityPropertyResource.security().getLoginFailUrl(), msg, exception);
+        redirect(request, response, Strategy.AUTHENTICATION_FAILURE, securityPropertyResource.security().getLoginFailUrl(), msg, exception);
     }
 
     /**
@@ -159,7 +165,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         preHandle(request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.LOGOUT_SUCCESS, authentication, null));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.LOGOUT_SUCCESS, authentication, null));
 
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
@@ -175,9 +181,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 本身是一个合法的用户，但是对于部分资源没有访问权限
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        被拒绝的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                被拒绝的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -189,7 +195,7 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.ACCESS_DENIED, SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
@@ -209,9 +215,9 @@ public class BaseSecurityHandler implements SecurityHandler {
      * 可能本身就不是一个合法的用户
      *
      * @param securityPropertyResource 系统里配置的资源
-     * @param request          HttpServletRequest
-     * @param response         HttpServletResponse
-     * @param exception        发生异常的原因
+     * @param request                  HttpServletRequest
+     * @param response                 HttpServletResponse
+     * @param exception                发生异常的原因
      * @throws IOException 处理时发生问题
      */
     @Override
@@ -223,13 +229,13 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response,  Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception));
+        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.ON_EXCEPTION, SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
             sendJson(request, response, Strategy.ON_EXCEPTION, Response.of(securityPropertyResource.security().getMsg().getVisitOnErrorCode(), securityPropertyResource.security().getMsg().getVisitOnError(), exception));
             return;
         }
-        redirect(request, response, Strategy.ON_EXCEPTION,  securityPropertyResource.security().getRedirectUrl(), null, exception);
+        redirect(request, response, Strategy.ON_EXCEPTION, securityPropertyResource.security().getRedirectUrl(), null, exception);
 
     }
 

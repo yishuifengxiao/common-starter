@@ -301,7 +301,7 @@ public class HttpUtils {
      * @param request HttpServletRequest
      * @return 访问者deIP
      */
-    public static String getVisitorIp(HttpServletRequest request) {
+    public static String getRequestIp(HttpServletRequest request) {
         return IP_HEAD_LIST.stream().map(s -> request.getHeader(s)).filter(StringUtils::isNotBlank).findFirst().orElse(null);
     }
 

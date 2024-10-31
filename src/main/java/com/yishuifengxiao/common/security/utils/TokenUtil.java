@@ -1,10 +1,10 @@
-package com.yishuifengxiao.common.security.token;
+package com.yishuifengxiao.common.security.utils;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
+import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import com.yishuifengxiao.common.tool.utils.Assert;

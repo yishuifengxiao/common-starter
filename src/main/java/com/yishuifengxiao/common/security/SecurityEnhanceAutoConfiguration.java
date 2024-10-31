@@ -8,7 +8,7 @@ import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.token.TokenUtil;
+import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;

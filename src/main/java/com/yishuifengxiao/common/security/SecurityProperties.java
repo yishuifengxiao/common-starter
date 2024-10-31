@@ -238,10 +238,6 @@ public class SecurityProperties {
          */
         private String userDeviceId = TokenConstant.USER_DEVICE_ID;
 
-        /**
-         * 是否在使用用户唯一标识符参数获取参数失败时使用请求的User-Agent作为用户唯一标识符
-         */
-        private Boolean useUserAgent = true;
 
         /**
          * 是否开启全局token校验功能，默认为true，表示开启
