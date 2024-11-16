@@ -2,13 +2,12 @@ package com.yishuifengxiao.common.security;
 
 import com.yishuifengxiao.common.redis.RedisCoreAutoConfiguration;
 import com.yishuifengxiao.common.security.autoconfigure.*;
-import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityEnhanceCustomizer;
 import com.yishuifengxiao.common.security.httpsecurity.HttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.SimpleHttpSecurityManager;
 import com.yishuifengxiao.common.security.httpsecurity.authorize.rememberme.InMemoryTokenRepository;
 import com.yishuifengxiao.common.security.support.AuthenticationPoint;
-import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.token.builder.SimpleTokenBuilder;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
@@ -16,6 +15,7 @@ import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
 import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
+import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityEnhanceCustomizer;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -59,12 +59,12 @@ import java.util.List;
  */
 @Slf4j
 @EnableWebSecurity
-@Configuration(proxyBeanMethods = false)
+@Configuration
 @ConditionalOnClass({DefaultAuthenticationEventPublisher.class, EnableWebSecurity.class})
 @EnableConfigurationProperties({SecurityProperties.class})
 @Import({SecuritySupportAutoConfiguration.class, SecurityCustomizerAutoConfiguration.class,
-        SecurityFilterAutoConfiguration.class,
-        SmsLoginAutoConfiguration.class, SecurityRedisAutoConfiguration.class})
+        SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class,
+        SecurityRedisAutoConfiguration.class})
 @ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @AutoConfigureAfter({RedisCoreAutoConfiguration.class})
 public class SecurityEnhanceAutoConfiguration {
@@ -98,15 +98,17 @@ public class SecurityEnhanceAutoConfiguration {
 
 
     /**
-     * 解决DaoAuthenticationProvider 的hideUserNotFoundExceptions默认为true导致的UsernameNotFoundException被隐藏的问题
+     * 解决DaoAuthenticationProvider 的hideUserNotFoundExceptions默认为true导致的UsernameNotFoundException
+     * 被隐藏的问题
      *
      * @param passwordEncoder
      * @param userDetailsService
      * @return
      */
-    @Bean
+//    @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
                                                                UserDetailsService userDetailsService) {
+        //Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
         provider.setHideUserNotFoundExceptions(false);
         provider.setUserDetailsService(userDetailsService);
@@ -135,7 +137,8 @@ public class SecurityEnhanceAutoConfiguration {
      * @return 资源管理器
      */
     @Bean
-    public SecurityPropertyResource propertyResource(SecurityProperties securityProperties, Environment environment) {
+    public SecurityPropertyResource propertyResource(SecurityProperties securityProperties,
+                                                     Environment environment) {
         SimpleSecurityPropertyResource propertyResource = new SimpleSecurityPropertyResource();
         propertyResource.setSecurityProperties(securityProperties);
         return propertyResource;
@@ -144,10 +147,12 @@ public class SecurityEnhanceAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean({TokenUtil.class})
-    public TokenUtil tokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
+    public TokenUtil tokenUtil(SecurityPropertyResource securityPropertyResource,
+                               PasswordEncoder passwordEncoder,
                                UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
                                SecurityValueExtractor securityValueExtractor) {
-        return new TokenUtil(securityPropertyResource, passwordEncoder, userDetailsService, tokenBuilder,
+        return new TokenUtil(securityPropertyResource, passwordEncoder, userDetailsService,
+                tokenBuilder,
                 securityValueExtractor);
     }
 
@@ -181,9 +186,9 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * 注入一个HttpSecurity安全管理器
      *
-     * @param authorizeConfigProviders       系统中所有的授权提供器实例
-     * @param abstractSecurityRequestFilters 系统中所有的 web安全授权器实例
-     * @param securityPropertyResource       资源管理器
+     * @param authorizeConfigProviders 系统中所有的授权提供器实例
+     * @param securityRequestFilters   系统中所有的 web安全授权器实例
+     * @param securityPropertyResource 资源管理器
      * @return 安全管理器
      */
     @Bean
@@ -191,10 +196,12 @@ public class SecurityEnhanceAutoConfiguration {
     public HttpSecurityManager httpSecurityManager(List<HttpSecurityEnhanceCustomizer> authorizeConfigProviders,
                                                    AuthenticationPoint authenticationPoint,
                                                    UserDetailsService userDetailsService,
-                                                   List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters,
-                                                   SecurityPropertyResource securityPropertyResource) {
-        SimpleHttpSecurityManager httpSecurityManager = new SimpleHttpSecurityManager(authorizeConfigProviders,
-                securityPropertyResource, userDetailsService, authenticationPoint, abstractSecurityRequestFilters);
+                                                   List<SecurityRequestFilter> securityRequestFilters
+            , SecurityPropertyResource securityPropertyResource) {
+        SimpleHttpSecurityManager httpSecurityManager =
+                new SimpleHttpSecurityManager(authorizeConfigProviders,
+                        securityPropertyResource, userDetailsService, authenticationPoint,
+                        securityRequestFilters);
         httpSecurityManager.afterPropertiesSet();
         return httpSecurityManager;
     }
@@ -220,7 +227,8 @@ public class SecurityEnhanceAutoConfiguration {
      * @throws Exception
      */
     @Bean
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http, HttpSecurityManager httpSecurityManager) throws Exception {
+    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http,
+                                                          HttpSecurityManager httpSecurityManager) throws Exception {
         httpSecurityManager.apply(http);
         return http.build();
     }
@@ -229,12 +237,12 @@ public class SecurityEnhanceAutoConfiguration {
     /**
      * <p style="color:red;"> spring security 自定义入口</p>
      *
-     * @param webSecurityManager
+     * @param webSecurityEnhanceCustomizers
+     * @param securityPropertyResource
      * @return
      */
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityEnhanceCustomizer> webSecurityEnhanceCustomizers,
-                                                       SecurityPropertyResource securityPropertyResource) {
+    public WebSecurityCustomizer webSecurityCustomizer(List<WebSecurityEnhanceCustomizer> webSecurityEnhanceCustomizers, SecurityPropertyResource securityPropertyResource) {
 
         // 设置忽视的目录
         return web -> webSecurityEnhanceCustomizers.stream().forEach(v -> v.configure(securityPropertyResource, web));
@@ -250,13 +258,13 @@ public class SecurityEnhanceAutoConfiguration {
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-
         return authenticationConfiguration.getAuthenticationManager();
     }
 
 
     @PostConstruct
     public void checkConfig() {
+
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <安全支持> 相关的配置");
     }

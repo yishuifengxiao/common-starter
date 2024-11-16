@@ -38,7 +38,7 @@ public class SimepleUserDetailsChecker implements UserDetailsChecker, MessageSou
 
         if (null == userDetails) {
             throw new UncheckedException(ErrorCode.USERNAME_NO_EXTIS,
-                    securityPropertyResource.security().getMsg().getAccountNoExtis());
+                    securityPropertyResource.security().getMsg().getAccountNoExits());
         }
         if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
             throw new UncheckedException(ErrorCode.ACCOUNT_EXPIRED,

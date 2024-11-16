@@ -30,7 +30,7 @@ public class SimpleEventPublisher implements EventPublisher, InitializingBean {
      * @param event event to post.
      */
     @Override
-    public synchronized void post(Object event) {
+    public void post(Object event) {
         if (null == this.asyncEventBus) {
             log.debug("The event publisher did not initialize successfully, but received a message call," +
                     " so the message was discarded. The discarded message is {}", event);

@@ -3,6 +3,7 @@
  */
 package com.yishuifengxiao.common.security.httpsecurity;
 
+import jakarta.servlet.Filter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,7 +17,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class AbstractSecurityRequestFilter extends OncePerRequestFilter {
+public interface SecurityRequestFilter {
+
+    OncePerRequestFilter filter();
 
     /**
      * 用于标明将该过滤器实例配置到spring security过滤器的那个点上
@@ -24,5 +27,5 @@ public abstract class AbstractSecurityRequestFilter extends OncePerRequestFilter
      * @param http HttpSecurity
      * @throws Exception 配置时出现问题
      */
-    public abstract void configure(HttpSecurity http) throws Exception;
+    void configure(Filter filter, HttpSecurity http) throws Exception;
 }

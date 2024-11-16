@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,7 +41,9 @@ public class HttpUtils {
      * HTTP_CLIENT_IP：一些代理服务器
      * X-Real-IP：nginx服务代理
      */
-    public final static List<String> IP_HEAD_LIST = Stream.of("X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client-IP", "HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED", "HTTP_X_CLUSTER_CLIENT_IP", "HTTP_CLIENT_IP", "HTTP_FORWARDED_FOR", "HTTP_FORWARDED", "HTTP_VIA", "REMOTE_ADDR", "X-Real-IP").collect(Collectors.toList());
+    public final static List<String> IP_HEAD_LIST = Stream.of("X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client" +
+                    "-IP", "HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED", "HTTP_X_CLUSTER_CLIENT_IP", "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR", "HTTP_FORWARDED", "HTTP_VIA", "REMOTE_ADDR", "X-Real-IP").collect(Collectors.toList());
 
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -181,22 +183,11 @@ public class HttpUtils {
             return true;
         }
         String accept = null;
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String nextElement = headerNames.nextElement();
-            if (StringUtils.equalsIgnoreCase(nextElement, HttpHeaders.ACCEPT)) {
-                accept = nextElement;
-                break;
-            }
-        }
-        if (StringUtils.isBlank(accept)) {
-            return false;
-        }
-        final String acceptVal = request.getHeader(accept);
-        if (StringUtils.containsIgnoreCase(acceptVal, JSON_FLAG)) {
-            return true;
-        }
-        return false;
+
+        boolean anyMatch =
+                Collections.list(request.getHeaderNames()).parallelStream().filter(v -> StringUtils.containsIgnoreCase(v,
+                HttpHeaders.ACCEPT)).anyMatch(v -> StringUtils.containsIgnoreCase(request.getHeader(v), JSON_FLAG));
+        return anyMatch;
     }
 
     /**
@@ -246,9 +237,10 @@ public class HttpUtils {
     /**
      * 默认的Access-Control-Allow-Headers的值
      *
-     * @see <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
+     * @see
+     * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
      */
-    private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = DataUtil.asSet(
+    private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = CollUtil.asSet(
             // @formatter:off
             TokenConstant.TOKEN_REQUEST_PARAM,
             TokenConstant.TOKEN_HEADER_PARAM,

@@ -107,7 +107,7 @@ public class Oauth2SecurityGlobalEnhanceFilter extends OncePerRequestFilter {
         OAuth2Enhance enhance = new OAuth2Enhance(clientId, state, withDescription(scopesToApprove),
                 withDescription(previouslyApprovedScopes), authentication.getName(),
                 authorizationServerSettings.getAuthorizationEndpoint());
-        HttpUtils.write(request, response, Response.sucData(enhance));
+        HttpUtils.write(request, response, Response.suc(enhance));
         return;
     }
 

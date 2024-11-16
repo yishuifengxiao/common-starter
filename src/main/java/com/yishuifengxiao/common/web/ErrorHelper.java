@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.yishuifengxiao.common.web.error;
+package com.yishuifengxiao.common.web;
 
 
 import jakarta.servlet.http.HttpServletRequest;

@@ -13,7 +13,6 @@ import com.yishuifengxiao.common.tool.utils.OsUtils;
 import com.yishuifengxiao.common.tool.validate.BeanValidator;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,6 +25,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,12 +37,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -52,12 +53,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -71,7 +72,8 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties({WebEnhanceProperties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true",
+        matchIfMissing = true)
 public class WebEnhanceAutoConfiguration {
 
     @Autowired
@@ -84,10 +86,12 @@ public class WebEnhanceAutoConfiguration {
      */
     @Bean("corsAllowedFilter")
     @ConditionalOnMissingBean(name = "corsAllowedFilter")
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web.cors", name = {"enable"}, havingValue = "true", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web.cors", name = {"enable"}, havingValue =
+            "true", matchIfMissing = true)
     public FilterRegistrationBean<CustomCorsFilter> corsAllowedFilter() {
         CustomCorsFilter corsFilter = new CustomCorsFilter(webEnhanceProperties.getCors());
-        FilterRegistrationBean<CustomCorsFilter> registration = new FilterRegistrationBean<>(corsFilter);
+        FilterRegistrationBean<CustomCorsFilter> registration =
+                new FilterRegistrationBean<>(corsFilter);
         registration.setName("corsAllowedFilter");
         registration.setUrlPatterns(webEnhanceProperties.getCors().getUrlPatterns());
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
@@ -101,11 +105,16 @@ public class WebEnhanceAutoConfiguration {
      * @return
      */
     @Bean("requestTrackingFilter")
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Order(Ordered.HIGHEST_PRECEDENCE + 1000)
     @ConditionalOnMissingBean(name = "requestTrackingFilter")
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"tracked"}, matchIfMissing = true)
-    public Filter requestTrackingFilter() {
-        return new TracedFilter(webEnhanceProperties);
+    public FilterRegistrationBean<TracedFilter> requestTrackingFilter() {
+        TracedFilter tracedFilter = new TracedFilter(webEnhanceProperties);
+        FilterRegistrationBean<TracedFilter> registration =
+                new FilterRegistrationBean<>(tracedFilter);
+        registration.setName("requestTrackingFilter");
+        registration.setUrlPatterns(webEnhanceProperties.getCors().getUrlPatterns());
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1000);
+        return registration;
     }
 
 
@@ -116,12 +125,15 @@ public class WebEnhanceAutoConfiguration {
      * @version 1.0.0
      * @since 1.0.0
      */
-    @Configuration
+    @Configuration(proxyBeanMethods = false)
     @Aspect
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"aop"}, havingValue = "true", matchIfMissing = true)
-    class ValidAutoConfiguration {
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"aop"}, havingValue = "true",
+            matchIfMissing = true)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public static class ValidAutoConfiguration {
 
-        @Pointcut("@within(org.springframework.stereotype.Controller) || @within(org.springframework.web.bind.annotation.RestController)")
+        @Pointcut("@within(org.springframework.stereotype.Controller) || @within(org" +
+                ".springframework.web.bind.annotation.RestController)")
         public void controllerClass() {
         }
 
@@ -129,7 +141,8 @@ public class WebEnhanceAutoConfiguration {
         public void publicMethod() {
         }
 
-        @Pointcut("execution(public * *(.., @org.springframework.validation.annotation.Validated (*), ..))")
+        @Pointcut("execution(public * *(.., @org.springframework.validation.annotation.Validated "
+                + "(*), ..))")
         public void validatedParam() {
         }
 
@@ -145,7 +158,8 @@ public class WebEnhanceAutoConfiguration {
          * @return 请求响应结果
          * @throws Throwable 处理时发生异常
          */
-        @Around("controllerClass() && publicMethod() && (validatedParam() || validParam() || args(.., org.springframework.validation.BindingResult))")
+        @Around("controllerClass() && publicMethod() && (validatedParam() || validParam() || " +
+                "args" + "(.., org.springframework.validation.BindingResult))")
         public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
             // 获取所有的请求参数
             Object[] args = joinPoint.getArgs();
@@ -153,11 +167,13 @@ public class WebEnhanceAutoConfiguration {
                 return joinPoint.proceed();
             }
             // 判断系统中是否使用了 BindingResult 进行接收
-            BindingResult errors = (BindingResult) Arrays.asList(args).stream().filter(arg -> arg instanceof BindingResult).findFirst().orElse(null);
+            BindingResult errors =
+                    (BindingResult) Arrays.asList(args).stream().filter(arg -> arg instanceof BindingResult).findFirst().orElse(null);
             if (null != errors) {
                 // 已使用 BindingResult 收集
                 if (errors.hasErrors()) {
-                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, errors.getFieldErrors().get(0).getDefaultMessage());
+                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST,
+                            errors.getFieldErrors().get(0).getDefaultMessage());
                 }
             } else {
                 // 未使用 BindingResult 收集
@@ -167,24 +183,26 @@ public class WebEnhanceAutoConfiguration {
                 Parameter[] parameters = method.getParameters();
                 for (int i = 0; i < parameters.length; i++) {
                     Parameter parameter = parameters[i];
-                    Annotation[] annotations = parameter.getAnnotations();
-                    for (Annotation annotation : annotations) {
-                        if (annotation.annotationType().equals(Valid.class)) {
-                            // 参数被@Valid注解修饰
-                            String msg = BeanValidator.validateResult(args[i]);
-                            if (null != msg) {
-                                throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
-                            }
-                            break;
-                        } else if (annotation.annotationType().equals(Validated.class)) {
 
-                            Validated validated = (Validated) annotation;
+                    Valid valid = AnnotationUtils.findAnnotation(parameter, Valid.class);
+                    if (null != valid) {
+                        // 参数被@Valid注解修饰
+                        String msg = BeanValidator.validateResult(args[i]);
+                        if (null != msg) {
+                            throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
+                        }
+                        break;
+                    } else {
+                        Validated validated = AnnotationUtils.findAnnotation(parameter,
+                                Validated.class);
+                        if (null != validated) {
                             // 获取参数上的@Validated注解的值
                             Class<?>[] validatedGroups = validated.value();
                             if (null != validatedGroups && validatedGroups.length > 0) {
                                 // 进行校验的逻辑...
                                 for (Class<?> validatedGroup : validatedGroups) {
-                                    String msg = BeanValidator.validateResult(args[i], validatedGroup);
+                                    String msg = BeanValidator.validateResult(args[i],
+                                            validatedGroup);
                                     if (null != msg) {
                                         throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
                                     }
@@ -192,7 +210,8 @@ public class WebEnhanceAutoConfiguration {
                             } else {
                                 String msg = BeanValidator.validateResult(args[i]);
                                 if (null != msg) {
-                                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
+                                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST,
+                                            msg);
                                 }
                             }
                             break;
@@ -221,54 +240,55 @@ public class WebEnhanceAutoConfiguration {
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
     @ConditionalOnClass(DispatcherServlet.class)
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web.response", name = {"enable"}, havingValue = "true")
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web.response", name = {"enable"},
+            havingValue = "true")
     class WebResponseBodyAutoConfiguration implements ResponseBodyAdvice {
 
 
         @Override
         public boolean supports(MethodParameter returnType, Class converterType) {
             String className = returnType.getDeclaringClass().getName();
-            boolean anyMatch = webEnhanceProperties.getResponse().getExcludes().stream().anyMatch(v -> StringUtils.equalsIgnoreCase(v, className));
+            boolean hasMethodAnnotation = returnType.hasMethodAnnotation(ResponseBody.class);
+            boolean assignableFrom =
+                    AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+            boolean match =
+                    null != returnType.getDeclaringClass().getDeclaredAnnotation(RestController.class);
+            boolean anyMatch =
+                    webEnhanceProperties.getResponse().getExcludes().stream().anyMatch(v -> StringUtils.equalsIgnoreCase(v, className));
             if (anyMatch) {
                 return false;
             }
 
-            return returnType.hasMethodAnnotation(ResponseBody.class) || null != returnType.getDeclaringClass().getDeclaredAnnotation(RestController.class);
+            return assignableFrom || hasMethodAnnotation || match;
         }
 
         @Override
-        public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType, Class selectedConverterType, ServerHttpRequest request, ServerHttpResponse response) {
+        public Object beforeBodyWrite(Object body, MethodParameter returnType,
+                                      MediaType selectedContentType, Class selectedConverterType,
+                                      ServerHttpRequest request, ServerHttpResponse response) {
+            Object resp = body;
+            String ssid = TraceContext.get();
             try {
                 if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
-                    Response<Object> result = body instanceof Response ? (Response) body : Response.sucData(body);
-                    result.setId(getTracked(request));
-                    return result;
+                    Response<Object> result = body instanceof Response ? (Response) body :
+                            Response.suc().data(body);
+                    result.setId(ssid);
+                    resp = result;
                 } else {
                     if (null != body && body instanceof Response) {
                         Response result = (Response) body;
-                        result.setId(getTracked(request));
-                        return result;
+                        result.setId(ssid);
+                        resp = result;
                     }
                 }
 
             } catch (Exception e) {
-                log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem obtaining the request " + "tracking id {}", e);
+                log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem " +
+                        "obtaining the request " + "tracking id {}", e);
             }
 
-            return body;
-        }
-
-        private String getTracked(ServerHttpRequest request) {
-            Object attribute = null;
-            if (request instanceof ServletServerHttpRequest) {
-                HttpServletRequest httpServerHttpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-                attribute = httpServerHttpRequest.getAttribute(webEnhanceProperties.getTracked());
-            }
-            if (null == attribute || StringUtils.isBlank(attribute.toString())) {
-                attribute = TraceContext.get();
-            }
-            return null != attribute ? attribute.toString() : null;
+            return resp;
         }
 
 
@@ -296,7 +316,7 @@ public class WebEnhanceAutoConfiguration {
     /**
      * 追踪过滤器
      */
-    static class TracedFilter extends OncePerRequestFilter {
+    class TracedFilter extends OncePerRequestFilter {
 
         private WebEnhanceProperties webEnhanceProperties;
 
@@ -305,31 +325,28 @@ public class WebEnhanceAutoConfiguration {
         }
 
         @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                        FilterChain filterChain) throws ServletException,
+                IOException {
+            String ssid = IdWorker.snowflakeStringId();
+            TraceContext.set(ssid);
+            MDC.put(webEnhanceProperties.getTracked(), ssid);
             try {
-                try {
-                    String ssid = IdWorker.uuid();
-                    request.setAttribute(webEnhanceProperties.getTracked(), ssid);
-                    TraceContext.set(ssid);
-                    // 动态设置日志
-                    String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
-                    if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase("false", dynamicLogLevel)) {
-                        // 开启动态日志功能
-                        String[] tokens = dynamicLogLevel(request.getHeader(webEnhanceProperties.getDynamicLogLevel()));
-                        if (null == tokens) {
-                            dynamicLogLevel(request.getParameter(webEnhanceProperties.getDynamicLogLevel()));
-                        }
-                        if (null != tokens) {
-                            LogLevelUtil.setLevel(tokens[0], tokens[1]);
-                        }
+                // 动态设置日志
+                String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
+                if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase(
+                        "false", dynamicLogLevel)) {
+                    // 开启动态日志功能
+                    String[] tokens =
+                            dynamicLogLevel(request.getHeader(dynamicLogLevel.trim()));
+                    if (null != tokens) {
+                        LogLevelUtil.setLevel(tokens[0], tokens[1]);
                     }
-                } catch (Exception e) {
-                    log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem when setting the " + "tracking log and dynamic modification log level. The problem is {}", e);
                 }
-
                 filterChain.doFilter(request, response);
             } finally {
                 TraceContext.clear();
+                MDC.remove(webEnhanceProperties.getTracked());
             }
 
 
@@ -342,18 +359,32 @@ public class WebEnhanceAutoConfiguration {
          * @return 解析出来的数据
          */
         private String[] dynamicLogLevel(String text) {
-            String[] tokens = StringUtils.splitByWholeSeparator(text, OsUtils.COLON);
-            if (null == tokens || tokens.length != 2) {
+            if (StringUtils.isBlank(text)) {
                 return null;
             }
-            if (StringUtils.isBlank(tokens[0]) || StringUtils.isBlank(tokens[1])) {
-                return null;
+            try {
+                String val =
+                        new String(Base64.getDecoder().decode(text.getBytes(StandardCharsets.UTF_8)),
+                                StandardCharsets.UTF_8);
+                if (StringUtils.isBlank(val)) {
+                    return null;
+                }
+                String[] tokens = StringUtils.splitByWholeSeparator(text, OsUtils.COLON);
+                if (null == tokens || tokens.length != 2) {
+                    return null;
+                }
+                if (StringUtils.isBlank(tokens[0]) || StringUtils.isBlank(tokens[1])) {
+                    return null;
+                }
+                Level level = Level.toLevel(tokens[1].trim(), null);
+                if (null == level) {
+                    return null;
+                }
+                return new String[]{tokens[0], level.levelStr};
+            } catch (Exception e) {
             }
-            Level level = Level.toLevel(tokens[1].trim(), null);
-            if (null == level) {
-                return null;
-            }
-            return tokens;
+            return null;
+
         }
 
     }
@@ -365,13 +396,15 @@ public class WebEnhanceAutoConfiguration {
      * @version 1.0.0
      * @since 1.0.0
      */
-    static class CustomCorsFilter extends OncePerRequestFilter {
+    class CustomCorsFilter extends OncePerRequestFilter {
 
         private WebEnhanceProperties.CorsProperties corsProperties;
 
 
         @Override
-        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                        FilterChain filterChain) throws ServletException,
+                IOException {
             try {
                 corsProperties.getHeaders().forEach((k, v) -> {
                     if (StringUtils.isNoneBlank(k, v)) {
@@ -394,29 +427,42 @@ public class WebEnhanceAutoConfiguration {
                 //Access-Control-Allow-Origin
                 String accessControlAllowOrigin = HttpUtils.accessControlAllowOrigin(request);
                 //controlAllowHeaders
-                accessControlAllowOrigin = Arrays.asList(accessControlAllowOrigin, corsProperties.getAllowedOrigins()).stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(","));
+                accessControlAllowOrigin = Arrays.asList(accessControlAllowOrigin,
+                        corsProperties.getAllowedOrigins()).stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(","));
 
 
-                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, StringUtils.isBlank(accessControlAllowOrigin) ? "*" : accessControlAllowOrigin);
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                        StringUtils.isBlank(accessControlAllowOrigin) ? "*" :
+                                accessControlAllowOrigin);
 
-                String accessControlAllowHeaders = StringUtils.isBlank(corsProperties.getAllowedHeaders()) ? HttpUtils.accessControlAllowHeaders(request, response) : corsProperties.getAllowedHeaders();
+                String accessControlAllowHeaders =
+                        StringUtils.isBlank(corsProperties.getAllowedHeaders()) ?
+                                HttpUtils.accessControlAllowHeaders(request, response) :
+                                corsProperties.getAllowedHeaders();
 
-                //  Access-Control-Allow-Headers是一个HTTP响应头，用于指定客户端可以在预检请求中使用哪些HTTP请求头信息。预检请求是浏览器在发送跨域请求之前发送的一种OPTIONS
-                //  请求，用于检测实际请求是否安全。在预检请求中，浏览器会向服务端发送一些额外的请求头信息，例如Authorization、Content-Type等，以检查服务端是否允许这些请求头信息。
-                // 如果服务端不允许某些请求头信息，浏览器将会收到一个错误响应。为了避免这种情况，您可以在服务端的HTTP响应头中添加Access-Control-Allow-Headers
+                //  Access-Control-Allow-Headers是一个HTTP响应头，用于指定客户端可以在预检请求中使用哪些HTTP
+                //  请求头信息。预检请求是浏览器在发送跨域请求之前发送的一种OPTIONS
+                //  请求，用于检测实际请求是否安全。在预检请求中，浏览器会向服务端发送一些额外的请求头信息，例如Authorization、Content-Type
+                //  等，以检查服务端是否允许这些请求头信息。
+                // 如果服务端不允许某些请求头信息，浏览器将会收到一个错误响应。为了避免这种情况，您可以在服务端的HTTP响应头中添加Access-Control-Allow
+                // -Headers
                 // 头信息，以允许客户端使用指定的HTTP请求头信息。例如
-                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, accessControlAllowHeaders);
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                        accessControlAllowHeaders);
                 //  Access-Control-Expose-Headers是一个HTTP响应头，用于指定哪些HTTP响应头信息可以被客户端访问。
                 //  默认情况下，客户端只能访问以下响应头信息 ：
                 //  Cache-Control 、Content-Language 、Content-Type、Expires、Last-Modified、Pragma
                 //  如果您的服务端在响应头中添加了自定义的HTTP响应头信息，例如Authorization，客户端将无法访问该响应头信息
                 //  此时，您可以在服务端的HTTP响应头中添加Access-Control-Expose-Headers头信息，以允许客户端访问指定的HTTP响应头信息。
-                response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, accessControlAllowHeaders);
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+                        accessControlAllowHeaders);
 
 
-                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, corsProperties.getAllowCredentials() + "");
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                        corsProperties.getAllowCredentials() + "");
 
-                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, corsProperties.getAllowedMethods());
+                response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                        corsProperties.getAllowedMethods());
 
 
             } catch (Throwable e) {

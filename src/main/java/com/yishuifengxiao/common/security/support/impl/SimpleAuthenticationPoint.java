@@ -3,12 +3,11 @@
  */
 package com.yishuifengxiao.common.security.support.impl;
 
-import com.yishuifengxiao.common.guava.GuavaCache;
-import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
+import com.yishuifengxiao.common.security.support.AuthenticationPoint;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
+import com.yishuifengxiao.common.security.support.SecurityHolder;
 import com.yishuifengxiao.common.security.token.SecurityToken;
-import com.yishuifengxiao.common.security.token.authentication.SimpleWebAuthenticationDetails;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.utils.HttpUtils;
@@ -33,7 +32,10 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * <p>
@@ -72,19 +74,24 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
-                       AccessDeniedException accessDeniedException) throws IOException, ServletException {
-        securityHandler.whenAccessDenied(securityPropertyResource, request, response, accessDeniedException);
+                       AccessDeniedException accessDeniedException) throws IOException,
+            ServletException {
+        securityHandler.whenAccessDenied(securityPropertyResource, request, response,
+                accessDeniedException);
     }
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-                                        AuthenticationException exception) throws IOException, ServletException {
+                                        AuthenticationException exception) throws IOException,
+            ServletException {
         new SimpleUrlAuthenticationFailureHandler() {
             @Override
-            public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
+            public void onAuthenticationFailure(HttpServletRequest request,
+                                                HttpServletResponse response,
                                                 AuthenticationException authenticationException) throws IOException {
 
-                securityHandler.whenAuthenticationFailure(securityPropertyResource, request, response, authenticationException);
+                securityHandler.whenAuthenticationFailure(securityPropertyResource, request,
+                        response, authenticationException);
 
             }
         }.onAuthenticationFailure(request, response, exception);
@@ -92,12 +99,15 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException,
+            ServletException {
         new SavedRequestAwareAuthenticationSuccessHandler() {
 
             @Override
-            public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                                Authentication authentication) throws IOException, ServletException {
+            public void onAuthenticationSuccess(HttpServletRequest request,
+                                                HttpServletResponse response,
+                                                Authentication authentication) throws IOException
+                    , ServletException {
 
                 try {
                     // 根据登陆信息生成一个token
@@ -105,36 +115,43 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
                     SecurityToken token = tokenBuilder.createNewToken(authentication, deviceId,
                             securityPropertyResource.security().getToken().getValidSeconds(),
                             securityPropertyResource.security().getToken().getPreventsLogin(),
-                            securityPropertyResource.security().getToken().getMaxSessions(), authentication.getAuthorities());
+                            securityPropertyResource.security().getToken().getMaxSessions(),
+                            authentication.getAuthorities());
 
                     // 将生成的token存储在session中
                     request.getSession().setAttribute(securityPropertyResource.security().getToken().getRequestParameter(),
                             token.getValue());
                     // 将生成的token存储在cookie中
-                    Cookie cookie = new Cookie(securityPropertyResource.security().getToken().getRequestParameter(),
-                            token.getValue());
+                    Cookie cookie =
+                            new Cookie(securityPropertyResource.security().getToken().getRequestParameter(),
+                                    token.getValue());
                     //Cookie的路径为“/”，这意味着Cookie在整个应用程序中都可用
                     cookie.setPath("/");
                     //如果设置为true，则仅在使用安全协议（HTTPS或SSL）时将cookie从浏览器发送到服务器。默认为false
                     cookie.setSecure(false);
                     //指定cookie在用户计算机中存储的时间，以秒为单位。如果未设置，则退出Web浏览器时将删除cookie
-                    cookie.setMaxAge(token.getValidSeconds());
+                    cookie.setMaxAge(BigDecimal.valueOf(LocalDateTime.now().until(token.getExpireAt(),
+                            ChronoUnit.SECONDS)).intValue());
                     response.addCookie(cookie);
                     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
                     //controlAllowHeaders
 
-                    String controlAllowHeaders = StringUtils.isBlank(corsProperties.getAllowedHeaders()) ?
-                            HttpUtils.accessControlAllowHeaders(request, response) :
-                            corsProperties.getAllowedHeaders();
+                    String controlAllowHeaders =
+                            StringUtils.isBlank(corsProperties.getAllowedHeaders()) ?
+                                    HttpUtils.accessControlAllowHeaders(request, response) :
+                                    corsProperties.getAllowedHeaders();
 
-                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, controlAllowHeaders);
+                    response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                            controlAllowHeaders);
                     response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                             HttpUtils.accessControlAllowOrigin(request));
                     // 登陆成功
-                    securityHandler.whenAuthenticationSuccess(securityPropertyResource, request, response, authentication,
+                    securityHandler.whenAuthenticationSuccess(securityPropertyResource, request,
+                            response, authentication,
                             token);
                 } catch (Exception e) {
-                    securityHandler.whenAuthenticationFailure(securityPropertyResource, request, response,
+                    securityHandler.whenAuthenticationFailure(securityPropertyResource, request,
+                            response,
                             new AuthenticationServiceException(e.getMessage()));
                 }
 
@@ -145,32 +162,29 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     @Override
     public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-                                Authentication authentication) throws IOException, ServletException {
+                                Authentication authentication) throws IOException,
+            ServletException {
         new SimpleUrlLogoutSuccessHandler() {
             @Override
             public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) throws IOException, ServletException {
+                                        Authentication authentication) throws IOException,
+                    ServletException {
 
                 try {
-                    SecurityToken token = null;
-                    if (null != authentication.getDetails() && authentication.getDetails() instanceof SimpleWebAuthenticationDetails) {
-                        token = ((SimpleWebAuthenticationDetails) authentication.getDetails()).getToken();
-                    }
-                    if (null == token) {
-                        // 取出存储的信息
-                        token = GuavaCache.currentGet(SecurityToken.class);
-                    }
+                    SecurityToken token = (SecurityToken) SecurityHolder.get();
                     if (null != token && StringUtils.isNotBlank(token.getValue())) {
                         tokenBuilder.remove(token);
                     }
                 } catch (Exception e) {
-                    log.debug("【yishuifengxiao-common-spring-boot-starter】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}",
+                    log.debug("【yishuifengxiao-common-spring-boot-starter"
+                                    + "】退出成功后移出访问令牌时出现问题，出现问题的原因为  {}",
                             e.getMessage());
 
                     securityHandler.onException(securityPropertyResource, request, response, e);
                 }
 
-                securityHandler.whenLogoutSuccess(securityPropertyResource, request, response, authentication);
+                securityHandler.whenLogoutSuccess(securityPropertyResource, request, response,
+                        authentication);
 
             }
         }.onLogoutSuccess(request, response, authentication);
@@ -178,7 +192,8 @@ public class SimpleAuthenticationPoint implements AuthenticationPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AuthenticationException authException) throws IOException, ServletException {
+                         AuthenticationException authException) throws IOException,
+            ServletException {
         securityHandler.onException(securityPropertyResource, request, response, authException);
     }
 

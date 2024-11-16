@@ -1,5 +1,7 @@
 package com.yishuifengxiao.common.jdbc;
 
+import com.yishuifengxiao.common.support.SpringContext;
+import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.Assert;
 
@@ -35,13 +37,25 @@ public class JdbcUtil {
      * @return JdbcTemplate操作器
      */
     public static JdbcHelper jdbcHelper() {
-        Assert.notNull(JdbcUtil.jdbcHelper, "jdbc工具初始化失败");
-        return JdbcUtil.jdbcHelper;
+        return jdbcHelper(null);
     }
 
-    public static JdbcTemplate jdbcTemplate() {
+    /**
+     * 获取JdbcTemplate操作器
+     *
+     * @param context ApplicationContext
+     * @return JdbcTemplate操作器
+     */
+    public static JdbcHelper jdbcHelper(ApplicationContext context) {
+        if (null == JdbcUtil.jdbcHelper) {
+            JdbcTemplate jdbcTemplate = null != context ? context.getBean(JdbcTemplate.class) :
+                    SpringContext.getBean(JdbcTemplate.class);
+            if (null != jdbcTemplate) {
+                JdbcUtil.jdbcHelper = new SimpleJdbcHelper(jdbcTemplate);
+            }
+        }
         Assert.notNull(JdbcUtil.jdbcHelper, "jdbc工具初始化失败");
-        return JdbcUtil.jdbcHelper.jdbcTemplate();
+        return JdbcUtil.jdbcHelper;
     }
 
 }

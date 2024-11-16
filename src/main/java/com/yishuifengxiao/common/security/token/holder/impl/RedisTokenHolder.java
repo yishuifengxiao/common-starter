@@ -1,17 +1,22 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
+import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson2.CoreJackson2Module;
+import org.springframework.security.web.jackson2.WebJackson2Module;
+import org.springframework.security.web.jackson2.WebServletJackson2Module;
+import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -39,13 +44,25 @@ public class RedisTokenHolder implements TokenHolder {
 
     private RedisTemplate<String, Object> redisTemplate;
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final static ObjectMapper mapper = JsonUtil.mapper();
 
-    {
+    static {
+        try {
+            // 启用反序列化所需的类型信息,在属性中添加@class
+            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
+                    JsonTypeInfo.As.PROPERTY);
+            mapper.registerModule(new CoreJackson2Module());
+            mapper.registerModule(new WebJackson2Module());
+            mapper.registerModule(new WebServletJackson2Module());
+            mapper.registerModule(new WebServerJackson2Module());
+            ClassLoader loader = RedisTokenHolder.class.getClassLoader();
+//            List<com.fasterxml.jackson.databind.Module> modules =
+//                    SecurityJackson2Modules.getModules(loader);
+//            mapper.registerModules(modules);
+        } catch (Exception e) {
+        }
 
-        ClassLoader loader = RedisTokenHolder.class.getClassLoader();
-        List<com.fasterxml.jackson.databind.Module> modules = SecurityJackson2Modules.getModules(loader);
-        mapper.registerModules(modules);
+
     }
 
     /**
@@ -78,15 +95,13 @@ public class RedisTokenHolder implements TokenHolder {
     public synchronized void save(SecurityToken token) throws CustomException {
         this.check(token);
         this.remove(token);
-        //获取当前账号下过期时间最久的token
-        SecurityToken securityToken =
-                this.getAll(token.getName()).stream().sorted((v1, v2) -> v2.getExpireAt().compareTo(v1.getExpireAt())).findFirst().orElse(null);
         //有效时间
-        LocalDateTime expiredAtTime =
-                (null == securityToken ? LocalDateTime.now() : securityToken.getExpireAt()).plusSeconds(token.getValidSeconds());
+        LocalDateTime expiredAtTime = token.getExpireAt();
+        long untiled = LocalDateTime.now().until(expiredAtTime, ChronoUnit.SECONDS);
+
         this.token(token.getName()).put(token.getDeviceId(), token);
-        this.token(token.getName()).expireAt(expiredAtTime.toInstant(ZoneOffset.of("+8")));
-        this.tokenVal(token.getValue()).set(token, token.getValidSeconds(), TimeUnit.SECONDS);
+        this.token(token.getName()).expire(untiled, TimeUnit.SECONDS);
+        this.tokenVal(token.getValue()).set(token, untiled, TimeUnit.SECONDS);
     }
 
 
@@ -148,9 +163,6 @@ public class RedisTokenHolder implements TokenHolder {
         }
         if (null == token.getExpireAt()) {
             throw new CustomException("令牌中必须包含过期时间信息");
-        }
-        if (null == token.getValidSeconds()) {
-            throw new CustomException("令牌中必须包含有效时间信息");
         }
     }
 

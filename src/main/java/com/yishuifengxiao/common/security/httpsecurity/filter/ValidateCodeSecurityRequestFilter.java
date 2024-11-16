@@ -2,10 +2,11 @@ package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.eunm.CodeType;
-import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 
 import java.io.IOException;
@@ -32,7 +34,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Slf4j
-public class ValidateCodeSecurityRequestFilter extends AbstractSecurityRequestFilter implements InitializingBean {
+public class ValidateCodeSecurityRequestFilter implements SecurityRequestFilter, InitializingBean {
     /**
      * 用于定义路由规则，因为下面的路径里有统配符，验证请求的URL与配置的URL是否匹配的类
      */
@@ -58,7 +60,6 @@ public class ValidateCodeSecurityRequestFilter extends AbstractSecurityRequestFi
 
     @Override
     public void afterPropertiesSet() throws ServletException {
-        super.afterPropertiesSet();
 
         // 需要拦截的路径
         securityPropertyResource.security().getCode().getFilter().forEach((codeType, urls) -> {
@@ -83,34 +84,41 @@ public class ValidateCodeSecurityRequestFilter extends AbstractSecurityRequestFi
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        CodeType validateCodeType = getValidateCodeType(request);
-        if (validateCodeType != null) {
-            if (securityPropertyResource.showDetail()) {
-                log.info("【验证码过滤器】 获取校验码类型时的URL为 {}，请求类型为 {}", request.getRequestURI(), request.getMethod());
-            }
+    public OncePerRequestFilter filter() {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                            FilterChain filterChain) throws ServletException, IOException {
+                CodeType validateCodeType = getValidateCodeType(request);
+                if (validateCodeType != null) {
+                    if (securityPropertyResource.showDetail()) {
+                        log.info("【验证码过滤器】 获取校验码类型时的URL为 {}，请求类型为 {}", request.getRequestURI(), request.getMethod());
+                    }
 
-            try {
+                    try {
 
-                if (securityPropertyResource.showDetail()) {
-                    log.info("【验证码过滤器】  请求校验{}中的验证码的的类型是 {} ,校验器类型为 {}", request.getRequestURI(), validateCodeType,
-                            codeProducer);
+                        if (securityPropertyResource.showDetail()) {
+                            log.info("【验证码过滤器】  请求校验{}中的验证码的的类型是 {} ,校验器类型为 {}", request.getRequestURI(),
+                                    validateCodeType,
+                                    codeProducer);
+                        }
+
+                        codeProducer.validate(new ServletWebRequest(request, response), validateCodeType);
+                    } catch (CustomException exception) {
+                        if (securityPropertyResource.showDetail()) {
+                            log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
+                        }
+                        securityHandler.onException(securityPropertyResource, request, response, exception);
+
+                        // 失败后不执行后面的过滤器
+                        return;
+                    }
                 }
-
-                codeProducer.validate(new ServletWebRequest(request, response), validateCodeType);
-            } catch (CustomException exception) {
-                if (securityPropertyResource.showDetail()) {
-                    log.info("验证码验证校验未通过，出现问题 {}", exception.getMessage());
-                }
-                securityHandler.onException(securityPropertyResource, request, response, exception);
-
-                // 失败后不执行后面的过滤器
-                return;
+                filterChain.doFilter(request, response);
             }
-        }
-        filterChain.doFilter(request, response);
+        };
     }
+
 
     /**
      * 获取校验码的类型，如果当前请求不需要校验，则返回null
@@ -138,8 +146,8 @@ public class ValidateCodeSecurityRequestFilter extends AbstractSecurityRequestFi
     }
 
     @Override
-    public void configure(HttpSecurity http) throws Exception {
-        http.addFilterBefore(this, AbstractPreAuthenticatedProcessingFilter.class);
+    public void configure(Filter filter, HttpSecurity http) throws Exception {
+        http.addFilterBefore(filter, AbstractPreAuthenticatedProcessingFilter.class);
 
     }
 

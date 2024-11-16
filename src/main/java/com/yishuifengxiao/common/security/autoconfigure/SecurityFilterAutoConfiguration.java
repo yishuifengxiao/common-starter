@@ -2,7 +2,7 @@ package com.yishuifengxiao.common.security.autoconfigure;
 
 import com.yishuifengxiao.common.code.CodeProducer;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
-import com.yishuifengxiao.common.security.httpsecurity.AbstractSecurityRequestFilter;
+import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.SecurityTokenGlobalValidateFilter;
 import com.yishuifengxiao.common.security.httpsecurity.filter.ValidateCodeSecurityRequestFilter;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
@@ -53,11 +53,11 @@ public class SecurityFilterAutoConfiguration {
 
     @Bean("securityTokenGlobalValidateFilter")
     @ConditionalOnMissingBean(name = {"securityTokenGlobalValidateFilter"})
-    public AbstractSecurityRequestFilter securityTokenGlobalValidateFilter(SecurityPropertyResource securityPropertyResource,
-                                                                           SecurityHandler securityHandler,
-                                                                           UserDetailsService userDetailsService,
-                                                                           SecurityTokenResolver securityTokenResolver,
-                                                                           TokenBuilder tokenBuilder) throws ServletException {
+    public SecurityRequestFilter securityTokenGlobalValidateFilter(SecurityPropertyResource securityPropertyResource,
+                                                                   SecurityHandler securityHandler,
+                                                                   UserDetailsService userDetailsService,
+                                                                   SecurityTokenResolver securityTokenResolver,
+                                                                   TokenBuilder tokenBuilder) throws ServletException {
 
         SecurityTokenGlobalValidateFilter securityTokenValidateFilter =
                 new SecurityTokenGlobalValidateFilter(securityPropertyResource, userDetailsService,
@@ -77,8 +77,8 @@ public class SecurityFilterAutoConfiguration {
     @Bean("validateCodeSecurityRequestFilter")
     @ConditionalOnMissingBean(name = "validateCodeSecurityRequestFilter")
     @ConditionalOnBean({CodeHolder.class})
-    public AbstractSecurityRequestFilter validateCodeSecurityRequestFilter(CodeProducer codeProducer, SecurityPropertyResource securityPropertyResource,
-                                                                           SecurityHandler securityHandler) {
+    public SecurityRequestFilter validateCodeSecurityRequestFilter(CodeProducer codeProducer, SecurityPropertyResource securityPropertyResource,
+                                                                   SecurityHandler securityHandler) {
         ValidateCodeSecurityRequestFilter validateCodeFilter = new ValidateCodeSecurityRequestFilter();
         validateCodeFilter.setCodeProducer(codeProducer);
         validateCodeFilter.setPropertyResource(securityPropertyResource);

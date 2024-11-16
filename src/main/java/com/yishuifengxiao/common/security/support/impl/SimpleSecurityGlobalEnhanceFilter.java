@@ -49,7 +49,7 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
             formActionUrl = contextPath + formActionUrl;
         }
         String title = securityPropertyResource.security().getTitle();
-        HttpUtils.write(request, response, Response.sucData(new SecurityMeta(
+        HttpUtils.write(request, response, Response.suc(new SecurityMeta(
                 contextPath,
                 formActionUrl,
                 loginPage,

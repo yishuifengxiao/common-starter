@@ -115,9 +115,6 @@ public class InMemoryTokenHolder implements TokenHolder {
         if (null == token.getExpireAt()) {
             throw new CustomException("令牌中必须包含过期时间信息");
         }
-        if (null == token.getValidSeconds()) {
-            throw new CustomException("令牌中必须包含有效时间信息");
-        }
     }
 
 }

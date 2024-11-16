@@ -230,7 +230,7 @@ public class SecurityProperties {
         private String headerParameter = TokenConstant.TOKEN_HEADER_PARAM;
 
         /**
-         * 从请求URL参数里取出认证信息时的参数名，默认为 xtoken
+         * 从请求URL参数里取出认证信息时的参数名，默认为 x-token
          */
         private String requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
         /**
@@ -387,7 +387,7 @@ public class SecurityProperties {
         /**
          * 登录账号不存在时的提示信息,默认值为 账号不存在
          */
-        private String accountNoExtis = "账号不存在";
+        private String accountNoExits = "账号不存在";
 
         /**
          * 登录账号已过期时的提示信息,默认值为 账号已过期
@@ -431,17 +431,13 @@ public class SecurityProperties {
         /**
          * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的提示信息，默认为该资源需要经过授权才能被访问
          */
-        private String visitOnError = "该资源需要经过授权才能被访问";
+        private String visitOnError = "您还未登录或登录状态已过期";
 
         /**
          * 访问资源时因为权限等原因发生了异常后的处理(可能本身就不是一个合法的用户)时的响应码，默认值为500
          */
         private Integer visitOnErrorCode = Response.Const.CODE_INTERNAL_SERVER_ERROR;
 
-        /**
-         * 请求中未携带访问令牌或获取到的访问令牌为空时的提示信息，令牌不能为空
-         */
-        private String tokenValueIsNull = "令牌不能为空";
 
         /**
          * 请求中携带的访问令牌是非法或无效时的响应码，默认为 401

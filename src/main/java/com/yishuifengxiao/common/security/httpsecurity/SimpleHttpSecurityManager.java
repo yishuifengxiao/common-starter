@@ -54,7 +54,7 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
     /**
      * 系统中所有的Security 请求过滤器 实例
      */
-    private List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters;
+    private List<SecurityRequestFilter> securityRequestFilters;
     /**
      * 收集到所有的授权配置，Order的值越小，实例排在队列的越前面，这里需要使用有序队列
      */
@@ -87,18 +87,20 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
             )).requireExplicitSave(true);
         });
 
-        if (null != this.abstractSecurityRequestFilters) {
-            for (AbstractSecurityRequestFilter abstractSecurityRequestFilter : this.abstractSecurityRequestFilters) {
+        if (null != this.securityRequestFilters) {
+            for (SecurityRequestFilter securityRequestFilter : this.securityRequestFilters) {
                 if (securityPropertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( Security请求过滤器 ) 实例为 {}",
-                            abstractSecurityRequestFilter);
+                            securityRequestFilter);
                 }
-                abstractSecurityRequestFilter.configure(http);
+                securityRequestFilter.configure(securityRequestFilter.filter(), http);
             }
         }
 
         // 加入自定义的授权配置
         if (null != this.httpSecurityEnhanceCustomizers) {
+            httpSecurityEnhanceCustomizers =
+                    httpSecurityEnhanceCustomizers.stream().filter(Objects::nonNull).sorted(Comparator.comparing(HttpSecurityEnhanceCustomizer::order)).collect(Collectors.toList());
             for (HttpSecurityEnhanceCustomizer authorizeConfigProvider : httpSecurityEnhanceCustomizers) {
                 if (securityPropertyResource.showDetail()) {
                     log.info("【yishuifengxiao-common-spring-boot-starter】 系统中当前加载的 ( 授权提供器 ) 序号为 {} , 实例为 {}",
@@ -119,12 +121,12 @@ public class SimpleHttpSecurityManager implements HttpSecurityManager, Initializ
                                      SecurityPropertyResource securityPropertyResource,
                                      UserDetailsService userDetailsService,
                                      AuthenticationPoint authenticationPoint,
-                                     List<AbstractSecurityRequestFilter> abstractSecurityRequestFilters) {
+                                     List<SecurityRequestFilter> securityRequestFilters) {
 
         this.httpSecurityEnhanceCustomizers = httpSecurityEnhanceCustomizers;
         this.securityPropertyResource = securityPropertyResource;
         this.authenticationPoint = authenticationPoint;
-        this.abstractSecurityRequestFilters = abstractSecurityRequestFilters;
+        this.securityRequestFilters = securityRequestFilters;
         this.userDetailsService=userDetailsService;
     }
     // @formatter:on

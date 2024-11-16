@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.web;
 
-import com.yishuifengxiao.common.tool.collections.DataUtil;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -48,7 +48,7 @@ public class WebEnhanceProperties {
     /**
      * 是否开启动态修改日志级别功能，若不为空则表示开启此功能
      */
-    private String dynamicLogLevel = "dynamicLogLevel";
+    private String dynamicLogLevel = "x-log-level";
 
     /**
      * 响应增强功能配置
@@ -116,7 +116,7 @@ public class WebEnhanceProperties {
          * @return 要设置要注册筛选器的URL模式
          */
         public List<String> getUrlPatterns() {
-            return DataUtil.asList(StringUtils.splitByWholeSeparator(this.url, ",")).stream()
+            return CollUtil.asList(StringUtils.splitByWholeSeparator(this.url, ",")).stream()
                     .filter(StringUtils::isNotBlank).map(StringUtils::trim).collect(Collectors.toList());
         }
 
