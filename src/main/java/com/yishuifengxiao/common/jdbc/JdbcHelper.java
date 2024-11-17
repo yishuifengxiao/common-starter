@@ -5,6 +5,7 @@ package com.yishuifengxiao.common.jdbc;
 
 import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
@@ -70,30 +71,27 @@ public interface JdbcHelper {
 
 
     /**
-     * 根据pojo实例中的非空属性值查询出前几条符合条件的数据
-     *
-     * @param t        pojo实例
-     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param topNum   查询出来数据的条数
-     * @param orders   排序条件
-     * @param <T>      数据类型
-     * @return 查询出来的数据
-     */
-    <T> List<T> findTop(T t, boolean likeMode, int topNum, Order... orders);
-
-
-    /**
      * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
      * @param t        pojo实例
      * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param pageSize 分页大小
-     * @param pageNum  放弃页页码
+     * @param slice    分页参数
      * @param orders   排序条件
      * @param <T>      数据类型
      * @return 查询出来的数据
      */
-    <T> Page<T> findPage(T t, boolean likeMode, int pageSize, int pageNum, Order... orders);
+    <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders);
+
+    /**
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
+     *
+     * @param pageQuery pojo实例查询条件
+     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders    排序条件
+     * @param <T>       数据类型
+     * @return 查询出来的数据
+     */
+    <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders);
 
 
     /**

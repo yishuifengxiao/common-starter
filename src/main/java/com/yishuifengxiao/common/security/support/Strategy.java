@@ -1,5 +1,10 @@
 package com.yishuifengxiao.common.security.support;
 
+import com.yishuifengxiao.common.tool.entity.RootEnum;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 /**
  * 处理类型
  *
@@ -7,7 +12,7 @@ package com.yishuifengxiao.common.security.support;
  * @version 1.0.0
  * @since 1.0.0
  */
-public enum Strategy {
+public enum Strategy implements RootEnum {
 
     /**
      * 认证成功
@@ -41,11 +46,22 @@ public enum Strategy {
         this.code = code;
     }
 
-    public String getName() {
-        return name;
+
+    public static Optional<Strategy> code(Integer code) {
+        if (null == code) {
+            return Optional.empty();
+        }
+        return Arrays.stream(values()).filter(v -> v.code == code).findFirst();
     }
 
-    public int getCode() {
-        return code;
+
+    @Override
+    public Integer code() {
+        return this.code;
+    }
+
+    @Override
+    public String enumName() {
+        return this.name;
     }
 }

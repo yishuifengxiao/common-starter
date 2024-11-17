@@ -15,6 +15,7 @@ import com.yishuifengxiao.common.jdbc.translator.impl.SimpleInsertTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleQueryTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleUpdateTranslator;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import com.yishuifengxiao.common.tool.text.RegexUtil;
 import com.yishuifengxiao.common.tool.utils.ValidateUtils;
@@ -185,48 +186,20 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
 
     /**
-     * 根据pojo实例中的非空属性值查询出前几条符合条件的数据
-     *
-     * @param t        pojo实例
-     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param topNum   查询出来数据的条数
-     * @param orders   排序条件
-     * @param <T>      数据类型
-     * @return 查询出来的数据
-     */
-    @Override
-    public <T> List<T> findTop(T t, boolean likeMode, int topNum, Order... orders) {
-        if (null == t) {
-            return Collections.EMPTY_LIST;
-        }
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
-
-        String sql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders),
-                new Slice(null, topNum));
-
-        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), sql, params);
-        return null == list ? Collections.EMPTY_LIST : (List<T>) list;
-    }
-
-    /**
      * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
      * @param t        pojo实例
      * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param pageSize 分页大小
-     * @param pageNum  放弃页页码
+     * @param slice    分页参数
      * @param orders   排序条件
      * @param <T>      数据类型
      * @return 查询出来的数据
      */
     @Override
-    public <T> Page<T> findPage(T t, boolean likeMode, int pageSize, int pageNum, Order... orders) {
+    public <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders) {
+        slice = null == slice ? new Slice(10, 1) : slice;
         if (null == t) {
-            return Page.ofEmpty(pageSize);
+            return Page.ofEmpty(slice.size());
         }
         String tableName = fieldExtractor.extractTableName(t.getClass());
 
@@ -235,7 +208,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
         Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
 
-        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), null);
+        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), slice);
         String countSql = queryTranslator.findAll(tableName, values, likeMode, null, null);
 
         countSql =
@@ -245,7 +218,24 @@ public class SimpleJdbcHelper implements JdbcHelper {
         List<Long> numbers = executeExecutor.findAll(jdbcTemplate, Long.class, countSql, params);
 
         Long count = null == numbers || numbers.isEmpty() ? 0 : numbers.get(0);
-        return (Page<T>) Page.of(list, count, new Slice(pageSize, pageNum));
+        return (Page<T>) Page.of(list, count, slice);
+    }
+
+    /**
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
+     *
+     * @param pageQuery pojo实例查询条件
+     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders    排序条件
+     * @param <T>       数据类型
+     * @return 查询出来的数据
+     */
+    @Override
+    public <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders) {
+        if (null == pageQuery) {
+            return Page.ofEmpty();
+        }
+        return this.findPage(pageQuery.getQuery(), likeMode, pageQuery, orders);
     }
 
     /**
