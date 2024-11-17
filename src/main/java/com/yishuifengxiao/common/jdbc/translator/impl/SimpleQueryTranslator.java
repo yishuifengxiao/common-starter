@@ -65,7 +65,7 @@ public class SimpleQueryTranslator implements QueryTranslator {
             if (like && fieldValue.isNotNullVal()
                     && fieldValue.getValue() instanceof String
                     && !fieldValue.isPrimary()) {
-                placeholders.add(fieldValue.getSimpleName() + " like  '%?%' ");
+                placeholders.add(fieldValue.getSimpleName() + " like  CONCAT('%',?,'%') ");
             } else {
                 placeholders.add(fieldValue.getSimpleName() + " = ? ");
             }
