@@ -80,11 +80,14 @@ public class BaseSecurityHandler implements SecurityHandler {
     public void whenAuthenticationSuccess(SecurityPropertyResource securityPropertyResource,
                                           HttpServletRequest request, HttpServletResponse response,
                                           Authentication authentication, SecurityToken token) throws IOException {
-        log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}", token);
-        preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS, authentication, null);
+        log.trace("【yishuifengxiao-common-spring-boot-starter】==============》 登陆成功,登陆的用户信息为 {}",
+                token);
+        preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_SUCCESS,
+                authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_SUCCESS, token,
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,
+                Strategy.AUTHENTICATION_SUCCESS, token,
                 null));
 
         TokenUtil.setToken(token);
@@ -98,10 +101,13 @@ public class BaseSecurityHandler implements SecurityHandler {
         String redirectUrl = redirectUrl(request, response);
 
         if (StringUtils.isNotBlank(redirectUrl)) {
-            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded. It is detected " +
-                            "that" + " the historical blocking path is {}, and will be redirected to this address",
+            log.info("【yishuifengxiao-common-spring-boot-starter】==============》 Login succeeded."
+                            + " It is detected " +
+                            "that" + " the historical blocking path is {}, and will be redirected"
+                            + " to this address",
                     redirectUrl);
-            redirectUrl = UriComponentsBuilder.fromUriString(redirectUrl).replaceQueryParam(requestParameter,
+            redirectUrl =
+                    UriComponentsBuilder.fromUriString(redirectUrl).replaceQueryParam(requestParameter,
                     token.getValue()).build(true).toUriString();
             redirectStrategy.sendRedirect(request, response, redirectUrl);
             return;
@@ -130,12 +136,14 @@ public class BaseSecurityHandler implements SecurityHandler {
                                           HttpServletRequest request, HttpServletResponse response,
                                           Exception exception) throws IOException {
 
-        log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}", exception.getMessage());
+        log.trace("【yishuifengxiao-common-spring-boot-starter】登录失败，失败的原因为 {}",
+                exception.getMessage());
 
         preHandle(request, response, securityPropertyResource, Strategy.AUTHENTICATION_FAILURE,
                 SecurityContextHolder.getContext().getAuthentication(), exception);
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.AUTHENTICATION_FAILURE, null,
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,
+                Strategy.AUTHENTICATION_FAILURE, null,
                 exception));
         String msg = "认证失败";
 
@@ -174,21 +182,26 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenLogoutSuccess(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
+    public void whenLogoutSuccess(SecurityPropertyResource securityPropertyResource,
+                                  HttpServletRequest request,
                                   HttpServletResponse response, Authentication authentication) throws IOException {
         log.trace("【yishuifengxiao-common-spring-boot-starter】退出成功，此用户的信息为 {}", authentication);
 
-        preHandle(request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS, authentication, null);
+        preHandle(request, response, securityPropertyResource, Strategy.LOGOUT_SUCCESS,
+                authentication, null);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.LOGOUT_SUCCESS, authentication
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,
+                Strategy.LOGOUT_SUCCESS, authentication
                 , null));
 
         if (isJsonRequest(request, response)) {
-            sendJson(request, response, Strategy.LOGOUT_SUCCESS, Response.suc(authentication).setMsg("退出成功"));
+            sendJson(request, response, Strategy.LOGOUT_SUCCESS,
+                    Response.suc(authentication).setMsg("退出成功"));
             return;
         }
-        redirect(request, response, Strategy.LOGOUT_SUCCESS, securityPropertyResource.security().getLoginOutUrl(),
+        redirect(request, response, Strategy.LOGOUT_SUCCESS,
+                securityPropertyResource.security().getLoginOutUrl(),
                 null, authentication);
     }
 
@@ -205,7 +218,8 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void whenAccessDenied(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
+    public void whenAccessDenied(SecurityPropertyResource securityPropertyResource,
+                                 HttpServletRequest request,
                                  HttpServletResponse response, AccessDeniedException exception) throws IOException {
 
         // 引起跳转的uri
@@ -216,14 +230,16 @@ public class BaseSecurityHandler implements SecurityHandler {
         saveReferer(request, response);
 
         // 发布事件
-        SpringContext.publishEvent(new SecurityEvent(this, request, response, Strategy.ACCESS_DENIED,
+        SpringContext.publishEvent(new SecurityEvent(this, request, response,
+                Strategy.ACCESS_DENIED,
                 SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
             if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
                 sendJson(request, response, Strategy.ACCESS_DENIED,
                         Response.of(securityPropertyResource.security().getMsg().getInvalidTokenValueCode(),
-                                securityPropertyResource.security().getMsg().getTokenIsNull(), null));
+                                securityPropertyResource.security().getMsg().getTokenIsNull(),
+                                null));
             } else {
                 sendJson(request, response, Strategy.ACCESS_DENIED,
                         Response.of(securityPropertyResource.security().getMsg().getAccessDeniedCode(),
@@ -232,7 +248,8 @@ public class BaseSecurityHandler implements SecurityHandler {
             }
             return;
         }
-        redirect(request, response, Strategy.ACCESS_DENIED, securityPropertyResource.security().getRedirectUrl(),
+        redirect(request, response, Strategy.ACCESS_DENIED,
+                securityPropertyResource.security().getRedirectUrl(),
                 null, exception);
     }
 
@@ -249,11 +266,13 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @throws IOException 处理时发生问题
      */
     @Override
-    public void onException(SecurityPropertyResource securityPropertyResource, HttpServletRequest request,
+    public void onException(SecurityPropertyResource securityPropertyResource,
+                            HttpServletRequest request,
                             HttpServletResponse response, Exception exception) throws IOException {
 
 
-        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,失败的原因为 {}",
+        log.trace("【yishuifengxiao-common-spring-boot-starter】获取资源 失败(可能是缺少token),该资源的url为 {} ,"
+                        + "失败的原因为 {}",
                 request.getRequestURL(), exception);
         preHandle(request, response, securityPropertyResource, Strategy.ON_EXCEPTION,
                 SecurityContextHolder.getContext().getAuthentication(), exception);
@@ -269,7 +288,8 @@ public class BaseSecurityHandler implements SecurityHandler {
                             securityPropertyResource.security().getMsg().getVisitOnError(), null));
             return;
         }
-        redirect(request, response, Strategy.ON_EXCEPTION, securityPropertyResource.security().getRedirectUrl(), null
+        redirect(request, response, Strategy.ON_EXCEPTION,
+                securityPropertyResource.security().getRedirectUrl(), null
                 , exception);
 
     }
@@ -293,11 +313,12 @@ public class BaseSecurityHandler implements SecurityHandler {
         }
         try {
             // 引起跳转的uri
-            UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(request.getRequestURL().toString());
+            UriComponentsBuilder uriBuilder =
+                    UriComponentsBuilder.fromUriString(request.getRequestURL().toString());
             Map<String, String[]> parameterMap = request.getParameterMap();
             if (null != parameterMap) {
                 parameterMap.forEach((k, v) -> {
-                    uriBuilder.queryParam(k, v);
+                    uriBuilder.queryParam(k, new Object[]{v});
                 });
             }
             // build(true) -> Components are explicitly encoded
@@ -349,20 +370,24 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @param data     附带信息
      * @throws IOException
      */
-    protected void redirect(HttpServletRequest request, HttpServletResponse response, Strategy strategy, String url,
+    protected void redirect(HttpServletRequest request, HttpServletResponse response,
+                            Strategy strategy, String url,
                             String msg, Object data) throws IOException {
         UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(url);
         if (StringUtils.isNotBlank(msg)) {
-            uriBuilder.queryParam("error_msg", URLEncoder.encode(msg, StandardCharsets.UTF_8.name()));
+            uriBuilder.queryParam("error_msg", URLEncoder.encode(msg,
+                    StandardCharsets.UTF_8.name()));
         } else {
             if (null != data) {
                 if (data instanceof Throwable) {
                     if (!(data instanceof NullPointerException)) {
-                        uriBuilder.queryParam("error_msg", URLEncoder.encode(((Throwable) data).getMessage(),
+                        uriBuilder.queryParam("error_msg",
+                                URLEncoder.encode(((Throwable) data).getMessage(),
                                 StandardCharsets.UTF_8.name()));
                     }
                 } else {
-                    uriBuilder.queryParam("error_msg", URLEncoder.encode(JsonUtil.toJSONString(data),
+                    uriBuilder.queryParam("error_msg",
+                            URLEncoder.encode(JsonUtil.toJSONString(data),
                             StandardCharsets.UTF_8.name()));
                 }
             }
@@ -382,7 +407,8 @@ public class BaseSecurityHandler implements SecurityHandler {
      * @param strategy 处理类型
      * @param data     附带信息
      */
-    protected void sendJson(HttpServletRequest request, HttpServletResponse response, Strategy strategy, Object data) {
+    protected void sendJson(HttpServletRequest request, HttpServletResponse response,
+                            Strategy strategy, Object data) {
         HttpUtils.write(request, response, data);
     }
 

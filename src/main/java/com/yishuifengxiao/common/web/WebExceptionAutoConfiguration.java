@@ -59,8 +59,7 @@ import java.util.Optional;
 @ControllerAdvice
 @ResponseBody
 @ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue =
-        "true", matchIfMissing =
-        true)
+        "true", matchIfMissing = true)
 @Priority(1)
 @AutoConfigureBefore({ErrorMvcAutoConfiguration.class})
 public class WebExceptionAutoConfiguration implements InitializingBean {
@@ -76,7 +75,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     private ErrorHelper errorHelper;
 
     /**
-     * 捕获过滤器he拦截器中产生的异常
+     * 捕获过滤器和拦截器中产生的异常
      *
      * @param errorAttributes ErrorAttributes
      * @param errorProperties ErrorProperties
@@ -84,8 +83,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
      */
     @Bean
     @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
-    public BasicErrorController basicErrorController(@Autowired(required = false) ErrorAttributes errorAttributes,
-                                                     @Autowired(required = false) ErrorProperties errorProperties) {
+    public BasicErrorController basicErrorController(@Autowired(required = false) ErrorAttributes errorAttributes, @Autowired(required = false) ErrorProperties errorProperties) {
         errorProperties = null == errorProperties ? new ErrorProperties() : errorProperties;
         return new BasicErrorController(errorAttributes, errorProperties) {
             @Override
@@ -128,8 +126,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         Response<Object> response = new Response<>(code, null == e ? "" : e.getMessage(),
                 context).setId(ssid);
         if (log.isDebugEnabled()) {
-            log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " +
-                    "intercepted custom " + "exception is {}", ssid, uri, e);
+            log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " + "intercepted custom " + "exception is {}", ssid, uri, e);
         }
 
         return response;

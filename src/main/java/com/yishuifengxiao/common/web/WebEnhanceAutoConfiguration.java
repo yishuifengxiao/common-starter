@@ -72,8 +72,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties({WebEnhanceProperties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true",
-        matchIfMissing = true)
 public class WebEnhanceAutoConfiguration {
 
     @Autowired
@@ -94,7 +92,7 @@ public class WebEnhanceAutoConfiguration {
                 new FilterRegistrationBean<>(corsFilter);
         registration.setName("corsAllowedFilter");
         registration.setUrlPatterns(webEnhanceProperties.getCors().getUrlPatterns());
-        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        registration.setOrder(Ordered.LOWEST_PRECEDENCE);
         return registration;
     }
 
@@ -107,12 +105,14 @@ public class WebEnhanceAutoConfiguration {
     @Bean("requestTrackingFilter")
     @Order(Ordered.HIGHEST_PRECEDENCE + 1000)
     @ConditionalOnMissingBean(name = "requestTrackingFilter")
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web.traced", name = {"enable"}, havingValue =
+            "true", matchIfMissing = true)
     public FilterRegistrationBean<TracedFilter> requestTrackingFilter() {
         TracedFilter tracedFilter = new TracedFilter(webEnhanceProperties);
         FilterRegistrationBean<TracedFilter> registration =
                 new FilterRegistrationBean<>(tracedFilter);
         registration.setName("requestTrackingFilter");
-        registration.setUrlPatterns(webEnhanceProperties.getCors().getUrlPatterns());
+        registration.setUrlPatterns(Arrays.asList("/*"));
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1000);
         return registration;
     }
@@ -127,8 +127,8 @@ public class WebEnhanceAutoConfiguration {
      */
     @Configuration(proxyBeanMethods = false)
     @Aspect
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"aop"}, havingValue = "true",
-            matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "yishuifengxiao.web.aop", name = {"enable"}, havingValue =
+            "true", matchIfMissing = true)
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public static class ValidAutoConfiguration {
 
@@ -150,6 +150,10 @@ public class WebEnhanceAutoConfiguration {
         public void validParam() {
         }
 
+        @Pointcut("args(.., org.springframework.validation.BindingResult))")
+        public void argsBindingResult() {
+        }
+
         /**
          * 拦截被@Controller或@RestController注解的类中修饰符为public的方法，
          * 且方法包含被@Validated修饰的参数或者方法包含BindingResult参数
@@ -158,8 +162,8 @@ public class WebEnhanceAutoConfiguration {
          * @return 请求响应结果
          * @throws Throwable 处理时发生异常
          */
-        @Around("controllerClass() && publicMethod() && (validatedParam() || validParam() || " +
-                "args" + "(.., org.springframework.validation.BindingResult))")
+        @Around("controllerClass() && publicMethod() && ( validatedParam() || validParam() || " +
+                "argsBindingResult() )")
         public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
             // 获取所有的请求参数
             Object[] args = joinPoint.getArgs();
@@ -225,14 +229,6 @@ public class WebEnhanceAutoConfiguration {
             return joinPoint.proceed();
 
         }
-
-
-        @PostConstruct
-        public void checkConfig() {
-
-            log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <全局参数校验功能> 相关的配置");
-        }
-
     }
 
     @SuppressWarnings("rawtypes")
@@ -290,16 +286,6 @@ public class WebEnhanceAutoConfiguration {
 
             return resp;
         }
-
-
-        /**
-         * 配置检查
-         */
-        @PostConstruct
-        public void checkConfig() {
-
-            log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <响应增强功能> 相关的配置");
-        }
     }
 
 
@@ -330,15 +316,14 @@ public class WebEnhanceAutoConfiguration {
                 IOException {
             String ssid = IdWorker.snowflakeStringId();
             TraceContext.set(ssid);
-            MDC.put(webEnhanceProperties.getTracked(), ssid);
+            MDC.put(webEnhanceProperties.getTraced().getTrackedId(), ssid);
             try {
                 // 动态设置日志
-                String dynamicLogLevel = webEnhanceProperties.getDynamicLogLevel();
+                String dynamicLogLevel = webEnhanceProperties.getTraced().getDynamicLogLevel();
                 if (StringUtils.isNotBlank(dynamicLogLevel) && !StringUtils.equalsIgnoreCase(
                         "false", dynamicLogLevel)) {
                     // 开启动态日志功能
-                    String[] tokens =
-                            dynamicLogLevel(request.getHeader(dynamicLogLevel.trim()));
+                    String[] tokens = dynamicLogLevel(request.getHeader(dynamicLogLevel.trim()));
                     if (null != tokens) {
                         LogLevelUtil.setLevel(tokens[0], tokens[1]);
                     }
@@ -346,7 +331,7 @@ public class WebEnhanceAutoConfiguration {
                 filterChain.doFilter(request, response);
             } finally {
                 TraceContext.clear();
-                MDC.remove(webEnhanceProperties.getTracked());
+                MDC.remove(webEnhanceProperties.getTraced().getTrackedId());
             }
 
 
@@ -364,8 +349,7 @@ public class WebEnhanceAutoConfiguration {
             }
             try {
                 String val =
-                        new String(Base64.getDecoder().decode(text.getBytes(StandardCharsets.UTF_8)),
-                                StandardCharsets.UTF_8);
+                        new String(Base64.getDecoder().decode(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
                 if (StringUtils.isBlank(val)) {
                     return null;
                 }
@@ -423,13 +407,11 @@ public class WebEnhanceAutoConfiguration {
                     response.addHeader(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
                 }
 
-
                 //Access-Control-Allow-Origin
                 String accessControlAllowOrigin = HttpUtils.accessControlAllowOrigin(request);
                 //controlAllowHeaders
                 accessControlAllowOrigin = Arrays.asList(accessControlAllowOrigin,
                         corsProperties.getAllowedOrigins()).stream().filter(StringUtils::isNotBlank).collect(Collectors.joining(","));
-
 
                 response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
                         StringUtils.isBlank(accessControlAllowOrigin) ? "*" :
@@ -457,21 +439,17 @@ public class WebEnhanceAutoConfiguration {
                 response.setHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
                         accessControlAllowHeaders);
 
-
                 response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
                         corsProperties.getAllowCredentials() + "");
 
                 response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
                         corsProperties.getAllowedMethods());
 
-
             } catch (Throwable e) {
                 if (log.isInfoEnabled()) {
-                    log.info("[unkown] 跨域支持捕获到未知异常 {}", e.getMessage());
+                    log.info("[unknown] 跨域支持捕获到未知异常 {}", e.getMessage());
                 }
-
             }
-
             filterChain.doFilter(request, response);
         }
 
