@@ -1,7 +1,5 @@
 package com.yishuifengxiao.common.jdbc;
 
-import com.yishuifengxiao.common.jdbc.entity.Condition;
-import com.yishuifengxiao.common.jdbc.entity.Example;
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
@@ -16,13 +14,17 @@ import com.yishuifengxiao.common.jdbc.translator.impl.SimpleDeleteTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleInsertTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleQueryTranslator;
 import com.yishuifengxiao.common.jdbc.translator.impl.SimpleUpdateTranslator;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
+import com.yishuifengxiao.common.tool.text.RegexUtil;
+import com.yishuifengxiao.common.tool.utils.ValidateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 系统JdbcTemplate操作器
@@ -48,457 +50,196 @@ public class SimpleJdbcHelper implements JdbcHelper {
     private JdbcTemplate jdbcTemplate;
 
     /**
-     * 根据主键从指定表查询一条数据
+     * 根据主键查询一条数据
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param primaryKey 主键
-     * @return 查询到的数据
+     * @param clazz      POJO类型
+     * @param primaryKey 主键值
+     * @param <T>        数据类型
+     * @return 查询出来的数据
      */
     @Override
     public <T> T findByPrimaryKey(Class<T> clazz, Object primaryKey) {
-        return queryTranslator.findByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, primaryKey);
-    }
-
-    /**
-     * 查询符合条件的记录的数量
-     *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的记录的数量
-     */
-    @Override
-    public <T> Long countAll(T t) {
-        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t);
-    }
-
-    /**
-     * 查询符合条件的记录的数量
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的记录的数量
-     */
-    @Override
-    public <T> Long countAll(Class<T> clazz, Condition... conditions) {
-        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions));
-    }
-
-    /**
-     * 查询符合条件的记录的数量
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的记录的数量
-     */
-    @Override
-    public <T> Long countAll(Class<T> clazz, Example example) {
-        return queryTranslator.countAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition());
-    }
-
-    /**
-     * 收集筛选条件
-     *
-     * @param conditions
-     * @return
-     */
-    private List<Condition> collect(Condition... conditions) {
-        List<Condition> list = new ArrayList<>();
-        if (null != conditions) {
-            for (Condition condition : conditions) {
-                if (null != condition) {
-                    list.add(condition);
-                }
-            }
+        if (null == primaryKey || null == primaryKey) {
+            return null;
         }
-        return list;
+        String tableName = fieldExtractor.extractTableName(clazz);
+        List<FieldValue> fields = fieldExtractor.extractFiled(clazz);
+        FieldValue fieldValue = primaryKey(fields);
+
+        String sql = queryTranslator.findAll(tableName, Arrays.asList(fieldValue), false, null, new Slice(null, 1));
+        List<T> list = executeExecutor.findAll(jdbcTemplate, clazz, sql, new Object[]{primaryKey});
+
+        return null == list || list.isEmpty() ? null : list.get(0);
     }
 
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值查询出所有符合条件的数据的数量
      *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的数据
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param <T>      数据类型
+     * @return 所有符合条件的数据的数量
      */
     @Override
-    public <T> T findOne(T t) {
-        return DataUtil.first(this.findAll(t));
+    public <T> Long countAll(T t, boolean likeMode) {
+        if (null == t) {
+            return null;
+        }
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
+        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+
+        String sql = queryTranslator.findAll(tableName, values, likeMode, null, null);
+
+        String countSql =
+                new StringBuffer("SELECT count(1) from ( ").append(sql).append(" ) as " + "__tmp_result_9").toString();
+        List<Long> numbers = executeExecutor.findAll(jdbcTemplate, Long.class, countSql, params);
+
+        return null == numbers || numbers.isEmpty() ? 0 : numbers.get(0).longValue();
     }
 
+
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值查询出一条符合条件的数据
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
     @Override
-    public <T> T findOne(Class<T> clazz, Condition... conditions) {
-        return DataUtil.first(this.findAll(clazz, conditions));
+    public <T> T findOne(T t, boolean likeMode, Order... orders) {
+        if (null == t) {
+            return null;
+        }
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
+        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+
+        String sql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders),
+                new Slice(null, 1));
+
+
+        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), sql, params);
+        return null == list || list.isEmpty() ? null : (T) list.get(0);
     }
 
     /**
-     * 查询所有符合条件的数据
+     * 处理排序条件
      *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的数据
+     * @param fieldValues pojo实例数据属性列表
+     * @param orders      排序条件
+     * @return 处理后的排序条件
+     */
+    private List<Order> createOrder(List<FieldValue> fieldValues, Order... orders) {
+        if (null == orders || orders.length == 0) {
+            return null;
+        }
+        //@formatter:off
+        return Arrays.asList(orders).stream().filter(Objects::nonNull)
+                .filter(v -> StringUtils.isNotBlank(v.getOrderName()))
+                .map(s -> {
+                    String orderName =
+                            fieldValues.stream().filter(v -> null != v.getField())
+                                    .filter(v -> v.getField().getName().equalsIgnoreCase(s.getOrderName()))
+                                    .map(FieldValue::getSimpleName).findFirst().orElse(null);
+                    if (StringUtils.isNotBlank(orderName)) {
+                        s.setOrderName(orderName);
+                    }
+                    return s;
+                }).collect(Collectors.toList());
+        //@formatter:on
+    }
+
+
+    /**
+     * 根据pojo实例中的非空属性值查询出所有符合条件的数据
+     *
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
     @Override
-    public <T> T findOne(Class<T> clazz, Example example) {
-        return DataUtil.first(this.findAll(clazz, example));
+    public <T> List<T> findAll(T t, boolean likeMode, Order... orders) {
+        if (null == t) {
+            return Collections.EMPTY_LIST;
+        }
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
+        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), null);
+
+        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), querySql, params);
+        return null == list ? Collections.EMPTY_LIST : (List<T>) list;
     }
 
+
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param slice    分页参数
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
     @Override
-    public <T> T findOne(Class<T> clazz, List<Condition> conditions) {
-        return DataUtil.first(this.findAll(clazz, conditions));
+    public <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders) {
+        slice = null == slice ? new Slice(10, 1) : slice;
+        if (null == t) {
+            return Page.ofEmpty(slice.size());
+        }
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+
+        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
+        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), slice);
+        String countSql = queryTranslator.findAll(tableName, values, likeMode, null, null);
+
+        countSql =
+                new StringBuffer("SELECT count(1) from ( ").append(countSql).append(" ) as " + "__tmp_result_9").toString();
+
+        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), querySql, params);
+        List<Long> numbers = executeExecutor.findAll(jdbcTemplate, Long.class, countSql, params);
+
+        Long count = null == numbers || numbers.isEmpty() ? 0 : numbers.get(0);
+        return (Page<T>) Page.of(list, count, slice);
     }
 
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的数据
+     * @param pageQuery pojo实例查询条件
+     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders    排序条件
+     * @param <T>       数据类型
+     * @return 查询出来的数据
      */
     @Override
-    public <T> List<T> findAll(T t) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null);
+    public <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders) {
+        if (null == pageQuery) {
+            return Page.ofEmpty();
+        }
+        return this.findPage(pageQuery.getQuery(), likeMode, pageQuery, orders);
     }
 
     /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, Condition... conditions) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), null);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, Example example) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, List<Condition> conditions) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, null);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>   POJO类
-     * @param t     查询条件
-     * @param order 排序条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(T t, Order order) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, Order order, Condition... conditions) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param order   排序条件
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, Order order, Example example) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order);
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(Class<T> clazz, Order order, List<Condition> conditions) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, order);
-    }
-
-    /**
-     * 查询所有符合条件的数据（默认升序）
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(T t, String orderName) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName));
-    }
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @param direction 排序方向
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findAll(T t, String orderName, Order.Direction direction) {
-        return queryTranslator.findAll(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName, direction));
-    }
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>    POJO类
-     * @param t      查询条件
-     * @param order  排序条件
-     * @param topNum 查询出的记录的数量
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findTop(T t, Order order, int topNum) {
-        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order, topNum);
-    }
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param order   排序条件
-     * @param topNum  查询出的记录的数量
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Example example) {
-        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, example.toCondition(), order, topNum);
-    }
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param topNum     查询出的记录的数量
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Condition... conditions) {
-        return queryTranslator.findTop(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, topNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param t        查询条件
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(T t, int pageSize, int pageNum) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Condition... conditions) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), null, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param clazz    POJO类
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param example  筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Example example) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), null, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, List<Condition> conditions) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, null, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Condition... conditions) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, this.collect(conditions), order, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param clazz    POJO类
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param order    排序条件
-     * @param example  筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Example example) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, null == example ? new ArrayList<>() : example.toCondition(), order, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, List<Condition> conditions) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, conditions, order, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param t        查询条件
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param order    排序条件
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(T t, int pageSize, int pageNum, Order order) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, order, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param pageSize  分页大小
-     * @param pageNum   当前页页码
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, null, pageSize, pageNum);
-    }
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param pageSize  分页大小
-     * @param pageNum   当前页页码
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @param direction 排序方向
-     * @return 符合条件的数据
-     */
-    @Override
-    public <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName, Order.Direction direction) {
-        return queryTranslator.findPage(this.jdbcTemplate(), fieldExtractor, executeExecutor, t, Order.of(orderName, direction), pageSize, pageNum);
-    }
-
-    /**
-     * 根据主键全属性更新方式更新一条数据
+     * 根据主键全属性全量更新方式更新一条数据
      *
      * @param <T> POJO类
      * @param t   待更新的数据
@@ -506,11 +247,19 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKey(T t) {
-        return updateTranslator.updateByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t);
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        FieldValue primaryKey = primaryKey(fieldValues);
+
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+        String sql = updateTranslator.updateByPrimaryKey(tableName, primaryKey, fieldValues);
+
+        Object[] params = fieldValues.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+        return executeExecutor.execute(jdbcTemplate, sql, params);
     }
 
     /**
-     * 根据主键可选属性更新方式更新一条数据
+     * 根据主键可选属性增量更新方式更新一条数据
      *
      * @param <T> POJO类
      * @param t   待更新的数据
@@ -518,247 +267,276 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKeySelective(T t) {
-        return updateTranslator.updateByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t);
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        FieldValue primaryKey = primaryKey(fieldValues);
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+
+        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
+        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+
+
+        String sql = updateTranslator.updateByPrimaryKey(tableName, primaryKey, values);
+
+        return executeExecutor.execute(jdbcTemplate, sql, params);
     }
 
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>     POJO类
-     * @param t       待更新的数据
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int update(T t, Example example) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, null == example ? new ArrayList<>() : example.toCondition());
-    }
-
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>        POJO类
-     * @param t          待更新的数据
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int update(T t, List<Condition> conditions) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, conditions);
-    }
-
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>       POJO类
-     * @param t         待更新的数据
-     * @param condition 更新条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int update(T t, T condition) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, false, t, condition);
-    }
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>       POJO类
-     * @param t         待更新的数据
-     * @param condition 更新条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int updateSelective(T t, T condition) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, condition);
-    }
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>     POJO类
-     * @param t       待更新的数据
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int updateSelective(T t, Example example) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, null == example ? new ArrayList<>() : example.toCondition());
-    }
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>        POJO类
-     * @param t          待更新的数据
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int updateSelective(T t, List<Condition> conditions) {
-        return updateTranslator.update(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t, conditions);
-    }
 
     /**
      * 根据主键删除一条数据
      *
-     * @param <T>        POJO类
-     * @param clazz      操作的对象
-     * @param primaryKey 主键值
+     * @param <T>         POJO类
+     * @param clazz       操作的对象
+     * @param primaryKeys 主键值
      * @return 受影响的记录的数量
      */
     @Override
-    public <T> int deleteByPrimaryKey(Class<T> clazz, Object primaryKey) {
-        return deleteTranslator.deleteByPrimaryKey(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, primaryKey);
+    public <T> int deleteByPrimaryKey(Class<T> clazz, Object... primaryKeys) {
+        if (null == primaryKeys || primaryKeys.length == 0) {
+            return 0;
+        }
+        List<Object> params = Arrays.asList(primaryKeys).stream().filter(Objects::nonNull).filter(v -> {
+            if (v instanceof String val) {
+                return StringUtils.isNotBlank(val.trim());
+            }
+            return true;
+        }).collect(Collectors.toList());
+        if (null == params || params.isEmpty()) {
+            return 0;
+        }
+
+        String tableName = fieldExtractor.extractTableName(clazz);
+
+        List<FieldValue> fields = fieldExtractor.extractFiled(clazz);
+        FieldValue primaryKey = primaryKey(fields);
+
+        String sql = deleteTranslator.deleteByPrimaryKeys(tableName, primaryKey.getSimpleName(), params);
+
+        return executeExecutor.execute(jdbcTemplate, sql, null);
+
 
     }
 
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T> POJO类
-     * @param t   删除条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int delete(T t) {
-        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, true, t);
-    }
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int delete(Class<T> clazz, Condition... conditions) {
-        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, this.collect(conditions));
-    }
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int delete(Class<T> clazz, Example example) {
-        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, null == example ? new ArrayList<>() : example.toCondition());
-    }
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int delete(Class<T> clazz, List<Condition> conditions) {
-        return deleteTranslator.delete(this.jdbcTemplate(), fieldExtractor, executeExecutor, clazz, true, conditions);
-    }
 
     /**
      * 以全属性方式新增一条数据
      *
      * @param <T> POJO类
      * @param t   待新增的数据
-     * @return 受影响的记录的数量
+     * @return 保存数据的主键
      */
     @Override
-    public <T> int insert(T t) {
-        return insertTranslator.insert(this.jdbcTemplate(), fieldExtractor, false, executeExecutor, t);
+    public <T> KeyHolder insert(T t) {
+        if (null == t) {
+            return null;
+        }
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        String sql = insertTranslator.insert(tableName, fieldValues);
+
+        return this.executeExecutor.update(this.jdbcTemplate, sql, fieldValues);
     }
 
     /**
-     * 以可选属性方式新增一条数据
-     *
-     * @param <T> POJO类
-     * @param t   待新增的数据
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int insertSelective(T t) {
-        return insertTranslator.insert(this.jdbcTemplate(), fieldExtractor, true, executeExecutor, t);
-    }
-
-    @Override
-    public <T> T saveOrUpdate(T t) {
-        if (isUpdate(t)) {
-            this.updateByPrimaryKey(t);
-        } else {
-            this.insert(t);
-        }
-        return t;
-    }
-
-
-    @Override
-    public <T> T saveOrUpdateSelective(T t) {
-        if (isUpdate(t)) {
-            this.updateByPrimaryKeySelective(t);
-        } else {
-            this.insertSelective(t);
-        }
-        return t;
-    }
-
-    /**
-     * 判断是否更新操作
+     * 根据主键id判断数据是否存在，若存在则先删除存在的数据，然后再插入新的数据
      *
      * @param t   待操作的数据
      * @param <T> POJO类
-     * @return true表示更新操作，false为插入操作
+     * @return 保存数据的主键
      */
-    private <T> boolean isUpdate(T t) {
-        FieldValue primaryKey = fieldExtractor.extractPrimaryKey(t.getClass());
-        Object value = fieldExtractor.extractValue(t, primaryKey.getName());
-        if (null == value) {
-            return false;
+
+    @Override
+    public <T> KeyHolder saveOrUpdate(T t) {
+        if (null == t) {
+            return null;
         }
-        return this.countAll(t.getClass(), Condition.andEqual(primaryKey.getName(), value)) > 0;
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        List<FieldValue> values =
+                fieldValues.stream().filter(Objects::nonNull).filter(v -> v.isPrimary() && v.isNotNullVal()).distinct().collect(Collectors.toList());
+
+        if (values.isEmpty()) {
+            return this.insert(t);
+        } else if (values.size() == 1) {
+            this.deleteByPrimaryKey(t.getClass(), values.get(0).getValue());
+            return this.insert(t);
+        } else {
+            //多个主键属性
+            ValidateUtils.throwException(JdbcError.MULTIPLE_PRIMARY_KEYS);
+        }
+        return null;
     }
 
-
+    /**
+     * 批量保存数据
+     *
+     * @param list 待批量保存的数据
+     * @param <T>  POJO数据类型
+     */
     @Override
-    public <T> Optional<T> queryOne(Class<T> clazz, String sql, Object... params) {
-        List<Object> args = Arrays.asList(params);
-        List<T> list = executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, args);
-        return null == list || list.isEmpty() ? Optional.empty() : Optional.ofNullable(list.get(0));
+    public synchronized <T> void saveAll(List<T> list) {
+        if (null == list || list.isEmpty()) {
+            return;
+        }
+        T val = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
+        if (null == val) {
+            return;
+        }
+
+        String tableName = fieldExtractor.extractTableName(val.getClass());
+        List<FieldValue> fieldValues = fieldExtractor.extractFiled(val.getClass());
+
+        String sql = insertTranslator.insert(tableName, fieldValues);
+
+        int[] types = new int[fieldValues.size()];
+        for (int i = 0; i < fieldValues.size(); i++) {
+            types[i] = fieldValues.get(i).sqlType().getVendorTypeNumber();
+        }
+
+        List<Object[]> values = list.parallelStream().filter(Objects::nonNull).map(s -> {
+            List<FieldValue> vals = fieldExtractor.extractFieldValue(s);
+            return fieldValues.stream().map(v -> vals.stream().filter(t -> Objects.equals(v.getField().getName(),
+                    t.getField().getName())).findFirst().orElse(null)).toArray(Object[]::new);
+        }).collect(Collectors.toList());
+
+
+        executeExecutor.batchUpdate(jdbcTemplate, sql, types, values);
     }
 
     @Override
-    public <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params) {
-        List<Object> args = Arrays.asList(params);
-        return Optional.ofNullable(executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, args));
+    public <T> T findOne(Class<T> clazz, String sql, Object... params) {
+        List<T> list = this.findAll(clazz, sql, params);
+        return list.isEmpty() ? null : list.get(0);
     }
 
+    /**
+     * 根据sql查询出所有的数据
+     *
+     * @param clazz  数据类型
+     * @param sql    sql语句
+     * @param params 参数
+     * @param <T>    POJO类
+     * @return 查询出来的数据
+     */
     @Override
-    public <T> Page<T> query(Class<T> clazz, Slice slice, String sql, Object... params) {
+    public <T> List<T> findAll(Class<T> clazz, String sql, Object... params) {
+        Map<String, Object> map = detectingQueryType(sql, params);
+        List<T> list = executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, null == map ? params : map);
+
+        return null == list ? Collections.EMPTY_LIST : list;
+    }
+
+    /**
+     * 根据原生sql进行分页查询
+     * 注意：此原生sql不能携带分页参数
+     *
+     * @param clazz  数据类型
+     * @param slice  分页参数
+     * @param sql    原生sql
+     * @param params 查询参数
+     * @param <T>    结果数据的类型
+     * @return
+     */
+    @Override
+    public <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Object... params) {
+        //formatter:off
+        slice = null == slice ? new Slice(10, 1) : slice;
+
+        Map<String, Object> map = detectingQueryType(sql, params);
+
         sql = sql.trim().endsWith(";") ? StringUtils.substringAfterLast(sql.trim(), ";") : sql.trim();
-        String dataSql = new StringBuffer("SELECT * from (").append(sql).append(") as __tmp_result limit ").append(slice.startOffset().longValue()).append(",").append(slice.endOffset().longValue()).toString();
-        String countSql = new StringBuffer("SELECT count(*) from (").append(sql).append(") as __tmp_result").toString();
-        return Page.of(this.query(clazz, dataSql, params).orElse(Collections.EMPTY_LIST), this.jdbcTemplate().queryForObject(countSql, Long.class, params), slice.size(), slice.num());
+        String dataSql = new StringBuffer("SELECT __tmp_result_8.* from ( ").append(sql).append(" ) as " +
+                "__tmp_result_8 " + "limit" + " ").append(slice.startOffset().longValue()).append(",").append(slice.size().longValue()).toString();
+        String countSql =
+                new StringBuffer("SELECT count(1) from ( ").append(sql).append(" ) as " + "__tmp_result_9").toString();
+
+        List<T> list = this.executeExecutor.findAll(jdbcTemplate, clazz, dataSql, null == map ? params : map);
+
+        List<Long> numbers = this.executeExecutor.findAll(jdbcTemplate, Long.class, countSql, null == map ? params :
+                map);
+        Long count = null == numbers || numbers.isEmpty() ? 0 : numbers.get(0);
+
+        //formatter:on
+        return Page.of(list, count, slice);
     }
 
-
-    public JdbcTemplate getJdbcTemplate() {
-        return this.jdbcTemplate;
-    }
-
+    /**
+     * 获取增强工具使用的JdbcTemplate
+     *
+     * @return 增强工具使用的JdbcTemplate
+     */
     @Override
     public JdbcTemplate jdbcTemplate() {
         return this.jdbcTemplate;
     }
 
+    /**
+     * 设置增强工具使用的JdbcTemplate
+     *
+     * @param jdbcTemplate JdbcTemplate
+     */
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    /**
+     * 构造函数
+     */
+    public SimpleJdbcHelper() {
+    }
+
+    /**
+     * 构造函数
+     *
+     * @param jdbcTemplate JdbcTemplate
+     */
+    public SimpleJdbcHelper(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+
+    /**
+     * 侦测是否命名参数查询
+     *
+     * @param sql  查询sql语句
+     * @param args 查询参数
+     * @return 若是命名参数查询则返回查询参数，否则为null
+     */
+    private Map<String, Object> detectingQueryType(String sql, Object[] args) {
+        if (StringUtils.isBlank(sql) || null == args || args.length == 0) {
+            return null;
+        }
+        if (args.length == 1 && null != args[0] && args[0] instanceof Map) {
+            return (Map<String, Object>) args[0];
+        }
+        List<String> list = RegexUtil.extractAll(":(\\w+)", sql);
+        if (null == list || !Objects.equals(list.size(), args.length)) {
+            return null;
+        }
+        Map<String, Object> map = new HashMap<>();
+        for (int i = 0; i < list.size(); i++) {
+            map.put(StringUtils.trim(StringUtils.substringAfter(list.get(i), ":")), args[i]);
+        }
+        return map;
+    }
+
+    /**
+     * 提取主键属性
+     *
+     * @param fieldValues 数据字段属性
+     * @return 主键属性
+     */
+    private FieldValue primaryKey(List<FieldValue> fieldValues) {
+        if (null == fieldValues || fieldValues.isEmpty()) {
+            ValidateUtils.throwException(JdbcError.NO_PRIMARY_KEY);
+        }
+        List<FieldValue> values =
+                fieldValues.stream().filter(Objects::nonNull).filter(FieldValue::isPrimary).collect(Collectors.toList());
+        if (null == values || values.isEmpty()) {
+            ValidateUtils.throwException(JdbcError.NO_PRIMARY_KEY);
+        }
+        if (values.size() > 1) {
+            ValidateUtils.throwException(JdbcError.MULTIPLE_PRIMARY_KEYS);
+        }
+        return values.get(0);
+    }
 }

@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -44,13 +45,18 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
         String forgotPasswordUrl = securityPropertyResource.security().getForgotPasswordUrl();
         String loginPage = securityPropertyResource.security().getLoginPage();
         String registerUrl = securityPropertyResource.security().getRegisterUrl();
-        HttpUtils.write(request, response, Response.sucData(new SecurityMeta(
+        if (StringUtils.isNoneBlank(contextPath)) {
+            formActionUrl = contextPath + formActionUrl;
+        }
+        String title = securityPropertyResource.security().getTitle();
+        HttpUtils.write(request, response, Response.suc(new SecurityMeta(
                 contextPath,
                 formActionUrl,
                 loginPage,
                 securityPropertyResource.security().getRememberMe().getRememberMeParameter(),
                 forgotPasswordUrl,
-                registerUrl
+                registerUrl,
+                title
         )));
         return;
     }
@@ -110,6 +116,11 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
          * 注册地址
          */
         private String registerUrl;
+
+        /**
+         * 平台名称
+         */
+        private String title;
     }
 
     public SimpleSecurityGlobalEnhanceFilter(SecurityPropertyResource securityPropertyResource) {

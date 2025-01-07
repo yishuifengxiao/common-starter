@@ -24,7 +24,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * <p>SimpleSecurityGlobalEnhanceFilter PersistentTokenRepository implementation backed by a Map.
+ * <p>SimpleSecurityGlobalEnhanceFilter <tt>PersistentTokenRepository</tt> implementation backed by a Map.
  * Intended for testing only. </p>
  * <p>
  * 解决原生类报错DataIntegrityViolationException再未引入数据库相关的包时出错的问题

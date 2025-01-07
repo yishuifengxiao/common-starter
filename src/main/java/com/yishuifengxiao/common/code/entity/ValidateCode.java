@@ -3,7 +3,8 @@
  */
 package com.yishuifengxiao.common.code.entity;
 
-import com.yishuifengxiao.common.tool.collections.JsonUtil;
+
+import com.yishuifengxiao.common.tool.bean.JsonUtil;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;

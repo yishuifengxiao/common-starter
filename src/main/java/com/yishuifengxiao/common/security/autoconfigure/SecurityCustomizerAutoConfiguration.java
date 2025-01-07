@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.util.Map;
 
@@ -62,7 +63,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("requestCacheAuthorizeCustomizer")
     @ConditionalOnMissingBean(name = "requestCacheAuthorizeCustomizer")
     public HttpSecurityEnhanceCustomizer requestCacheAuthorizeCustomizer() {
-        RequestCacheHttpSecurityEnhanceCustomizer requestCacheAuthorizeCustomizer = new RequestCacheHttpSecurityEnhanceCustomizer();
+        RequestCacheHttpSecurityEnhanceCustomizer requestCacheAuthorizeCustomizer =
+                new RequestCacheHttpSecurityEnhanceCustomizer();
         return requestCacheAuthorizeCustomizer;
     }
 
@@ -70,13 +72,16 @@ public class SecurityCustomizerAutoConfiguration {
      * 自定义授权提供器
      *
      * @param customResourceConfigurators 自定义授权提供器
+     * @param context ApplicationContext
      * @return 授权提供器实例
      */
     @Bean("resourceHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "resourceHttpSecurityEnhanceCustomizer")
-    public HttpSecurityEnhanceCustomizer resourceHttpSecurityEnhanceCustomizer(@Autowired(required = false) Map<String, CustomResourceConfigurator> customResourceConfigurators) {
-        ResourceHttpSecurityEnhanceCustomizer resourceHttpSecurityEnhanceCustomizer = new ResourceHttpSecurityEnhanceCustomizer();
+    public HttpSecurityEnhanceCustomizer resourceHttpSecurityEnhanceCustomizer(@Autowired(required = false) Map<String, CustomResourceConfigurator> customResourceConfigurators, RequestMappingHandlerMapping requestMappingHandlerMapping) {
+        ResourceHttpSecurityEnhanceCustomizer resourceHttpSecurityEnhanceCustomizer =
+                new ResourceHttpSecurityEnhanceCustomizer();
         resourceHttpSecurityEnhanceCustomizer.setCustomResourceConfigurators(customResourceConfigurators);
+        resourceHttpSecurityEnhanceCustomizer.setRequestMappingHandlerMapping(requestMappingHandlerMapping);
         return resourceHttpSecurityEnhanceCustomizer;
     }
 
@@ -88,7 +93,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("formLoginHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "formLoginHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer formLoginHttpSecurityEnhanceCustomizer() {
-        FormLoginHttpSecurityEnhanceCustomizer formLoginHttpSecurityEnhanceCustomizer = new FormLoginHttpSecurityEnhanceCustomizer();
+        FormLoginHttpSecurityEnhanceCustomizer formLoginHttpSecurityEnhanceCustomizer =
+                new FormLoginHttpSecurityEnhanceCustomizer();
         return formLoginHttpSecurityEnhanceCustomizer;
     }
 
@@ -101,7 +107,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("loginOutHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "loginOutHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer loginOutHttpSecurityEnhanceCustomizer() {
-        LoginOutHttpSecurityEnhanceCustomizer loginOutHttpSecurityEnhanceCustomizer = new LoginOutHttpSecurityEnhanceCustomizer();
+        LoginOutHttpSecurityEnhanceCustomizer loginOutHttpSecurityEnhanceCustomizer =
+                new LoginOutHttpSecurityEnhanceCustomizer();
         return loginOutHttpSecurityEnhanceCustomizer;
     }
 
@@ -115,7 +122,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("remeberMeHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "remeberMeHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer remeberMeHttpSecurityEnhanceCustomizer(PersistentTokenRepository persistentTokenRepository, UserDetailsService userDetailsService) {
-        RemeberMeHttpSecurityEnhanceCustomizer remeberMeHttpSecurityEnhanceCustomizer = new RemeberMeHttpSecurityEnhanceCustomizer();
+        RemeberMeHttpSecurityEnhanceCustomizer remeberMeHttpSecurityEnhanceCustomizer =
+                new RemeberMeHttpSecurityEnhanceCustomizer();
         remeberMeHttpSecurityEnhanceCustomizer.setPersistentTokenRepository(persistentTokenRepository);
         remeberMeHttpSecurityEnhanceCustomizer.setUserDetailsService(userDetailsService);
         return remeberMeHttpSecurityEnhanceCustomizer;
@@ -130,7 +138,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("sessionHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "sessionHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer sessionHttpSecurityEnhanceCustomizer(SessionInformationExpiredStrategy sessionInformationExpiredStrategy) {
-        SessionHttpSecurityEnhanceCustomizer sessionHttpSecurityEnhanceCustomizer = new SessionHttpSecurityEnhanceCustomizer();
+        SessionHttpSecurityEnhanceCustomizer sessionHttpSecurityEnhanceCustomizer =
+                new SessionHttpSecurityEnhanceCustomizer();
         sessionHttpSecurityEnhanceCustomizer.setSessionInformationExpiredStrategy(sessionInformationExpiredStrategy);
         return sessionHttpSecurityEnhanceCustomizer;
     }
@@ -144,7 +153,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("httpBasicHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "httpBasicHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer httpBasicAuthorizeCustomizer() {
-        HttpBasicHttpSecurityEnhanceCustomizer httpBasicHttpSecurityEnhanceCustomizer = new HttpBasicHttpSecurityEnhanceCustomizer();
+        HttpBasicHttpSecurityEnhanceCustomizer httpBasicHttpSecurityEnhanceCustomizer =
+                new HttpBasicHttpSecurityEnhanceCustomizer();
         return httpBasicHttpSecurityEnhanceCustomizer;
     }
 
@@ -156,7 +166,8 @@ public class SecurityCustomizerAutoConfiguration {
     @Bean("exceptionHttpSecurityEnhanceCustomizer")
     @ConditionalOnMissingBean(name = "exceptionHttpSecurityEnhanceCustomizer")
     public HttpSecurityEnhanceCustomizer exceptionAuthorizeCustomizer() {
-        ExceptionHttpSecurityEnhanceCustomizer exceptionHttpSecurityEnhanceCustomizer = new ExceptionHttpSecurityEnhanceCustomizer();
+        ExceptionHttpSecurityEnhanceCustomizer exceptionHttpSecurityEnhanceCustomizer =
+                new ExceptionHttpSecurityEnhanceCustomizer();
         return exceptionHttpSecurityEnhanceCustomizer;
     }
 

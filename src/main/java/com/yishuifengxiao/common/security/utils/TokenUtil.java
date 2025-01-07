@@ -1,21 +1,35 @@
-package com.yishuifengxiao.common.security.token;
+package com.yishuifengxiao.common.security.utils;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.ErrorCode;
+import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
 import com.yishuifengxiao.common.tool.exception.CustomException;
+import com.yishuifengxiao.common.tool.http.UrlUtil;
 import com.yishuifengxiao.common.tool.lang.CompareUtil;
 import com.yishuifengxiao.common.tool.utils.Assert;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 
 
 /**
@@ -25,6 +39,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public class TokenUtil {
 
     private static SecurityPropertyResource securityPropertyResource;
@@ -63,7 +78,8 @@ public class TokenUtil {
      * @return 生成的令牌
      * @throws CustomException 非法的用户信息或状态
      */
-    public static SecurityToken create(HttpServletRequest request, String username, String password) throws CustomException {
+    public static SecurityToken create(HttpServletRequest request, String username,
+                                       String password) throws CustomException {
         Assert.isNotBlank("密码不能为空", password);
         String deviceId = securityValueExtractor.extractDeviceId(request, null);
         return create(username, deviceId, password, null, null, null);
@@ -94,7 +110,8 @@ public class TokenUtil {
      * @return 生成的令牌
      * @throws CustomException 非法的用户信息或状态
      */
-    public static SecurityToken create(String username, String deviceId, String password, Integer validSeconds) throws CustomException {
+    public static SecurityToken create(String username, String deviceId, String password,
+                                       Integer validSeconds) throws CustomException {
         Assert.isNotBlank("密码不能为空", password);
         return create(username, deviceId, password, validSeconds, null, null);
     }
@@ -145,7 +162,8 @@ public class TokenUtil {
      * @return 生成的令牌
      * @throws CustomException 非法的用户信息或状态
      */
-    public static SecurityToken createUnsafe(HttpServletRequest request, String username, int validSeconds) throws CustomException {
+    public static SecurityToken createUnsafe(HttpServletRequest request, String username,
+                                             int validSeconds) throws CustomException {
         String deviceId = securityValueExtractor.extractDeviceId(request, null);
         return create(username, deviceId, null, validSeconds, null, null);
     }
@@ -192,8 +210,9 @@ public class TokenUtil {
      * @return 访问令牌
      * @throws CustomException 创建时发生问题
      */
-    private static SecurityToken create(String username, String deviceId, String password, Integer validSeconds,
-                                        Boolean preventsLogin, Integer maxSessions) throws CustomException {
+    private static SecurityToken create(String username, String deviceId, String password,
+                                        Integer validSeconds, Boolean preventsLogin,
+                                        Integer maxSessions) throws CustomException {
 
         UserDetails userDetails = loadUserByUsername(username.trim());
 
@@ -219,12 +238,13 @@ public class TokenUtil {
         }
 
         // 检查用户信息
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-                null, userDetails.getAuthorities());
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(userDetails, null,
+                        userDetails.getAuthorities());
 
         // 根据用户信息生成一个访问令牌
-        SecurityToken token = TokenUtil.tokenBuilder.createNewToken(authentication, deviceId, validSeconds,
-                preventsLogin, maxSessions);
+        SecurityToken token = TokenUtil.tokenBuilder.createNewToken(authentication, deviceId,
+                validSeconds, preventsLogin, maxSessions, userDetails.getAuthorities());
 
         return token;
 
@@ -250,14 +270,84 @@ public class TokenUtil {
         TokenUtil.tokenBuilder.clearAll(authentication);
     }
 
+    /**
+     * 在请求中保存token信息
+     *
+     * @param token token信息
+     */
+    public static void setToken(SecurityToken token) {
+        if (null == token) {
+            return;
+        }
+        try {
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+            HttpServletResponse response = attributes.getResponse();
+            String requestParameter =
+                    securityPropertyResource.security().getToken().getRequestParameter();
+            if (StringUtils.isBlank(requestParameter)) {
+                requestParameter = TokenConstant.TOKEN_REQUEST_PARAM;
+            }
+            request.setAttribute(requestParameter, token.getValue());
+            request.getSession().setAttribute(requestParameter, token.getValue());
+            Cookie cookie = new Cookie(requestParameter, token.getValue());
+            long untiled = LocalDateTime.now().until(token.getExpireAt(), ChronoUnit.SECONDS);
+            cookie.setMaxAge((int) untiled);//单位为秒
+            cookie.setDomain(UrlUtil.extractDomain(request.getRequestURI()));
+            response.addCookie(cookie);
+        } catch (Exception e) {
+            log.debug("There was a problem saving token information in the request, problem {}", e);
+        }
+
+    }
+
+    /**
+     * 清出当前账号的所有登录信息
+     */
+    public static void clearAllAuthentication() {
+        try {
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+            HttpServletResponse response = attributes.getResponse();
+            request.getSession().invalidate();
+            Enumeration<String> attributeNames = request.getAttributeNames();
+            if (null != attributeNames) {
+                Collections.list(attributeNames).stream().forEach(attributeName -> {
+                    request.removeAttribute(attributeName);
+                });
+            }
+
+            Cookie[] cookies = request.getCookies();
+            if (null != cookies && cookies.length > 0) {
+                Arrays.asList(cookies).stream().forEach(cookie -> {
+                    cookie.setMaxAge(0);
+                    response.addCookie(cookie);
+                });
+            }
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (null != authentication) {
+                tokenBuilder.clearAll(authentication);
+            }
+            SecurityContextHolder.clearContext();
+            SecurityContextHolder.getContext().setAuthentication(null);
+        } catch (Exception e) {
+            log.debug("There was a problem saving token information in the clear "
+                    + "All sAuthentication, problem {}", e);
+        }
+
+
+    }
+
 
     @SuppressWarnings("unused")
     private TokenUtil() {
     }
 
-    public TokenUtil(SecurityPropertyResource securityPropertyResource, PasswordEncoder passwordEncoder,
-                     UserDetailsService userDetailsService, TokenBuilder tokenBuilder,
-                     SecurityValueExtractor securityValueExtractor) {
+    public TokenUtil(SecurityPropertyResource securityPropertyResource,
+                     PasswordEncoder passwordEncoder, UserDetailsService userDetailsService,
+                     TokenBuilder tokenBuilder, SecurityValueExtractor securityValueExtractor) {
 
         TokenUtil.securityPropertyResource = securityPropertyResource;
         TokenUtil.passwordEncoder = passwordEncoder;

@@ -38,6 +38,7 @@ import java.util.UUID;
 /**
  * @author qingteng
  * @version 1.0.0
+ * @date 2024/1/7 20:35
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)

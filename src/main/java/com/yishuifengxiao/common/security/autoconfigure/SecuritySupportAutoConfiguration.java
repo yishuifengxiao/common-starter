@@ -9,7 +9,6 @@ import com.yishuifengxiao.common.security.support.impl.SimpleAuthenticationPoint
 import com.yishuifengxiao.common.security.support.impl.SimpleSecurityGlobalEnhanceFilter;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
-import com.yishuifengxiao.common.support.I18nHelper;
 import com.yishuifengxiao.common.web.WebEnhanceProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -22,6 +21,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 /**
  * @author qingteng
  * @version 1.0.0
+ * @date 2024/1/7 19:44
  * @since 1.0.0
  */
 @Configuration
@@ -31,8 +31,8 @@ public class SecuritySupportAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityHandler securityHandler(I18nHelper i18nHelper) {
-        BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler(i18nHelper);
+    public SecurityHandler securityHandler() {
+        BaseSecurityHandler baseSecurityHandler = new BaseSecurityHandler();
         return baseSecurityHandler;
     }
 

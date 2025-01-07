@@ -2,10 +2,9 @@ package com.yishuifengxiao.common.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.collections.DataUtil;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
-import com.yishuifengxiao.common.tool.text.RegexUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
 
-
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +23,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * http工具
@@ -35,6 +34,17 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class HttpUtils {
+    /**
+     * X-Forwarded-For：Squid 服务代理
+     * Proxy-Client-IP：apache 服务代理
+     * WL-Proxy-Client-IP：weblogic 服务代理
+     * HTTP_CLIENT_IP：一些代理服务器
+     * X-Real-IP：nginx服务代理
+     */
+    public final static List<String> IP_HEAD_LIST = Stream.of("X-Forwarded-For", "Proxy-Client-IP", "WL-Proxy-Client" +
+                    "-IP", "HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED", "HTTP_X_CLUSTER_CLIENT_IP", "HTTP_CLIENT_IP",
+            "HTTP_FORWARDED_FOR", "HTTP_FORWARDED", "HTTP_VIA", "REMOTE_ADDR", "X-Real-IP").collect(Collectors.toList());
+
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -42,6 +52,7 @@ public class HttpUtils {
      * json请求标志
      */
     private final static String JSON_FLAG = "json";
+
 
     /**
      * 携带指定的信息重定向到指定的地址
@@ -172,22 +183,11 @@ public class HttpUtils {
             return true;
         }
         String accept = null;
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String nextElement = headerNames.nextElement();
-            if (StringUtils.equalsIgnoreCase(nextElement, HttpHeaders.ACCEPT)) {
-                accept = nextElement;
-                break;
-            }
-        }
-        if (StringUtils.isBlank(accept)) {
-            return false;
-        }
-        final String acceptVal = request.getHeader(accept);
-        if (StringUtils.containsIgnoreCase(acceptVal, JSON_FLAG)) {
-            return true;
-        }
-        return false;
+
+        boolean anyMatch =
+                Collections.list(request.getHeaderNames()).parallelStream().filter(v -> StringUtils.containsIgnoreCase(v,
+                HttpHeaders.ACCEPT)).anyMatch(v -> StringUtils.containsIgnoreCase(request.getHeader(v), JSON_FLAG));
+        return anyMatch;
     }
 
     /**
@@ -240,7 +240,7 @@ public class HttpUtils {
      * @see
      * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
      */
-    private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = DataUtil.asSet(
+    private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = CollUtil.asSet(
             // @formatter:off
             TokenConstant.TOKEN_REQUEST_PARAM,
             TokenConstant.TOKEN_HEADER_PARAM,
@@ -287,5 +287,14 @@ public class HttpUtils {
         return accessControlAllowHeaders;
     }
 
+    /**
+     * 获取访问者deIP
+     *
+     * @param request HttpServletRequest
+     * @return 访问者deIP
+     */
+    public static String getRequestIp(HttpServletRequest request) {
+        return IP_HEAD_LIST.stream().map(s -> request.getHeader(s)).filter(StringUtils::isNotBlank).findFirst().orElse(null);
+    }
 
 }

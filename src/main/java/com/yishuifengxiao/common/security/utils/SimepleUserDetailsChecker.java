@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
  *
  * @author qingteng
  * @version 1.0.0
+ * @date 2024/1/7 15:21
  * @since 1.0.0
  */
 @Slf4j
@@ -37,7 +38,7 @@ public class SimepleUserDetailsChecker implements UserDetailsChecker, MessageSou
 
         if (null == userDetails) {
             throw new UncheckedException(ErrorCode.USERNAME_NO_EXTIS,
-                    securityPropertyResource.security().getMsg().getAccountNoExtis());
+                    securityPropertyResource.security().getMsg().getAccountNoExits());
         }
         if (BooleanUtils.isFalse(userDetails.isAccountNonExpired())) {
             throw new UncheckedException(ErrorCode.ACCOUNT_EXPIRED,

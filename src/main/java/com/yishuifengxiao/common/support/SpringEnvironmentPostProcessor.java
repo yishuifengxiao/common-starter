@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <a href="xiaoymin@foxmail.com">xiaoymin@foxmail.com</a>
- *
+ * @auth <a href="xiaoymin@foxmail.com">xiaoymin@foxmail.com</a>
+ * 2022/8/11 21:52
  * @since 4.0.0
  */
 @Slf4j
@@ -43,11 +43,16 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
      * 开启swagger增强功能的key
      */
     final static String SWAGGER_SCAN_KEY = "yishuifengxiao.swagger.enable";
+
+    /**
+     * 开启spring.main.allow-bean-definition-overriding的key
+     */
+    final static String OVERRIDING_SCAN_KEY = "spring.main.allow-bean-definition-overriding";
     /**
      * 当前策略枚举类全路径
      */
-    final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet.WebMvcProperties" +
-            ".MatchingStrategy";
+    final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet"
+            + ".WebMvcProperties.MatchingStrategy";
 
 
     /**
@@ -58,35 +63,41 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
      * @param application Spring Boot主程序Application
      */
     @Override
-    public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication application) {
-
+    public void postProcessEnvironment(ConfigurableEnvironment environment,
+                                       SpringApplication application) {
+        Map<String, Object> sources = new HashMap<>();
         // 首先，判断当前Spring Boot版本
         // 高版本才处理,自2.4.0开始提供MatchingStrategy
         // 判断当前类是否存在
         String enable = environment.getProperty(SWAGGER_SCAN_KEY);
         // 判断是否开启了增强swagger功能
         boolean disable = null != enable && !"false".equalsIgnoreCase(enable.trim());
-        log.debug("springfox-post-processor,The activation status of the swagger enhancement function is {}", enable);
-        if (disable) {
-            return;
-        }
-        if (ClassUtils.isPresent(MATCHING_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
-            log.debug("Spring Boot Version Getter than 2.4.0,handle MatchingStrategy");
-            Map<String, Object> sources = new HashMap<>();
-            String matchingStrategy = environment.getProperty(SPRING_MVC_MATCHING_STRATEGY);
+        log.debug("springfox-post-processor,The activation status of the swagger enhancement " +
+                "function is {}", enable);
+        if (!disable) {
+            if (ClassUtils.isPresent(MATCHING_CLASS_NAME, ClassUtils.getDefaultClassLoader())) {
+                log.debug("Spring Boot Version Getter than 2.4.0,handle MatchingStrategy");
 
-            if (matchingStrategy == null || "".equals(matchingStrategy)) {
-                // 当前对象为空，给定默认值ant_path_matcher
+                String matchingStrategy = environment.getProperty(SPRING_MVC_MATCHING_STRATEGY);
 
-                // springfox使用的策略是AntPathMatcher
+                if (matchingStrategy == null || "".equals(matchingStrategy)) {
+                    // 当前对象为空，给定默认值ant_path_matcher
+
+                    // springfox使用的策略是AntPathMatcher
 //                sources.put(SPRING_MVC_MATCHING_STRATEGY, "ant_path_matcher");
 
+                }
+                sources.put("knife4j.enable", true);
+
             }
-            sources.put("knife4j.enable", true);
+        }
+        if (null != sources && !sources.isEmpty()) {
             DefaultPropertiesPropertySource defaultPropertiesPropertySource =
                     new DefaultPropertiesPropertySource(sources);
             // 更新，添加一个默认值
             environment.getPropertySources().addLast(defaultPropertiesPropertySource);
         }
+
+
     }
 }

@@ -1,19 +1,15 @@
 package com.yishuifengxiao.common.core;
 
-import com.yishuifengxiao.common.support.I18nHelper;
 import com.yishuifengxiao.common.support.SpringContext;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Priority;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.LocaleResolver;
 
-import java.util.Locale;
+
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -66,28 +62,6 @@ public class CommonAutoConfiguration {
                 //
                 Integer.MAX_VALUE, 60, TimeUnit.SECONDS, new LinkedBlockingDeque<>(),
                 new ThreadPoolExecutor.CallerRunsPolicy());
-    }
-
-
-    /**
-     * 国际化组件
-     *
-     * @param messageSource
-     * @param localeResolver
-     * @return
-     */
-    @Bean
-    @ConditionalOnMissingBean({I18nHelper.class})
-    public I18nHelper i18nHelper(@Autowired(required = false) MessageSource messageSource,
-                                 @Autowired(required = false) LocaleResolver localeResolver) {
-        return (request, code) -> {
-            if (null == localeResolver || null == messageSource) {
-                return code;
-            }
-            Locale locale = localeResolver.resolveLocale(request);
-            String message = messageSource.getMessage(code, null, code, locale);
-            return message;
-        };
     }
 
 

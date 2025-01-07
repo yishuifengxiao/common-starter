@@ -10,12 +10,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.encoder.Md5;
+import com.yishuifengxiao.common.tool.codec.MD5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -39,6 +40,12 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     private static final long serialVersionUID = -4651167209282446068L;
 
     /**
+     * 默认的匿名token
+     */
+    public final static SecurityToken anonymous = new SecurityToken("anonymous", "anonymous",
+            null, AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+
+    /**
      * <p>token的值，不区分大小写</p>
      * <p>一般值的内容为 username:deviceId:issueAt的DES加密值</p>
      */
@@ -58,12 +65,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     private String deviceId;
 
     /**
-     * token的有效时间，单位为秒
-     */
-    @Schema(name = "token的有效时间，单位为秒")
-    private Integer validSeconds;
-
-    /**
      * token的首次生成时间
      */
     @Schema(name = "token的首次生成时间")
@@ -81,53 +82,19 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime expireAt;
 
-    /**
-     * <p>当前token是否处于有效状态</p>
-     * <p>true表示有效，false无效</p>
-     * 例如在token数量有限时，驱逐策略下，早期的token可能就处于失效状态
-     */
-    @Schema(name = "当前token是否处于有效状态")
-    private Boolean isActive;
 
-
-    /**
-     * 当前token是否已经过期
-     *
-     * @return true表示已过期，false表示未过期
-     */
-    public boolean isExpired() {
-        if (null != this.expireAt) {
-            return this.expireAt.isBefore(LocalDateTime.now());
-        }
-        return false;
-
-    }
-
-    /**
-     * <p>当前token是否是可用状态</p>
-     * 当token的有效状态不为true或已经过期时当前token不是可用状态
-     *
-     * @return true表示可用状态，false表示不可用状态
-     */
     @JsonIgnore
-    public boolean isAvailable() {
-        if (BooleanUtils.isFalse(this.isActive)) {
-            return false;
-        }
-        if (this.isExpired()) {
-            return false;
-        }
-        return true;
-    }
+    private transient UserDetails userDetails;
+
 
     /**
      * 重置token的过期时间
      *
      * @return 当前对象
      */
-    public SecurityToken refreshExpireTime() {
+    public SecurityToken refreshExpireTime(long validSeconds) {
         // 重新设置token的过期时间
-        this.setExpireAt(LocalDateTime.now().plusSeconds(this.validSeconds.longValue()));
+        this.setExpireAt(LocalDateTime.now().plusSeconds(validSeconds));
         return this;
 
     }
@@ -158,30 +125,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     public void setDeviceId(String deviceId) {
         this.deviceId = deviceId;
-    }
-
-    /**
-     * 获取token的有效时间
-     *
-     * @return 单位为秒
-     */
-    public Integer getValidSeconds() {
-        if (null == this.validSeconds || this.validSeconds <= 0) {
-            return TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
-        }
-        return validSeconds;
-    }
-
-    /**
-     * 设置token的有效时间
-     *
-     * @param validSeconds 单位为秒
-     */
-    public void setValidSeconds(Integer validSeconds) {
-        if (null == validSeconds || validSeconds <= 0) {
-            this.validSeconds = TokenConstant.TOKEN_VALID_TIME_IN_SECOND;
-        }
-        this.validSeconds = validSeconds;
     }
 
 
@@ -228,26 +171,20 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      */
     @JsonIgnore
     public Boolean isActive() {
-        return isActive;
+        return null != this.expireAt && !LocalDateTime.now().isAfter(this.expireAt);
     }
 
-    /**
-     * 设置token是否为有效状态
-     *
-     * @param isActive token是否为有效状态，true表示有效。false表示无效
-     */
-    public void setActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
 
     /**
      * @param principal    用户名
      * @param deviceId     设备id
      * @param validSeconds token有效时间
-     * @param authorities  authorities the collection of GrantedAuthority for the principal represented by
+     * @param authorities  authorities the collection of <tt>GrantedAuthority</tt>s for the
+     *                     principal represented by
      *                     this authentication object.
      */
-    public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<? extends GrantedAuthority> authorities) {
+    public SecurityToken(String principal, String deviceId, Integer validSeconds, Collection<?
+            extends GrantedAuthority> authorities) {
         super(authorities);
         super.setAuthenticated(true);
         if (null == validSeconds || validSeconds <= 0) {
@@ -255,11 +192,10 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         }
         this.principal = principal;
         this.deviceId = deviceId;
-        this.validSeconds = validSeconds;
         this.issueAt = LocalDateTime.now();
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
-        this.isActive = true;
-        this.value = Md5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
+        this.value =
+                MD5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
     }
 
 
@@ -274,6 +210,14 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
 
+    public UserDetails getUserDetails() {
+        return userDetails;
+    }
+
+    public void setUserDetails(UserDetails userDetails) {
+        this.userDetails = userDetails;
+    }
+
     @Override
     public Object getCredentials() {
         return null;
@@ -286,26 +230,21 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         SecurityToken that = (SecurityToken) o;
-        return Objects.equals(value, that.value) && Objects.equals(principal, that.principal) && Objects.equals(deviceId, that.deviceId) && Objects.equals(validSeconds, that.validSeconds) && Objects.equals(issueAt, that.issueAt) && Objects.equals(expireAt, that.expireAt) && Objects.equals(isActive, that.isActive);
+        return Objects.equals(value, that.value) && Objects.equals(principal, that.principal) && Objects.equals(deviceId, that.deviceId) && Objects.equals(issueAt, that.issueAt) && Objects.equals(expireAt, that.expireAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), value, principal, deviceId, validSeconds, issueAt, expireAt, isActive);
+        return Objects.hash(super.hashCode(), value, principal, deviceId, issueAt, expireAt);
     }
 
     @Override
     public String toString() {
-        return "SecurityToken{" + "value='" + value + '\'' + ", principal=" + principal + ", deviceId='" + deviceId + '\'' + ", validSeconds=" + validSeconds + ", issueAt=" + issueAt + ", expireAt=" + expireAt + ", isActive=" + isActive + '}';
+        return "SecurityToken{" + "value='" + value + '\'' + ", principal=" + principal + ", "
+                + "deviceId='" + deviceId + '\'' + ", issueAt=" + issueAt + ", expireAt=" + expireAt + '}';
     }
 }

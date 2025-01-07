@@ -1,14 +1,12 @@
 /**
  *
  */
-package com.yishuifengxiao.common.jdbc.mapper;
+package com.yishuifengxiao.common.jdbc.util;
 
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.extractor.SimpleFieldExtractor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.*;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.support.DefaultConversionService;
@@ -228,8 +226,12 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
                 if (!lowerCaseName.equals(underscoreName)) {
                     this.mappedProperties.put(underscoreName, pd);
                 }
-                String colName = fieldValues.stream().filter(v -> org.apache.commons.lang3.StringUtils.equals(pd.getName(), v.getName())).findFirst().map(FieldValue::getColName).orElse(null);
-                if (org.apache.commons.lang3.StringUtils.isNoneEmpty(colName)) {
+
+                String colName =
+                        fieldValues.stream().filter(v -> org.apache.commons.lang3.StringUtils.equals(pd.getName(),
+                                v.getField().getName())).findFirst().map(FieldValue::getSimpleName).orElse(null);
+
+                if (org.apache.commons.lang3.StringUtils.isNotEmpty(colName)) {
                     this.mappedProperties.put(colName, pd);
                 }
 
@@ -325,7 +327,9 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
                         if (value == null && this.primitivesDefaultedForNullValue) {
                             if (log.isDebugEnabled()) {
                                 String propertyType = ClassUtils.getQualifiedName(pd.getPropertyType());
-                                log.debug(String.format("Ignoring intercepted TypeMismatchException for row %d and column '%s' " + "with null value when setting property '%s' of type '%s' on object: %s", rowNumber, column, pd.getName(), propertyType, mappedObject), ex);
+                                log.debug(String.format("Ignoring intercepted TypeMismatchException for row %d and " +
+                                        "column '%s' " + "with null value when setting property '%s' of type '%s' on " +
+                                        "object: %s", rowNumber, column, pd.getName(), propertyType, mappedObject), ex);
                             }
                         } else {
                             throw ex;
@@ -341,7 +345,8 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
         }
 
         if (populatedProperties != null && !populatedProperties.equals(this.mappedPropertyNames)) {
-            throw new InvalidDataAccessApiUsageException("Given ResultSet does not contain all properties " + "necessary to populate object of " + this.mappedClass + ": " + this.mappedPropertyNames);
+            throw new InvalidDataAccessApiUsageException("Given ResultSet does not contain all properties " +
+                    "necessary to populate object of " + this.mappedClass + ": " + this.mappedPropertyNames);
         }
 
         return mappedObject;
@@ -446,7 +451,8 @@ public class ColumnNameRowMapper<T> implements RowMapper<T> {
      * @see #setConversionService
      * @since 5.2.3
      */
-    public static <T> ColumnNameRowMapper<T> newInstance(Class<T> mappedClass, @Nullable ConversionService conversionService) {
+    public static <T> ColumnNameRowMapper<T> newInstance(Class<T> mappedClass,
+                                                         @Nullable ConversionService conversionService) {
 
         ColumnNameRowMapper<T> rowMapper = newInstance(mappedClass);
         rowMapper.setConversionService(conversionService);

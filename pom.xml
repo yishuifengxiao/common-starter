@@ -45,7 +45,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.3.5</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -129,6 +129,27 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
             <optional>true</optional>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
+<!--            <optional>true</optional>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.persistence</groupId>
+            <artifactId>jakarta.persistence-api</artifactId>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -232,7 +253,6 @@
                                 </goals>
                                 <configuration>
                                     <encoding>UTF-8</encoding>
-<!--                                    <additionalparam>-Xdoclint:none</additionalparam>-->
                                     <useStandardDocletOptions>false</useStandardDocletOptions>
                                 </configuration>
                             </execution>
@@ -330,11 +350,12 @@
                                 <goals>
                                     <goal>jar</goal>
                                 </goals>
-                                <configuration>
-<!--                                    <additionalparam>-Xdoclint:none</additionalparam>-->
-                                </configuration>
                             </execution>
                         </executions>
+                        <configuration>
+                            <doclint>none</doclint>
+                            <encoding>UTF-8</encoding>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

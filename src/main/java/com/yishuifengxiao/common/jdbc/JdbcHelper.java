@@ -3,15 +3,14 @@
  */
 package com.yishuifengxiao.common.jdbc;
 
-import com.yishuifengxiao.common.jdbc.entity.Condition;
-import com.yishuifengxiao.common.jdbc.entity.Example;
 import com.yishuifengxiao.common.jdbc.entity.Order;
 import com.yishuifengxiao.common.tool.entity.Page;
+import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * <p>
@@ -27,346 +26,76 @@ import java.util.Optional;
 public interface JdbcHelper {
 
     /**
-     * 根据主键从指定表查询一条数据
+     * 根据主键查询一条数据
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param primaryKey 主键
-     * @return 查询到的数据
+     * @param clazz      POJO类型
+     * @param primaryKey 主键值
+     * @param <T>        数据类型
+     * @return 查询出来的数据
      */
     <T> T findByPrimaryKey(Class<T> clazz, Object primaryKey);
 
-    /**
-     * 查询符合条件的记录的数量
-     *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的记录的数量
-     */
-    <T> Long countAll(T t);
 
     /**
-     * 查询符合条件的记录的数量
+     * 根据pojo实例中的非空属性值查询出所有符合条件的数据的数量
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的记录的数量
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param <T>      数据类型
+     * @return 所有符合条件的数据的数量
      */
-    <T> Long countAll(Class<T> clazz, Condition... conditions);
+    <T> Long countAll(T t, boolean likeMode);
 
     /**
-     * 查询符合条件的记录的数量
+     * 根据pojo实例中的非空属性值查询出一条符合条件的数据
      *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的记录的数量
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
-    <T> Long countAll(Class<T> clazz, Example example);
+    <T> T findOne(T t, boolean likeMode, Order... orders);
+
 
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值查询出所有符合条件的数据
      *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的数据
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
-    <T> T findOne(T t);
+    <T> List<T> findAll(T t, boolean likeMode, Order... orders);
+
 
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param slice    分页参数
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
      */
-    <T> T findOne(Class<T> clazz, Condition... conditions);
+    <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders);
 
     /**
-     * 查询所有符合条件的数据
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
      *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的数据
+     * @param pageQuery pojo实例查询条件
+     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders    排序条件
+     * @param <T>       数据类型
+     * @return 查询出来的数据
      */
-    <T> T findOne(Class<T> clazz, Example example);
+    <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders);
+
 
     /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> T findOne(Class<T> clazz, List<Condition> conditions);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T> POJO类
-     * @param t   查询条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(T t);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>   POJO类
-     * @param t     查询条件
-     * @param order 排序条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(T t, Order order);
-
-    /**
-     * 查询所有符合条件的数据（默认升序）
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(T t, String orderName);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @param direction 排序方向
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(T t, String orderName, Order.Direction direction);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, Condition... conditions);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, Example example);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, List<Condition> conditions);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, Order order, Condition... conditions);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param order   排序条件
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, Order order, Example example);
-
-    /**
-     * 查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findAll(Class<T> clazz, Order order, List<Condition> conditions);
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>    POJO类
-     * @param t      查询条件
-     * @param order  排序条件
-     * @param topNum 查询出的记录的数量
-     * @return 符合条件的数据
-     */
-    <T> List<T> findTop(T t, Order order, int topNum);
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param order   排序条件
-     * @param topNum  查询出的记录的数量
-     * @param example 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Example example);
-
-    /**
-     * 根据条件查询前几条符合条件的记录
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param order      排序条件
-     * @param topNum     查询出的记录的数量
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> List<T> findTop(Class<T> clazz, Order order, int topNum, Condition... conditions);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param t        查询条件
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(T t, int pageSize, int pageNum);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param t        查询条件
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param order    排序条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(T t, int pageSize, int pageNum, Order order);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param pageSize  分页大小
-     * @param pageNum   当前页页码
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>       POJO类
-     * @param t         查询条件
-     * @param pageSize  分页大小
-     * @param pageNum   当前页页码
-     * @param orderName 排序字段，必须为对应的POJO属性的名字
-     * @param direction 排序方向
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(T t, int pageSize, int pageNum, String orderName, Order.Direction direction);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Condition... conditions);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param clazz    POJO类
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param example  筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Example example);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, List<Condition> conditions);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Condition... conditions);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>      POJO类
-     * @param clazz    POJO类
-     * @param pageSize 分页大小
-     * @param pageNum  当前页页码
-     * @param order    排序条件
-     * @param example  筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, Example example);
-
-    /**
-     * 分页查询所有符合条件的数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param pageSize   分页大小
-     * @param pageNum    当前页页码
-     * @param order      排序条件
-     * @param conditions 筛选条件
-     * @return 符合条件的数据
-     */
-    <T> Page<T> findPage(Class<T> clazz, int pageSize, int pageNum, Order order, List<Condition> conditions);
-
-    /**
-     * 根据主键全属性更新方式更新一条数据
+     * 根据主键全属性全量更新方式更新一条数据
      *
      * @param <T> POJO类
      * @param t   待更新的数据
@@ -375,7 +104,7 @@ public interface JdbcHelper {
     <T> int updateByPrimaryKey(T t);
 
     /**
-     * 根据主键可选属性更新方式更新一条数据
+     * 根据主键可选属性增量更新方式更新一条数据
      *
      * @param <T> POJO类
      * @param t   待更新的数据
@@ -383,161 +112,43 @@ public interface JdbcHelper {
      */
     <T> int updateByPrimaryKeySelective(T t);
 
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>     POJO类
-     * @param t       待更新的数据
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int update(T t, Example example);
-
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>        POJO类
-     * @param t          待更新的数据
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int update(T t, List<Condition> conditions);
-
-    /**
-     * 根据条件全属性更新方式批量更新数据
-     *
-     * @param <T>       POJO类
-     * @param t         待更新的数据
-     * @param condition 更新条件
-     * @return 受影响的记录的数量
-     */
-    <T> int update(T t, T condition);
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>       POJO类
-     * @param t         待更新的数据
-     * @param condition 更新条件
-     * @return 受影响的记录的数量
-     */
-    <T> int updateSelective(T t, T condition);
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>     POJO类
-     * @param t       待更新的数据
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int updateSelective(T t, Example example);
-
-    /**
-     * 根据条件可选属性更新方式批量更新数据
-     *
-     * @param <T>        POJO类
-     * @param t          待更新的数据
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int updateSelective(T t, List<Condition> conditions);
 
     /**
      * 根据主键删除一条数据
      *
-     * @param <T>        POJO类
-     * @param clazz      操作的对象
-     * @param primaryKey 主键值
+     * @param <T>         POJO类
+     * @param clazz       操作的对象
+     * @param primaryKeys 主键值
      * @return 受影响的记录的数量
      */
-    <T> int deleteByPrimaryKey(Class<T> clazz, Object primaryKey);
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T> POJO类
-     * @param t   删除条件
-     * @return 受影响的记录的数量
-     */
-    <T> int delete(T t);
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int delete(Class<T> clazz, Condition... conditions);
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>     POJO类
-     * @param clazz   POJO类
-     * @param example 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int delete(Class<T> clazz, Example example);
-
-    /**
-     * 根据条件批量删除数据
-     *
-     * @param <T>        POJO类
-     * @param clazz      POJO类
-     * @param conditions 筛选条件
-     * @return 受影响的记录的数量
-     */
-    <T> int delete(Class<T> clazz, List<Condition> conditions);
+    <T> int deleteByPrimaryKey(Class<T> clazz, Object... primaryKeys);
 
     /**
      * 以全属性方式新增一条数据
      *
      * @param <T> POJO类
      * @param t   待新增的数据
-     * @return 受影响的记录的数量
+     * @return 保存数据的主键
      */
-    <T> int insert(T t);
+    <T> KeyHolder insert(T t);
+
 
     /**
-     * 以可选属性方式新增一条数据
-     *
-     * @param <T> POJO类
-     * @param t   待新增的数据
-     * @return 受影响的记录的数量
-     */
-    <T> int insertSelective(T t);
-
-    /**
-     * 保存或全量更新数据
+     * 根据主键id判断数据是否存在，若存在则先删除存在的数据，然后再插入新的数据
      *
      * @param t   待操作的数据
      * @param <T> POJO类
-     * @return 操作后的数据
+     * @return 保存数据的主键;只有数据库为自增时才有用，其他情况下无效
      */
-    <T> T saveOrUpdate(T t);
+    <T> KeyHolder saveOrUpdate(T t);
 
     /**
-     * 保存或选择性更新数据
+     * 批量保存数据
      *
-     * @param t   待操作的数据
-     * @param <T> POJO类
-     * @return 操作后的数据
+     * @param list 待批量保存的数据
+     * @param <T>  POJO数据类型
      */
-    <T> T saveOrUpdateSelective(T t);
-
-    /**
-     * 根据sql查询出一条数据
-     *
-     * @param clazz  数据类型
-     * @param sql    sql语句
-     * @param params 参数
-     * @param <T>    POJO类
-     * @return 查询出来的数据
-     */
-    <T> Optional<T> queryOne(Class<T> clazz, String sql, Object... params);
+    <T> void saveAll(List<T> list);
 
     /**
      * 根据sql查询数据
@@ -548,19 +159,37 @@ public interface JdbcHelper {
      * @param <T>    POJO类
      * @return 查询出来的数据
      */
-    <T> Optional<List<T>> query(Class<T> clazz, String sql, Object... params);
+    <T> T findOne(Class<T> clazz, String sql, Object... params);
+
+
+    /**
+     * 根据sql查询出所有的数据
+     *
+     * @param clazz  数据类型
+     * @param sql    sql语句
+     * @param params 参数
+     * @param <T>    POJO类
+     * @return 查询出来的数据
+     */
+    <T> List<T> findAll(Class<T> clazz, String sql, Object... params);
 
     /**
      * 根据原生sql进行分页查询
+     * 注意：此原生sql不能携带分页参数
      *
      * @param clazz  数据类型
      * @param slice  分页参数
      * @param sql    原生sql
      * @param params 查询参数
      * @param <T>    结果数据的类型
-     * @return
+     * @return 查询结果
      */
-    <T> Page<T> query(Class<T> clazz, Slice slice, String sql, Object... params);
+    <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Object... params);
 
+    /**
+     * 获取操作的JdbcTemplate实例
+     *
+     * @return JdbcTemplate实例
+     */
     JdbcTemplate jdbcTemplate();
 }

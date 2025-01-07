@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.web;
 
-import com.yishuifengxiao.common.tool.collections.DataUtil;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,31 +24,6 @@ import java.util.stream.Collectors;
 @ConfigurationProperties(prefix = "yishuifengxiao.web")
 public class WebEnhanceProperties {
 
-    /**
-     * 是否开启增强支持,默认开启
-     */
-    private Boolean enable = true;
-
-    /**
-     * 是否开启AOP切面功能
-     */
-    private Boolean aop = true;
-
-
-    /**
-     * 出现异常时默认的视图的名字: error
-     */
-    private String defaultView = "error";
-
-    /**
-     * 请求追踪标识符的名字
-     */
-    private String tracked = "request-traced-ssid";
-
-    /**
-     * 是否开启动态修改日志级别功能，若不为空则表示开启此功能
-     */
-    private String dynamicLogLevel = "dynamicLogLevel";
 
     /**
      * 响应增强功能配置
@@ -67,6 +42,61 @@ public class WebEnhanceProperties {
     private WebExceptionProperties error = new WebExceptionProperties();
 
     /**
+     * AOP增强功能配置
+     */
+    private AopProperties aop = new AopProperties();
+
+    /**
+     * Traced增强功能配置
+     */
+    private TracedProperties traced = new TracedProperties();
+
+
+    /**
+     * AOP支持属性配置
+     *
+     * @author yishui
+     * @version 1.0.0
+     * @since 1.0.0
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class AopProperties {
+        /**
+         * 是否开启AOP支持,默认开启
+         */
+        private Boolean enable = true;
+    }
+
+    /**
+     * Traced支持属性配置
+     *
+     * @author yishui
+     * @version 1.0.0
+     * @since 1.0.0
+     */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class TracedProperties {
+        /**
+         * 是否开启Traced支持,默认开启
+         */
+        private Boolean enable = true;
+        /**
+         * 请求追踪标识符的名字
+         */
+        private String trackedId = "request-traced-ssid";
+
+        /**
+         * 是否开启动态修改日志级别功能，若不为空则表示开启此功能
+         */
+        private String dynamicLogLevel = "x-log-level";
+    }
+
+
+    /**
      * 跨域支持属性配置
      *
      * @author yishui
@@ -81,7 +111,6 @@ public class WebEnhanceProperties {
          * 是否开启跨域支持,默认开启
          */
         private Boolean enable = true;
-
 
         /**
          * 跨域设置允许的路径，默认为所有路径(/*)
@@ -116,8 +145,7 @@ public class WebEnhanceProperties {
          * @return 要设置要注册筛选器的URL模式
          */
         public List<String> getUrlPatterns() {
-            return DataUtil.asList(StringUtils.splitByWholeSeparator(this.url, ",")).stream()
-                    .filter(StringUtils::isNotBlank).map(StringUtils::trim).collect(Collectors.toList());
+            return CollUtil.asList(StringUtils.splitByWholeSeparator(this.url, ",")).stream().filter(StringUtils::isNotBlank).map(StringUtils::trim).collect(Collectors.toList());
         }
 
     }

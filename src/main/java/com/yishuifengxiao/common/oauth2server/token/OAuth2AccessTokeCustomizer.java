@@ -7,6 +7,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
 /**
  * @author qingteng
  * @version 1.0.0
+ * @date 2024/1/7 21:40
  * @since 1.0.0
  */
 public class OAuth2AccessTokeCustomizer implements OAuth2TokenCustomizer<OAuth2TokenClaimsContext> {

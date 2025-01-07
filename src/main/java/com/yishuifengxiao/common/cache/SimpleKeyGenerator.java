@@ -1,15 +1,17 @@
 package com.yishuifengxiao.common.cache;
 
-import com.yishuifengxiao.common.tool.encoder.Md5;
+import com.yishuifengxiao.common.tool.codec.MD5;
 import org.springframework.cache.interceptor.KeyGenerator;
 
 import java.lang.reflect.Method;
 
+
 /**
  * Cache key generator. Used for creating a key based on the given method(used
  * as context) and its parameters.
- * 
+ *
  * @author yishui
+ * @date 2019年2月13日
  * @version 0.0.1
  */
 
@@ -31,30 +33,31 @@ import java.lang.reflect.Method;
  */
 public class SimpleKeyGenerator implements KeyGenerator {
 
-	/**
-	 * Generate a key for the given method and its parameters.
-	 * 
-	 * @param target the target instance
-	 * @param method the method being called
-	 * @param params the method parameters (with any var-args expanded)
-	 * @return a generated key
-	 */
-	@Override
-	public Object generate(Object target, Method method, Object... params) {
+    /**
+     * Generate a key for the given method and its parameters.
+     *
+     * @param target the target instance
+     * @param method the method being called
+     * @param params the method parameters (with any var-args expanded)
+     * @return a generated key
+     */
+    @Override
+    public Object generate(Object target, Method method, Object... params) {
 
-		StringBuilder prefix = new StringBuilder(target.getClass().getSimpleName()).append(":").append(method.getName())
-				.append(":");
+        StringBuilder prefix =
+                new StringBuilder(target.getClass().getSimpleName()).append(":").append(method.getName())
+                .append(":");
 
-		StringBuilder values = new StringBuilder("");
-		if (null != params) {
-			for (Object param : params) {
-				if (null != param) {
-					values.append(param.toString());
-				}
-			}
-		}
-		return prefix.append(Md5.md5Short(values.toString())).toString();
+        StringBuilder values = new StringBuilder("");
+        if (null != params) {
+            for (Object param : params) {
+                if (null != param) {
+                    values.append(param.toString());
+                }
+            }
+        }
+        return prefix.append(MD5.md5Short(values.toString())).toString();
 
-	}
+    }
 
 }

@@ -39,7 +39,9 @@ public class GuavaCache {
      * @return 获取的结果
      */
     public static <V> V get(String key, Supplier<V> supplier) {
-
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
         Object val = get(key);
         if (null != val) {
             return (V) val;
@@ -47,10 +49,10 @@ public class GuavaCache {
         if (null == supplier) {
             return null;
         }
-        synchronized (GuavaCache.class) {
-            if (val == null) {
-                val = supplier.get();
-                GUAVA_CACHE.put(key, val);
+        if (val == null) {
+            val = supplier.get();
+            if (null != val) {
+                put(key, val);
             }
         }
         return (V) val;
