@@ -29,4 +29,13 @@ public interface EventPublisher {
      * @return 消息总线
      */
     EventBus eventBus();
+
+    /**
+     * 注册，即eventBus().register(object)
+     *
+     * @param object Object
+     */
+    default void register(Object object) {
+        eventBus().register(object);
+    }
 }

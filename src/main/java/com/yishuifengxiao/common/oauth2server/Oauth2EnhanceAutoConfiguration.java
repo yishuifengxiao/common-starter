@@ -113,24 +113,25 @@ public class Oauth2EnhanceAutoConfiguration {
                                                                   JwtEncoder jwtEncoder) {
         // @formatter:on
         OAuth2AuthorizationProvider auth2AuthorizationProvider =
-                new SimpleOAuth2AuthorizationProvider(registeredClientRepository, authorizationServerSettings,
-                        authenticationPoint, authorizationService, authorizationConsentService, oauth2Properties, jwtEncoder);
+                new SimpleOAuth2AuthorizationProvider(registeredClientRepository,
+                        authorizationServerSettings,
+                        authenticationPoint, authorizationService, authorizationConsentService,
+                        oauth2Properties, jwtEncoder);
         return auth2AuthorizationProvider;
     }
 
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2server", name = {"enable"}, havingValue = "true")
+    @ConditionalOnProperty(prefix = "yishuifengxiao.security.oauth2server", name = {"enable"},
+            havingValue = "true")
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http,
-                                                                      AuthenticationConfiguration authenticationConfiguration,
                                                                       AuthenticationPoint authenticationPoint,
                                                                       OAuth2AuthorizationProvider auth2AuthorizationProvider) throws Exception {
 
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
                 new OAuth2AuthorizationServerConfigurer();
         http.apply(authorizationServerConfigurer);
-
 
         //应用自定义配置
         auth2AuthorizationProvider.apply(authorizationServerConfigurer);
@@ -152,6 +153,7 @@ public class Oauth2EnhanceAutoConfiguration {
     @Bean("oauth2SecurityGlobalEnhanceFilter")
     @ConditionalOnMissingBean(name = "oauth2SecurityGlobalEnhanceFilter")
     public Filter oauth2SecurityGlobalEnhanceFilter(RegisteredClientRepository registeredClientRepository, OAuth2AuthorizationConsentService authorizationConsentService, Oauth2Properties oauth2Properties, AuthorizationServerSettings authorizationServerSettings) {
-        return new Oauth2SecurityGlobalEnhanceFilter(oauth2Properties, registeredClientRepository, authorizationConsentService, authorizationServerSettings);
+        return new Oauth2SecurityGlobalEnhanceFilter(oauth2Properties, registeredClientRepository
+                , authorizationConsentService, authorizationServerSettings);
     }
 }
