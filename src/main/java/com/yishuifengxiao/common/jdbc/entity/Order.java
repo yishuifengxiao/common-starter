@@ -106,7 +106,7 @@ public class Order implements Serializable {
      * @version 1.0.0
      * @since 1.0.0
      */
-    public static enum Direction {
+    public enum Direction {
         /**
          * 升序
          */

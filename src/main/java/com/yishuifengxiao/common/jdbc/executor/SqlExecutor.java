@@ -16,7 +16,7 @@ import java.util.List;
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface ExecuteExecutor {
+public interface SqlExecutor {
 
     /**
      * 执行非查询语句
@@ -26,7 +26,7 @@ public interface ExecuteExecutor {
      * @param args         最终执行的sql语句对应的参数
      * @return 受影响的记录的数量
      */
-    int execute(JdbcTemplate jdbcTemplate, String sql, Object[] args);
+    int execute(JdbcTemplate jdbcTemplate, String sql, FieldValue... args);
 
 
     /**
@@ -39,7 +39,7 @@ public interface ExecuteExecutor {
      * @param args         最终执行的sql语句对应的参数
      * @return 所有的符合条件的记录
      */
-    <T> List<T> findAll(JdbcTemplate jdbcTemplate, Class<T> clazz, String sql, Object args);
+    <T> List<T> findAll(JdbcTemplate jdbcTemplate, Class<T> clazz, String sql, FieldValue... args);
 
     /**
      * 执行sql并返回数据主键
@@ -59,7 +59,7 @@ public interface ExecuteExecutor {
      * @param types        数据类型
      * @param parameters   最终执行的sql语句对应的参数
      */
-    void batchUpdate(JdbcTemplate jdbcTemplate, String sql, int[] types, List<Object[]> parameters);
+    void batchUpdate(JdbcTemplate jdbcTemplate, String sql, int[] types, List<List<FieldValue>> parameters);
 
 
 }

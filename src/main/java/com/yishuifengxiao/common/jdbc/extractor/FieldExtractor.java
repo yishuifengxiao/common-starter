@@ -76,4 +76,20 @@ public interface FieldExtractor {
      */
     <T> String extractTableName(Class<T> clazz);
 
+    /**
+     * <p>
+     * 提取一个POJO类的主键字段属性
+     * </p>
+     * 查找策略如下
+     * <ul>
+     * <li>先提取类上面 @Id 注解的属性</li>
+     * <li>其次提取类注解上 @Column 注解的值为id的属性</li>
+     * <li>最后提取属性名为id的属性</li>
+     * </ul>
+     *
+     * @param <T>   POJO类的类型
+     * @param clazz POJO类
+     * @return POJO类的主键字段属性
+     */
+    <T> FieldValue extractPrimaryFiled(Class<T> clazz);
 }

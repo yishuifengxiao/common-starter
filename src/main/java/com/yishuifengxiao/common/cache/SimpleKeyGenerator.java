@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.cache;
 
-import com.yishuifengxiao.common.tool.codec.MD5;
+import com.yishuifengxiao.common.tool.codec.Md5;
 import org.springframework.cache.interceptor.KeyGenerator;
 
 import java.lang.reflect.Method;
@@ -56,7 +56,7 @@ public class SimpleKeyGenerator implements KeyGenerator {
                 }
             }
         }
-        return prefix.append(MD5.md5Short(values.toString())).toString();
+        return prefix.append(Md5.md5Short(values.toString())).toString();
 
     }
 

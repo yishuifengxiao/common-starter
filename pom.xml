@@ -45,15 +45,16 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.5</version>
+        <version>3.5.7</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <yishuifengxiao.tool.version>8.0.0</yishuifengxiao.tool.version>
-
-        <swagger.version>4.3.0</swagger.version>
-        <guava.version>33.0.0-jre</guava.version>
+        <yishuifengxiao.tool.version>8.1.0</yishuifengxiao.tool.version>
+        <maven.source.version>17</maven.source.version>
+        <maven.target.version>17</maven.target.version>
+        <swagger.version>4.5.0</swagger.version>
+        <guava.version>33.5.0-jre</guava.version>
         <oauth2-authorization-server.version>1.2.1</oauth2-authorization-server.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
@@ -185,6 +186,11 @@
             <artifactId>spring-security-oauth2-jose</artifactId>
             <optional>true</optional>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- 资源管理器相关 -->
         <!-- 可选依赖 -->
     </dependencies>
@@ -263,8 +269,8 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>${maven-compiler-plugin.version}</version>
                         <configuration>
-                            <source>17</source>
-                            <target>17</target>
+                            <source>${maven.source.version}</source>
+                            <target>${maven.target.version}</target>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -310,8 +316,8 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>${maven-compiler-plugin.version}</version>
                         <configuration>
-                            <source>17</source>
-                            <target>17</target>
+                            <source>${maven.source.version}</source>
+                            <target>${maven.target.version}</target>
                         </configuration>
                     </plugin>
                     <plugin>

@@ -1,12 +1,9 @@
 package com.yishuifengxiao.common.jdbc.util;
 
-import com.yishuifengxiao.common.tool.lang.TextUtil;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 
@@ -43,38 +40,21 @@ public class FieldUtils {
         return "id".equalsIgnoreCase(field.getName());
     }
 
-    /**
-     * 获取pojo属性对应的sql列名
+        /**
+     * 判断给定的类是否为基本数据类型或其对应的包装类
      *
-     * @param field pojo属性
-     * @return sql列名
+     * @param clazz 待判断的类对象
+     * @return 如果是基本数据类型或其包装类则返回true，否则返回false
      */
-    public static String columnName(Field field) {
-        if (null == field) {
-            return null;
-        }
-        Column column = AnnotationUtils.findAnnotation(field, Column.class);
-        if (null != column && StringUtils.isNotBlank(column.name())) {
-            return column.name();
-        }
-        String fieldName = field.getName();
-        return TextUtil.underscoreName(fieldName);
+    public static <T> boolean isBasicResult(Class<T> clazz) {
+
+        // 检查是否为基本数据类型或常见的包装类
+        return clazz.isPrimitive() || clazz.isAssignableFrom(Long.class) || clazz.isAssignableFrom(Double.class)
+                || clazz.isAssignableFrom(Float.class) || clazz.isAssignableFrom(Boolean.class)
+                || clazz.isAssignableFrom(Byte.class) || clazz.isAssignableFrom(Short.class)
+                || clazz.isAssignableFrom(Character.class);
     }
 
-    public static Object extractVal(Field field, Object val) {
-        if (null == field || null == val) {
-            return null;
-        }
-        try {
-            ReflectionUtils.makeAccessible(field);
-            return field.get(val);
-        } catch (Exception e) {
-            log.warn("There was a problem extracting the value of attribute {} from data {}, the "
-                    + "problem " +
-                    "is {}", field, val, e);
-        }
-        return null;
-    }
 
 
 }

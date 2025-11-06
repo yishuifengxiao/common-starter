@@ -2,27 +2,26 @@ package com.yishuifengxiao.common.jdbc;
 
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.entity.Order;
-import com.yishuifengxiao.common.jdbc.executor.ExecuteExecutor;
-import com.yishuifengxiao.common.jdbc.executor.impl.SimpleExecuteExecutor;
+import com.yishuifengxiao.common.jdbc.executor.SimpleSqlExecutor;
+import com.yishuifengxiao.common.jdbc.executor.SqlExecutor;
 import com.yishuifengxiao.common.jdbc.extractor.FieldExtractor;
 import com.yishuifengxiao.common.jdbc.extractor.SimpleFieldExtractor;
-import com.yishuifengxiao.common.jdbc.translator.DeleteTranslator;
-import com.yishuifengxiao.common.jdbc.translator.InsertTranslator;
-import com.yishuifengxiao.common.jdbc.translator.QueryTranslator;
-import com.yishuifengxiao.common.jdbc.translator.UpdateTranslator;
-import com.yishuifengxiao.common.jdbc.translator.impl.SimpleDeleteTranslator;
-import com.yishuifengxiao.common.jdbc.translator.impl.SimpleInsertTranslator;
-import com.yishuifengxiao.common.jdbc.translator.impl.SimpleQueryTranslator;
-import com.yishuifengxiao.common.jdbc.translator.impl.SimpleUpdateTranslator;
+import com.yishuifengxiao.common.jdbc.translator.SimpleSqlTranslator;
+import com.yishuifengxiao.common.jdbc.translator.SqlTranslator;
+import com.yishuifengxiao.common.jdbc.util.FieldUtils;
+import com.yishuifengxiao.common.jdbc.util.SimpleRowMapper;
+import com.yishuifengxiao.common.jdbc.util.ZoneIdDetector;
+import com.yishuifengxiao.common.tool.collections.CollUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
-import com.yishuifengxiao.common.tool.text.RegexUtil;
-import com.yishuifengxiao.common.tool.utils.ValidateUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,21 +32,21 @@ import java.util.stream.Collectors;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public class SimpleJdbcHelper implements JdbcHelper {
 
-    private final DeleteTranslator deleteTranslator = new SimpleDeleteTranslator();
-
-    private final InsertTranslator insertTranslator = new SimpleInsertTranslator();
-
-    private final QueryTranslator queryTranslator = new SimpleQueryTranslator();
-
-    private final UpdateTranslator updateTranslator = new SimpleUpdateTranslator();
-
+    private static final String LOG_PREFIX = "【yishuifengxiao-common-spring-boot-starter】";
+    private static final String TEMP_TABLE_PREFIX = "__tmp_result_";
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int DEFAULT_PAGE_NUMBER = 1;
+    private final ZoneIdDetector zoneIdDetector = new ZoneIdDetector();
+    private final SqlTranslator sqlTranslator = new SimpleSqlTranslator();
     private final FieldExtractor fieldExtractor = new SimpleFieldExtractor();
+    private SqlExecutor sqlExecutor;
 
-    private final ExecuteExecutor executeExecutor = new SimpleExecuteExecutor();
 
     private JdbcTemplate jdbcTemplate;
+    private ZoneId timeZone;
 
     /**
      * 根据主键查询一条数据
@@ -59,18 +58,20 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> T findByPrimaryKey(Class<T> clazz, Object primaryKey) {
-        if (null == primaryKey || null == primaryKey) {
+        if (primaryKey == null) {
+            log.debug("{}主键值为空，跳过查询", LOG_PREFIX);
             return null;
         }
         String tableName = fieldExtractor.extractTableName(clazz);
-        List<FieldValue> fields = fieldExtractor.extractFiled(clazz);
-        FieldValue fieldValue = primaryKey(fields);
+        FieldValue primaryKeyField = fieldExtractor.extractPrimaryFiled(clazz);
 
-        String sql = queryTranslator.findAll(tableName, Arrays.asList(fieldValue), false, null, new Slice(null, 1));
-        List<T> list = executeExecutor.findAll(jdbcTemplate, clazz, sql, new Object[]{primaryKey});
+        String sql = sqlTranslator.findAll(tableName, Collections.singletonList(primaryKeyField), false, null, new Slice(1, 1));
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, clazz, sql, primaryKeyField.setValue(primaryKey));
 
-        return null == list || list.isEmpty() ? null : list.get(0);
+        // 移除不必要的 null 检查，仅保留 empty 判断
+        return list.isEmpty() ? null : list.get(0);
     }
+
 
     /**
      * 根据pojo实例中的非空属性值查询出所有符合条件的数据的数量
@@ -82,22 +83,32 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Long countAll(T t, boolean likeMode) {
-        if (null == t) {
-            return null;
+        if (t == null) {
+            log.debug("{}查询对象为空，返回0", LOG_PREFIX);
+            return 0L;
         }
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
 
+        try {
+            String tableName = fieldExtractor.extractTableName(t.getClass());
+            List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+            List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
-        String sql = queryTranslator.findAll(tableName, values, likeMode, null, null);
+            if (nonNullValues.isEmpty()) {
+                log.debug("{}无有效查询条件，返回总记录数查询", LOG_PREFIX);
+                String countSql = String.format("SELECT COUNT(1) FROM %s", tableName);
+                List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, countSql);
+                return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
+            }
 
-        String countSql =
-                new StringBuffer("SELECT count(1) from ( ").append(sql).append(" ) as " + "__tmp_result_9").toString();
-        List<Long> numbers = executeExecutor.findAll(jdbcTemplate, Long.class, countSql, params);
-
-        return null == numbers || numbers.isEmpty() ? 0 : numbers.get(0).longValue();
+            String sql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, null, null);
+            // 使用固定前缀+数字作为临时表别名，避免非法标识符
+            String countSql = String.format("SELECT COUNT(1) FROM (%s) AS temp_table_1", sql);
+            List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, countSql, CollUtil.toArray(nonNullValues));
+            return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
+        } catch (Exception e) {
+            log.error("{}执行countAll时发生异常", LOG_PREFIX, e);
+            return 0L;
+        }
     }
 
 
@@ -112,22 +123,18 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> T findOne(T t, boolean likeMode, Order... orders) {
-        if (null == t) {
+        if (t == null) {
             return null;
         }
+
         String tableName = fieldExtractor.extractTableName(t.getClass());
-
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
+        String sql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), new Slice(1, 1));
 
-        String sql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders),
-                new Slice(null, 1));
-
-
-        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), sql, params);
-        return null == list || list.isEmpty() ? null : (T) list.get(0);
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), sql, CollUtil.toArray(nonNullValues));
+        return list == null || list.isEmpty() ? null : list.get(0);
     }
 
     /**
@@ -138,25 +145,18 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @return 处理后的排序条件
      */
     private List<Order> createOrder(List<FieldValue> fieldValues, Order... orders) {
-        if (null == orders || orders.length == 0) {
+        if (orders == null || orders.length == 0) {
             return null;
         }
-        //@formatter:off
-        return Arrays.asList(orders).stream().filter(Objects::nonNull)
-                .filter(v -> StringUtils.isNotBlank(v.getOrderName()))
-                .map(s -> {
-                    String orderName =
-                            fieldValues.stream().filter(v -> null != v.getField())
-                                    .filter(v -> v.getField().getName().equalsIgnoreCase(s.getOrderName()))
-                                    .map(FieldValue::getSimpleName).findFirst().orElse(null);
-                    if (StringUtils.isNotBlank(orderName)) {
-                        s.setOrderName(orderName);
-                    }
-                    return s;
-                }).collect(Collectors.toList());
-        //@formatter:on
-    }
 
+        return Arrays.stream(orders).filter(Objects::nonNull).filter(order -> StringUtils.isNotBlank(order.getOrderName())).map(order -> {
+            String columnName = fieldValues.stream().filter(field -> field != null && field.getField() != null).filter(field -> field.getField().getName().equalsIgnoreCase(order.getOrderName())).map(FieldValue::getColumnName).findFirst().orElse(null);
+            if (StringUtils.isNotBlank(columnName)) {
+                order.setOrderName(columnName);
+            }
+            return order;
+        }).collect(Collectors.toList());
+    }
 
     /**
      * 根据pojo实例中的非空属性值查询出所有符合条件的数据
@@ -169,21 +169,19 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(T t, boolean likeMode, Order... orders) {
-        if (null == t) {
-            return Collections.EMPTY_LIST;
+        if (t == null) {
+            return Collections.emptyList();
         }
+
         String tableName = fieldExtractor.extractTableName(t.getClass());
-
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
-        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), null);
+        String querySql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), null);
 
-        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), querySql, params);
-        return null == list ? Collections.EMPTY_LIST : (List<T>) list;
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), querySql, CollUtil.toArray(nonNullValues));
+        return list == null ? Collections.emptyList() : list;
     }
-
 
     /**
      * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
@@ -197,28 +195,25 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders) {
-        slice = null == slice ? new Slice(10, 1) : slice;
-        if (null == t) {
+        slice = slice == null ? new Slice(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER) : slice;
+        if (t == null) {
             return Page.ofEmpty(slice.size());
         }
+
         String tableName = fieldExtractor.extractTableName(t.getClass());
-
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
+        FieldValue[] params = CollUtil.toArray(nonNullValues);
 
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+        String querySql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), slice);
+        String countSql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, null, null);
+        String wrappedCountSql = String.format("SELECT COUNT(1) FROM (%s) AS %s9", countSql, TEMP_TABLE_PREFIX);
 
-        String querySql = queryTranslator.findAll(tableName, values, likeMode, createOrder(fieldValues, orders), slice);
-        String countSql = queryTranslator.findAll(tableName, values, likeMode, null, null);
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), querySql, params);
+        List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, wrappedCountSql, params);
 
-        countSql =
-                new StringBuffer("SELECT count(1) from ( ").append(countSql).append(" ) as " + "__tmp_result_9").toString();
-
-        List<?> list = executeExecutor.findAll(jdbcTemplate, t.getClass(), querySql, params);
-        List<Long> numbers = executeExecutor.findAll(jdbcTemplate, Long.class, countSql, params);
-
-        Long count = null == numbers || numbers.isEmpty() ? 0 : numbers.get(0);
-        return (Page<T>) Page.of(list, count, slice);
+        Long count = numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
+        return Page.of(list, count, slice);
     }
 
     /**
@@ -232,7 +227,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders) {
-        if (null == pageQuery) {
+        if (pageQuery == null) {
             return Page.ofEmpty();
         }
         return this.findPage(pageQuery.getQuery(), likeMode, pageQuery, orders);
@@ -247,15 +242,14 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKey(T t) {
+        if (t == null) {
+            return 0;
+        }
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKey = primaryKey(fieldValues);
-
+        FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
         String tableName = fieldExtractor.extractTableName(t.getClass());
-        String sql = updateTranslator.updateByPrimaryKey(tableName, primaryKey, fieldValues);
-
-        Object[] params = fieldValues.stream().map(FieldValue::getValue).toArray(Object[]::new);
-
-        return executeExecutor.execute(jdbcTemplate, sql, params);
+        String sql = sqlTranslator.updateByPrimaryKey(tableName, primaryKey, fieldValues);
+        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(fieldValues));
     }
 
     /**
@@ -267,19 +261,19 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int updateByPrimaryKeySelective(T t) {
+        if (t == null) {
+            return 0;
+        }
+
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKey = primaryKey(fieldValues);
+        FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
         String tableName = fieldExtractor.extractTableName(t.getClass());
 
-        List<FieldValue> values = fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
-        Object[] params = values.stream().map(FieldValue::getValue).toArray(Object[]::new);
+        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
-
-        String sql = updateTranslator.updateByPrimaryKey(tableName, primaryKey, values);
-
-        return executeExecutor.execute(jdbcTemplate, sql, params);
+        String sql = sqlTranslator.updateByPrimaryKey(tableName, primaryKey, nonNullValues);
+        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(nonNullValues));
     }
-
 
     /**
      * 根据主键删除一条数据
@@ -291,31 +285,29 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> int deleteByPrimaryKey(Class<T> clazz, Object... primaryKeys) {
-        if (null == primaryKeys || primaryKeys.length == 0) {
+        if (primaryKeys == null || primaryKeys.length == 0) {
+            log.debug("{}主键参数为空，跳过删除", LOG_PREFIX);
             return 0;
         }
-        List<Object> params = Arrays.asList(primaryKeys).stream().filter(Objects::nonNull).filter(v -> {
-            if (v instanceof String val) {
-                return StringUtils.isNotBlank(val.trim());
+        List<Object> validPrimaryKeys = Arrays.stream(primaryKeys).filter(Objects::nonNull).filter(key -> {
+            if (key instanceof String) {
+                return StringUtils.isNotBlank(((String) key).trim());
             }
             return true;
         }).collect(Collectors.toList());
-        if (null == params || params.isEmpty()) {
+
+        if (validPrimaryKeys.isEmpty()) {
+            log.debug("{}无有效主键值，跳过删除", LOG_PREFIX);
             return 0;
         }
 
+        FieldValue primaryKey = fieldExtractor.extractPrimaryFiled(clazz);
         String tableName = fieldExtractor.extractTableName(clazz);
+        primaryKey.setValue(Arrays.asList(validPrimaryKeys));
 
-        List<FieldValue> fields = fieldExtractor.extractFiled(clazz);
-        FieldValue primaryKey = primaryKey(fields);
-
-        String sql = deleteTranslator.deleteByPrimaryKeys(tableName, primaryKey.getSimpleName(), params);
-
-        return executeExecutor.execute(jdbcTemplate, sql, null);
-
-
+        String sql = sqlTranslator.deleteByPrimaryKeys(tableName, primaryKey.getColumnName(), validPrimaryKeys);
+        return sqlExecutor.execute(jdbcTemplate, sql, primaryKey);
     }
-
 
     /**
      * 以全属性方式新增一条数据
@@ -326,15 +318,16 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> KeyHolder insert(T t) {
-        if (null == t) {
+        if (t == null) {
+            log.warn("{}新增数据为空", LOG_PREFIX);
             return null;
         }
+
         String tableName = fieldExtractor.extractTableName(t.getClass());
-
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        String sql = insertTranslator.insert(tableName, fieldValues);
+        String sql = sqlTranslator.insert(tableName, fieldValues);
 
-        return this.executeExecutor.update(this.jdbcTemplate, sql, fieldValues);
+        return this.sqlExecutor.update(this.jdbcTemplate, sql, fieldValues);
     }
 
     /**
@@ -344,26 +337,24 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @param <T> POJO类
      * @return 保存数据的主键
      */
-
     @Override
-    public <T> KeyHolder saveOrUpdate(T t) {
-        if (null == t) {
-            return null;
+    public <T> void saveOrUpdate(T t) {
+        if (t == null) {
+            log.warn("{}保存或更新数据为空", LOG_PREFIX);
         }
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> values =
-                fieldValues.stream().filter(Objects::nonNull).filter(v -> v.isPrimary() && v.isNotNullVal()).distinct().collect(Collectors.toList());
 
-        if (values.isEmpty()) {
-            return this.insert(t);
-        } else if (values.size() == 1) {
-            this.deleteByPrimaryKey(t.getClass(), values.get(0).getValue());
-            return this.insert(t);
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        FieldValue primaryKeyValue = fieldValues.stream().filter(Objects::nonNull).filter(field -> field.isPrimary() && field.isNotNullVal()).findFirst().orElse(null);
+
+        if (null == primaryKeyValue || primaryKeyValue.isNullVal()) {
+            this.insert(t);
         } else {
-            //多个主键属性
-            ValidateUtils.throwException(JdbcError.MULTIPLE_PRIMARY_KEYS);
+            Object val = this.findByPrimaryKey(t.getClass(), primaryKeyValue.getValue());
+            if (null == val) {
+                this.insert(t);
+            }
+            this.updateByPrimaryKey(t);
         }
-        return null;
     }
 
     /**
@@ -373,40 +364,29 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @param <T>  POJO数据类型
      */
     @Override
-    public synchronized <T> void saveAll(List<T> list) {
-        if (null == list || list.isEmpty()) {
-            return;
-        }
-        T val = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
-        if (null == val) {
+    public <T> void saveAll(Collection<T> list) {
+        if (list == null || list.isEmpty()) {
             return;
         }
 
-        String tableName = fieldExtractor.extractTableName(val.getClass());
-        List<FieldValue> fieldValues = fieldExtractor.extractFiled(val.getClass());
+        T firstValidItem = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
 
-        String sql = insertTranslator.insert(tableName, fieldValues);
-
-        int[] types = new int[fieldValues.size()];
-        for (int i = 0; i < fieldValues.size(); i++) {
-            types[i] = fieldValues.get(i).sqlType().getVendorTypeNumber();
+        if (firstValidItem == null) {
+            log.warn("{}批量保存数据列表中无有效数据", LOG_PREFIX);
+            return;
         }
 
-        List<Object[]> values = list.parallelStream().filter(Objects::nonNull).map(s -> {
-            List<FieldValue> vals = fieldExtractor.extractFieldValue(s);
-            return fieldValues.stream().map(v -> vals.stream().filter(t -> Objects.equals(v.getField().getName(),
-                    t.getField().getName())).findFirst().orElse(null)).toArray(Object[]::new);
-        }).collect(Collectors.toList());
+        String tableName = fieldExtractor.extractTableName(firstValidItem.getClass());
+        List<FieldValue> fieldValues = fieldExtractor.extractFiled(firstValidItem.getClass());
 
+        String sql = sqlTranslator.insert(tableName, fieldValues);
+        int[] types = fieldValues.stream().mapToInt(field -> field.sqlType().getVendorTypeNumber()).toArray();
 
-        executeExecutor.batchUpdate(jdbcTemplate, sql, types, values);
+        List<List<FieldValue>> batchParams = list.stream().filter(Objects::nonNull).map(item -> fieldExtractor.extractFieldValue(item)).collect(Collectors.toList());
+
+        sqlExecutor.batchUpdate(jdbcTemplate, sql, types, batchParams);
     }
 
-    @Override
-    public <T> T findOne(Class<T> clazz, String sql, Object... params) {
-        List<T> list = this.findAll(clazz, sql, params);
-        return list.isEmpty() ? null : list.get(0);
-    }
 
     /**
      * 根据sql查询出所有的数据
@@ -419,45 +399,17 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> findAll(Class<T> clazz, String sql, Object... params) {
-        Map<String, Object> map = detectingQueryType(sql, params);
-        List<T> list = executeExecutor.findAll(this.jdbcTemplate(), clazz, sql, null == map ? params : map);
+        List<T> results = null;
+        if (FieldUtils.isBasicResult(clazz)) {
+            results = this.jdbcTemplate.queryForList(sql, clazz, params);
+        } else {
+            results = jdbcTemplate.query(sql, new SimpleRowMapper<>(clazz), params);
+        }
 
-        return null == list ? Collections.EMPTY_LIST : list;
+
+        return results == null ? Collections.emptyList() : results;
     }
 
-    /**
-     * 根据原生sql进行分页查询
-     * 注意：此原生sql不能携带分页参数
-     *
-     * @param clazz  数据类型
-     * @param slice  分页参数
-     * @param sql    原生sql
-     * @param params 查询参数
-     * @param <T>    结果数据的类型
-     * @return
-     */
-    @Override
-    public <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Object... params) {
-        //formatter:off
-        slice = null == slice ? new Slice(10, 1) : slice;
-
-        Map<String, Object> map = detectingQueryType(sql, params);
-
-        sql = sql.trim().endsWith(";") ? StringUtils.substringAfterLast(sql.trim(), ";") : sql.trim();
-        String dataSql = new StringBuffer("SELECT __tmp_result_8.* from ( ").append(sql).append(" ) as " +
-                "__tmp_result_8 " + "limit" + " ").append(slice.startOffset().longValue()).append(",").append(slice.size().longValue()).toString();
-        String countSql =
-                new StringBuffer("SELECT count(1) from ( ").append(sql).append(" ) as " + "__tmp_result_9").toString();
-
-        List<T> list = this.executeExecutor.findAll(jdbcTemplate, clazz, dataSql, null == map ? params : map);
-
-        List<Long> numbers = this.executeExecutor.findAll(jdbcTemplate, Long.class, countSql, null == map ? params :
-                map);
-        Long count = null == numbers || numbers.isEmpty() ? 0 : numbers.get(0);
-
-        //formatter:on
-        return Page.of(list, count, slice);
-    }
 
     /**
      * 获取增强工具使用的JdbcTemplate
@@ -476,6 +428,12 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        try {
+            this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
+        } catch (SQLException e) {
+            log.warn("{}无法获取数据库时区信息", LOG_PREFIX);
+        }
+        this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
     }
 
     /**
@@ -491,52 +449,21 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     public SimpleJdbcHelper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        try {
+            this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
+        } catch (SQLException e) {
+            log.warn("{}无法获取数据库时区信息", LOG_PREFIX);
+        }
+        this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
     }
 
 
     /**
-     * 侦测是否命名参数查询
-     *
-     * @param sql  查询sql语句
-     * @param args 查询参数
-     * @return 若是命名参数查询则返回查询参数，否则为null
+     * 提取非空字段值
      */
-    private Map<String, Object> detectingQueryType(String sql, Object[] args) {
-        if (StringUtils.isBlank(sql) || null == args || args.length == 0) {
-            return null;
-        }
-        if (args.length == 1 && null != args[0] && args[0] instanceof Map) {
-            return (Map<String, Object>) args[0];
-        }
-        List<String> list = RegexUtil.extractAll(":(\\w+)", sql);
-        if (null == list || !Objects.equals(list.size(), args.length)) {
-            return null;
-        }
-        Map<String, Object> map = new HashMap<>();
-        for (int i = 0; i < list.size(); i++) {
-            map.put(StringUtils.trim(StringUtils.substringAfter(list.get(i), ":")), args[i]);
-        }
-        return map;
+    private List<FieldValue> extractNonNullFieldValues(List<FieldValue> fieldValues) {
+        return fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
     }
 
-    /**
-     * 提取主键属性
-     *
-     * @param fieldValues 数据字段属性
-     * @return 主键属性
-     */
-    private FieldValue primaryKey(List<FieldValue> fieldValues) {
-        if (null == fieldValues || fieldValues.isEmpty()) {
-            ValidateUtils.throwException(JdbcError.NO_PRIMARY_KEY);
-        }
-        List<FieldValue> values =
-                fieldValues.stream().filter(Objects::nonNull).filter(FieldValue::isPrimary).collect(Collectors.toList());
-        if (null == values || values.isEmpty()) {
-            ValidateUtils.throwException(JdbcError.NO_PRIMARY_KEY);
-        }
-        if (values.size() > 1) {
-            ValidateUtils.throwException(JdbcError.MULTIPLE_PRIMARY_KEYS);
-        }
-        return values.get(0);
-    }
+
 }

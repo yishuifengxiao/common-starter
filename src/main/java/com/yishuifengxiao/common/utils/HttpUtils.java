@@ -10,7 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.util.FileCopyUtils;
@@ -173,22 +172,23 @@ public class HttpUtils {
      * @return true标识为json请求，false不是json请求
      */
     public static boolean isJsonRequest(HttpServletRequest request) {
-        String method = request.getMethod();
-        if (!StringUtils.equalsIgnoreCase(HttpMethod.GET.toString(), method)) {
-            // 不是get请求
-            return true;
-        }
-        String contentType = request.getContentType();
-        if (StringUtils.containsIgnoreCase(contentType, JSON_FLAG)) {
-            return true;
-        }
-        String accept = null;
+        String method = request.getMethod().toUpperCase();
 
-        boolean anyMatch =
-                Collections.list(request.getHeaderNames()).parallelStream().filter(v -> StringUtils.containsIgnoreCase(v,
-                HttpHeaders.ACCEPT)).anyMatch(v -> StringUtils.containsIgnoreCase(request.getHeader(v), JSON_FLAG));
-        return anyMatch;
+        // 对于GET请求，主要检查Accept头
+        if ("GET".equals(method)) {
+            String accept = request.getHeader("Accept");
+            return accept != null && accept.toLowerCase().contains("application/json");
+        }
+
+        // 对于POST/PUT/PATCH等有请求体的方法，检查Content-Type
+        String contentType = request.getContentType();
+        if (contentType != null) {
+            return contentType.toLowerCase().startsWith("application/json");
+        }
+
+        return false;
     }
+
 
     /**
      * 获取请求中的浏览器标识
@@ -237,8 +237,7 @@ public class HttpUtils {
     /**
      * 默认的Access-Control-Allow-Headers的值
      *
-     * @see
-     * <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
+     * @see <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers">https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Headers/Access-Control-Allow-Headers</a>
      */
     private final static Set<String> DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS = CollUtil.asSet(
             // @formatter:off

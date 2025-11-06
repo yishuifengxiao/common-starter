@@ -5,7 +5,7 @@ package com.yishuifengxiao.common.security.token.extractor;
 
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.codec.MD5;
+import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -65,7 +65,7 @@ public class SimpleSecurityValueExtractor implements SecurityValueExtractor {
             String userAgent = HttpUtils.userAgent(request);
             String requestIp = HttpUtils.getRequestIp(request);
             if (!StringUtils.isAllBlank(userAgent, requestIp)) {
-                deviceIdValue = MD5.md5Short(userAgent + "" + deviceIdValue);
+                deviceIdValue = Md5.md5Short(userAgent + "" + deviceIdValue);
             }
         }
         return deviceIdValue;

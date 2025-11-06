@@ -6,11 +6,13 @@ import com.yishuifengxiao.common.tool.bean.ClassUtil;
 import com.yishuifengxiao.common.tool.lang.TextUtil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -63,24 +65,35 @@ public class SimpleFieldExtractor implements FieldExtractor {
     @Override
     public <T> List<FieldValue> extractFieldValue(T t) {
         if (null == t) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
-        synchronized (this) {
-            List<FieldValue> fields = this.extractFiled(t.getClass());
-            return fields.parallelStream().map(field -> {
-                Object value = FieldUtils.extractVal(field.getField(), t);
-                return field.setValue(value);
 
-            }).collect(Collectors.toList());
+        List<FieldValue> fields;
+        synchronized (this) {
+            fields = this.extractFiled(t.getClass()); // 修正拼写错误
         }
+
+        return fields.stream().map(field -> {
+            String fieldName = field.getField().getName(); // 避免重复调用 getName()
+            try {
+                Object value = ClassUtil.extractValue(t, fieldName);
+                return field.setValue(value);
+            } catch (Exception e) {
+                // 使用日志框架替代 System.err
+                log.warn("Failed to extract field: {}, error: {}", fieldName, e.getMessage(), e);
+                // 根据业务需要决定是跳过该字段还是抛出异常
+                return field; // 或者 return null 并在 collect 前 filter 掉
+            }
+        }).collect(Collectors.toList());
     }
+
 
     /**
      * <p>
      * 提取一个POJO类所有字段属性
      * </p>
      * <p>
-     * 【注意】下面的字段属性会不会被提取出来
+     * 【注意】下面的字段属性不会被提取出来：
      * <ul>
      * <li>被final修饰的属性</li>
      * <li>被 @Transient 修饰的属性</li>
@@ -98,20 +111,17 @@ public class SimpleFieldExtractor implements FieldExtractor {
     @Override
     public <T> List<FieldValue> extractFiled(Class<T> clazz) {
         if (null == clazz) {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
-        List<FieldValue> list = FIELDS_MAP.get(clazz.getName());
-        if (null != list) {
-            return list;
-        }
-        synchronized (this) {
-            List<Field> fields = ClassUtil.fields(clazz, true);
-            List<FieldValue> fieldValues =
-                    fields.parallelStream().map(field -> new FieldValue(field,
-                            FieldUtils.isPrimary(field))).collect(Collectors.toList());
-            FIELDS_MAP.put(clazz.getName(), fieldValues);
-            return fieldValues;
-        }
+
+        return FIELDS_MAP.computeIfAbsent(clazz.getName(), key -> {
+            try {
+                List<Field> fields = ClassUtil.fields(clazz, true);
+                return fields.stream().filter(field -> !Modifier.isStatic(field.getModifiers())).filter(field -> !Modifier.isFinal(field.getModifiers())).filter(field -> !Modifier.isNative(field.getModifiers())).filter(field -> !Modifier.isAbstract(field.getModifiers())).filter(field -> !field.getType().isInterface()).filter(field -> !Modifier.isTransient(field.getModifiers())).filter(field -> field.getAnnotation(Transient.class) == null).map(field -> new FieldValue(field, FieldUtils.isPrimary(field))).collect(Collectors.toList());
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to extract fields from class: " + clazz.getName(), e);
+            }
+        });
     }
 
 
@@ -128,27 +138,52 @@ public class SimpleFieldExtractor implements FieldExtractor {
      *
      * @param <T>   POJO类的类型
      * @param clazz POJO类
-     * @return OJO类的对应的数据表的名字
+     * @return POJO类的对应的数据表的名字
      */
     @Override
     public <T> String extractTableName(Class<T> clazz) {
-        String name = TABLE_MAP.get(clazz.getName());
-        if (null != name) {
-            return name;
-        }
-        synchronized (this) {
-            name = Optional.ofNullable(AnnotationUtils.findAnnotation(clazz, Table.class)).map(Table::name).orElse(null);
-            if (StringUtils.isBlank(name)) {
-                name = Optional.ofNullable(AnnotationUtils.findAnnotation(clazz, Entity.class)).map(Entity::name).orElse(null);
-                if (StringUtils.isBlank(name)) {
-                    name = TextUtil.underscoreName(clazz.getSimpleName());
-                }
-            }
-            TABLE_MAP.put(clazz.getName(), name);
-            return name;
-        }
 
+        // 使用 computeIfAbsent 简化缓存逻辑并确保线程安全
+        return TABLE_MAP.computeIfAbsent(clazz.getName(), key -> {
+            // 尝试获取@Table注解中的名称
+            String name = Optional.ofNullable(AnnotationUtils.findAnnotation(clazz, Table.class)).map(Table::name).filter(StringUtils::isNotBlank).orElse(null);
+
+            // 若未找到，则尝试@Entity注解
+            if (StringUtils.isBlank(name)) {
+                name = Optional.ofNullable(AnnotationUtils.findAnnotation(clazz, Entity.class)).map(Entity::name).filter(StringUtils::isNotBlank).orElse(null);
+            }
+
+            // 最终回退到类名转下划线格式
+            if (StringUtils.isBlank(name)) {
+                name = TextUtil.underscoreName(clazz.getSimpleName());
+            }
+
+            return name;
+        });
     }
 
+    /**
+     * <p>
+     * 提取一个POJO类的主键属性
+     * </p>
+     * 查找策略如下
+     * <ul>
+     * <li>先提取类上面 @Id 注解的属性</li>
+     * <li>其次提取类注解上 @Column 注解的值为id的属性</li>
+     * <li>最后提取属性名为id的属性</li>
+     * </ul>
+     *
+     * @param <T>   POJO类的类型
+     * @param clazz POJO类
+     * @return OJO类的主键属性
+     */
+    @Override
+    public <T> FieldValue extractPrimaryFiled(Class<T> clazz) {
+        if (null == clazz) {
+            return null;
+        }
+        List<FieldValue> fieldValues = extractFiled(clazz);
+        return fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
+    }
 
 }

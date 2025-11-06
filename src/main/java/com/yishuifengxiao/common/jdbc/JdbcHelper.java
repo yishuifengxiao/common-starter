@@ -10,6 +10,7 @@ import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -140,7 +141,7 @@ public interface JdbcHelper {
      * @param <T> POJO类
      * @return 保存数据的主键;只有数据库为自增时才有用，其他情况下无效
      */
-    <T> KeyHolder saveOrUpdate(T t);
+    <T> void saveOrUpdate(T t);
 
     /**
      * 批量保存数据
@@ -148,18 +149,7 @@ public interface JdbcHelper {
      * @param list 待批量保存的数据
      * @param <T>  POJO数据类型
      */
-    <T> void saveAll(List<T> list);
-
-    /**
-     * 根据sql查询数据
-     *
-     * @param clazz  数据类型
-     * @param sql    sql语句
-     * @param params 参数
-     * @param <T>    POJO类
-     * @return 查询出来的数据
-     */
-    <T> T findOne(Class<T> clazz, String sql, Object... params);
+    <T> void saveAll(Collection<T> list);
 
 
     /**
@@ -173,18 +163,6 @@ public interface JdbcHelper {
      */
     <T> List<T> findAll(Class<T> clazz, String sql, Object... params);
 
-    /**
-     * 根据原生sql进行分页查询
-     * 注意：此原生sql不能携带分页参数
-     *
-     * @param clazz  数据类型
-     * @param slice  分页参数
-     * @param sql    原生sql
-     * @param params 查询参数
-     * @param <T>    结果数据的类型
-     * @return 查询结果
-     */
-    <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Object... params);
 
     /**
      * 获取操作的JdbcTemplate实例

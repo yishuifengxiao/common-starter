@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.tool.codec.MD5;
+import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -195,7 +195,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
         this.issueAt = LocalDateTime.now();
         this.expireAt = this.issueAt.plusSeconds(validSeconds.longValue());
         this.value =
-                MD5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
+                Md5.md5Short(new StringBuilder(principal).append(deviceId).append(IdWorker.snowflakeId()).toString());
     }
 
 

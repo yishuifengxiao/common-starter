@@ -8,7 +8,7 @@ import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import com.yishuifengxiao.common.tool.http.UrlUtil;
-import com.yishuifengxiao.common.tool.lang.CompareUtil;
+import com.yishuifengxiao.common.tool.lang.NumberUtil;
 import com.yishuifengxiao.common.tool.utils.Assert;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -226,11 +226,11 @@ public class TokenUtil {
         }
 
 
-        if (null == validSeconds || CompareUtil.lteZero(validSeconds)) {
+        if (null == validSeconds || NumberUtil.lteZero(validSeconds)) {
             validSeconds = securityPropertyResource.security().getToken().getValidSeconds();
         }
 
-        if (null == maxSessions || CompareUtil.lteZero(maxSessions)) {
+        if (null == maxSessions || NumberUtil.lteZero(maxSessions)) {
             maxSessions = securityPropertyResource.security().getToken().getMaxSessions();
         }
         if (null == preventsLogin) {
