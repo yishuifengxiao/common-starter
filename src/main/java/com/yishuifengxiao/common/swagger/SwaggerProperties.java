@@ -10,10 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * swagger扩展支持属性配置
  *
@@ -28,9 +24,9 @@ import java.util.List;
 public class SwaggerProperties {
 
     /**
-     * 是否开启swagger-ui增强的功能，默认开启
+     * 是否开启swagger-ui增强的功能，默认关闭
      */
-    private Boolean enable = true;
+    private Boolean enable = false;
     /**
      * swagger 扫描的根路径
      */

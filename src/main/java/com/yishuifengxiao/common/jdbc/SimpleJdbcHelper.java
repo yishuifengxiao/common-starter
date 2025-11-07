@@ -17,11 +17,13 @@ import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.SQLException;
@@ -425,22 +427,48 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @return 保存数据的主键
      */
     @Override
-    public <T> void saveOrUpdate(T t) {
+    public <T> KeyHolder saveOrUpdate(T t) {
         if (t == null) {
             log.warn("{}保存或更新数据为空", LOG_PREFIX);
+            return null;
         }
 
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKeyValue = fieldValues.stream().filter(Objects::nonNull).filter(field -> field.isPrimary() && field.isNotNullVal()).findFirst().orElse(null);
+        FieldValue primaryKeyValue = fieldValues.stream()
+                .filter(Objects::nonNull)
+                .filter(field -> field.isPrimary() && field.isNotNullVal())
+                .findFirst()
+                .orElse(null);
 
         if (null == primaryKeyValue || primaryKeyValue.isNullVal()) {
-            this.insert(t);
+            return this.insert(t);
         } else {
-            Object val = this.findByPrimaryKey(t.getClass(), primaryKeyValue.getValue());
-            if (null == val) {
-                this.insert(t);
+            try {
+                String tableName = fieldExtractor.extractTableName(t.getClass());
+                // TODO: 若 extractTableName 不可信，请增加白名单验证或转义处理
+                String sql = "SELECT COUNT(1) FROM " + tableName + " WHERE " + primaryKeyValue.getColumnName() + " = :id";
+
+                List<Long> result = this.find(Long.class, sql, Map.of("id", primaryKeyValue.getValue()));
+
+                if (result == null || result.isEmpty() || result.get(0) <= 0) {
+                    return this.insert(t);
+                }
+
+                this.updateByPrimaryKey(t);
+
+                // 统一返回 KeyHolder 方式，模拟主键回填效果
+                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+                Map<String, Object> keys = Collections.singletonMap(primaryKeyValue.getField().getName(), primaryKeyValue.getValue());
+                keyHolder.getKeyList().add(keys);
+                return keyHolder;
+
+            } catch (DataAccessException e) {
+                log.error("{}保存或更新数据访问异常，实体类型={}", LOG_PREFIX, t.getClass().getSimpleName(), e);
+                throw new RuntimeException("保存或更新失败", e);
+            } catch (Exception e) {
+                log.error("{}保存或更新未知异常，实体类型={}", LOG_PREFIX, t.getClass().getSimpleName(), e);
+                throw new RuntimeException("保存或更新失败", e);
             }
-            this.updateByPrimaryKey(t);
         }
     }
 
@@ -634,8 +662,147 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (null == params || params.isEmpty()) {
             return this.find(clazz, sql, (SqlParameterSource) null);
         }
-        SqlParameterSource paramSource = new MapSqlParameterSource(params);
+        SqlParameterSource paramSource = null;
+        if (this.timeZone != null) {
+            // 对参数中的日期时间类型进行时区转换处理，包括集合中的元素
+            Map<String, Object> processedParams = processDateTimeParameters(params);
+            paramSource = new MapSqlParameterSource(processedParams);
+        } else {
+            paramSource = new MapSqlParameterSource(params);
+        }
+
         return this.find(clazz, sql, paramSource);
+    }
+
+
+    /**
+     * 对参数中的日期时间类型进行时区转换处理，包括集合中的元素
+     *
+     * @param params 原始参数Map
+     * @return 处理后的参数Map
+     */
+    private Map<String, Object> processDateTimeParameters(Map<String, Object> params) {
+        if (params == null || params.isEmpty()) {
+            return params;
+        }
+
+        Map<String, Object> processedParams = new HashMap<>(params);
+
+        for (Map.Entry<String, Object> entry : processedParams.entrySet()) {
+            Object value = entry.getValue();
+            if (value != null) {
+                // 处理日期时间类型的时区转换，包括集合中的元素
+                Object processedValue = processDateTimeValueRecursive(value);
+                entry.setValue(processedValue);
+            }
+        }
+
+        return processedParams;
+    }
+
+    /**
+     * 递归处理日期时间类型的时区转换，包括集合中的元素
+     *
+     * @param value 原始值
+     * @return 处理后的值
+     */
+    private Object processDateTimeValueRecursive(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        // 处理集合类型（List、Set、数组等）
+        if (value instanceof Collection) {
+            Collection<?> collection = (Collection<?>) value;
+            List<Object> processedList = new ArrayList<>();
+            for (Object element : collection) {
+                processedList.add(processDateTimeValueRecursive(element));
+            }
+            // 保持原始集合类型
+            if (value instanceof Set) {
+                return new HashSet<>(processedList);
+            } else {
+                return processedList;
+            }
+        } else if (value.getClass().isArray()) {
+            // 处理数组类型
+            Object[] array = (Object[]) value;
+            Object[] processedArray = new Object[array.length];
+            for (int i = 0; i < array.length; i++) {
+                processedArray[i] = processDateTimeValueRecursive(array[i]);
+            }
+            return processedArray;
+        } else if (value instanceof Map) {
+            // 处理Map类型（递归处理值）
+            Map<?, ?> map = (Map<?, ?>) value;
+            Map<Object, Object> processedMap = new HashMap<>();
+            for (Map.Entry<?, ?> mapEntry : map.entrySet()) {
+                processedMap.put(mapEntry.getKey(), processDateTimeValueRecursive(mapEntry.getValue()));
+            }
+            return processedMap;
+        }
+
+        // 处理单个日期时间类型的时区转换
+        return processSingleDateTimeValue(value);
+    }
+
+    /**
+     * 处理单个日期时间类型的时区转换
+     *
+     * @param value 原始值
+     * @return 处理后的值
+     */
+    private Object processSingleDateTimeValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+
+        // 如果配置了数据库时区，进行时区转换
+        if (this.timeZone != null) {
+            if (value instanceof java.util.Date) {
+                // java.util.Date 转换为数据库时区的 LocalDateTime
+                java.util.Date date = (java.util.Date) value;
+                return date.toInstant().atZone(this.timeZone).toLocalDateTime();
+            } else if (value instanceof java.time.LocalDateTime) {
+                // LocalDateTime 没有时区信息，直接返回
+                return value;
+            } else if (value instanceof java.time.ZonedDateTime) {
+                // ZonedDateTime 转换为数据库时区
+                java.time.ZonedDateTime zonedDateTime = (java.time.ZonedDateTime) value;
+                return zonedDateTime.withZoneSameInstant(this.timeZone).toLocalDateTime();
+            } else if (value instanceof java.time.OffsetDateTime) {
+                // OffsetDateTime 转换为数据库时区
+                java.time.OffsetDateTime offsetDateTime = (java.time.OffsetDateTime) value;
+                return offsetDateTime.atZoneSameInstant(this.timeZone).toLocalDateTime();
+            } else if (value instanceof java.time.Instant) {
+                // Instant 转换为数据库时区的 LocalDateTime
+                java.time.Instant instant = (java.time.Instant) value;
+                return instant.atZone(this.timeZone).toLocalDateTime();
+            } else if (value instanceof java.time.LocalDate) {
+                // LocalDate 转换为数据库时区的 LocalDate
+                java.time.LocalDate localDate = (java.time.LocalDate) value;
+                return localDate.atStartOfDay(this.timeZone).toLocalDate();
+            } else if (value instanceof java.time.LocalTime) {
+                // LocalTime 转换为数据库时区的 LocalTime
+                java.time.LocalTime localTime = (java.time.LocalTime) value;
+                return localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
+            } else if (value instanceof java.sql.Date) {
+                // java.sql.Date 转换为数据库时区的 LocalDate
+                java.sql.Date sqlDate = (java.sql.Date) value;
+                return sqlDate.toLocalDate();
+            } else if (value instanceof java.sql.Time) {
+                // java.sql.Time 转换为数据库时区的 LocalTime
+                java.sql.Time sqlTime = (java.sql.Time) value;
+                return sqlTime.toLocalTime();
+            } else if (value instanceof java.sql.Timestamp) {
+                // java.sql.Timestamp 转换为数据库时区的 LocalDateTime
+                java.sql.Timestamp timestamp = (java.sql.Timestamp) value;
+                return timestamp.toLocalDateTime();
+            }
+        }
+
+        // 如果没有配置时区或不是日期时间类型，直接返回原值
+        return value;
     }
 
 
@@ -709,13 +876,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
      *
      * @param <T>    查询结果的对象类型
      * @param clazz  返回结果的类型Class对象
-     * @param sql    查询SQL语句
      * @param slice  分页参数
+     * @param sql    查询SQL语句
      * @param params SQL查询参数Map，键为参数名，值为参数值
      * @return 符合查询条件的对象列表，当前实现返回空列表
      */
     @Override
-    public <T> Page<T> findPage(Class<T> clazz, String sql, Slice slice, Map<String, Object> params) {
+    public <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Map<String, Object> params) {
         if (clazz == null || StringUtils.isBlank(sql)) {
             log.warn("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
             return Page.ofEmpty();
@@ -727,29 +894,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
         try {
             // 构建分页SQL
             String paginatedSql = buildPaginatedSql(sql, slice);
-
             // 执行分页查询
-            List<T> dataList;
-            if (params == null || params.isEmpty()) {
-                dataList = find(clazz, paginatedSql, (SqlParameterSource) null);
-            } else {
-                SqlParameterSource paramSource = new MapSqlParameterSource(params);
-                dataList = find(clazz, paginatedSql, paramSource);
-            }
-
+            List<T> dataList = this.find(clazz, paginatedSql, params);
             // 构建总数查询SQL
             String countSql = buildCountSql(sql);
-
             // 执行总数查询
-            Long totalCount;
-            if (params == null || params.isEmpty()) {
-                List<Long> countResult = find(Long.class, countSql, (SqlParameterSource) null);
-                totalCount = countResult == null || countResult.isEmpty() ? 0L : countResult.get(0);
-            } else {
-                SqlParameterSource paramSource = new MapSqlParameterSource(params);
-                List<Long> countResult = find(Long.class, countSql, paramSource);
-                totalCount = countResult == null || countResult.isEmpty() ? 0L : countResult.get(0);
-            }
+            List<Long> countResult = this.find(Long.class, countSql, params);
+            Long totalCount = countResult == null || countResult.isEmpty() ? 0L : countResult.get(0);
 
             // 返回分页结果
             return Page.of(dataList, totalCount, slice);
@@ -806,6 +957,32 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         // 构建总数查询SQL
         return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+    }
+
+    @Override
+    public <T> List<T> find(Class<T> clazz, NamedHandler handler) {
+        final Map<String, Object> map = new HashMap<>();
+        String sql = handler.handle(map);
+        return this.find(clazz, sql, map);
+    }
+
+    /**
+     * 根据指定的处理逻辑查找分页数据
+     *
+     * @param clazz   要查询的实体类类型
+     * @param slice   分页信息，包含页码和每页大小
+     * @param handler 命名处理程序，用于生成SQL语句和参数
+     * @param <T>     实体类泛型参数
+     * @return 返回指定类型的分页结果
+     */
+    @Override
+    public <T> Page<T> findPage(Class<T> clazz, Slice slice, NamedHandler handler) {
+        // 构造SQL参数映射
+        final Map<String, Object> map = new HashMap<>();
+        // 通过处理器生成SQL语句
+        String sql = handler.handle(map);
+        // 执行分页查询并返回结果
+        return this.findPage(clazz, slice, sql, map);
     }
 
 }

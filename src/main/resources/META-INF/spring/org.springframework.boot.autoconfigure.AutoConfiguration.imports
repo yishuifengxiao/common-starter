@@ -10,3 +10,4 @@ com.yishuifengxiao.common.oauth2resource.SecurityResourceEnhanceAutoConfiguratio
 com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration
 com.yishuifengxiao.common.guava.GuavaAutoConfiguration
 com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration
+com.yishuifengxiao.common.AllExtensionsAutoConfiguration

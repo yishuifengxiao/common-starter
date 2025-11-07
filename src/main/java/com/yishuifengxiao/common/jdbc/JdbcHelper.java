@@ -143,7 +143,7 @@ public interface JdbcHelper {
      * @param <T> POJO类
      * @return 保存数据的主键;只有数据库为自增时才有用，其他情况下无效
      */
-    <T> void saveOrUpdate(T t);
+    <T> KeyHolder saveOrUpdate(T t);
 
     /**
      * 批量保存数据
@@ -279,12 +279,12 @@ public interface JdbcHelper {
      *
      * @param <T>    查询结果的对象类型
      * @param clazz  返回结果的类型Class对象
-     * @param sql    查询SQL语句
      * @param slice  分页参数
+     * @param sql    查询SQL语句
      * @param params SQL查询参数Map，键为参数名，值为参数值
      * @return 符合查询条件的对象列表，当前实现返回空列表
      */
-    <T> Page<T> findPage(Class<T> clazz, String sql, Slice slice, Map<String, Object> params);
+    <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Map<String, Object> params);
 
     /**
      * 获取操作的JdbcTemplate实例
@@ -292,4 +292,26 @@ public interface JdbcHelper {
      * @return JdbcTemplate实例
      */
     JdbcTemplate jdbcTemplate();
+
+    /**
+     * 根据指定的类类型和命名处理器查找数据
+     *
+     * @param clazz   要查找的数据类型类对象
+     * @param handler 命名处理器，用于处理SQL语句和参数映射
+     * @return 返回指定类型的数据列表
+     */
+    <T> List<T> find(Class<T> clazz, NamedHandler handler);
+
+    /**
+     * 根据指定的处理逻辑查找分页数据
+     *
+     * @param clazz   要查询的实体类类型
+     * @param slice   分页信息，包含页码和每页大小
+     * @param handler 命名处理程序，用于生成SQL语句和参数
+     * @param <T>     实体类泛型参数
+     * @return 返回指定类型的分页结果
+     */
+    <T> Page<T> findPage(Class<T> clazz, Slice slice, NamedHandler handler);
+
+
 }

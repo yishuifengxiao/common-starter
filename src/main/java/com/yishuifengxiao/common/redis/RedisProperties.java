@@ -1,12 +1,11 @@
 package com.yishuifengxiao.common.redis;
 
-import java.time.Duration;
-
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.time.Duration;
 
 /**
  * Redis扩展支持属性配置
@@ -24,7 +23,7 @@ public class RedisProperties {
 	/**
 	 * 是否开启Redis配置功能，默认为开启
 	 */
-	private Boolean enable = true;
+	private Boolean enable = false;
 
 	/**
 	 * 缓存过期时间。默认为30分钟

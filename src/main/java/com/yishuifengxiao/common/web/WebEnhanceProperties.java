@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @ConfigurationProperties(prefix = "yishuifengxiao.web")
 public class WebEnhanceProperties {
-
-
+    /**
+     * 是否开启web增强功能，默认关闭
+     */
+    private Boolean enable = false;
     /**
      * 响应增强功能配置
      */
@@ -64,9 +66,9 @@ public class WebEnhanceProperties {
     @AllArgsConstructor
     public static class AopProperties {
         /**
-         * 是否开启AOP支持,默认开启
+         * 是否开启AOP支持,默认关闭
          */
-        private Boolean enable = true;
+        private Boolean enable = false;
     }
 
     /**
@@ -81,9 +83,9 @@ public class WebEnhanceProperties {
     @AllArgsConstructor
     public static class TracedProperties {
         /**
-         * 是否开启Traced支持,默认开启
+         * 是否开启Traced支持,默认关闭
          */
-        private Boolean enable = true;
+        private Boolean enable = false;
         /**
          * 请求追踪标识符的名字
          */
@@ -108,9 +110,9 @@ public class WebEnhanceProperties {
     @AllArgsConstructor
     public static class CorsProperties {
         /**
-         * 是否开启跨域支持,默认开启
+         * 是否开启跨域支持,默认关闭
          */
-        private Boolean enable = true;
+        private Boolean enable = false;
 
         /**
          * 跨域设置允许的路径，默认为所有路径(/*)
@@ -157,7 +159,7 @@ public class WebEnhanceProperties {
         /**
          * 是否开启全局异常拦截功能，默认为开启
          */
-        private Boolean enable = true;
+        private Boolean enable = false;
         /**
          * 简单异常提示信息存储 <br/>
          * key：异常类型的名字，如 ConstraintViolationException <br/>

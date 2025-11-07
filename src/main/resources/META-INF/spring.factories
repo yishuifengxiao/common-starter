@@ -11,7 +11,8 @@ com.yishuifengxiao.common.security.SecurityEnhanceAutoConfiguration,\
 com.yishuifengxiao.common.oauth2resource.SecurityResourceEnhanceAutoConfiguration,\
 com.yishuifengxiao.common.swagger.Swagger2AutoConfiguration,\
 com.yishuifengxiao.common.guava.GuavaAutoConfiguration,\
-com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration
+com.yishuifengxiao.common.jdbc.JdbcCoreAutoConfiguration,\
+com.yishuifengxiao.common.AllExtensionsAutoConfiguration
 
 
 # Environment Post Processors

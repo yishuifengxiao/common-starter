@@ -52,11 +52,7 @@ public class ZoneIdDetector {
 
         } catch (SQLException e) {
             log.warn("无法获取数据库时区信息，使用系统默认时区", e);
-            return ZoneId.systemDefault();
-        } finally {
-            if (null != connection) {
-                connection.close();
-            }
+            return null;
         }
     }
 
