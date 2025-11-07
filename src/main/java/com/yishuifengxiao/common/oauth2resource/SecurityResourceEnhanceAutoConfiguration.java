@@ -28,7 +28,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenResolv
 @AutoConfigureBefore({SecurityAutoConfiguration.class, UserDetailsServiceAutoConfiguration.class})
 @EnableConfigurationProperties(ResourceProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnProperty(prefix = "yishuifengxiao.security.resourceserver", name = {"token-check-url"}, matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security.resourceserver", name = {"token-check-url"})
 public class SecurityResourceEnhanceAutoConfiguration {
 
 

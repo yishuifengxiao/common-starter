@@ -68,7 +68,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
         String sql = sqlTranslator.findAll(tableName, Collections.singletonList(primaryKeyField), false, null, new Slice(1, 1));
         List<T> list = sqlExecutor.findAll(jdbcTemplate, clazz, sql, primaryKeyField.setValue(primaryKey));
 
-        // 移除不必要的 null 检查，仅保留 empty 判断
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -84,17 +83,14 @@ public class SimpleJdbcHelper implements JdbcHelper {
     @Override
     public <T> Long countAll(T t, boolean likeMode) {
         if (t == null) {
-            log.debug("{}查询对象为空，返回0", LOG_PREFIX);
-            return 0L;
+            return null;
         }
-
         try {
             String tableName = fieldExtractor.extractTableName(t.getClass());
             List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
             List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
             if (nonNullValues.isEmpty()) {
-                log.debug("{}无有效查询条件，返回总记录数查询", LOG_PREFIX);
                 String countSql = String.format("SELECT COUNT(1) FROM %s", tableName);
                 List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, countSql);
                 return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
@@ -107,7 +103,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
             return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
         } catch (Exception e) {
             log.error("{}执行countAll时发生异常", LOG_PREFIX, e);
-            return 0L;
+            return null;
         }
     }
 
@@ -421,6 +417,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         return this.jdbcTemplate;
     }
 
+
     /**
      * 设置增强工具使用的JdbcTemplate
      *
@@ -428,12 +425,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        try {
-            this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
-        } catch (SQLException e) {
-            log.warn("{}无法获取数据库时区信息", LOG_PREFIX);
-        }
-        this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
+        this.initializeSqlExecutor();
     }
 
     /**
@@ -449,12 +441,30 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     public SimpleJdbcHelper(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.initializeSqlExecutor();
+    }
+
+    /**
+     * 初始化SQL执行器
+     */
+    private void initializeSqlExecutor() {
+        if (this.jdbcTemplate == null) {
+            log.warn("{}JdbcTemplate为空，跳过SQL执行器初始化", LOG_PREFIX);
+            return;
+        }
+
         try {
             this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
+            this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
+            log.debug("{}SQL执行器初始化成功，时区: {}", LOG_PREFIX, this.timeZone);
         } catch (SQLException e) {
-            log.warn("{}无法获取数据库时区信息", LOG_PREFIX);
+            log.warn("{}无法获取数据库时区信息，使用默认时区", LOG_PREFIX);
+            this.timeZone = ZoneId.systemDefault();
+            this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
+        } catch (Exception e) {
+            log.error("{}SQL执行器初始化失败", LOG_PREFIX, e);
+            throw new RuntimeException("SQL执行器初始化失败", e);
         }
-        this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
     }
 
 

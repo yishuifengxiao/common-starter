@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Configuration
 @EnableConfigurationProperties({WebEnhanceProperties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.web", name = {"enable"}, havingValue = "true")
 public class WebEnhanceAutoConfiguration {
 
     @Autowired

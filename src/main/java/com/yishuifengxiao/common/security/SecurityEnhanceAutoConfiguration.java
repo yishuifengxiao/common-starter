@@ -65,7 +65,7 @@ import java.util.List;
 @Import({SecuritySupportAutoConfiguration.class, SecurityCustomizerAutoConfiguration.class,
         SecurityFilterAutoConfiguration.class, SmsLoginAutoConfiguration.class,
         SecurityRedisAutoConfiguration.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @AutoConfigureAfter({RedisCoreAutoConfiguration.class})
 public class SecurityEnhanceAutoConfiguration {
 

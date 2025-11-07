@@ -40,7 +40,7 @@ public class FieldUtils {
         return "id".equalsIgnoreCase(field.getName());
     }
 
-        /**
+    /**
      * 判断给定的类是否为基本数据类型或其对应的包装类
      *
      * @param clazz 待判断的类对象
@@ -54,7 +54,6 @@ public class FieldUtils {
                 || clazz.isAssignableFrom(Byte.class) || clazz.isAssignableFrom(Short.class)
                 || clazz.isAssignableFrom(Character.class);
     }
-
 
 
 }

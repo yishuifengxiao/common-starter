@@ -59,7 +59,7 @@ import java.util.Optional;
 @ControllerAdvice
 @ResponseBody
 @ConditionalOnProperty(prefix = "yishuifengxiao.web.error", name = {"enable"}, havingValue =
-        "true", matchIfMissing = false)
+        "true")
 @Priority(1)
 @AutoConfigureBefore({ErrorMvcAutoConfiguration.class})
 public class WebExceptionAutoConfiguration implements InitializingBean {

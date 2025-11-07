@@ -51,7 +51,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @ConditionalOnClass({OAuth2AccessToken.class, WebMvcConfigurer.class})
 @AutoConfigureBefore(WebMvcAutoConfiguration.class)
 @EnableConfigurationProperties({Oauth2Properties.class})
-@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true", matchIfMissing = false)
+@ConditionalOnProperty(prefix = "yishuifengxiao.security", name = {"enable"}, havingValue = "true")
 @Import({Oauth2EnhanceExtendAutoConfiguration.class})
 public class Oauth2EnhanceAutoConfiguration {
 

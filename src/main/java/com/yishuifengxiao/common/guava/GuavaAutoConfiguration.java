@@ -2,13 +2,14 @@ package com.yishuifengxiao.common.guava;
 
 import com.google.common.eventbus.AsyncEventBus;
 import com.google.common.eventbus.EventBus;
-import com.yishuifengxiao.common.core.ThreadPoolProducer;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.concurrent.Executor;
 
 
 /**
@@ -63,15 +64,15 @@ public class GuavaAutoConfiguration {
      * 注入一个guava异步消息总线
      * </p>
      *
-     * @param threadPoolProducer 自定义线程池
+     * @param executor 自定义线程池
      * @return guava异步消息总线
      */
     @Bean
     @ConditionalOnMissingBean({EventBus.class})
-    @ConditionalOnBean({ThreadPoolProducer.class})
-    public EventBus asyncEventBus(ThreadPoolProducer threadPoolProducer) {
+    @ConditionalOnBean({Executor.class})
+    public EventBus asyncEventBus(Executor executor) {
 
-        return new AsyncEventBus(threadPoolProducer.executor());
+        return new AsyncEventBus(executor);
     }
 
     @Bean("globalEventPublisher")
