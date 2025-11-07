@@ -70,7 +70,7 @@ public class SimpleFieldExtractor implements FieldExtractor {
 
         List<FieldValue> fields;
         synchronized (this) {
-            fields = this.extractFiled(t.getClass()); // 修正拼写错误
+            fields = this.extractFiled(t.getClass());
         }
 
         return fields.stream().map(field -> {

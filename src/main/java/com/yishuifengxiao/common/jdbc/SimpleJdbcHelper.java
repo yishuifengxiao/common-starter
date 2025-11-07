@@ -48,6 +48,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
     private JdbcTemplate jdbcTemplate;
     private ZoneId timeZone;
 
+
     /**
      * 根据主键查询一条数据
      *
@@ -62,15 +63,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
             log.debug("{}主键值为空，跳过查询", LOG_PREFIX);
             return null;
         }
+
         String tableName = fieldExtractor.extractTableName(clazz);
         FieldValue primaryKeyField = fieldExtractor.extractPrimaryFiled(clazz);
-
         String sql = sqlTranslator.findAll(tableName, Collections.singletonList(primaryKeyField), false, null, new Slice(1, 1));
-        List<T> list = sqlExecutor.findAll(jdbcTemplate, clazz, sql, primaryKeyField.setValue(primaryKey));
 
-        return list.isEmpty() ? null : list.get(0);
+        return executeSingleQuery(clazz, sql, primaryKeyField.setValue(primaryKey));
     }
-
 
     /**
      * 根据pojo实例中的非空属性值查询出所有符合条件的数据的数量
@@ -85,28 +84,23 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (t == null) {
             return null;
         }
-        try {
-            String tableName = fieldExtractor.extractTableName(t.getClass());
-            List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-            List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
 
-            if (nonNullValues.isEmpty()) {
-                String countSql = String.format("SELECT COUNT(1) FROM %s", tableName);
-                List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, countSql);
-                return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
+        try {
+            QueryContext<T> context = createQueryContext(t, null, null);
+
+            if (context.nonNullValues.isEmpty()) {
+                String countSql = String.format("SELECT COUNT(1) FROM %s", context.tableName);
+                return executeCountQuery(countSql);
             }
 
-            String sql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, null, null);
-            // 使用固定前缀+数字作为临时表别名，避免非法标识符
+            String sql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
             String countSql = String.format("SELECT COUNT(1) FROM (%s) AS temp_table_1", sql);
-            List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, countSql, CollUtil.toArray(nonNullValues));
-            return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
+            return executeCountQuery(countSql, CollUtil.toArray(context.nonNullValues));
         } catch (Exception e) {
             log.error("{}执行countAll时发生异常", LOG_PREFIX, e);
-            return null;
+            return 0L;
         }
     }
-
 
     /**
      * 根据pojo实例中的非空属性值查询出一条符合条件的数据
@@ -123,15 +117,205 @@ public class SimpleJdbcHelper implements JdbcHelper {
             return null;
         }
 
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
+        QueryContext<T> context = createQueryContext(t, orders, new Slice(1, 1));
+        String sql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, context.slice);
 
-        String sql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), new Slice(1, 1));
-
-        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), sql, CollUtil.toArray(nonNullValues));
-        return list == null || list.isEmpty() ? null : list.get(0);
+        return executeSingleQuery((Class<T>) t.getClass(), sql, CollUtil.toArray(context.nonNullValues));
     }
+
+    /**
+     * 根据pojo实例中的非空属性值查询出所有符合条件的数据
+     *
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
+     */
+    @Override
+    public <T> List<T> findAll(T t, boolean likeMode, Order... orders) {
+        if (t == null) {
+            return Collections.emptyList();
+        }
+
+        QueryContext<T> context = createQueryContext(t, orders, null);
+        String querySql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, context.slice);
+
+        return executeListQuery((Class<T>) t.getClass(), querySql, CollUtil.toArray(context.nonNullValues));
+    }
+
+    /**
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
+     *
+     * @param pageQuery pojo实例查询条件
+     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param orders    排序条件
+     * @param <T>       数据类型
+     * @return 查询出来的数据
+     */
+    @Override
+    public <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders) {
+        if (pageQuery == null) {
+            return Page.ofEmpty();
+        }
+        return this.findPage(pageQuery.getQuery(), likeMode, pageQuery, orders);
+    }
+
+    /**
+     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
+     *
+     * @param t        pojo实例
+     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
+     * @param slice    分页参数
+     * @param orders   排序条件
+     * @param <T>      数据类型
+     * @return 查询出来的数据
+     */
+    @Override
+    public <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders) {
+        slice = slice == null ? new Slice(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER) : slice;
+        if (t == null) {
+            return Page.ofEmpty(slice.size());
+        }
+
+        QueryContext<T> context = createQueryContext(t, orders, slice);
+        FieldValue[] params = CollUtil.toArray(context.nonNullValues);
+
+        String querySql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, slice);
+        String countSql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
+        String wrappedCountSql = String.format("SELECT COUNT(1) FROM (%s) AS %s9", countSql, TEMP_TABLE_PREFIX);
+
+        List<T> list = executeListQuery((Class<T>) t.getClass(), querySql, params);
+        Long count = executeCountQuery(wrappedCountSql, params);
+
+        return Page.of(list, count, slice);
+    }
+
+    /**
+     * 根据主键全属性全量更新方式更新一条数据
+     *
+     * @param <T> POJO类
+     * @param t   待更新的数据
+     * @return 受影响的记录的数量
+     */
+    @Override
+    public <T> int updateByPrimaryKey(T t) {
+        if (t == null) {
+            return 0;
+        }
+
+        UpdateContext context = createUpdateContext(t, false);
+        String sql = sqlTranslator.updateByPrimaryKey(context.tableName, context.primaryKey, context.fieldValues);
+        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(context.fieldValues));
+    }
+
+    /**
+     * 根据主键可选属性增量更新方式更新一条数据
+     *
+     * @param <T> POJO类
+     * @param t   待更新的数据
+     * @return 受影响的记录的数量
+     */
+    @Override
+    public <T> int updateByPrimaryKeySelective(T t) {
+        if (t == null) {
+            return 0;
+        }
+
+        UpdateContext context = createUpdateContext(t, true);
+        String sql = sqlTranslator.updateByPrimaryKey(context.tableName, context.primaryKey, context.fieldValues);
+        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(context.fieldValues));
+    }
+
+    /**
+     * 根据主键删除一条数据
+     *
+     * @param <T>         POJO类
+     * @param clazz       操作的对象
+     * @param primaryKeys 主键值
+     * @return 受影响的记录的数量
+     */
+    @Override
+    public <T> int deleteByPrimaryKey(Class<T> clazz, Object... primaryKeys) {
+        if (primaryKeys == null || primaryKeys.length == 0) {
+            log.debug("{}主键参数为空，跳过删除", LOG_PREFIX);
+            return 0;
+        }
+
+        List<Object> validPrimaryKeys = Arrays.stream(primaryKeys)
+                .filter(Objects::nonNull)
+                .filter(key -> !(key instanceof String) || StringUtils.isNotBlank(((String) key).trim()))
+                .collect(Collectors.toList());
+
+        if (validPrimaryKeys.isEmpty()) {
+            log.debug("{}无有效主键值，跳过删除", LOG_PREFIX);
+            return 0;
+        }
+
+        String tableName = fieldExtractor.extractTableName(clazz);
+        FieldValue primaryKey = fieldExtractor.extractPrimaryFiled(clazz);
+        primaryKey.setValue(Arrays.asList(validPrimaryKeys));
+
+        String sql = sqlTranslator.deleteByPrimaryKeys(tableName, primaryKey.getColumnName(), validPrimaryKeys);
+        return sqlExecutor.execute(jdbcTemplate, sql, primaryKey);
+    }
+
+    /**
+     * 查询上下文
+     */
+    private static class QueryContext<T> {
+        String tableName;
+        List<FieldValue> fieldValues;
+        List<FieldValue> nonNullValues;
+        List<Order> orders;
+        Slice slice;
+
+        QueryContext(String tableName, List<FieldValue> fieldValues, List<FieldValue> nonNullValues, List<Order> orders, Slice slice) {
+            this.tableName = tableName;
+            this.fieldValues = fieldValues;
+            this.nonNullValues = nonNullValues;
+            this.orders = orders;
+            this.slice = slice;
+        }
+    }
+
+    /**
+     * 更新上下文
+     */
+    private static class UpdateContext {
+        String tableName;
+        FieldValue primaryKey;
+        List<FieldValue> fieldValues;
+
+        UpdateContext(String tableName, FieldValue primaryKey, List<FieldValue> fieldValues) {
+            this.tableName = tableName;
+            this.primaryKey = primaryKey;
+            this.fieldValues = fieldValues;
+        }
+    }
+
+
+    /**
+     * 创建查询上下文对象
+     *
+     * @param t      查询对象实例，用于提取表名和字段值
+     * @param orders 排序条件数组
+     * @param slice  分页信息
+     * @return 包含查询所需各种信息的QueryContext对象
+     */
+    private <T> QueryContext<T> createQueryContext(T t, Order[] orders, Slice slice) {
+        // 提取表名
+        String tableName = fieldExtractor.extractTableName(t.getClass());
+        // 提取字段值列表
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        // 过滤出非空字段值
+        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
+        // 创建处理后的排序条件
+        List<Order> processedOrders = createOrder(fieldValues, orders);
+
+        return new QueryContext<>(tableName, fieldValues, nonNullValues, processedOrders, slice);
+    }
+
 
     /**
      * 处理排序条件
@@ -154,156 +338,62 @@ public class SimpleJdbcHelper implements JdbcHelper {
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 根据pojo实例中的非空属性值查询出所有符合条件的数据
-     *
-     * @param t        pojo实例
-     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param orders   排序条件
-     * @param <T>      数据类型
-     * @return 查询出来的数据
-     */
-    @Override
-    public <T> List<T> findAll(T t, boolean likeMode, Order... orders) {
-        if (t == null) {
-            return Collections.emptyList();
-        }
 
+    /**
+     * 创建更新操作的上下文对象
+     *
+     * @param t 待更新的对象实例
+     * @param selective 是否为选择性更新，true表示只更新非空字段
+     * @return 更新操作的上下文对象，包含表名、主键信息和待更新的字段值列表
+     */
+    private <T> UpdateContext createUpdateContext(T t, boolean selective) {
+        // 提取表名和字段值信息
         String tableName = fieldExtractor.extractTableName(t.getClass());
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
+        FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
 
-        String querySql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), null);
+        // 如果是选择性更新，则过滤掉空值字段
+        if (selective) {
+            fieldValues = extractNonNullFieldValues(fieldValues);
+        }
 
-        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), querySql, CollUtil.toArray(nonNullValues));
+        return new UpdateContext(tableName, primaryKey, fieldValues);
+    }
+
+
+
+    /**
+     * 执行单条查询并返回结果
+     *
+     * @param clazz 结果对象的类型Class
+     * @param sql   查询SQL语句
+     * @param args  SQL参数数组
+     * @return 查询结果，如果无结果则返回null
+     */
+    private <T> T executeSingleQuery(Class<T> clazz, String sql, FieldValue... args) {
+        // 执行查询获取结果列表
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, clazz, sql, args);
+        // 返回第一条记录或null（如果没有记录）
+        return list == null || list.isEmpty() ? null : list.get(0);
+    }
+
+
+    /**
+     * 执行列表查询
+     */
+    private <T> List<T> executeListQuery(Class<T> clazz, String sql, FieldValue... args) {
+        List<T> list = sqlExecutor.findAll(jdbcTemplate, clazz, sql, args);
         return list == null ? Collections.emptyList() : list;
     }
 
     /**
-     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
-     *
-     * @param t        pojo实例
-     * @param likeMode 是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param slice    分页参数
-     * @param orders   排序条件
-     * @param <T>      数据类型
-     * @return 查询出来的数据
+     * 执行计数查询
      */
-    @Override
-    public <T> Page<T> findPage(T t, boolean likeMode, Slice slice, Order... orders) {
-        slice = slice == null ? new Slice(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER) : slice;
-        if (t == null) {
-            return Page.ofEmpty(slice.size());
-        }
-
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
-        FieldValue[] params = CollUtil.toArray(nonNullValues);
-
-        String querySql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, createOrder(fieldValues, orders), slice);
-        String countSql = sqlTranslator.findAll(tableName, nonNullValues, likeMode, null, null);
-        String wrappedCountSql = String.format("SELECT COUNT(1) FROM (%s) AS %s9", countSql, TEMP_TABLE_PREFIX);
-
-        List<T> list = sqlExecutor.findAll(jdbcTemplate, (Class<T>) t.getClass(), querySql, params);
-        List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, wrappedCountSql, params);
-
-        Long count = numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
-        return Page.of(list, count, slice);
+    private Long executeCountQuery(String sql, FieldValue... args) {
+        List<Long> numbers = sqlExecutor.findAll(jdbcTemplate, Long.class, sql, args);
+        return numbers == null || numbers.isEmpty() ? 0L : numbers.get(0);
     }
 
-    /**
-     * 根据pojo实例中的非空属性值分页查询出所有符合条件的数据
-     *
-     * @param pageQuery pojo实例查询条件
-     * @param likeMode  是否对字符串属性进行模糊查询，true表示为是，false为否
-     * @param orders    排序条件
-     * @param <T>       数据类型
-     * @return 查询出来的数据
-     */
-    @Override
-    public <T> Page<T> findPage(PageQuery<T> pageQuery, boolean likeMode, Order... orders) {
-        if (pageQuery == null) {
-            return Page.ofEmpty();
-        }
-        return this.findPage(pageQuery.getQuery(), likeMode, pageQuery, orders);
-    }
-
-    /**
-     * 根据主键全属性全量更新方式更新一条数据
-     *
-     * @param <T> POJO类
-     * @param t   待更新的数据
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int updateByPrimaryKey(T t) {
-        if (t == null) {
-            return 0;
-        }
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-        String sql = sqlTranslator.updateByPrimaryKey(tableName, primaryKey, fieldValues);
-        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(fieldValues));
-    }
-
-    /**
-     * 根据主键可选属性增量更新方式更新一条数据
-     *
-     * @param <T> POJO类
-     * @param t   待更新的数据
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int updateByPrimaryKeySelective(T t) {
-        if (t == null) {
-            return 0;
-        }
-
-        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
-        String tableName = fieldExtractor.extractTableName(t.getClass());
-
-        List<FieldValue> nonNullValues = extractNonNullFieldValues(fieldValues);
-
-        String sql = sqlTranslator.updateByPrimaryKey(tableName, primaryKey, nonNullValues);
-        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(nonNullValues));
-    }
-
-    /**
-     * 根据主键删除一条数据
-     *
-     * @param <T>         POJO类
-     * @param clazz       操作的对象
-     * @param primaryKeys 主键值
-     * @return 受影响的记录的数量
-     */
-    @Override
-    public <T> int deleteByPrimaryKey(Class<T> clazz, Object... primaryKeys) {
-        if (primaryKeys == null || primaryKeys.length == 0) {
-            log.debug("{}主键参数为空，跳过删除", LOG_PREFIX);
-            return 0;
-        }
-        List<Object> validPrimaryKeys = Arrays.stream(primaryKeys).filter(Objects::nonNull).filter(key -> {
-            if (key instanceof String) {
-                return StringUtils.isNotBlank(((String) key).trim());
-            }
-            return true;
-        }).collect(Collectors.toList());
-
-        if (validPrimaryKeys.isEmpty()) {
-            log.debug("{}无有效主键值，跳过删除", LOG_PREFIX);
-            return 0;
-        }
-
-        FieldValue primaryKey = fieldExtractor.extractPrimaryFiled(clazz);
-        String tableName = fieldExtractor.extractTableName(clazz);
-        primaryKey.setValue(Arrays.asList(validPrimaryKeys));
-
-        String sql = sqlTranslator.deleteByPrimaryKeys(tableName, primaryKey.getColumnName(), validPrimaryKeys);
-        return sqlExecutor.execute(jdbcTemplate, sql, primaryKey);
-    }
 
     /**
      * 以全属性方式新增一条数据

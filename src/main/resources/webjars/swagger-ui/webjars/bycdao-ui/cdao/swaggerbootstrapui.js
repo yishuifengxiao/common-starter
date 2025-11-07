@@ -5772,7 +5772,7 @@
                             //判断非array
                             if(p.type!="array"){
                                 if(p.refType!=null&&p.refType!=undefined&&p.refType!=""){
-                                    //修复针对schema类型的参数,显示类型为schema类型
+                                    //针对schema类型的参数,显示类型为schema类型
                                     refp.type=p.refType;
                                 }
                             }
@@ -5855,7 +5855,7 @@
                         //判断非array
                         if(p.type!="array"){
                             if(p.refType!=null&&p.refType!=undefined&&p.refType!=""){
-                                //修复针对schema类型的参数,显示类型为schema类型
+                                //针对schema类型的参数,显示类型为schema类型
                                 refp.type=p.refType;
                             }
                         }
@@ -5883,7 +5883,7 @@
                         }else{
                             if(p.type=="array"){
                                 if(p.refType!=null&&p.refType!=undefined&&p.refType!=""){
-                                    //修复针对schema类型的参数,显示类型为schema类型
+                                    //针对schema类型的参数,显示类型为schema类型
                                     refp.schemaValue=p.refType;
                                 }
                             }

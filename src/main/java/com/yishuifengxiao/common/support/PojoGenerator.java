@@ -69,6 +69,7 @@ public class PojoGenerator {
 
     /**
      * 生成所有POJO类
+     *
      * @param config 生成器配置信息，包含数据库连接信息、输出路径等配置参数
      */
     public void generateAllPojos(GeneratorConfig config) {
@@ -229,7 +230,6 @@ public class PojoGenerator {
     }
 
     /**
-     * 修复MySQL整数类型的显示宽度问题
      * 通过查询information_schema获取正确的显示宽度
      */
     private void fixMySQLIntegerDisplayWidth(Connection conn, String tableName, List<ColumnInfo> columns) throws SQLException {
