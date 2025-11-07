@@ -18,6 +18,10 @@ import com.yishuifengxiao.common.tool.entity.Slice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.SQLException;
@@ -46,6 +50,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
 
     private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private ZoneId timeZone;
 
 
@@ -242,10 +247,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
             return 0;
         }
 
-        List<Object> validPrimaryKeys = Arrays.stream(primaryKeys)
-                .filter(Objects::nonNull)
-                .filter(key -> !(key instanceof String) || StringUtils.isNotBlank(((String) key).trim()))
-                .collect(Collectors.toList());
+        List<Object> validPrimaryKeys = Arrays.stream(primaryKeys).filter(Objects::nonNull).filter(key -> !(key instanceof String) || StringUtils.isNotBlank(((String) key).trim())).collect(Collectors.toList());
 
         if (validPrimaryKeys.isEmpty()) {
             log.debug("{}无有效主键值，跳过删除", LOG_PREFIX);
@@ -342,7 +344,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
     /**
      * 创建更新操作的上下文对象
      *
-     * @param t 待更新的对象实例
+     * @param t         待更新的对象实例
      * @param selective 是否为选择性更新，true表示只更新非空字段
      * @return 更新操作的上下文对象，包含表名、主键信息和待更新的字段值列表
      */
@@ -359,7 +361,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         return new UpdateContext(tableName, primaryKey, fieldValues);
     }
-
 
 
     /**
@@ -545,6 +546,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         try {
             this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
+            this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.jdbcTemplate);
             this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
             log.debug("{}SQL执行器初始化成功，时区: {}", LOG_PREFIX, this.timeZone);
         } catch (SQLException e) {
@@ -559,11 +561,251 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
 
     /**
-     * 提取非空字段值
+     * 提取非空字段值列表
+     *
+     * @param fieldValues 字段值列表，用于筛选其中非空的字段值
+     * @return 包含所有非空字段值的新列表
      */
     private List<FieldValue> extractNonNullFieldValues(List<FieldValue> fieldValues) {
+        // 使用Stream过滤出所有非空字段值并收集为新列表
         return fieldValues.stream().filter(FieldValue::isNotNullVal).collect(Collectors.toList());
     }
 
+
+    /**
+     * 根据SQL查询语句查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     *
+     * @param <T>   查询结果的对象类型
+     * @param clazz 返回结果的类型Class对象
+     * @param sql   查询SQL语句
+     * @param param SQL查询参数
+     * @return 指定类型的对象列表
+     */
+    @Override
+    public <T> List<T> find(Class<T> clazz, String sql, Object param) {
+        if (null == param) {
+            return this.find(clazz, sql, (SqlParameterSource) null);
+        }
+        SqlParameterSource params = new BeanPropertySqlParameterSource(param);
+        return this.find(clazz, sql, params);
+    }
+
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     * <pre>
+     *     示例1：
+     *     String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *     Map<String, Object> params = new HashMap<>();
+     *     params.put("name", user.getName());
+     *     params.put("age", user.getAge());
+     *     params.put("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    查询SQL语句
+     * @param params SQL查询参数Map，键为参数名，值为参数值
+     * @return 符合查询条件的对象列表，当前实现返回空列表
+     */
+    @Override
+    public <T> List<T> find(Class<T> clazz, String sql, Map<String, Object> params) {
+
+        if (null == params || params.isEmpty()) {
+            return this.find(clazz, sql, (SqlParameterSource) null);
+        }
+        SqlParameterSource paramSource = new MapSqlParameterSource(params);
+        return this.find(clazz, sql, paramSource);
+    }
+
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     *
+     * <pre>
+     *     示例1：  String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *              SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("name", user.getName())
+     *             .addValue("age", user.getAge())
+     *             .addValue("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    执行的SQL查询语句
+     * @param params SQL查询参数
+     * @return 指定类型的对象列表
+     */
+    @Override
+    public <T> List<T> find(Class<T> clazz, String sql, SqlParameterSource params) {
+        if (null == params) {
+            return FieldUtils.isBasicResult(clazz) ? this.jdbcTemplate.queryForList(sql, clazz) : this.jdbcTemplate.query(sql, new SimpleRowMapper<>(clazz));
+        }
+        return FieldUtils.isBasicResult(clazz) ? this.namedParameterJdbcTemplate.queryForList(sql, params, clazz) : this.namedParameterJdbcTemplate.query(sql, params, new SimpleRowMapper<>(clazz));
+    }
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     * <pre>
+     *     示例1：
+     *     String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *     Map<String, Object> params = new HashMap<>();
+     *     params.put("name", user.getName());
+     *     params.put("age", user.getAge());
+     *     params.put("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    查询SQL语句
+     * @param slice  分页参数
+     * @param params SQL查询参数Map，键为参数名，值为参数值
+     * @return 符合查询条件的对象列表，当前实现返回空列表
+     */
+    @Override
+    public <T> Page<T> findPage(Class<T> clazz, String sql, Slice slice, Map<String, Object> params) {
+        if (clazz == null || StringUtils.isBlank(sql)) {
+            log.warn("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
+            return Page.ofEmpty();
+        }
+
+        // 处理分页参数
+        slice = slice == null ? new Slice(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER) : slice;
+
+        try {
+            // 构建分页SQL
+            String paginatedSql = buildPaginatedSql(sql, slice);
+
+            // 执行分页查询
+            List<T> dataList;
+            if (params == null || params.isEmpty()) {
+                dataList = find(clazz, paginatedSql, (SqlParameterSource) null);
+            } else {
+                SqlParameterSource paramSource = new MapSqlParameterSource(params);
+                dataList = find(clazz, paginatedSql, paramSource);
+            }
+
+            // 构建总数查询SQL
+            String countSql = buildCountSql(sql);
+
+            // 执行总数查询
+            Long totalCount;
+            if (params == null || params.isEmpty()) {
+                List<Long> countResult = find(Long.class, countSql, (SqlParameterSource) null);
+                totalCount = countResult == null || countResult.isEmpty() ? 0L : countResult.get(0);
+            } else {
+                SqlParameterSource paramSource = new MapSqlParameterSource(params);
+                List<Long> countResult = find(Long.class, countSql, paramSource);
+                totalCount = countResult == null || countResult.isEmpty() ? 0L : countResult.get(0);
+            }
+
+            // 返回分页结果
+            return Page.of(dataList, totalCount, slice);
+
+        } catch (Exception e) {
+            log.error("{}执行findPage查询时发生异常，sql: {}, params: {}", LOG_PREFIX, sql, params, e);
+            return Page.ofEmpty(slice.getSize());
+        }
+    }
+
+    /**
+     * 构建分页SQL
+     *
+     * @param sql   原始SQL
+     * @param slice 分页参数
+     * @return 分页SQL
+     */
+    private String buildPaginatedSql(String sql, Slice slice) {
+        if (slice == null) {
+            return sql;
+        }
+
+        // 移除SQL末尾的分号（如果有）
+        String cleanSql = sql.trim();
+        if (cleanSql.endsWith(";")) {
+            cleanSql = cleanSql.substring(0, cleanSql.length() - 1);
+        }
+        // 构建分页SQL（使用LIMIT和OFFSET）
+        int offset = (slice.getNum().intValue() - 1) * slice.getSize().intValue();
+        String paginatedSql = String.format("%s LIMIT %d OFFSET %d", cleanSql, slice.getSize(), offset);
+
+        return paginatedSql;
+    }
+
+    /**
+     * 构建总数查询SQL
+     *
+     * @param sql 原始SQL
+     * @return 总数查询SQL
+     */
+    private String buildCountSql(String sql) {
+        // 移除SQL末尾的分号（如果有）
+        String cleanSql = sql.trim();
+        if (cleanSql.endsWith(";")) {
+            cleanSql = cleanSql.substring(0, cleanSql.length() - 1);
+        }
+
+        // 检查SQL是否包含ORDER BY子句，如果有则移除
+        String upperSql = cleanSql.toUpperCase();
+        int orderByIndex = upperSql.indexOf("ORDER BY");
+        if (orderByIndex != -1) {
+            cleanSql = cleanSql.substring(0, orderByIndex).trim();
+        }
+
+        // 构建总数查询SQL
+        return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+    }
 
 }

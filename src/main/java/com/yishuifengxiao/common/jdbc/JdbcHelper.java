@@ -8,10 +8,12 @@ import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -163,6 +165,126 @@ public interface JdbcHelper {
      */
     <T> List<T> findAll(Class<T> clazz, String sql, Object... params);
 
+    /**
+     * 根据SQL查询语句查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     *
+     * @param <T>   查询结果的对象类型
+     * @param clazz 返回结果的类型Class对象
+     * @param sql   查询SQL语句
+     * @param param SQL查询参数
+     * @return 指定类型的对象列表
+     */
+    <T> List<T> find(Class<T> clazz, String sql, Object param);
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     * <pre>
+     *     示例1：
+     *     String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *     Map<String, Object> params = new HashMap<>();
+     *     params.put("name", user.getName());
+     *     params.put("age", user.getAge());
+     *     params.put("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    查询SQL语句
+     * @param params SQL查询参数Map，键为参数名，值为参数值
+     * @return 符合查询条件的对象列表，当前实现返回空列表
+     */
+    <T> List<T> find(Class<T> clazz, String sql, Map<String, Object> params);
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     *
+     * <pre>
+     *     示例1：  String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *              SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("name", user.getName())
+     *             .addValue("age", user.getAge())
+     *             .addValue("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             SqlParameterSource params = new MapSqlParameterSource()
+     *             .addValue("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    执行的SQL查询语句
+     * @param params SQL查询参数
+     * @return 指定类型的对象列表
+     */
+    <T> List<T> find(Class<T> clazz, String sql, SqlParameterSource params);
+
+    /**
+     * 根据SQL查询语句和参数查找指定类型的对象列表
+     * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
+     * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
+     * <p>
+     * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
+     * <pre>
+     *     示例1：
+     *     String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
+     *     Map<String, Object> params = new HashMap<>();
+     *     params.put("name", user.getName());
+     *     params.put("age", user.getAge());
+     *     params.put("id", user.getId());
+     * </pre>
+     * <p>特别注意：在命名参数中，Like 查询需要特别注意，因为需要将百分号（%）包含在参数值中。</p>
+     * <pre>
+     *     示例2：  String sql = "SELECT * FROM users WHERE name LIKE :name";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("name", "%" + user.getName() + "%");
+     * </pre>
+     * <p>NamedParameterJdbcTemplate 支持 IN 子句，可以使用具名参数传入一个集合。</p>
+     * <pre>
+     *     示例3：  String sql = "SELECT * FROM users WHERE id IN (:ids)";
+     *             Map<String, Object> params = new HashMap<>();
+     *             params.put("ids", List.of(1, 2, 3));
+     * </pre>
+     *
+     * @param <T>    查询结果的对象类型
+     * @param clazz  返回结果的类型Class对象
+     * @param sql    查询SQL语句
+     * @param slice  分页参数
+     * @param params SQL查询参数Map，键为参数名，值为参数值
+     * @return 符合查询条件的对象列表，当前实现返回空列表
+     */
+    <T> Page<T> findPage(Class<T> clazz, String sql, Slice slice, Map<String, Object> params);
 
     /**
      * 获取操作的JdbcTemplate实例
