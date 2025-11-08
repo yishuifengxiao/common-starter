@@ -11,13 +11,11 @@ import com.yishuifengxiao.common.jdbc.translator.SqlTranslator;
 import com.yishuifengxiao.common.jdbc.util.FieldUtils;
 import com.yishuifengxiao.common.jdbc.util.SimpleRowMapper;
 import com.yishuifengxiao.common.jdbc.util.ZoneIdDetector;
-import com.yishuifengxiao.common.tool.collections.CollUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -102,7 +100,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
             String sql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
             String countSql = String.format("SELECT COUNT(1) FROM (%s) AS temp_table_1", sql);
-            return executeCountQuery(countSql, CollUtil.toArray(context.nonNullValues));
+            return executeCountQuery(countSql, toArray(context.nonNullValues));
         } catch (Exception e) {
             log.error("{}执行countAll时发生异常", LOG_PREFIX, e);
             return 0L;
@@ -127,8 +125,24 @@ public class SimpleJdbcHelper implements JdbcHelper {
         QueryContext<T> context = createQueryContext(t, orders, new Slice(1, 1));
         String sql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, context.slice);
 
-        return executeSingleQuery((Class<T>) t.getClass(), sql, CollUtil.toArray(context.nonNullValues));
+        return executeSingleQuery((Class<T>) t.getClass(), sql, toArray(context.nonNullValues));
     }
+
+    /**
+     * 将FieldValue列表转换为数组
+     *
+     * @param nonNullValues 需要转换的FieldValue列表，可以为null
+     * @return 转换后的FieldValue数组，如果输入为null则返回空数组
+     */
+    private FieldValue[] toArray(List<FieldValue> nonNullValues) {
+        // 处理null输入情况，返回空数组
+        if (null == nonNullValues) {
+            return new FieldValue[0];
+        }
+        // 使用toArray方法将列表转换为数组
+        return nonNullValues.toArray(new FieldValue[nonNullValues.size()]);
+    }
+
 
     /**
      * 根据pojo实例中的非空属性值查询出所有符合条件的数据
@@ -148,7 +162,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         QueryContext<T> context = createQueryContext(t, orders, null);
         String querySql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, context.slice);
 
-        return executeListQuery((Class<T>) t.getClass(), querySql, CollUtil.toArray(context.nonNullValues));
+        return executeListQuery((Class<T>) t.getClass(), querySql, toArray(context.nonNullValues));
     }
 
     /**
@@ -186,7 +200,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         }
 
         QueryContext<T> context = createQueryContext(t, orders, slice);
-        FieldValue[] params = CollUtil.toArray(context.nonNullValues);
+        FieldValue[] params = toArray(context.nonNullValues);
 
         String querySql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, slice);
         String countSql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
@@ -213,7 +227,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         UpdateContext context = createUpdateContext(t, false);
         String sql = sqlTranslator.updateByPrimaryKey(context.tableName, context.primaryKey, context.fieldValues);
-        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(context.fieldValues));
+        return sqlExecutor.execute(jdbcTemplate, sql, toArray(context.fieldValues));
     }
 
     /**
@@ -231,7 +245,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         UpdateContext context = createUpdateContext(t, true);
         String sql = sqlTranslator.updateByPrimaryKey(context.tableName, context.primaryKey, context.fieldValues);
-        return sqlExecutor.execute(jdbcTemplate, sql, CollUtil.toArray(context.fieldValues));
+        return sqlExecutor.execute(jdbcTemplate, sql, toArray(context.fieldValues));
     }
 
     /**
@@ -355,13 +369,15 @@ public class SimpleJdbcHelper implements JdbcHelper {
         String tableName = fieldExtractor.extractTableName(t.getClass());
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
         FieldValue primaryKey = fieldValues.stream().filter(FieldValue::isPrimary).findFirst().orElse(null);
-
+        List<FieldValue> noPrimaryKeys = fieldValues.stream().filter(s -> !s.isPrimary()).collect(Collectors.toList());
         // 如果是选择性更新，则过滤掉空值字段
         if (selective) {
-            fieldValues = extractNonNullFieldValues(fieldValues);
+            noPrimaryKeys = extractNonNullFieldValues(noPrimaryKeys);
         }
-
-        return new UpdateContext(tableName, primaryKey, fieldValues);
+        List<FieldValue> list = new ArrayList<>(fieldValues.size());
+        list.addAll(noPrimaryKeys);
+        list.add(primaryKey);
+        return new UpdateContext(tableName, primaryKey, list);
     }
 
 
@@ -414,6 +430,11 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         String tableName = fieldExtractor.extractTableName(t.getClass());
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
+        FieldValue primaryKey = fieldValues.stream().filter(v -> v.isPrimary()).findFirst().orElse(null);
+        if (null != primaryKey && primaryKey.isNullVal()) {
+            fieldValues = fieldValues.stream().filter(v -> !v.isPrimary()).collect(Collectors.toList());
+        }
+
         String sql = sqlTranslator.insert(tableName, fieldValues);
 
         return this.sqlExecutor.update(this.jdbcTemplate, sql, fieldValues);
@@ -434,41 +455,26 @@ public class SimpleJdbcHelper implements JdbcHelper {
         }
 
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(t);
-        FieldValue primaryKeyValue = fieldValues.stream()
-                .filter(Objects::nonNull)
-                .filter(field -> field.isPrimary() && field.isNotNullVal())
-                .findFirst()
-                .orElse(null);
+        FieldValue primaryKeyValue = fieldValues.stream().filter(Objects::nonNull).filter(field -> field.isPrimary() && field.isNotNullVal()).findFirst().orElse(null);
 
         if (null == primaryKeyValue || primaryKeyValue.isNullVal()) {
             return this.insert(t);
         } else {
-            try {
-                String tableName = fieldExtractor.extractTableName(t.getClass());
-                // TODO: 若 extractTableName 不可信，请增加白名单验证或转义处理
-                String sql = "SELECT COUNT(1) FROM " + tableName + " WHERE " + primaryKeyValue.getColumnName() + " = :id";
+            String tableName = fieldExtractor.extractTableName(t.getClass());
+            String sql = "SELECT COUNT(1) FROM " + tableName + " WHERE " + primaryKeyValue.getColumnName() + " = :id";
 
-                List<Long> result = this.find(Long.class, sql, Map.of("id", primaryKeyValue.getValue()));
+            List<Long> result = this.find(Long.class, sql, Map.of("id", primaryKeyValue.getValue()));
 
-                if (result == null || result.isEmpty() || result.get(0) <= 0) {
-                    return this.insert(t);
-                }
-
-                this.updateByPrimaryKey(t);
-
-                // 统一返回 KeyHolder 方式，模拟主键回填效果
-                GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
-                Map<String, Object> keys = Collections.singletonMap(primaryKeyValue.getField().getName(), primaryKeyValue.getValue());
-                keyHolder.getKeyList().add(keys);
-                return keyHolder;
-
-            } catch (DataAccessException e) {
-                log.error("{}保存或更新数据访问异常，实体类型={}", LOG_PREFIX, t.getClass().getSimpleName(), e);
-                throw new RuntimeException("保存或更新失败", e);
-            } catch (Exception e) {
-                log.error("{}保存或更新未知异常，实体类型={}", LOG_PREFIX, t.getClass().getSimpleName(), e);
-                throw new RuntimeException("保存或更新失败", e);
+            if (result == null || result.isEmpty() || result.get(0) <= 0) {
+                return this.insert(t);
             }
+            this.updateByPrimaryKey(t);
+
+            // 统一返回 KeyHolder 方式，模拟主键回填效果
+            GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+            Map<String, Object> keys = Collections.singletonMap(primaryKeyValue.getField().getName(), primaryKeyValue.getValue());
+            keyHolder.getKeyList().add(keys);
+            return keyHolder;
         }
     }
 
@@ -841,6 +847,9 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> find(Class<T> clazz, String sql, SqlParameterSource params) {
+        if (log.isTraceEnabled()) {
+            log.trace("{}执行查询：{}，参数：{}", LOG_PREFIX, sql, params);
+        }
         if (null == params) {
             return FieldUtils.isBasicResult(clazz) ? this.jdbcTemplate.queryForList(sql, clazz) : this.jdbcTemplate.query(sql, new SimpleRowMapper<>(clazz));
         }
@@ -884,7 +893,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
     @Override
     public <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Map<String, Object> params) {
         if (clazz == null || StringUtils.isBlank(sql)) {
-            log.warn("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
+            log.info("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
             return Page.ofEmpty();
         }
 

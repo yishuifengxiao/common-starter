@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -18,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 系统语句执行器
@@ -67,22 +67,49 @@ public class SimpleSqlExecutor implements SqlExecutor {
             // 无参数的情况
             count = jdbcTemplate.update(sql);
         } else {
-            // 有参数的情况 - 使用setPreparedStatementParameters方法
-            count = jdbcTemplate.update(sql, new PreparedStatementCreator() {
-                @Override
-                public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                    PreparedStatement ps = connection.prepareStatement(sql);
-                    setPreparedStatementParameters(ps, Arrays.asList(args));
-                    return ps;
+            // 有参数的情况 - 将FieldValue参数转换为Object数组和SQL类型数组
+            Object[] values = new Object[args.length];
+            int[] argTypes = new int[args.length];
+
+            for (int i = 0; i < args.length; i++) {
+                FieldValue fieldValue = args[i];
+
+                // 安全检查：确保FieldValue不为null
+                if (fieldValue == null) {
+                    values[i] = null;
+                    argTypes[i] = Types.NULL;
+                    continue;
                 }
-            });
+
+                // 获取原始值
+                Object originalValue = fieldValue.getValue();
+                SQLType sqlType = fieldValue.sqlType();
+
+                // 处理null值
+                if (originalValue == null) {
+                    values[i] = null;
+                    argTypes[i] = sqlType != null ? sqlType.getVendorTypeNumber() : Types.NULL;
+                    continue;
+                }
+
+                // 处理日期时间类型的时区转换
+                Object processedValue = processDateTimeValue(originalValue);
+
+                // 处理原始数据类型转换
+                processedValue = processPrimitiveValue(processedValue);
+
+                values[i] = processedValue;
+                argTypes[i] = sqlType != null ? sqlType.getVendorTypeNumber() : Types.OTHER;
+            }
+
+            // 使用标准的JdbcTemplate update方法，避免Lambda表达式的问题
+            count = jdbcTemplate.update(sql, values, argTypes);
         }
 
         logSqlExecutionEnd("执行sql", count);
 
         return count;
     }
-
 
     /**
      * 查询所有的符合条件的记录
@@ -147,18 +174,26 @@ public class SimpleSqlExecutor implements SqlExecutor {
     @Override
     public KeyHolder update(JdbcTemplate jdbcTemplate, String sql, List<FieldValue> fieldValues) {
 
-        log.debug("{}开始执行SQL更新操作", LOG_PREFIX);
+        logSqlExecutionStart("查询记录", sql, fieldValues);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         try {
+            // 将参数转换为Object数组
+            List<FieldValue> parms = fieldValues.stream()
+                    .map(fieldValue -> {
+                        Object value = processParameterValue(fieldValue.getValue(), fieldValue.sqlType());
+                        fieldValue.setValue(value);
+                        return fieldValue;
+                    })
+                    .collect(Collectors.toList());
+
+            // 直接使用JdbcTemplate的update方法，让Spring管理PreparedStatement的生命周期
             int updateCount = jdbcTemplate.update(connection -> {
-                try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                    setPreparedStatementParameters(ps, fieldValues);
-                    return ps;
-                } catch (SQLException e) {
-                    throw new RuntimeException("准备SQL语句失败", e);
-                }
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                // 设置参数
+                setPreparedStatementParameters(ps, parms);
+                return ps;
             }, keyHolder);
 
             log.debug("{}SQL执行完成，影响行数: {}, 主键值: {}", LOG_PREFIX, updateCount, keyHolder);
@@ -211,7 +246,10 @@ public class SimpleSqlExecutor implements SqlExecutor {
      * 记录SQL执行开始日志
      */
     private void logSqlExecutionStart(String operation, String sql, Object args) {
-        log.trace("{} \r\n", LOG_PREFIX);
+        if (!log.isTraceEnabled()) {
+            return;
+        }
+        log.trace("\r\n{}", LOG_PREFIX);
         log.trace("{}  ({}) ============= start ================= ", LOG_PREFIX, operation);
         log.trace("{}   ({}) 执行的sql语句为 {}", LOG_PREFIX, operation, sql);
         log.trace("{}  ({}) 执行的sql语句参数数量为 {} ,参数值为 {}", LOG_PREFIX, operation, StringUtils.countMatches(sql, "?"), args);
@@ -221,6 +259,9 @@ public class SimpleSqlExecutor implements SqlExecutor {
      * 记录SQL执行结束日志
      */
     private void logSqlExecutionEnd(String operation, Object result) {
+        if (!log.isTraceEnabled()) {
+            return;
+        }
         log.trace("{}  ({}) 执行的sql语句对应的结果为 {}", LOG_PREFIX, operation, result);
         log.trace("{}  ({}) ============= end ================= ", LOG_PREFIX, operation);
         log.trace("{} \r\n", LOG_PREFIX);
@@ -230,7 +271,8 @@ public class SimpleSqlExecutor implements SqlExecutor {
     /**
      * 设置PreparedStatement参数
      */
-    private void setPreparedStatementParameters(PreparedStatement ps, List<FieldValue> fieldValues) throws SQLException {
+    private void setPreparedStatementParameters(PreparedStatement ps, List<FieldValue> fieldValues) throws
+            SQLException {
         int parameterIndex = 1; // 参数索引从1开始
 
         for (FieldValue fieldValue : fieldValues) {

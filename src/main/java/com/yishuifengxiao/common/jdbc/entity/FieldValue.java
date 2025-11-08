@@ -292,6 +292,11 @@ public class FieldValue implements Serializable {
 
     @Override
     public String toString() {
-        return "FieldValue{" + "value=" + value + '}';
+        return "FieldValue{" +
+                "sqlType=" + sqlType +
+                ", value=" + value +
+                ", primary=" + primary +
+                ", columnName='" + columnName + '\'' +
+                '}';
     }
 }

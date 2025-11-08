@@ -28,7 +28,7 @@ public class SimpleSqlTranslator implements SqlTranslator {
     public String insert(String table, List<FieldValue> fieldValues) {
 
         // 过滤出需要插入的字段值
-        List<FieldValue> insertValues = fieldValues.stream().filter(fieldValue -> fieldValue != null && fieldValue.isNotNullVal())
+        List<FieldValue> insertValues = fieldValues.stream().filter(fieldValue -> fieldValue != null)
                 // 排除主键自增的情况：如果主键字段值为null或空，则认为是自增主键，不插入
                 .filter(fieldValue -> {
                     if (fieldValue.isPrimary()) {
