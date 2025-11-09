@@ -170,6 +170,7 @@ public interface JdbcHelper {
      * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
      * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
      * <p>
+     * String sql = "UPDATE users SET name = :name, age = :age WHERE id = :id";
      * 此方法使用命名参数（如 :name）执行查询，参数值从 params 中获取。</p>
      *
      * @param <T>   查询结果的对象类型
