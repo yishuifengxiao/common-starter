@@ -73,7 +73,7 @@ public class AllExtensionsAutoConfiguration {
             }
 
             // 设置所有扩展功能的配置属性
-            setAllExtensionProperties();
+            setAllExtensionProperties(annotation);
 
             log.info("【yishuifengxiao-common-spring-boot-starter】: 通过@EnableAllExtensions注解开启所有扩展功能");
 
@@ -85,26 +85,59 @@ public class AllExtensionsAutoConfiguration {
     /**
      * 设置所有扩展功能的配置属性
      */
-    private void setAllExtensionProperties() {
+    private void setAllExtensionProperties(EnableAllExtensions annotation) {
         Map<String, String> properties = new HashMap<>();
 
-        // 设置web相关功能
-        properties.put("yishuifengxiao.web.enable", "true");
-        properties.put("yishuifengxiao.web.response.enable", "true");
-        properties.put("yishuifengxiao.web.cors.enable", "true");
-        properties.put("yishuifengxiao.web.aop.enable", "true");
-        properties.put("yishuifengxiao.web.traced.enable", "true");
-        properties.put("yishuifengxiao.web.error.enable", "true");
+        // 获取主开关值
+        boolean mainSwitch = annotation.value();
+
+        // 设置web相关功能（使用分项开关优先级逻辑）
+        setPropertyWithOverride(properties, "yishuifengxiao.web.enable", mainSwitch, annotation.web());
+        setPropertyWithOverride(properties, "yishuifengxiao.web.response.enable", mainSwitch, annotation.webResponse());
+        setPropertyWithOverride(properties, "yishuifengxiao.web.cors.enable", mainSwitch, annotation.webCors());
+        setPropertyWithOverride(properties, "yishuifengxiao.web.aop.enable", mainSwitch, annotation.webAop());
+        setPropertyWithOverride(properties, "yishuifengxiao.web.traced.enable", mainSwitch, annotation.webTraced());
+        setPropertyWithOverride(properties, "yishuifengxiao.web.error.enable", mainSwitch, annotation.webError());
 
         // 设置security功能
-        properties.put("yishuifengxiao.security.enable", "true");
+        setPropertyWithOverride(properties, "yishuifengxiao.security.enable", mainSwitch, annotation.security());
+        setPropertyWithOverride(properties, "yishuifengxiao.security.oauth2server.enable", mainSwitch, annotation.securityOauth2Server());
 
         // 设置code功能
-        properties.put("yishuifengxiao.code.enable", "true");
+        setPropertyWithOverride(properties, "yishuifengxiao.code.enable", mainSwitch, annotation.code());
+
+        // 设置redis功能
+        setPropertyWithOverride(properties, "yishuifengxiao.redis.enable", mainSwitch, annotation.redis());
+
+        // 设置swagger功能
+        setPropertyWithOverride(properties, "yishuifengxiao.swagger.enable", mainSwitch, annotation.swagger());
 
         // 批量设置属性
         PropertyHelper.setPropertiesIfAbsent(environment, properties);
 
-        log.debug("所有扩展功能的配置属性已设置完成");
+        log.debug("所有扩展功能的配置属性已设置完成，主开关：{}", mainSwitch);
+    }
+
+    /**
+     * 设置属性值，支持分项开关优先级逻辑
+     * 优先级：如果分项开关被设置（非默认值），则优先使用分项开关设置值
+     * 如果分项开关未设置（使用默认值），则使用主开关值
+     * 主开关为false时，所有功能都会被关闭
+     *
+     * @param properties    属性映射
+     * @param propertyKey   属性键
+     * @param mainSwitch    主开关值
+     * @param featureSwitch 分项开关值
+     */
+    private void setPropertyWithOverride(Map<String, String> properties, String propertyKey,
+                                         boolean mainSwitch, boolean featureSwitch) {
+        // 如果主开关为false，强制关闭所有功能
+        if (!mainSwitch) {
+            properties.put(propertyKey, "false");
+            return;
+        }
+
+        // 使用分项开关值（如果分项开关被设置，则优先使用）
+        properties.put(propertyKey, String.valueOf(featureSwitch));
     }
 }

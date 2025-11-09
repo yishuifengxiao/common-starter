@@ -579,18 +579,16 @@ public class SimpleJdbcHelper implements JdbcHelper {
         }
 
         try {
-            this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
             this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-            this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
+            this.timeZone = zoneIdDetector.detectDatabaseTimezone(jdbcTemplate.getDataSource().getConnection());
             log.debug("{}SQL执行器初始化成功，时区: {}", LOG_PREFIX, this.timeZone);
         } catch (SQLException e) {
             log.warn("{}无法获取数据库时区信息，使用默认时区", LOG_PREFIX);
-            this.timeZone = ZoneId.systemDefault();
-            this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
         } catch (Exception e) {
             log.error("{}SQL执行器初始化失败", LOG_PREFIX, e);
             throw new RuntimeException("SQL执行器初始化失败", e);
         }
+        this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
     }
 
 
