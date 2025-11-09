@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author shi
@@ -64,6 +65,19 @@ public class JdbcHelper02Test {
                 null
         );
 
+    }
+
+    @Test
+    public void test_find_001() {
+        String sql = "SELECT * FROM auto_table a WHERE a.create_datetime > :create_datetime";
+        List<AutoTable> list = jdbcHelper.find(AutoTable.class, sql, Map.of("create_datetime", LocalDateTime.of(2025, 11, 9, 19, 40, 56)));
+        System.out.println(list);
+    }
+
+    @Test
+    public void test_findOne_01() {
+        AutoTable table = jdbcHelper.findOne(new AutoTable().setName("测试"), true, Order.desc("id"), Order.asc("create_datetime"));
+        System.out.println(table);
     }
 
     @Test
