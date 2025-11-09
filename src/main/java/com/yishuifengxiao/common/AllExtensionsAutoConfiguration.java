@@ -75,7 +75,7 @@ public class AllExtensionsAutoConfiguration {
             // 设置所有扩展功能的配置属性
             setAllExtensionProperties(annotation);
 
-            log.info("【yishuifengxiao-common-spring-boot-starter】: 通过@EnableAllExtensions注解开启所有扩展功能");
+            log.debug("【yishuifengxiao-common-spring-boot-starter】: 通过@EnableAllExtensions注解开启所有扩展功能");
 
         } catch (Exception e) {
             log.error("开启所有扩展功能时发生异常", e);
