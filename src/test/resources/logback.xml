@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
+<configuration>
+    <!-- 	<include resource="org/springframework/boot/logging/logback/base.xml" /> -->
+    <jmxConfigurator/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 	   encoders are assigned the type ch.qos.logback.classic.encoder.PatternLayoutEncoder  by default -->
+        <encoder>
+            <!--			格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符-->
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger) - %highlight(%msg) %n
+            </pattern>
+        </encoder>
+        <!--		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">-->
+        <!--			<layout class="org.apache.skywalking.apm.toolkit.log.logback.v1.x.TraceIdPatternLogbackLayout">-->
+        <!--				<pattern>-->
+        <!--					%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level)-->
+        <!--					%cyan(%logger) - %highlight(%msg) %tid-->
+        <!--					%X{traceId} %n-->
+        <!--				</pattern>-->
+        <!--			</layout>-->
+        <!--		</encoder>-->
+
+    </appender>
+    <appender name="file"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>chblogs/chb-app.log</File>
+        <encoder>
+            <pattern>
+                <!--                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36}[%M][%L] %tid-->
+                <!--                %X{traceId} -%msg%n-->
+                %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger) - %highlight(%msg) %n
+            </pattern>
+        </encoder>
+        <rollingPolicy
+                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>chblogs/chb-app.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger -
+                %msg%n
+            </pattern>
+        </layout>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+        <!--不输出日志到文件-->
+        <appender-ref ref="file"/>
+    </root>
+
+
+    <!--基础配置-->
+    <logger name="io" level="ERROR"/>
+    <logger name="sun" level="ERROR"/>
+    <logger name="de" level="ERROR"/>
+    <logger name="javax" level="WARN"></logger>
+    <logger name="reactor" level="ERROR"/>
+    <logger name="springfox" level="ERROR"/>
+    <logger name="com.netflix" level="ERROR"/>
+    <logger name="com.alibaba" level="ERROR"/>
+    <logger name="com.sun" level="ERROR"/>
+    <logger name="com.zaxxer" level="ERROR"/>
+    <logger name="com.github" level="ERROR"/>
+    <logger name="org.thymeleaf" level="ERROR"/>
+    <logger name="org.mongodb" level="ERROR"/>
+    <logger name="org.apache" level="ERROR"/>
+    <logger name="org.I0Itec" level="ERROR"/>
+    <logger name="org.jboss" level="ERROR"/>
+    <logger name="org.hibernate" level="info"/>
+    <logger name="org.redisson" level="ERROR"/>
+    <logger name="com.dtflys" level="warn"/>
+    <logger name="com.arangodb" level="warn"/>
+    <logger name="org.elasticsearch" level="info"/>
+    <logger name="com.yishuifengxiao" level="info"/>
+    <logger name="com.alibaba" level="warn"/>
+    <logger name="org.hibernate.SQL" level="info"/>
+    <!--    <logger name="org.hibernate.loader.entity" level="debug"/>-->
+    <!--基础配置-->
+
+    <logger name="com.yishuifengxiao.common.tool" level="WARN"/>
+    <!-- spring 相关的配置 -->
+    <logger name="org.springframework" level="info"></logger>
+    <logger name="org.springframework.session" level="WARN"></logger>
+    <logger name="org.springframework.data" level="WARN"></logger>
+    <logger name="org.springframework.scheduling" level="WARN"></logger>
+    <logger name="org.springframework.integration" level="WARN"></logger>
+    <logger name="org.springframework.security" level="WARN"/>
+    <logger name="org.springframework.web" level="WARN"/>
+    <logger name="org.springframework.amqp" level="WARN"></logger>
+    <logger name="org.springframework.jdbc" level="WARN"></logger>
+    <logger name="org.springframework.crawlerContext" level="WARN"></logger>
+    <logger name="org.springframework.crawlerContext.support" level="WARN"></logger>
+    <logger name="org.springframework.integration" level="WARN"></logger>
+    <logger name="org.springframework.web.HttpLogging" level="WARN"></logger>
+    <logger name="org.springframework.web.client.RestTemplate"
+            level="WARN"></logger>
+    <logger name="org.springframework.cloud" level="ERROR"></logger>
+    <!-- 显示加载的配置-->
+    <logger name="org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener"
+            level="trace"/>
+    <logger name="com.yishuifengxiao.common.jdbc" level="trace"/>
+
+
+    <logger name="org.springframework.boot.autoconfigure.mongo.embedded" level="WARN"/>
+
+    <logger name="org.springframework.data.mongodb.core.MongoTemplate" level="info"/>
+    <!-- 显示加载的配置-->
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+</configuration>

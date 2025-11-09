@@ -357,12 +357,29 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
         if (rawValue == null || rs.wasNull()) {
             return handleNullValue(targetType, isPrimitive);
         }
-
+        // 特殊处理BLOB类型：如果数据库返回的是byte数组（BLOB），但目标类型是String
+        if (rawValue instanceof byte[] && targetType == String.class) {
+            try {
+                return new String((byte[]) rawValue, java.nio.charset.StandardCharsets.UTF_8);
+            } catch (Exception e) {
+                // 如果转换失败，返回原始值的字符串表示
+                return new String((byte[]) rawValue);
+            }
+        }
         // 日期时间类型处理
         if (isDateTimeType(targetType)) {
             return convertDateTimeValue(rs, columnName, targetType);
         }
 
+        // BLOB类型处理：当目标类型为String且原始值为byte数组时，转换为String
+        if (targetType == String.class && rawValue instanceof byte[]) {
+            try {
+                return new String((byte[]) rawValue, "UTF-8");
+            } catch (Exception e) {
+                // 如果UTF-8转换失败，尝试使用平台默认编码
+                return new String((byte[]) rawValue);
+            }
+        }
         // 基本类型和包装类型处理
         return convertBasicType(rawValue, targetType, isPrimitive);
     }

@@ -218,47 +218,78 @@ public class FieldValue implements Serializable {
         }
 
         String definition = columnDefinition.trim().toUpperCase();
+        String dataType = extractDataType(definition);
 
-        // 常见数据库类型映射
-        if (definition.contains("INT") || definition.contains("INTEGER")) {
-            return JDBCType.INTEGER;
-        } else if (definition.contains("BIGINT")) {
-            return JDBCType.BIGINT;
-        } else if (definition.contains("SMALLINT")) {
-            return JDBCType.SMALLINT;
-        } else if (definition.contains("TINYINT")) {
-            return JDBCType.TINYINT;
-        } else if (definition.contains("DECIMAL") || definition.contains("NUMERIC")) {
-            return JDBCType.DECIMAL;
-        } else if (definition.contains("FLOAT")) {
-            return JDBCType.FLOAT;
-        } else if (definition.contains("DOUBLE")) {
-            return JDBCType.DOUBLE;
-        } else if (definition.contains("REAL")) {
-            return JDBCType.REAL;
-        } else if (definition.contains("BOOLEAN") || definition.contains("BOOL")) {
-            return JDBCType.BOOLEAN;
-        } else if (definition.contains("CHAR") && !definition.contains("VAR")) {
-            return JDBCType.CHAR;
-        } else if (definition.contains("VARCHAR")) {
-            return JDBCType.VARCHAR;
-        } else if (definition.contains("TEXT") || definition.contains("CLOB")) {
-            return JDBCType.CLOB;
-        } else if (definition.contains("BLOB")) {
-            return JDBCType.BLOB;
-        } else if (definition.contains("BINARY")) {
-            return JDBCType.BINARY;
-        } else if (definition.contains("VARBINARY")) {
-            return JDBCType.VARBINARY;
-        } else if (definition.contains("DATE")) {
-            return JDBCType.DATE;
-        } else if (definition.contains("TIME")) {
-            return JDBCType.TIME;
-        } else if (definition.contains("TIMESTAMP") || definition.contains("DATETIME")) {
-            return JDBCType.TIMESTAMP;
+        // 新增有效性检查防止NPE
+        if (StringUtils.isBlank(dataType)) {
+            return null;
         }
 
-        return null;
+        // 初始化一次即可的映射表
+        return TYPE_MAP.getOrDefault(dataType, null);
+    }
+
+    // 使用静态Map替代switch-case，提升性能和可维护性
+    private static final Map<String, SQLType> TYPE_MAP = new HashMap<>();
+
+    static {
+        TYPE_MAP.put("INT", JDBCType.INTEGER);
+        TYPE_MAP.put("INTEGER", JDBCType.INTEGER);
+        TYPE_MAP.put("BIGINT", JDBCType.BIGINT);
+        TYPE_MAP.put("SMALLINT", JDBCType.SMALLINT);
+        TYPE_MAP.put("TINYINT", JDBCType.TINYINT);
+        TYPE_MAP.put("DECIMAL", JDBCType.DECIMAL);
+        TYPE_MAP.put("NUMERIC", JDBCType.DECIMAL);
+        TYPE_MAP.put("FLOAT", JDBCType.FLOAT);
+        TYPE_MAP.put("DOUBLE", JDBCType.DOUBLE);
+        TYPE_MAP.put("REAL", JDBCType.REAL);
+        TYPE_MAP.put("BOOLEAN", JDBCType.BOOLEAN);
+        TYPE_MAP.put("BOOL", JDBCType.BOOLEAN);
+        TYPE_MAP.put("CHAR", JDBCType.CHAR);
+        TYPE_MAP.put("VAR", JDBCType.VARCHAR);
+        TYPE_MAP.put("VARCHAR", JDBCType.VARCHAR);
+        TYPE_MAP.put("TEXT", JDBCType.CLOB);
+        TYPE_MAP.put("CLOB", JDBCType.CLOB);
+        TYPE_MAP.put("BLOB", JDBCType.BLOB);
+        TYPE_MAP.put("BINARY", JDBCType.BINARY);
+        TYPE_MAP.put("VARBINARY", JDBCType.VARBINARY);
+        TYPE_MAP.put("DATE", JDBCType.DATE);
+        TYPE_MAP.put("TIME", JDBCType.TIME);
+        TYPE_MAP.put("TIMESTAMP", JDBCType.TIMESTAMP);
+        TYPE_MAP.put("DATETIME", JDBCType.TIMESTAMP);
+    }
+
+
+    /**
+     * 从SQL列定义中提取数据类型（截取第一个空格前的英文字母部分）
+     * 例如："BIGINT(20) NOT NULL AUTO_INCREMENT" -> "BIGINT"
+     * "VARCHAR(255) NOT NULL COMMENT '用户名'" -> "VARCHAR"
+     * "DATETIME NULL COMMENT 'datetime格式时间'" -> "DATETIME"
+     *
+     * @param sqlDefinition SQL列定义字符串
+     * @return 数据类型字符串，如果无法提取则返回空字符串
+     */
+    public static String extractDataType(String sqlDefinition) {
+        if (sqlDefinition == null || sqlDefinition.trim().isEmpty()) {
+            return "";
+        }
+
+        String trimmed = sqlDefinition.trim();
+
+        // 先查找左括号
+        int parenthesisIndex = trimmed.indexOf('(');
+        if (parenthesisIndex > 0) {
+            return trimmed.substring(0, parenthesisIndex);
+        }
+
+        // 如果没有括号，再查找空格
+        int spaceIndex = trimmed.indexOf(' ');
+        if (spaceIndex > 0) {
+            return trimmed.substring(0, spaceIndex);
+        }
+
+        // 如果没有括号和空格，直接返回整个字符串
+        return trimmed;
     }
 
     /**
@@ -292,11 +323,6 @@ public class FieldValue implements Serializable {
 
     @Override
     public String toString() {
-        return "FieldValue{" +
-                "sqlType=" + sqlType +
-                ", value=" + value +
-                ", primary=" + primary +
-                ", columnName='" + columnName + '\'' +
-                '}';
+        return "FieldValue{" + "sqlType=" + sqlType + ", value=" + value + ", primary=" + primary + ", columnName='" + columnName + '\'' + '}';
     }
 }

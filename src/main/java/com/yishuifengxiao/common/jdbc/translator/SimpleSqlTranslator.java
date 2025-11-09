@@ -45,11 +45,11 @@ public class SimpleSqlTranslator implements SqlTranslator {
         }
 
         StringBuilder sql = new StringBuilder("INSERT INTO ");
-        sql.append(table).append(" (");
+        sql.append("`").append(table).append("` (`");
 
         // 构建字段名部分
-        String fieldNames = insertValues.stream().map(FieldValue::getColumnName).collect(Collectors.joining(", "));
-        sql.append(fieldNames).append(") VALUES (");
+        String fieldNames = insertValues.stream().map(FieldValue::getColumnName).collect(Collectors.joining("`,`"));
+        sql.append(fieldNames).append("`) VALUES (");
 
         // 构建占位符部分
         String placeholders = insertValues.stream().map(fieldValue -> "?").collect(Collectors.joining(", "));
@@ -75,14 +75,14 @@ public class SimpleSqlTranslator implements SqlTranslator {
 
 
         StringBuilder sql = new StringBuilder("UPDATE ");
-        sql.append(table).append(" SET ");
+        sql.append("`").append(table).append("` SET ");
 
         // 构建SET部分
-        String setClause = nonNullValues.stream().map(fieldValue -> fieldValue.getColumnName() + " = ?").collect(Collectors.joining(", "));
+        String setClause = nonNullValues.stream().map(fieldValue -> "`" + fieldValue.getColumnName() + "` = ?").collect(Collectors.joining(", "));
         sql.append(setClause);
 
         // 构建WHERE条件
-        sql.append(" WHERE ").append(primaryKey.getColumnName()).append(" = ?");
+        sql.append(" WHERE ").append("`" + primaryKey.getColumnName() + "` = ?");
 
         return sql.toString();
     }
@@ -105,7 +105,7 @@ public class SimpleSqlTranslator implements SqlTranslator {
         }
 
         StringBuilder sql = new StringBuilder("DELETE FROM ");
-        sql.append(table).append(" WHERE ").append(primaryKey);
+        sql.append("`").append(table).append("` WHERE ").append("`" + primaryKey + "`");
 
         if (values.size() == 1) {
             // 单个值使用等值匹配
@@ -133,7 +133,7 @@ public class SimpleSqlTranslator implements SqlTranslator {
     public String findAll(String table, List<FieldValue> fieldValues, boolean like, List<Order> orders, Slice slice) {
         //@formatter:off
         StringBuilder sql = new StringBuilder("SELECT * FROM ");
-        sql.append(table);
+        sql.append("`").append(table).append("`");
 
         // 构建WHERE条件
         if (fieldValues != null && !fieldValues.isEmpty()) {
@@ -149,9 +149,9 @@ public class SimpleSqlTranslator implements SqlTranslator {
                             if (like && fieldValue.isNotNullVal()
                                     && fieldValue.getValue() instanceof String
                                     && !fieldValue.isPrimary()) {
-                                return fieldValue.getColumnName() + " LIKE CONCAT('%', ?, '%')";
+                                return "`" + fieldValue.getColumnName() + "` LIKE CONCAT('%', ?, '%')";
                             } else {
-                                return fieldValue.getColumnName() + " = ?";
+                                return "`" + fieldValue.getColumnName() + "` = ?";
                             }
                         })
                         .collect(Collectors.joining(" AND "));
@@ -169,7 +169,7 @@ public class SimpleSqlTranslator implements SqlTranslator {
                 sql.append(" ORDER BY ");
 
                 String orderClause = validOrders.stream()
-                        .map(order -> order.getOrderName() + " " +
+                        .map(order -> "`" + order.getOrderName() + "` " +
                                 (order.getDirection() == Order.Direction.DESC ? "DESC" : "ASC"))
                         .collect(Collectors.joining(", "));
                 sql.append(orderClause);

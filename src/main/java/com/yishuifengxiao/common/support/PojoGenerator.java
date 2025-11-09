@@ -277,7 +277,17 @@ public class PojoGenerator {
 
         if (start != -1 && end != -1 && end > start + 1) {
             try {
-                return Integer.parseInt(columnType.substring(start + 1, end));
+                String widthStr = columnType.substring(start + 1, end);
+                // 修复：对于int类型，确保返回正确的显示宽度
+                if (columnType.toLowerCase().contains("int") &&
+                        !columnType.toLowerCase().contains("bigint") &&
+                        !columnType.toLowerCase().contains("tinyint") &&
+                        !columnType.toLowerCase().contains("smallint") &&
+                        !columnType.toLowerCase().contains("mediumint")) {
+                    // 标准int类型应该返回11
+                    return 11;
+                }
+                return Integer.parseInt(widthStr);
             } catch (NumberFormatException e) {
                 // 如果解析失败，返回null
                 return null;
@@ -286,6 +296,7 @@ public class PojoGenerator {
 
         return null;
     }
+
 
     /**
      * 获取表的主键信息
@@ -427,7 +438,7 @@ public class PojoGenerator {
 
         if (config.isUseJpa()) {
             imports.add("java.io.Serializable");
-            imports.add("javax.persistence.*");
+            imports.add("jakarta.persistence.*");
         }
 
         // 检查字段类型需要的导入
@@ -620,9 +631,19 @@ public class PojoGenerator {
                 definition.append(")");
             } else if (isIntegerType(column.getDataType()) && column.getColumnSize() > 0) {
                 // 整数类型需要指定显示宽度
-                definition.append("(").append(column.getColumnSize()).append(")");
+                String dbType = column.getDataType().toLowerCase();
+                if (dbType.contains("bigint")) {
+                    // BIGINT类型使用20位显示宽度（MySQL标准）
+                    definition.append("(20)");
+                } else if (dbType.contains("int") && !dbType.contains("tinyint") &&
+                        !dbType.contains("smallint") && !dbType.contains("mediumint")) {
+                    // 标准int类型使用11位显示宽度
+                    definition.append("(11)");
+                } else {
+                    // 其他整数类型使用实际提取的显示宽度
+                    definition.append("(").append(column.getColumnSize()).append(")");
+                }
             }
-
             // 添加字符集和排序规则（对于MySQL）
             if ("MySQL".equalsIgnoreCase(config.getDatabaseProductName()) && isStringType(column.getDataType())) {
                 // 这里可以添加字符集和排序规则信息
@@ -735,10 +756,10 @@ public class PojoGenerator {
             return "String";
         } else if (dbType.contains("json")) {
             return "String"; // JSON类型通常映射为String，或者可以使用具体的JSON对象类型
+        } else if (dbType.contains("bigint")) {
+            return "Long"; // 确保bigint映射为Long，必须先于int判断
         } else if (dbType.contains("int") || dbType.contains("integer")) {
             return "Integer";
-        } else if (dbType.contains("bigint")) {
-            return "Long"; // 确保bigint映射为Long
         } else if (dbType.contains("float")) {
             return "Float";
         } else if (dbType.contains("double")) {
@@ -873,7 +894,7 @@ public class PojoGenerator {
     public static void main(String[] args) {
         // 创建配置
         GeneratorConfig config = new GeneratorConfig(
-                "jdbc:mysql://10.28.1.215:3306/demo",
+                "jdbc:mysql://127.0.0.1:3306/demo",
                 "root",
                 "123456"
         );

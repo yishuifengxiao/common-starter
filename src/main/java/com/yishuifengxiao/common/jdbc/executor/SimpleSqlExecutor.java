@@ -13,10 +13,8 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.*;
 import java.time.*;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.*;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -67,43 +65,12 @@ public class SimpleSqlExecutor implements SqlExecutor {
             // 无参数的情况
             count = jdbcTemplate.update(sql);
         } else {
-            // 有参数的情况 - 将FieldValue参数转换为Object数组和SQL类型数组
-            Object[] values = new Object[args.length];
-            int[] argTypes = new int[args.length];
-
-            for (int i = 0; i < args.length; i++) {
-                FieldValue fieldValue = args[i];
-
-                // 安全检查：确保FieldValue不为null
-                if (fieldValue == null) {
-                    values[i] = null;
-                    argTypes[i] = Types.NULL;
-                    continue;
-                }
-
-                // 获取原始值
-                Object originalValue = fieldValue.getValue();
-                SQLType sqlType = fieldValue.sqlType();
-
-                // 处理null值
-                if (originalValue == null) {
-                    values[i] = null;
-                    argTypes[i] = sqlType != null ? sqlType.getVendorTypeNumber() : Types.NULL;
-                    continue;
-                }
-
-                // 处理日期时间类型的时区转换
-                Object processedValue = processDateTimeValue(originalValue);
-
-                // 处理原始数据类型转换
-                processedValue = processPrimitiveValue(processedValue);
-
-                values[i] = processedValue;
-                argTypes[i] = sqlType != null ? sqlType.getVendorTypeNumber() : Types.OTHER;
-            }
-
-            // 使用标准的JdbcTemplate update方法，避免Lambda表达式的问题
-            count = jdbcTemplate.update(sql, values, argTypes);
+            // 有参数的情况 - 使用PreparedStatementCreator确保参数设置正确
+            count = jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql);
+                setPreparedStatementParameters(ps, Arrays.asList(args));
+                return ps;
+            });
         }
 
         logSqlExecutionEnd("执行sql", count);
@@ -188,7 +155,6 @@ public class SimpleSqlExecutor implements SqlExecutor {
                     })
                     .collect(Collectors.toList());
 
-            // 直接使用JdbcTemplate的update方法，让Spring管理PreparedStatement的生命周期
             int updateCount = jdbcTemplate.update(connection -> {
                 PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 // 设置参数
@@ -225,11 +191,20 @@ public class SimpleSqlExecutor implements SqlExecutor {
                 public void setValues(PreparedStatement ps, int i) throws SQLException {
                     List<FieldValue> fieldValues = parameters.get(i);
                     setPreparedStatementParameters(ps, fieldValues);
+                    if (Objects.equals(i, parameters.size())) {
+                        ps.executeLargeBatch();
+                        ps.clearBatch();
+                    } else {
+                        if (i % DEFAULT_BATCH_SIZE == 0) {
+                            ps.executeLargeBatch();
+                            ps.clearBatch();
+                        }
+                    }
                 }
 
                 @Override
                 public int getBatchSize() {
-                    return DEFAULT_BATCH_SIZE > parameters.size() ? parameters.size() : DEFAULT_BATCH_SIZE;
+                    return parameters.size();
                 }
             });
 

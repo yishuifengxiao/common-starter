@@ -11,6 +11,7 @@ import com.yishuifengxiao.common.jdbc.translator.SqlTranslator;
 import com.yishuifengxiao.common.jdbc.util.FieldUtils;
 import com.yishuifengxiao.common.jdbc.util.SimpleRowMapper;
 import com.yishuifengxiao.common.jdbc.util.ZoneIdDetector;
+import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
@@ -71,9 +72,10 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         String tableName = fieldExtractor.extractTableName(clazz);
         FieldValue primaryKeyField = fieldExtractor.extractPrimaryFiled(clazz);
+        primaryKeyField.setValue(primaryKey);
         String sql = sqlTranslator.findAll(tableName, Collections.singletonList(primaryKeyField), false, null, new Slice(1, 1));
 
-        return executeSingleQuery(clazz, sql, primaryKeyField.setValue(primaryKey));
+        return executeSingleQuery(clazz, sql, primaryKeyField);
     }
 
     /**
@@ -269,10 +271,16 @@ public class SimpleJdbcHelper implements JdbcHelper {
             log.debug("{}无有效主键值，跳过删除", LOG_PREFIX);
             return 0;
         }
-
         String tableName = fieldExtractor.extractTableName(clazz);
         FieldValue primaryKey = fieldExtractor.extractPrimaryFiled(clazz);
-        primaryKey.setValue(Arrays.asList(validPrimaryKeys));
+
+        if (validPrimaryKeys.size() == 1) {
+
+            primaryKey.setValue(validPrimaryKeys.get(0));
+        } else {
+            primaryKey.setValue(validPrimaryKeys);
+        }
+
 
         String sql = sqlTranslator.deleteByPrimaryKeys(tableName, primaryKey.getColumnName(), validPrimaryKeys);
         return sqlExecutor.execute(jdbcTemplate, sql, primaryKey);
@@ -489,6 +497,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (list == null || list.isEmpty()) {
             return;
         }
+        System.out.println("批量保存数据列表大小list为：" + JsonUtil.toJSONString(list));
 
         T firstValidItem = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
 
@@ -498,13 +507,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
         }
 
         String tableName = fieldExtractor.extractTableName(firstValidItem.getClass());
-        List<FieldValue> fieldValues = fieldExtractor.extractFiled(firstValidItem.getClass());
+        List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(firstValidItem);
 
         String sql = sqlTranslator.insert(tableName, fieldValues);
         int[] types = fieldValues.stream().mapToInt(field -> field.sqlType().getVendorTypeNumber()).toArray();
 
-        List<List<FieldValue>> batchParams = list.stream().filter(Objects::nonNull).map(item -> fieldExtractor.extractFieldValue(item)).collect(Collectors.toList());
-
+        List<List<FieldValue>> batchParams = list.stream().filter(Objects::nonNull).map(fieldExtractor::extractFieldValue).collect(Collectors.toList());
+        System.out.println("批量保存数据列表大小batchParams为：" + batchParams);
         sqlExecutor.batchUpdate(jdbcTemplate, sql, types, batchParams);
     }
 

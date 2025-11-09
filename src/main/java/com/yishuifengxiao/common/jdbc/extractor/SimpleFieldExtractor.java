@@ -74,15 +74,15 @@ public class SimpleFieldExtractor implements FieldExtractor {
         }
 
         return fields.stream().map(field -> {
-            String fieldName = field.getField().getName(); // 避免重复调用 getName()
+            String fieldName = field.getField().getName();
             try {
                 Object value = ClassUtil.extractValue(t, fieldName);
-                return field.setValue(value);
+                // 创建新的FieldValue实例，而不是修改原实例
+                return new FieldValue(field.getField(), field.isPrimary(), value);
             } catch (Exception e) {
-                // 使用日志框架替代 System.err
                 log.warn("Failed to extract field: {}, error: {}", fieldName, e.getMessage(), e);
-                // 根据业务需要决定是跳过该字段还是抛出异常
-                return field; // 或者 return null 并在 collect 前 filter 掉
+                // 创建新的FieldValue实例，保留原始值
+                return new FieldValue(field.getField(), field.isPrimary(), field.getValue());
             }
         }).collect(Collectors.toList());
     }
