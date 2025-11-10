@@ -654,9 +654,10 @@ public class PojoGenerator {
         // 是否可为空
         if (!column.isNullable()) {
             definition.append(" NOT NULL");
-        } else {
-            definition.append(" NULL");
         }
+//        else {
+//            definition.append("DEFAULT NULL");
+//        }
 
         // 自增
         if (column.isAutoIncrement()) {
