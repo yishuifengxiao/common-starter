@@ -668,7 +668,7 @@ public class PojoGenerator {
         if (column.getDefaultValue() != null && !column.getDefaultValue().isEmpty()) {
             // 处理默认值中的特殊字符
             String defaultValue = escapeSqlString(column.getDefaultValue());
-            definition.append(" DEFAULT ").append(defaultValue);
+            definition.append(" DEFAULT '").append(defaultValue).append("'");
         }
 
         // 注释 - 添加到columnDefinition中
