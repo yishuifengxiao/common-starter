@@ -15,6 +15,7 @@ import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -595,7 +596,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
             log.warn("{}无法获取数据库时区信息，使用默认时区", LOG_PREFIX);
         } catch (Exception e) {
             log.error("{}SQL执行器初始化失败", LOG_PREFIX, e);
-            throw new RuntimeException("SQL执行器初始化失败", e);
+            throw new UncheckedException(JdbcError.SQL_HELPER_INIT_ERROR, "SQL执行器初始化失败");
         }
         this.sqlExecutor = new SimpleSqlExecutor(this.timeZone);
     }
@@ -854,6 +855,10 @@ public class SimpleJdbcHelper implements JdbcHelper {
      */
     @Override
     public <T> List<T> find(Class<T> clazz, String sql, SqlParameterSource params) {
+        if (StringUtils.isBlank(sql)) {
+            throw new UncheckedException(JdbcError.SQL_IS_NULL, "SQL语句不能为空");
+        }
+        sql = sql.replaceAll("\r", "  ").replaceAll("\n", "  ").trim();
         if (log.isTraceEnabled()) {
             log.trace("{}执行查询：{}，参数：{}", LOG_PREFIX, sql, params);
         }

@@ -31,7 +31,19 @@ public enum JdbcError implements RootEnum {
     /**
      * 多个主键属性
      */
-    MULTIPLE_PRIMARY_KEYS(6005, "多个主键属性");
+    MULTIPLE_PRIMARY_KEYS(6005, "多个主键属性"),
+
+    /**
+     * sql语句不能为空
+     */
+    SQL_IS_NULL(6006, "sql语句不能为空"),
+
+    /**
+     * SQL执行器初始化失败
+     */
+    SQL_HELPER_INIT_ERROR(6007, "SQL执行器初始化失败"),
+
+    ;
 
     /**
      * 错误码
