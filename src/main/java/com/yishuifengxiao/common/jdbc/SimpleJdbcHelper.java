@@ -510,10 +510,19 @@ public class SimpleJdbcHelper implements JdbcHelper {
         String tableName = fieldExtractor.extractTableName(firstValidItem.getClass());
         List<FieldValue> fieldValues = fieldExtractor.extractFieldValue(firstValidItem);
 
+        FieldValue primaryKey = fieldValues.stream().filter(field -> field.isPrimary()).findFirst().orElse(null);
+
         String sql = sqlTranslator.insert(tableName, fieldValues);
         int[] types = fieldValues.stream().mapToInt(field -> field.sqlType().getVendorTypeNumber()).toArray();
 
-        List<List<FieldValue>> batchParams = list.stream().filter(Objects::nonNull).map(fieldExtractor::extractFieldValue).collect(Collectors.toList());
+        List<List<FieldValue>> batchParams = list.stream().filter(Objects::nonNull).map(s -> {
+            List<FieldValue> values = fieldExtractor.extractFieldValue(s);
+            if (null == primaryKey || primaryKey.isNullVal()) {
+                values = values.stream().filter(field -> !field.isPrimary()).collect(Collectors.toList());
+
+            }
+            return values;
+        }).collect(Collectors.toList());
         System.out.println("批量保存数据列表大小batchParams为：" + batchParams);
         sqlExecutor.batchUpdate(jdbcTemplate, sql, types, batchParams);
     }
