@@ -521,7 +521,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
             }
             return values;
         }).collect(Collectors.toList());
-        System.out.println("批量保存数据列表大小batchParams为：" + batchParams);
         sqlExecutor.batchUpdate(jdbcTemplate, sql, types, batchParams);
     }
 
@@ -910,7 +909,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @return 符合查询条件的对象列表，当前实现返回空列表
      */
     @Override
-    public <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Map<String, Object> params) {
+    public <T> Page<T> find(Class<T> clazz, Slice slice, String sql, Map<String, Object> params) {
         if (clazz == null || StringUtils.isBlank(sql)) {
             log.info("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
             return Page.ofEmpty();
@@ -1006,13 +1005,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @return 返回指定类型的分页结果
      */
     @Override
-    public <T> Page<T> findPage(Class<T> clazz, Slice slice, NamedHandler handler) {
+    public <T> Page<T> find(Class<T> clazz, Slice slice, NamedHandler handler) {
         // 构造SQL参数映射
         final Map<String, Object> map = new HashMap<>();
         // 通过处理器生成SQL语句
         String sql = handler.handle(map);
         // 执行分页查询并返回结果
-        return this.findPage(clazz, slice, sql, map);
+        return this.find(clazz, slice, sql, map);
     }
 
 }

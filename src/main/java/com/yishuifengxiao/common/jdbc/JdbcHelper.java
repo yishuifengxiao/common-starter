@@ -285,7 +285,7 @@ public interface JdbcHelper {
      * @param params SQL查询参数Map，键为参数名，值为参数值
      * @return 符合查询条件的对象列表，当前实现返回空列表
      */
-    <T> Page<T> findPage(Class<T> clazz, Slice slice, String sql, Map<String, Object> params);
+    <T> Page<T> find(Class<T> clazz, Slice slice, String sql, Map<String, Object> params);
 
     /**
      * 获取操作的JdbcTemplate实例
@@ -312,7 +312,7 @@ public interface JdbcHelper {
      * @param <T>     实体类泛型参数
      * @return 返回指定类型的分页结果
      */
-    <T> Page<T> findPage(Class<T> clazz, Slice slice, NamedHandler handler);
+    <T> Page<T> find(Class<T> clazz, Slice slice, NamedHandler handler);
 
 
 }

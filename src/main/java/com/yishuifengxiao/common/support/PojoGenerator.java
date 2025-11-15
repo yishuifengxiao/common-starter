@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +20,7 @@ import java.util.*;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public class PojoGenerator {
 
     @AllArgsConstructor
@@ -86,7 +88,7 @@ public class PojoGenerator {
 
             // 获取所有表信息
             List<TableInfo> tables = getAllTables(conn, config);
-            System.out.println("发现 " + tables.size() + " 个表");
+            log.info("发现 " + tables.size() + " 个表");
 
             // 创建输出目录
             File outputDir = new File(config.getOutputPath());
@@ -99,7 +101,7 @@ public class PojoGenerator {
                 generatePojoForTable(table, config);
             }
 
-            System.out.println("所有POJO类生成完成! 共生成 " + tables.size() + " 个类");
+            log.info("所有POJO类生成完成! 共生成 " + tables.size() + " 个类");
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -341,7 +343,7 @@ public class PojoGenerator {
      * 为单个表生成POJO
      */
     private void generatePojoForTable(TableInfo table, GeneratorConfig config) throws Exception {
-        System.out.println("正在生成表: " + table.getOriginalName() + " -> " + table.getClassName());
+        log.info("正在生成表: " + table.getOriginalName() + " -> " + table.getClassName());
 
         String javaCode = generatePojoCode(table, config);
 
@@ -352,7 +354,7 @@ public class PojoGenerator {
         writer.flush();
         writer.close();
 
-        System.out.println("生成: " + file.getAbsolutePath());
+        log.info("生成: " + file.getAbsolutePath());
     }
 
     /**

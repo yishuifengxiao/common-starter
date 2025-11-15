@@ -85,7 +85,7 @@ public class JdbcHelper01Test {
     @Test
     public void test_findPage_01() {
         String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
-        Page<AutoTable> page = jdbcHelper.findPage(AutoTable.class, Slice.of(10, 1), sql, Map.of("id", 1L, "name", "测试"));
+        Page<AutoTable> page = jdbcHelper.find(AutoTable.class, Slice.of(10, 1), sql, Map.of("id", 1L, "name", "测试"));
         System.out.println(page);
     }
 
@@ -101,7 +101,7 @@ public class JdbcHelper01Test {
 
     @Test
     public void test_find_002() {
-        Page<AutoTable> page = jdbcHelper.findPage(AutoTable.class, Slice.of(10, 1), params -> {
+        Page<AutoTable> page = jdbcHelper.find(AutoTable.class, Slice.of(10, 1), params -> {
             String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
             params.putAll(Map.of("id", 1L, "name", "测试"));
             return sql;
