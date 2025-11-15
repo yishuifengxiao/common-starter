@@ -7,15 +7,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringReader;
 import java.sql.*;
 import java.time.*;
 import java.util.*;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 /**
  * 系统语句执行器
@@ -37,7 +40,15 @@ public class SimpleSqlExecutor implements SqlExecutor {
      * 默认批量大小
      */
     private static final int DEFAULT_BATCH_SIZE = 500;
+    /**
+     * 最大数据包大小（默认64MB，与MySQL默认值一致）
+     */
+    private static final int MAX_PACKET_SIZE = 64 * 1024 * 1024;
 
+    /**
+     * 大字段分块大小（1MB）
+     */
+    private static final int CHUNK_SIZE = 1024 * 1024;
 
     private ZoneId timeZone;
 
@@ -143,32 +154,290 @@ public class SimpleSqlExecutor implements SqlExecutor {
 
         logSqlExecutionStart("查询记录", sql, fieldValues);
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-
-        try {
-            // 将参数转换为Object数组
-            List<FieldValue> parms = fieldValues.stream()
-                    .map(fieldValue -> {
-                        Object value = processParameterValue(fieldValue.getValue(), fieldValue.sqlType());
-                        fieldValue.setValue(value);
-                        return fieldValue;
-                    })
-                    .collect(Collectors.toList());
-
-            int updateCount = jdbcTemplate.update(connection -> {
-                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-                // 设置参数
-                setPreparedStatementParameters(ps, parms);
-                return ps;
-            }, keyHolder);
-
-            log.debug("{}SQL执行完成，影响行数: {}, 主键值: {}", LOG_PREFIX, updateCount, keyHolder);
-        } catch (DataAccessException ex) {
-            log.error("{}SQL执行失败", LOG_PREFIX, ex);
-            throw ex;
+        // 检查是否包含大字段
+        if (containsLargeField(fieldValues)) {
+            return updateWithLargeFields(jdbcTemplate, sql, fieldValues);
         }
 
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        try {
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                setPreparedStatementParameters(ps, fieldValues);
+                return ps;
+            }, keyHolder);
+        } catch (DataAccessException e) {
+            log.error("更新失败: ", e);
+            throw e;
+        }
+
+        logSqlExecutionEnd("update", keyHolder);
         return keyHolder;
+    }
+
+    /**
+     * 检查是否包含大字段
+     */
+    private boolean containsLargeField(List<FieldValue> fieldValues) {
+        if (fieldValues == null) {
+            return false;
+        }
+
+        for (FieldValue fieldValue : fieldValues) {
+            if (fieldValue == null) {
+                continue;
+            }
+
+            Object value = fieldValue.getValue();
+            if (value != null && isLargeObject(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为大型对象
+     */
+    private boolean isLargeObject(Object value) {
+        if (value == null) {
+            return false;
+        }
+
+        if (value instanceof byte[]) {
+            return ((byte[]) value).length > CHUNK_SIZE;
+        } else if (value instanceof String) {
+            return ((String) value).length() > CHUNK_SIZE;
+        } else if (value instanceof InputStream) {
+            // 流对象总是被认为是大型对象
+            return true;
+        } else if (value instanceof Blob) {
+            return true;
+        } else if (value instanceof Clob) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 大字段阈值（16MB，小于MySQL默认的max_allowed_packet）
+     */
+    private static final int LARGE_FIELD_THRESHOLD = 16 * 1024 * 1024;
+
+    /**
+     * 处理包含大字段的更新操作 - 使用原生JDBC连接
+     */
+    private KeyHolder updateWithLargeFields(JdbcTemplate jdbcTemplate, String sql, List<FieldValue> fieldValues) {
+        //# 对大字段处理优化的配置
+        //spring.datasource.url=jdbc:mysql://localhost:3306/yourdb?useServerPrepStmts=false&cachePrepStmts=false&rewriteBatchedStatements=true&useSSL=false&allowPublicKeyRetrieval=true
+        //useServerPrepStmts=false ⭐ 关键参数
+        //作用：禁用服务器端预处理语句，使用客户端预处理
+        //效果：对于大字段，客户端预处理可以减少数据包大小，因为参数值在客户端序列化
+        //推荐值：false（对大字段处理更友好）
+        //2. cachePrepStmts=false ⭐ 相关参数
+        //作用：禁用预处理语句缓存
+        //效果：与useServerPrepStmts=false配合使用，避免缓存大字段语句
+        //推荐值：false
+        //3. rewriteBatchedStatements=true
+        //作用：重写批量语句，将多个INSERT合并为一个
+        //效果：主要针对批量操作，对单条大记录插入影响有限
+        //推荐值：true（但当前场景作用不大）
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+
+        // 使用原生JDBC连接，避免Spring JDBC模板的限制
+        jdbcTemplate.execute((ConnectionCallback<Object>) connection -> {
+            // 禁用自动提交，确保事务一致性
+            boolean originalAutoCommit = connection.getAutoCommit();
+            connection.setAutoCommit(false);
+
+            PreparedStatement ps = null;
+            try {
+                ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+                // 设置参数，使用流式处理大字段
+                setStreamingParameters(ps, fieldValues);
+
+                // 执行更新
+                int affectedRows = ps.executeUpdate();
+                log.debug("包含大字段的更新操作影响行数: {}", affectedRows);
+
+                // 获取生成的主键
+                try (var rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        keyHolder.getKeyList().add(Map.of("GENERATED_KEY", rs.getObject(1)));
+                    }
+                }
+
+                connection.commit();
+                return null;
+            } catch (SQLException e) {
+                connection.rollback();
+                throw new DataAccessException("包含大字段的更新失败", e) {
+                };
+            } finally {
+                if (ps != null) {
+                    try {
+                        ps.close();
+                    } catch (SQLException e) {
+                        log.warn("关闭PreparedStatement失败", e);
+                    }
+                }
+                connection.setAutoCommit(originalAutoCommit);
+            }
+        });
+
+        return keyHolder;
+    }
+
+    /**
+     * 流式设置参数
+     */
+    private void setStreamingParameters(PreparedStatement ps, List<FieldValue> fieldValues) throws SQLException {
+        int parameterIndex = 1;
+
+        for (FieldValue fieldValue : fieldValues) {
+            if (fieldValue == null) {
+                ps.setNull(parameterIndex, Types.NULL);
+                parameterIndex++;
+                continue;
+            }
+
+            Object value = fieldValue.getValue();
+            SQLType sqlType = fieldValue.sqlType();
+
+            if (value != null && value instanceof Collection) {
+                // 处理IN查询参数（集合类型）
+                Collection<?> collection = (Collection<?>) value;
+                for (Object item : collection) {
+                    setStreamingParameter(ps, parameterIndex, item, sqlType);
+                    parameterIndex++;
+                }
+            } else {
+                // 处理单个参数
+                setStreamingParameter(ps, parameterIndex, value, sqlType);
+                parameterIndex++;
+            }
+        }
+    }
+
+    /**
+     * 流式设置单个参数
+     */
+    private void setStreamingParameter(PreparedStatement ps, int parameterIndex, Object value, SQLType sqlType)
+            throws SQLException {
+        if (value == null) {
+            if (sqlType != null) {
+                ps.setNull(parameterIndex, sqlType.getVendorTypeNumber());
+            } else {
+                ps.setNull(parameterIndex, Types.NULL);
+            }
+            return;
+        }
+
+        // 对大字段进行流式处理
+        if (value instanceof byte[]) {
+            byte[] bytes = (byte[]) value;
+            if (bytes.length > LARGE_FIELD_THRESHOLD) {
+                // 使用流式设置大字节数组
+                ps.setBinaryStream(parameterIndex, new ByteArrayInputStream(bytes), bytes.length);
+            } else {
+                ps.setBytes(parameterIndex, bytes);
+            }
+        } else if (value instanceof String) {
+            String str = (String) value;
+            if (str.length() > LARGE_FIELD_THRESHOLD) {
+                // 使用流式设置大字符串
+                ps.setCharacterStream(parameterIndex, new StringReader(str), str.length());
+            } else {
+                ps.setString(parameterIndex, str);
+            }
+        } else if (value instanceof InputStream) {
+            // 输入流直接使用流式设置
+            ps.setBinaryStream(parameterIndex, (InputStream) value);
+        } else if (value instanceof Blob) {
+            ps.setBlob(parameterIndex, (Blob) value);
+        } else if (value instanceof Clob) {
+            ps.setClob(parameterIndex, (Clob) value);
+        } else {
+            // 普通参数正常设置
+            if (sqlType == null || JDBCType.NULL.equals(sqlType) || JDBCType.OTHER.equals(sqlType)) {
+                ps.setObject(parameterIndex, value);
+            } else {
+                ps.setObject(parameterIndex, value, sqlType);
+            }
+        }
+    }
+
+    /**
+     * 设置包含大字段的参数
+     */
+    private void setPreparedStatementParametersWithLargeFields(PreparedStatement ps, List<FieldValue> fieldValues)
+            throws SQLException {
+        int parameterIndex = 1;
+
+        for (FieldValue fieldValue : fieldValues) {
+            if (fieldValue == null) {
+                continue;
+            }
+
+            Object value = fieldValue.getValue();
+            SQLType sqlType = fieldValue.sqlType();
+
+            if (value != null && value instanceof Collection) {
+                // 处理IN查询参数（集合类型）
+                Collection<?> collection = (Collection<?>) value;
+                for (Object item : collection) {
+                    Object processedValue = processParameterValue(item, sqlType);
+                    setLargeObjectParameter(ps, parameterIndex, processedValue, sqlType);
+                    parameterIndex++;
+                }
+            } else {
+                // 处理单个参数
+                Object processedValue = processParameterValue(value, sqlType);
+                setLargeObjectParameter(ps, parameterIndex, processedValue, sqlType);
+                parameterIndex++;
+            }
+        }
+    }
+
+    /**
+     * 设置大对象参数
+     */
+    private void setLargeObjectParameter(PreparedStatement ps, int parameterIndex, Object value, SQLType sqlType)
+            throws SQLException {
+        if (value == null) {
+            if (sqlType != null) {
+                ps.setNull(parameterIndex, sqlType.getVendorTypeNumber());
+            } else {
+                ps.setNull(parameterIndex, Types.NULL);
+            }
+            return;
+        }
+
+        // 对大字段进行特殊处理
+        if (value instanceof byte[] && ((byte[]) value).length > CHUNK_SIZE) {
+            // 大字节数组使用setBytes，让JDBC驱动自动处理
+            ps.setBytes(parameterIndex, (byte[]) value);
+        } else if (value instanceof String && ((String) value).length() > CHUNK_SIZE) {
+            // 大字符串使用setCharacterStream
+            String stringValue = (String) value;
+            ps.setCharacterStream(parameterIndex, new StringReader(stringValue), stringValue.length());
+        } else if (value instanceof InputStream) {
+            // 输入流使用setBinaryStream
+            ps.setBinaryStream(parameterIndex, (InputStream) value);
+        } else if (value instanceof Blob) {
+            ps.setBlob(parameterIndex, (Blob) value);
+        } else if (value instanceof Clob) {
+            ps.setClob(parameterIndex, (Clob) value);
+        } else {
+            // 普通参数正常设置
+            if (sqlType == null || JDBCType.NULL.equals(sqlType) || JDBCType.OTHER.equals(sqlType)) {
+                ps.setObject(parameterIndex, value);
+            } else {
+                ps.setObject(parameterIndex, value, sqlType);
+            }
+        }
     }
 
     /**

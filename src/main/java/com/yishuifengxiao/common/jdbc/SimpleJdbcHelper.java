@@ -28,6 +28,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.sql.SQLException;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -206,7 +208,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         String querySql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, context.orders, slice);
         String countSql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
-        String wrappedCountSql = String.format("SELECT COUNT(1) FROM (%s) AS %s9", countSql, TEMP_TABLE_PREFIX);
+        String wrappedCountSql = buildCountSql(countSql);
 
         List<T> list = executeListQuery((Class<T>) t.getClass(), querySql, params);
         Long count = executeCountQuery(wrappedCountSql, params);
@@ -993,6 +995,8 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
     /**
      * 构建总数查询SQL
+     * 将SELECT和FROM之间的内容替换为COUNT(1)，避免使用子查询包装
+     * 使用大小写不敏感的正则表达式处理，避免改变查询参数的大小写
      *
      * @param sql 原始SQL
      * @return 总数查询SQL
@@ -1004,15 +1008,106 @@ public class SimpleJdbcHelper implements JdbcHelper {
             cleanSql = cleanSql.substring(0, cleanSql.length() - 1);
         }
 
-        // 检查SQL是否包含ORDER BY子句，如果有则移除
-        String upperSql = cleanSql.toUpperCase();
-        int orderByIndex = upperSql.indexOf("ORDER BY");
-        if (orderByIndex != -1) {
-            cleanSql = cleanSql.substring(0, orderByIndex).trim();
+        // 检查SQL是否包含ORDER BY子句（大小写不敏感），如果有则移除
+        Pattern orderByPattern = Pattern.compile("\\bORDER\\s+BY\\b", Pattern.CASE_INSENSITIVE);
+        Matcher orderByMatcher = orderByPattern.matcher(cleanSql);
+        if (orderByMatcher.find()) {
+            cleanSql = cleanSql.substring(0, orderByMatcher.start()).trim();
         }
 
-        // 构建总数查询SQL
-        return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+        // 检查是否为SELECT查询（大小写不敏感）
+        Pattern selectPattern = Pattern.compile("^\\s*SELECT\\b", Pattern.CASE_INSENSITIVE);
+        if (!selectPattern.matcher(cleanSql).find()) {
+            log.warn("{}非SELECT查询，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
+            return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+        }
+
+        // 使用正则表达式查找第一个FROM关键字（大小写不敏感）
+        // 避免匹配查询条件中的FROM（如：where column like '%from%'）
+        Pattern fromPattern = Pattern.compile("\\bFROM\\b", Pattern.CASE_INSENSITIVE);
+        Matcher fromMatcher = fromPattern.matcher(cleanSql);
+
+        // 查找第一个有效的FROM位置（在SELECT之后）
+        int fromIndex = -1;
+        while (fromMatcher.find()) {
+            int currentFromIndex = fromMatcher.start();
+
+            // 检查这个FROM是否在SELECT之后
+            Matcher selectMatcher = selectPattern.matcher(cleanSql);
+
+            if (selectMatcher.find() && currentFromIndex > selectMatcher.end()) {
+                // 检查FROM前面是否有单引号或双引号（排除字符串中的FROM）
+                String beforeFrom = cleanSql.substring(0, currentFromIndex);
+                int singleQuoteCount = countOccurrences(beforeFrom, "'");
+                int doubleQuoteCount = countOccurrences(beforeFrom, "\"");
+
+                // 如果引号数量为偶数，说明FROM不在字符串中
+                if (singleQuoteCount % 2 == 0 && doubleQuoteCount % 2 == 0) {
+                    fromIndex = currentFromIndex;
+                    break;
+                }
+            }
+        }
+
+        if (fromIndex == -1) {
+            log.warn("{}SQL中未找到有效的FROM关键字，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
+            return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+        }
+
+        // 检查是否为复杂查询（包含子查询、JOIN等）
+        if (isComplexQueryForCount(cleanSql)) {
+            log.debug("{}检测到复杂查询，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
+            return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+        }
+
+        // 提取FROM之后的内容（保持原始大小写）
+        String fromClause = cleanSql.substring(fromIndex);
+
+        // 构建COUNT查询：SELECT COUNT(1) + FROM之后的内容
+        String countSql = "SELECT COUNT(1) " + fromClause;
+
+        log.debug("{}优化COUNT查询: {} -> {}", LOG_PREFIX, cleanSql, countSql);
+        return countSql;
+    }
+
+    /**
+     * 判断是否为复杂查询（不适合直接COUNT优化）
+     * 使用大小写不敏感的正则表达式
+     */
+    private boolean isComplexQueryForCount(String sql) {
+        // 检查是否包含复杂结构（大小写不敏感）
+        Pattern complexPattern = Pattern.compile(
+                "\\b(JOIN|UNION|GROUP\\s+BY|DISTINCT|HAVING)\\b",
+                Pattern.CASE_INSENSITIVE
+        );
+
+        boolean hasComplexStructure = complexPattern.matcher(sql).find();
+
+        // 检查是否包含子查询模式（多个SELECT）
+        Pattern subqueryPattern = Pattern.compile(
+                "\\bSELECT\\b.*\\bSELECT\\b",
+                Pattern.CASE_INSENSITIVE
+        );
+
+        boolean hasSubquery = subqueryPattern.matcher(sql).find();
+
+        // 检查是否包含括号内的SELECT（子查询）
+        Pattern parenSelectPattern = Pattern.compile(
+                "\\(\\s*SELECT\\b",
+                Pattern.CASE_INSENSITIVE
+        );
+
+        boolean hasParenSelect = parenSelectPattern.matcher(sql).find();
+
+        return hasComplexStructure || hasSubquery || hasParenSelect;
+    }
+
+    /**
+     * 统计字符串中某个字符出现的次数
+     */
+    private int countOccurrences(String str, String target) {
+        if (str == null || target == null) return 0;
+        return str.length() - str.replace(target, "").length();
     }
 
     @Override
