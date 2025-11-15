@@ -76,7 +76,7 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
         try {
 
             T instance = targetClass.getDeclaredConstructor().newInstance();
-            Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
+Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
 
             // 优化：预构建列名映射表
             Map<String, FieldMapping> columnToFieldMap = buildColumnToFieldMap(fieldMappings);
@@ -357,6 +357,24 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
         if (rawValue == null || rs.wasNull()) {
             return handleNullValue(targetType, isPrimitive);
         }
+        
+        // 特殊处理：当数据库字段为tinyint(1)时，某些JDBC驱动会错误地将整数值转换为布尔值
+        // 例如：数据库值为4，但rs.getObject()返回true，这会导致数据错误
+        if (rawValue instanceof Boolean && isNumericType(targetType)) {
+            // 如果是布尔值但目标类型是数值类型，重新获取原始整数值
+            try {
+                // 使用getInt获取原始整数值，避免JDBC驱动的错误转换
+                int intValue = rs.getInt(columnName);
+                if (!rs.wasNull()) {
+                    // 将整数值转换为目标类型
+                    return convertNumber(intValue, targetType, isPrimitive);
+                }
+            } catch (SQLException e) {
+                // 如果获取整数值失败，回退到原始逻辑
+                log.debug("获取列 {} 的整数值失败，使用原始值: {}", columnName, e.getMessage());
+            }
+        }
+        
         // 特殊处理BLOB类型：如果数据库返回的是byte数组（BLOB），但目标类型是String
         if (rawValue instanceof byte[] && targetType == String.class) {
             try {
@@ -382,6 +400,51 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
         }
         // 基本类型和包装类型处理
         return convertBasicType(rawValue, targetType, isPrimitive);
+    }
+
+    /**
+     * 判断目标类型是否为数值类型
+     *
+     * @param targetType 目标类型
+     * @return 如果是数值类型返回true，否则返回false
+     */
+    private boolean isNumericType(Class<?> targetType) {
+        return targetType == Integer.class || targetType == int.class ||
+               targetType == Long.class || targetType == long.class ||
+               targetType == Double.class || targetType == double.class ||
+               targetType == Float.class || targetType == float.class ||
+               targetType == Short.class || targetType == short.class ||
+               targetType == Byte.class || targetType == byte.class ||
+               targetType == BigDecimal.class;
+    }
+
+    /**
+     * 转换数字类型（重载方法，支持直接传入int值）
+     *
+     * @param number      需要转换的整数值
+     * @param targetType  目标类型
+     * @param isPrimitive 是否为基本数据类型
+     * @return 转换后的数字对象
+     */
+    private Object convertNumber(int number, Class<?> targetType, boolean isPrimitive) {
+        // 处理整数类型转换
+        if (targetType == Integer.class || targetType == int.class) {
+            return number;
+        } else if (targetType == Long.class || targetType == long.class) {
+            return (long) number;
+        } else if (targetType == Double.class || targetType == double.class) {
+            return (double) number;
+        } else if (targetType == Float.class || targetType == float.class) {
+            return (float) number;
+        } else if (targetType == Short.class || targetType == short.class) {
+            return (short) number;
+        } else if (targetType == Byte.class || targetType == byte.class) {
+            return (byte) number;
+            // 处理BigDecimal类型转换
+        } else if (targetType == BigDecimal.class) {
+            return BigDecimal.valueOf(number);
+        }
+        return number;
     }
 
 

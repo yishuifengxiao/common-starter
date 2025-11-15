@@ -11,7 +11,6 @@ import com.yishuifengxiao.common.jdbc.translator.SqlTranslator;
 import com.yishuifengxiao.common.jdbc.util.FieldUtils;
 import com.yishuifengxiao.common.jdbc.util.SimpleRowMapper;
 import com.yishuifengxiao.common.jdbc.util.ZoneIdDetector;
-import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
@@ -498,7 +497,6 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (list == null || list.isEmpty()) {
             return;
         }
-        System.out.println("批量保存数据列表大小list为：" + JsonUtil.toJSONString(list));
 
         T firstValidItem = list.stream().filter(Objects::nonNull).findFirst().orElse(null);
 
@@ -917,6 +915,8 @@ public class SimpleJdbcHelper implements JdbcHelper {
             log.info("{}参数不完整，clazz: {}, sql: {}", LOG_PREFIX, clazz, sql);
             return Page.ofEmpty();
         }
+        log.debug("{}执行findPage查询，clazz: {}, slice: {}, sql: {}, params: {}", LOG_PREFIX, clazz, slice, sql, params);
+
 
         // 处理分页参数
         slice = slice == null ? new Slice(DEFAULT_PAGE_SIZE, DEFAULT_PAGE_NUMBER) : slice;
