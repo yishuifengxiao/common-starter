@@ -776,52 +776,79 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (value == null) {
             return null;
         }
-
         // 如果配置了数据库时区，进行时区转换
         if (this.timeZone != null) {
             if (value instanceof java.util.Date) {
-                // java.util.Date 转换为数据库时区的 LocalDateTime
+                // java.util.Date 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.util.Date date = (java.util.Date) value;
-                return date.toInstant().atZone(this.timeZone).toLocalDateTime();
+                java.time.LocalDateTime localDateTime = date.toInstant().atZone(this.timeZone).toLocalDateTime();
+                return java.sql.Timestamp.valueOf(localDateTime);
             } else if (value instanceof java.time.LocalDateTime) {
-                // LocalDateTime 没有时区信息，直接返回
-                return value;
+                // LocalDateTime 转换为 java.sql.Timestamp
+                java.time.LocalDateTime localDateTime = (java.time.LocalDateTime) value;
+                return java.sql.Timestamp.valueOf(localDateTime);
             } else if (value instanceof java.time.ZonedDateTime) {
-                // ZonedDateTime 转换为数据库时区
+                // ZonedDateTime 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.ZonedDateTime zonedDateTime = (java.time.ZonedDateTime) value;
-                return zonedDateTime.withZoneSameInstant(this.timeZone).toLocalDateTime();
+                java.time.LocalDateTime localDateTime = zonedDateTime.withZoneSameInstant(this.timeZone).toLocalDateTime();
+                return java.sql.Timestamp.valueOf(localDateTime);
             } else if (value instanceof java.time.OffsetDateTime) {
-                // OffsetDateTime 转换为数据库时区
+                // OffsetDateTime 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.OffsetDateTime offsetDateTime = (java.time.OffsetDateTime) value;
-                return offsetDateTime.atZoneSameInstant(this.timeZone).toLocalDateTime();
+                java.time.LocalDateTime localDateTime = offsetDateTime.atZoneSameInstant(this.timeZone).toLocalDateTime();
+                return java.sql.Timestamp.valueOf(localDateTime);
             } else if (value instanceof java.time.Instant) {
-                // Instant 转换为数据库时区的 LocalDateTime
+                // Instant 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.Instant instant = (java.time.Instant) value;
-                return instant.atZone(this.timeZone).toLocalDateTime();
+                java.time.LocalDateTime localDateTime = instant.atZone(this.timeZone).toLocalDateTime();
+                return java.sql.Timestamp.valueOf(localDateTime);
             } else if (value instanceof java.time.LocalDate) {
-                // LocalDate 转换为数据库时区的 LocalDate
+                // LocalDate 转换为数据库时区的 LocalDate，然后转换为 java.sql.Date
                 java.time.LocalDate localDate = (java.time.LocalDate) value;
-                return localDate.atStartOfDay(this.timeZone).toLocalDate();
+                java.time.LocalDate convertedDate = localDate.atStartOfDay(this.timeZone).toLocalDate();
+                return java.sql.Date.valueOf(convertedDate);
             } else if (value instanceof java.time.LocalTime) {
-                // LocalTime 转换为数据库时区的 LocalTime
+                // LocalTime 转换为数据库时区的 LocalTime，然后转换为 java.sql.Time
                 java.time.LocalTime localTime = (java.time.LocalTime) value;
-                return localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
+                java.time.LocalTime convertedTime = localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
+                return java.sql.Time.valueOf(convertedTime);
             } else if (value instanceof java.sql.Date) {
-                // java.sql.Date 转换为数据库时区的 LocalDate
+                // java.sql.Date 转换为数据库时区的 LocalDate，然后转换为 java.sql.Date
                 java.sql.Date sqlDate = (java.sql.Date) value;
-                return sqlDate.toLocalDate();
+                java.time.LocalDate localDate = sqlDate.toLocalDate();
+                java.time.LocalDate convertedDate = localDate.atStartOfDay(this.timeZone).toLocalDate();
+                return java.sql.Date.valueOf(convertedDate);
             } else if (value instanceof java.sql.Time) {
-                // java.sql.Time 转换为数据库时区的 LocalTime
+                // java.sql.Time 转换为数据库时区的 LocalTime，然后转换为 java.sql.Time
                 java.sql.Time sqlTime = (java.sql.Time) value;
-                return sqlTime.toLocalTime();
+                java.time.LocalTime localTime = sqlTime.toLocalTime();
+                java.time.LocalTime convertedTime = localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
+                return java.sql.Time.valueOf(convertedTime);
             } else if (value instanceof java.sql.Timestamp) {
-                // java.sql.Timestamp 转换为数据库时区的 LocalDateTime
+                // java.sql.Timestamp 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.sql.Timestamp timestamp = (java.sql.Timestamp) value;
-                return timestamp.toLocalDateTime();
+                java.time.LocalDateTime localDateTime = timestamp.toLocalDateTime();
+                java.time.LocalDateTime convertedDateTime = localDateTime.atZone(this.timeZone).toLocalDateTime();
+                return java.sql.Timestamp.valueOf(convertedDateTime);
             }
         }
 
         // 如果没有配置时区或不是日期时间类型，直接返回原值
+        // 对于已经是 java.sql.* 类型的值，直接返回
+        if (value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp) {
+            return value;
+        }
+
+        // 对于 Java 8 时间 API 类型，转换为对应的 java.sql.* 类型
+        if (value instanceof java.time.LocalDateTime) {
+            return java.sql.Timestamp.valueOf((java.time.LocalDateTime) value);
+        } else if (value instanceof java.time.LocalDate) {
+            return java.sql.Date.valueOf((java.time.LocalDate) value);
+        } else if (value instanceof java.time.LocalTime) {
+            return java.sql.Time.valueOf((java.time.LocalTime) value);
+        }
+
+        // 对于其他类型，直接返回原值
         return value;
     }
 
