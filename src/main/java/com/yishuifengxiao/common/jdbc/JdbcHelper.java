@@ -8,6 +8,7 @@ import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.PageQuery;
 import com.yishuifengxiao.common.tool.entity.Slice;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.KeyHolder;
 
@@ -293,6 +294,13 @@ public interface JdbcHelper {
      * @return JdbcTemplate实例
      */
     JdbcTemplate jdbcTemplate();
+
+    /**
+     * 获取操作的namedParameterJdbcTemplate实例
+     *
+     * @return namedParameterJdbcTemplate实例
+     */
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate();
 
     /**
      * 根据指定的类类型和命名处理器查找数据

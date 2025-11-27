@@ -244,6 +244,16 @@ public class WebEnhanceAutoConfiguration {
 
         @Override
         public boolean supports(MethodParameter returnType, Class converterType) {
+            // 新增对 SkipResponseWrapper 注解的判断
+            // 检查方法上是否有该注解
+            if (returnType.hasMethodAnnotation(SkipResponseWrapper.class)) {
+                return false;
+            }
+
+            // 检查类上是否有该注解
+            if (returnType.getDeclaringClass().isAnnotationPresent(SkipResponseWrapper.class)) {
+                return false;
+            }
             String className = returnType.getDeclaringClass().getName();
             boolean hasMethodAnnotation = returnType.hasMethodAnnotation(ResponseBody.class);
             boolean assignableFrom =
@@ -266,6 +276,9 @@ public class WebEnhanceAutoConfiguration {
             Object resp = body;
             String ssid = TraceContext.get();
             try {
+                if (body instanceof String) {
+                    return body;
+                }
                 if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
                     Response<Object> result = body instanceof Response ? (Response) body :

@@ -1136,4 +1136,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
         return this.find(clazz, slice, sql, map);
     }
 
+    /**
+     * 获取操作的namedParameterJdbcTemplate实例
+     *
+     * @return namedParameterJdbcTemplate实例
+     */
+    @Override
+    public NamedParameterJdbcTemplate namedParameterJdbcTemplate() {
+        return this.namedParameterJdbcTemplate;
+    }
 }
