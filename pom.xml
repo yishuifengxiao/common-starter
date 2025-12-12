@@ -40,7 +40,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <yishuifengxiao.tool.version>8.1.0</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>8.2.0</yishuifengxiao.tool.version>
         <maven.source.version>17</maven.source.version>
         <maven.target.version>17</maven.target.version>
         <swagger.version>4.5.0</swagger.version>

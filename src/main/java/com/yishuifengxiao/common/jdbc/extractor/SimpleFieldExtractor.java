@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.jdbc.extractor;
 import com.yishuifengxiao.common.jdbc.entity.FieldValue;
 import com.yishuifengxiao.common.jdbc.util.FieldUtils;
 import com.yishuifengxiao.common.tool.bean.ClassUtil;
-import com.yishuifengxiao.common.tool.lang.TextUtil;
+import com.yishuifengxiao.common.tool.text.TextUtil;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;

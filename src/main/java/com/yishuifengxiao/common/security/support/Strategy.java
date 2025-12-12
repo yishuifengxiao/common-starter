@@ -60,8 +60,4 @@ public enum Strategy implements RootEnum {
         return this.code;
     }
 
-    @Override
-    public String enumName() {
-        return this.name;
-    }
 }

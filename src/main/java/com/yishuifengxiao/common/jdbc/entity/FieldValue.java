@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.jdbc.entity;
 
-import com.yishuifengxiao.common.tool.lang.TextUtil;
+import com.yishuifengxiao.common.tool.text.TextUtil;
 import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

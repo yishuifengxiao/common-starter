@@ -88,8 +88,4 @@ public enum JdbcError implements RootEnum {
         return this.code;
     }
 
-    @Override
-    public String description() {
-        return this.message;
-    }
 }
