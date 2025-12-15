@@ -3,6 +3,7 @@ package com.yishuifengxiao.common.jdbc.util;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import java.lang.reflect.Field;
@@ -47,12 +48,20 @@ public class FieldUtils {
      * @return 如果是基本数据类型或其包装类则返回true，否则返回false
      */
     public static <T> boolean isBasicResult(Class<T> clazz) {
-
+        String name = clazz.getName();
         // 检查是否为基本数据类型或常见的包装类
-        return clazz.isPrimitive() || clazz.isAssignableFrom(Long.class) || clazz.isAssignableFrom(Double.class)
-                || clazz.isAssignableFrom(Float.class) || clazz.isAssignableFrom(Boolean.class)
-                || clazz.isAssignableFrom(Byte.class) || clazz.isAssignableFrom(Short.class)
-                || clazz.isAssignableFrom(Character.class) || clazz.isAssignableFrom(String.class);
+        return clazz.isPrimitive() ||
+                StringUtils.startsWithIgnoreCase(name, "java") ||
+                StringUtils.startsWithIgnoreCase(name, "javax") ||
+                StringUtils.startsWithIgnoreCase(name, "sun") ||
+                StringUtils.startsWithIgnoreCase(name, "com.sun.crypto.provider") ||
+                StringUtils.startsWithIgnoreCase(name, "com.sun.crypto.provider") ||
+                StringUtils.startsWithIgnoreCase(name, "jdk")
+                ;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isBasicResult(String.class));
     }
 
 
