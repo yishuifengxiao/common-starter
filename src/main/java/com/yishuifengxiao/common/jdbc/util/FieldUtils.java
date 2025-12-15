@@ -52,7 +52,7 @@ public class FieldUtils {
         return clazz.isPrimitive() || clazz.isAssignableFrom(Long.class) || clazz.isAssignableFrom(Double.class)
                 || clazz.isAssignableFrom(Float.class) || clazz.isAssignableFrom(Boolean.class)
                 || clazz.isAssignableFrom(Byte.class) || clazz.isAssignableFrom(Short.class)
-                || clazz.isAssignableFrom(Character.class);
+                || clazz.isAssignableFrom(Character.class) || clazz.isAssignableFrom(String.class);
     }
 
 
