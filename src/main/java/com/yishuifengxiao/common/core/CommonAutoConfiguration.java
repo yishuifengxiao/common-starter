@@ -4,9 +4,11 @@ import com.yishuifengxiao.common.support.SpringContext;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Priority;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -24,19 +26,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 @Configuration
 @Priority(1)
-public class CommonAutoConfiguration {
+public class CommonAutoConfiguration implements ApplicationContextAware {
 
-    /**
-     * 注入一个spring 上下文工具类
-     *
-     * @param applicationContext spring上下文
-     * @return spring 上下文工具类
-     */
-    @Bean
-    public SpringContext springContext(ApplicationContext applicationContext) {
-        SpringContext springContext = new SpringContext();
+    private SpringContext springContext = new SpringContext();
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         springContext.setApplicationContext(applicationContext);
-        return springContext;
     }
 
     /**
@@ -46,8 +42,8 @@ public class CommonAutoConfiguration {
      *
      * @return 配置完成的 {@link Executor} 实例，用于异步任务执行
      */
-    @Bean("commonThreadPoolExecutor")
-    @ConditionalOnMissingBean(value = {Executor.class}, name = "commonThreadPoolExecutor")
+    @Bean
+    @ConditionalOnMissingBean(value = {Executor.class})
     @ConditionalOnClass(ThreadPoolTaskExecutor.class)
     public Executor syncExecutor() {
 
