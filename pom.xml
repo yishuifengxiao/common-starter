@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>8.1.0</version>
+    <version>8.1.1</version>
     <packaging>jar</packaging>
     <name>common-spring-boot-starter</name>
     <url>http://www.yishuifengxiao.com</url>

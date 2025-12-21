@@ -645,7 +645,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
     }
 
 
-    /**
+        /**
      * 根据SQL查询语句和参数查找指定类型的对象列表
      * <p>命名参数不区分大小写，但建议与传入的 Map 或 JavaBean 属性保持一致</p>
      * <p>SQL 语句中的命名参数必须以冒号（:）开头，例如 :name。</p>
@@ -681,20 +681,25 @@ public class SimpleJdbcHelper implements JdbcHelper {
     @Override
     public <T> List<T> find(Class<T> clazz, String sql, Map<String, Object> params) {
 
+        // 如果参数为空或无内容，则直接调用无参数版本的方法
         if (null == params || params.isEmpty()) {
             return this.find(clazz, sql, (SqlParameterSource) null);
         }
+
         SqlParameterSource paramSource = null;
+
+        // 若设置了时区信息，则对日期时间类型的参数进行时区处理，包括集合中的元素
         if (this.timeZone != null) {
-            // 对参数中的日期时间类型进行时区转换处理，包括集合中的元素
             Map<String, Object> processedParams = processDateTimeParameters(params);
             paramSource = new MapSqlParameterSource(processedParams);
         } else {
             paramSource = new MapSqlParameterSource(params);
         }
 
+        // 调用底层带 SqlParameterSource 参数的查询方法
         return this.find(clazz, sql, paramSource);
     }
+
 
 
     /**
