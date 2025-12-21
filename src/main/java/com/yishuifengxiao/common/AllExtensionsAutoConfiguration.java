@@ -1,7 +1,6 @@
 package com.yishuifengxiao.common;
 
 import com.yishuifengxiao.common.support.PropertyHelper;
-import com.yishuifengxiao.common.support.SpringContext;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +34,6 @@ public class AllExtensionsAutoConfiguration {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @Autowired
-    private SpringContext springContext;
 
     /**
      * 配置检查并设置所有扩展功能
