@@ -26,6 +26,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.sql.SQLException;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -797,7 +798,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
         ZoneId appZone = ZoneId.systemDefault();
         
         // 如果应用时区与数据库时区相同，无需转换
-        if (appZone.equals(this.timeZone)) {
+        if (isSameTimeZone(appZone, this.timeZone)) {
             return convertToJavaSqlTypeNoTimezone(value);
         }
         
@@ -858,6 +859,30 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         // 对于其他类型，直接返回原值
         return value;
+    }
+    
+    /**
+     * 判断两个时区是否实际等效
+     * <p>
+     * 比较同一时刻在两个时区的偏移量是否相同，而不是简单比较ID字符串
+     *
+     * @param zone1 时区1
+     * @param zone2 时区2
+     * @return 如果两个时区在当前时刻的偏移量相同则返回true
+     */
+    private boolean isSameTimeZone(ZoneId zone1, ZoneId zone2) {
+        if (zone1 == null || zone2 == null) {
+            return false;
+        }
+        
+        // 如果ID相同，直接返回true
+        if (zone1.equals(zone2)) {
+            return true;
+        }
+        
+        // 比较同一时刻在两个时区的偏移量
+        Instant now = Instant.now();
+        return zone1.getRules().getOffset(now).equals(zone2.getRules().getOffset(now));
     }
     
     /**

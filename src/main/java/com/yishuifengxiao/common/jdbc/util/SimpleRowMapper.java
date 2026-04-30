@@ -587,8 +587,8 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
      * 转换为LocalDate
      * <p>
      * 【重要】读取转换原则：
-     * 数据库中存储的是数据库时区的日期
-     * 需要考虑时区转换对日期的影响（可能跨天）
+     * LocalDate 表示日期概念（如生日、纪念日），不应随时区变化而变化
+     * 数据库中存储的是日期值，直接返回即可，不进行跨时区转换
      *
      * @param rs         ResultSet对象，用于获取数据库查询结果
      * @param columnName 数据库列名，指定要转换的日期列
@@ -601,22 +601,8 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
             return null;
         }
 
-        // 如果指定了数据库时区，进行时区转换
-        if (databaseZoneId != null) {
-            // 数据库中存储的是数据库时区的日期
-            java.time.LocalDate dbDate = sqlDate.toLocalDate();
-            
-            // 将其解释为数据库时区的起始时刻
-            java.time.ZonedDateTime dbStart = dbDate.atStartOfDay(databaseZoneId);
-            
-            // 转换为应用时区
-            java.time.ZonedDateTime appStart = dbStart.withZoneSameInstant(ZoneId.systemDefault());
-            
-            // 返回应用时区的日期（可能因时区差异而不同）
-            return appStart.toLocalDate();
-        }
-        
-        // 没有配置数据库时区，直接使用默认转换
+        // LocalDate 表示日期概念，不进行跨时区转换
+        // 无论数据库时区如何，直接返回日期值
         return sqlDate.toLocalDate();
     }
 
@@ -625,8 +611,8 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
      * 转换为LocalTime
      * <p>
      * 【重要】读取转换原则：
-     * 数据库中存储的是数据库时区的时间
-     * 需要考虑时区转换对时间的影响
+     * LocalTime 表示时间概念（如营业时间、闹钟时间），不应随时区变化而变化
+     * 数据库中存储的是时间值，直接返回即可，不进行跨时区转换
      *
      * @param rs         ResultSet对象，用于获取时间数据
      * @param columnName 数据库列名，指定要转换的时间列
@@ -639,23 +625,8 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
             return null;
         }
 
-        // 如果指定了数据库时区，进行时区转换
-        if (databaseZoneId != null) {
-            // 数据库中存储的是数据库时区的时间
-            java.time.LocalTime dbTime = sqlTime.toLocalTime();
-            
-            // 将其附加到数据库时区的今天日期（避免日期差异影响时间转换）
-            java.time.LocalDate todayInDbZone = java.time.LocalDate.now(databaseZoneId);
-            java.time.ZonedDateTime dbDateTime = dbTime.atDate(todayInDbZone).atZone(databaseZoneId);
-            
-            // 转换为应用时区
-            java.time.ZonedDateTime appDateTime = dbDateTime.withZoneSameInstant(ZoneId.systemDefault());
-            
-            // 返回应用时区的时间
-            return appDateTime.toLocalTime();
-        }
-        
-        // 没有配置数据库时区，直接使用默认转换
+        // LocalTime 表示时间概念，不进行跨时区转换
+        // 无论数据库时区如何，直接返回值
         return sqlTime.toLocalTime();
     }
 
