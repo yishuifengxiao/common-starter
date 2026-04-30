@@ -33,12 +33,16 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
     /**
      * 基本类型默认值缓存
      */
-    private static final Map<Class<?>, Object> PRIMITIVE_DEFAULTS = Map.of(int.class, 0, long.class, 0L, double.class, 0.0, float.class, 0.0f, boolean.class, false, byte.class, (byte) 0, short.class, (short) 0, char.class, '\0');
+    private static final Map<Class<?>, Object> PRIMITIVE_DEFAULTS = Map.of(int.class, 0, long.class, 0L, double.class
+            , 0.0, float.class, 0.0f, boolean.class, false, byte.class, (byte) 0, short.class, (short) 0, char.class,
+            '\0');
 
     /**
      * 日期时间类型集合
      */
-    private static final Set<Class<?>> DATE_TIME_TYPES = Set.of(Date.class, LocalDateTime.class, LocalDate.class, LocalTime.class, Instant.class, ZonedDateTime.class, OffsetDateTime.class, java.sql.Date.class, java.sql.Time.class, java.sql.Timestamp.class);
+    private static final Set<Class<?>> DATE_TIME_TYPES = Set.of(Date.class, LocalDateTime.class, LocalDate.class,
+            LocalTime.class, Instant.class, ZonedDateTime.class, OffsetDateTime.class, java.sql.Date.class,
+            java.sql.Time.class, java.sql.Timestamp.class);
 
     /**
      * 目标类目标类型
@@ -76,7 +80,7 @@ public class SimpleRowMapper<T> implements RowMapper<T> {
         try {
 
             T instance = targetClass.getDeclaredConstructor().newInstance();
-Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
+            Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
 
             // 优化：预构建列名映射表
             Map<String, FieldMapping> columnToFieldMap = buildColumnToFieldMap(fieldMappings);
@@ -153,9 +157,11 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误时抛出异常
      */
     private String getColumnName(ResultSetMetaData metaData, int columnIndex) throws SQLException {
-        // 优先获取列标签，如果为空则获取列名
         String columnName = metaData.getColumnLabel(columnIndex);
-        return columnName != null ? columnName : metaData.getColumnName(columnIndex);
+        if (columnName == null || columnName.isEmpty()) {
+            columnName = metaData.getColumnName(columnIndex);
+        }
+        return columnName != null ? columnName : "";
     }
 
 
@@ -315,20 +321,21 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误或字段设置失败时抛出
      */
     private void setFieldValue(T instance, FieldMapping mapping, ResultSet rs, String columnName) throws SQLException {
+        if (mapping == null || mapping.field == null) {
+            return;
+        }
+
         try {
-            // 获取列值并设置到对象字段中
             Object value = getColumnValue(rs, columnName, mapping.fieldType, mapping.isPrimitive);
             if (value != null || !mapping.isPrimitive) {
-                // 仅在需要时临时设置可访问性
-                boolean originalAccessible = mapping.isAccessible;
-                if (originalAccessible) {
+                boolean originalAccessible = mapping.field.canAccess(instance);
+                if (!originalAccessible) {
                     mapping.field.setAccessible(true);
                 }
                 try {
                     mapping.field.set(instance, value);
                 } finally {
-                    // 操作完成后恢复原来的访问权限
-                    if (originalAccessible) {
+                    if (!originalAccessible) {
                         mapping.field.setAccessible(false);
                     }
                 }
@@ -336,7 +343,9 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
         } catch (IllegalAccessException e) {
             throw new SQLException("无法设置字段值: " + mapping.fieldName, e);
         } catch (IllegalArgumentException e) {
-            throw new SQLException("字段类型不匹配: " + mapping.fieldName + ", 期望类型: " + mapping.fieldType + ", 实际值: " + getColumnValueForError(rs, columnName), e);
+            throw new SQLException("字段类型不匹配: " + mapping.fieldName + 
+                    ", 期望类型: " + mapping.fieldType + 
+                    ", 实际值: " + getColumnValueForError(rs, columnName), e);
         }
     }
 
@@ -357,7 +366,7 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
         if (rawValue == null || rs.wasNull()) {
             return handleNullValue(targetType, isPrimitive);
         }
-        
+
         // 特殊处理：当数据库字段为tinyint(1)时，某些JDBC驱动会错误地将整数值转换为布尔值
         // 例如：数据库值为4，但rs.getObject()返回true，这会导致数据错误
         if (rawValue instanceof Boolean && isNumericType(targetType)) {
@@ -374,7 +383,7 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
                 log.debug("获取列 {} 的整数值失败，使用原始值: {}", columnName, e.getMessage());
             }
         }
-        
+
         // 特殊处理BLOB类型：如果数据库返回的是byte数组（BLOB），但目标类型是String
         if (rawValue instanceof byte[] && targetType == String.class) {
             try {
@@ -409,13 +418,7 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @return 如果是数值类型返回true，否则返回false
      */
     private boolean isNumericType(Class<?> targetType) {
-        return targetType == Integer.class || targetType == int.class ||
-               targetType == Long.class || targetType == long.class ||
-               targetType == Double.class || targetType == double.class ||
-               targetType == Float.class || targetType == float.class ||
-               targetType == Short.class || targetType == short.class ||
-               targetType == Byte.class || targetType == byte.class ||
-               targetType == BigDecimal.class;
+        return targetType == Integer.class || targetType == int.class || targetType == Long.class || targetType == long.class || targetType == Double.class || targetType == double.class || targetType == Float.class || targetType == float.class || targetType == Short.class || targetType == short.class || targetType == Byte.class || targetType == byte.class || targetType == BigDecimal.class;
     }
 
     /**
@@ -507,6 +510,10 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
 
     /**
      * 转换为java.util.Date
+     * <p>
+     * 【重要】读取转换原则：
+     * 数据库中存储的是数据库时区的本地时间（无时区信息）
+     * 需要将其解释为数据库时区的时间，然后转换为应用时区的时间
      *
      * @param rs         ResultSet对象，用于获取数据库查询结果
      * @param columnName 数据库列名
@@ -514,25 +521,36 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问发生错误时抛出
      */
     private Date convertToUtilDate(ResultSet rs, String columnName) throws SQLException {
-        // 获取指定列的Timestamp值
         Timestamp timestamp = rs.getTimestamp(columnName);
         if (timestamp == null) {
             return null;
         }
 
-        // 如果指定了数据库时区，则进行时区转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = timestamp.toInstant();
-            ZonedDateTime zonedDateTime = instant.atZone(databaseZoneId);
-            return Date.from(zonedDateTime.toInstant());
+            // 数据库中存储的是数据库时区的本地时间
+            // 将其解释为数据库时区的ZonedDateTime
+            java.time.LocalDateTime localDateTime = timestamp.toLocalDateTime();
+            java.time.ZonedDateTime dbTime = localDateTime.atZone(databaseZoneId);
+            
+            // 转换为应用时区（系统默认时区）
+            java.time.ZonedDateTime appTime = dbTime.withZoneSameInstant(ZoneId.systemDefault());
+            
+            // 转换为java.util.Date
+            return Date.from(appTime.toInstant());
         }
-        // 使用默认时区转换Timestamp为Date
+        
+        // 没有配置数据库时区，直接使用默认转换
         return new Date(timestamp.getTime());
     }
 
 
     /**
      * 转换为LocalDateTime
+     * <p>
+     * 【重要】读取转换原则：
+     * 数据库中存储的是数据库时区的本地时间
+     * 需要将其解释为数据库时区的时间，然后转换为应用时区的本地时间
      *
      * @param rs         结果集对象，用于获取时间戳数据
      * @param columnName 数据库列名，指定要转换的时间戳列
@@ -540,25 +558,37 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当访问结果集出现SQL异常时抛出
      */
     private LocalDateTime convertToLocalDateTime(ResultSet rs, String columnName) throws SQLException {
-        // 获取指定列的时间戳值
         Timestamp timestamp = rs.getTimestamp(columnName);
         if (timestamp == null) {
             return null;
         }
 
-        // 如果指定了数据库时区，则使用时区信息进行转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = timestamp.toInstant();
-            ZonedDateTime zonedDateTime = instant.atZone(databaseZoneId);
-            return zonedDateTime.toLocalDateTime();
+            // 数据库中存储的是数据库时区的本地时间
+            java.time.LocalDateTime dbLocalDateTime = timestamp.toLocalDateTime();
+            
+            // 将其解释为数据库时区的ZonedDateTime
+            java.time.ZonedDateTime dbTime = dbLocalDateTime.atZone(databaseZoneId);
+            
+            // 转换为应用时区的ZonedDateTime
+            java.time.ZonedDateTime appTime = dbTime.withZoneSameInstant(ZoneId.systemDefault());
+            
+            // 返回应用时区的本地时间
+            return appTime.toLocalDateTime();
         }
-        // 否则直接转换为LocalDateTime
+        
+        // 没有配置数据库时区，直接使用默认转换
         return timestamp.toLocalDateTime();
     }
 
 
     /**
      * 转换为LocalDate
+     * <p>
+     * 【重要】读取转换原则：
+     * 数据库中存储的是数据库时区的日期
+     * 需要考虑时区转换对日期的影响（可能跨天）
      *
      * @param rs         ResultSet对象，用于获取数据库查询结果
      * @param columnName 数据库列名，指定要转换的日期列
@@ -566,25 +596,37 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误时抛出
      */
     private LocalDate convertToLocalDate(ResultSet rs, String columnName) throws SQLException {
-        // 获取数据库中的日期值
         java.sql.Date sqlDate = rs.getDate(columnName);
         if (sqlDate == null) {
             return null;
         }
 
-        // 如果指定了数据库时区，则使用时区信息进行转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = Instant.ofEpochMilli(sqlDate.getTime());
-            ZonedDateTime zonedDateTime = instant.atZone(databaseZoneId);
-            return zonedDateTime.toLocalDate();
+            // 数据库中存储的是数据库时区的日期
+            java.time.LocalDate dbDate = sqlDate.toLocalDate();
+            
+            // 将其解释为数据库时区的起始时刻
+            java.time.ZonedDateTime dbStart = dbDate.atStartOfDay(databaseZoneId);
+            
+            // 转换为应用时区
+            java.time.ZonedDateTime appStart = dbStart.withZoneSameInstant(ZoneId.systemDefault());
+            
+            // 返回应用时区的日期（可能因时区差异而不同）
+            return appStart.toLocalDate();
         }
-        // 否则直接转换为LocalDate
+        
+        // 没有配置数据库时区，直接使用默认转换
         return sqlDate.toLocalDate();
     }
 
 
     /**
      * 转换为LocalTime
+     * <p>
+     * 【重要】读取转换原则：
+     * 数据库中存储的是数据库时区的时间
+     * 需要考虑时区转换对时间的影响
      *
      * @param rs         ResultSet对象，用于获取时间数据
      * @param columnName 数据库列名，指定要转换的时间列
@@ -592,25 +634,38 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误时抛出
      */
     private LocalTime convertToLocalTime(ResultSet rs, String columnName) throws SQLException {
-        // 获取数据库中的时间值
         Time sqlTime = rs.getTime(columnName);
         if (sqlTime == null) {
             return null;
         }
 
-        // 如果指定了数据库时区，则进行时区转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = Instant.ofEpochMilli(sqlTime.getTime());
-            ZonedDateTime zonedDateTime = instant.atZone(databaseZoneId);
-            return zonedDateTime.toLocalTime();
+            // 数据库中存储的是数据库时区的时间
+            java.time.LocalTime dbTime = sqlTime.toLocalTime();
+            
+            // 将其附加到数据库时区的今天日期（避免日期差异影响时间转换）
+            java.time.LocalDate todayInDbZone = java.time.LocalDate.now(databaseZoneId);
+            java.time.ZonedDateTime dbDateTime = dbTime.atDate(todayInDbZone).atZone(databaseZoneId);
+            
+            // 转换为应用时区
+            java.time.ZonedDateTime appDateTime = dbDateTime.withZoneSameInstant(ZoneId.systemDefault());
+            
+            // 返回应用时区的时间
+            return appDateTime.toLocalTime();
         }
-        // 使用默认时区转换
+        
+        // 没有配置数据库时区，直接使用默认转换
         return sqlTime.toLocalTime();
     }
 
 
     /**
      * 转换为Instant
+     * <p>
+     * 【重要】读取转换原则：
+     * Instant是绝对时间点，与时区无关
+     * 但需要从数据库时区的本地时间正确解析出绝对时间点
      *
      * @param rs         ResultSet对象，用于获取时间戳数据
      * @param columnName 数据库列名，指定要获取的时间戳列
@@ -618,25 +673,34 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当访问数据库结果集出现异常时抛出
      */
     private Instant convertToInstant(ResultSet rs, String columnName) throws SQLException {
-        // 获取指定列的时间戳值
         Timestamp timestamp = rs.getTimestamp(columnName);
         if (timestamp == null) {
             return null;
         }
 
-        // 如果指定了数据库时区，则进行时区转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = timestamp.toInstant();
-            ZonedDateTime zonedDateTime = instant.atZone(databaseZoneId);
-            return zonedDateTime.toInstant();
+            // 数据库中存储的是数据库时区的本地时间
+            java.time.LocalDateTime localDateTime = timestamp.toLocalDateTime();
+            
+            // 将其解释为数据库时区的ZonedDateTime
+            java.time.ZonedDateTime dbTime = localDateTime.atZone(databaseZoneId);
+            
+            // 转换为Instant（绝对时间点）
+            return dbTime.toInstant();
         }
-        // 直接转换为Instant对象
+        
+        // 没有配置数据库时区，直接使用默认转换
         return timestamp.toInstant();
     }
 
 
     /**
      * 转换为ZonedDateTime
+     * <p>
+     * 【重要】读取转换原则：
+     * 数据库中存储的是数据库时区的本地时间
+     * 需要将其解释为数据库时区的时间，然后转换为应用时区的ZonedDateTime
      *
      * @param rs         结果集对象，用于获取时间戳数据
      * @param columnName 数据库列名，指定要获取时间戳的列
@@ -644,23 +708,33 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误时抛出
      */
     private ZonedDateTime convertToZonedDateTime(ResultSet rs, String columnName) throws SQLException {
-        // 获取指定列的时间戳值
         Timestamp timestamp = rs.getTimestamp(columnName);
         if (timestamp == null) {
             return null;
         }
 
-        // 根据配置的数据库时区或系统默认时区进行转换
+        // 如果指定了数据库时区，进行时区转换
         if (databaseZoneId != null) {
-            Instant instant = timestamp.toInstant();
-            return instant.atZone(databaseZoneId);
+            // 数据库中存储的是数据库时区的本地时间
+            java.time.LocalDateTime localDateTime = timestamp.toLocalDateTime();
+            
+            // 将其解释为数据库时区的ZonedDateTime
+            java.time.ZonedDateTime dbTime = localDateTime.atZone(databaseZoneId);
+            
+            // 转换为应用时区的ZonedDateTime
+            return dbTime.withZoneSameInstant(ZoneId.systemDefault());
         }
+        
+        // 没有配置数据库时区，使用系统默认时区
         return timestamp.toInstant().atZone(ZoneId.systemDefault());
     }
 
 
     /**
      * 转换为OffsetDateTime
+     * <p>
+     * 【重要】读取转换原则：
+     * 先转换为ZonedDateTime（应用时区），再转换为OffsetDateTime
      *
      * @param rs         结果集对象，用于获取数据库查询结果
      * @param columnName 列名，指定要转换的数据库列
@@ -668,7 +742,6 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @throws SQLException 当数据库访问错误或列不存在时抛出
      */
     private OffsetDateTime convertToOffsetDateTime(ResultSet rs, String columnName) throws SQLException {
-        // 先转换为ZonedDateTime，再转换为OffsetDateTime
         ZonedDateTime zonedDateTime = convertToZonedDateTime(rs, columnName);
         return zonedDateTime != null ? zonedDateTime.toOffsetDateTime() : null;
     }
@@ -762,7 +835,10 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
      * @return 转换后的数字对象
      */
     private Object convertNumber(Number number, Class<?> targetType, boolean isPrimitive) {
-        // 处理整数类型转换
+        if (number == null || targetType == null) {
+            return handleNullValue(targetType, isPrimitive);
+        }
+
         if (targetType == Integer.class || targetType == int.class) {
             return number.intValue();
         } else if (targetType == Long.class || targetType == long.class) {
@@ -775,7 +851,6 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
             return number.shortValue();
         } else if (targetType == Byte.class || targetType == byte.class) {
             return number.byteValue();
-            // 处理BigDecimal类型转换
         } else if (targetType == BigDecimal.class) {
             if (number instanceof BigDecimal) {
                 return number;
@@ -868,7 +943,7 @@ Map<String, FieldMapping> fieldMappings = getFieldMappings(targetClass);
             return camelCase;
         }
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result = new StringBuilder(camelCase.length() + 5);
         for (int i = 0; i < camelCase.length(); i++) {
             char c = camelCase.charAt(i);
             if (Character.isUpperCase(c)) {

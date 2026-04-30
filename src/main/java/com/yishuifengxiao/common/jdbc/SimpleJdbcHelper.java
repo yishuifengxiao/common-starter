@@ -91,7 +91,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
     @Override
     public <T> Long countAll(T t, boolean likeMode) {
         if (t == null) {
-            return null;
+            return 0L;
         }
 
         try {
@@ -103,7 +103,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
             }
 
             String sql = sqlTranslator.findAll(context.tableName, context.nonNullValues, likeMode, null, null);
-            String countSql = String.format("SELECT COUNT(1) FROM (%s) AS temp_table_1", sql);
+            String countSql = buildCountSql(sql);
             return executeCountQuery(countSql, toArray(context.nonNullValues));
         } catch (Exception e) {
             log.error("{}执行countAll时发生异常", LOG_PREFIX, e);
@@ -704,6 +704,9 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
     /**
      * 对参数中的日期时间类型进行时区转换处理，包括集合中的元素
+     * 
+     * 【重要】此方法仅用于命名参数查询（NamedParameterJdbcTemplate）。
+     * 对于 PreparedStatement 参数，由 SimpleSqlExecutor 统一处理时区转换。
      *
      * @param params 原始参数Map
      * @return 处理后的参数Map
@@ -775,6 +778,8 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
     /**
      * 处理单个日期时间类型的时区转换
+     * 
+     * 【注意】LocalDate 和 LocalTime 不进行跨时区转换，因为它们代表的是日期/时间概念
      *
      * @param value 原始值
      * @return 处理后的值
@@ -783,79 +788,107 @@ public class SimpleJdbcHelper implements JdbcHelper {
         if (value == null) {
             return null;
         }
-        // 如果配置了数据库时区，进行时区转换
-        if (this.timeZone != null) {
+        
+        // 如果没有配置数据库时区，直接转换为 java.sql 类型
+        if (this.timeZone == null) {
+            return convertToJavaSqlTypeNoTimezone(value);
+        }
+        
+        ZoneId appZone = ZoneId.systemDefault();
+        
+        // 如果应用时区与数据库时区相同，无需转换
+        if (appZone.equals(this.timeZone)) {
+            return convertToJavaSqlTypeNoTimezone(value);
+        }
+        
+        try {
             if (value instanceof java.util.Date) {
                 // java.util.Date 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.util.Date date = (java.util.Date) value;
-                java.time.LocalDateTime localDateTime = date.toInstant().atZone(this.timeZone).toLocalDateTime();
-                return java.sql.Timestamp.valueOf(localDateTime);
+                java.time.Instant instant = date.toInstant();
+                java.time.ZonedDateTime appTime = instant.atZone(appZone);
+                java.time.ZonedDateTime dbTime = appTime.withZoneSameInstant(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             } else if (value instanceof java.time.LocalDateTime) {
-                // LocalDateTime 转换为 java.sql.Timestamp
+                // LocalDateTime 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.LocalDateTime localDateTime = (java.time.LocalDateTime) value;
-                return java.sql.Timestamp.valueOf(localDateTime);
+                java.time.ZonedDateTime appTime = localDateTime.atZone(appZone);
+                java.time.ZonedDateTime dbTime = appTime.withZoneSameInstant(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             } else if (value instanceof java.time.ZonedDateTime) {
                 // ZonedDateTime 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.ZonedDateTime zonedDateTime = (java.time.ZonedDateTime) value;
-                java.time.LocalDateTime localDateTime = zonedDateTime.withZoneSameInstant(this.timeZone).toLocalDateTime();
-                return java.sql.Timestamp.valueOf(localDateTime);
+                java.time.ZonedDateTime dbTime = zonedDateTime.withZoneSameInstant(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             } else if (value instanceof java.time.OffsetDateTime) {
                 // OffsetDateTime 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.OffsetDateTime offsetDateTime = (java.time.OffsetDateTime) value;
-                java.time.LocalDateTime localDateTime = offsetDateTime.atZoneSameInstant(this.timeZone).toLocalDateTime();
-                return java.sql.Timestamp.valueOf(localDateTime);
+                java.time.ZonedDateTime dbTime = offsetDateTime.atZoneSameInstant(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             } else if (value instanceof java.time.Instant) {
                 // Instant 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
                 java.time.Instant instant = (java.time.Instant) value;
-                java.time.LocalDateTime localDateTime = instant.atZone(this.timeZone).toLocalDateTime();
-                return java.sql.Timestamp.valueOf(localDateTime);
+                java.time.ZonedDateTime dbTime = instant.atZone(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             } else if (value instanceof java.time.LocalDate) {
-                // LocalDate 转换为数据库时区的 LocalDate，然后转换为 java.sql.Date
+                // LocalDate 表示日期概念，不进行跨时区转换
                 java.time.LocalDate localDate = (java.time.LocalDate) value;
-                java.time.LocalDate convertedDate = localDate.atStartOfDay(this.timeZone).toLocalDate();
-                return java.sql.Date.valueOf(convertedDate);
+                return java.sql.Date.valueOf(localDate);
             } else if (value instanceof java.time.LocalTime) {
-                // LocalTime 转换为数据库时区的 LocalTime，然后转换为 java.sql.Time
+                // LocalTime 表示时间概念，不进行跨时区转换
                 java.time.LocalTime localTime = (java.time.LocalTime) value;
-                java.time.LocalTime convertedTime = localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
-                return java.sql.Time.valueOf(convertedTime);
+                return java.sql.Time.valueOf(localTime);
             } else if (value instanceof java.sql.Date) {
-                // java.sql.Date 转换为数据库时区的 LocalDate，然后转换为 java.sql.Date
-                java.sql.Date sqlDate = (java.sql.Date) value;
-                java.time.LocalDate localDate = sqlDate.toLocalDate();
-                java.time.LocalDate convertedDate = localDate.atStartOfDay(this.timeZone).toLocalDate();
-                return java.sql.Date.valueOf(convertedDate);
+                // java.sql.Date 已经是日期类型，不进行时区转换
+                return value;
             } else if (value instanceof java.sql.Time) {
-                // java.sql.Time 转换为数据库时区的 LocalTime，然后转换为 java.sql.Time
-                java.sql.Time sqlTime = (java.sql.Time) value;
-                java.time.LocalTime localTime = sqlTime.toLocalTime();
-                java.time.LocalTime convertedTime = localTime.atDate(java.time.LocalDate.now()).atZone(this.timeZone).toLocalTime();
-                return java.sql.Time.valueOf(convertedTime);
+                // java.sql.Time 已经是时间类型，不进行时区转换
+                return value;
             } else if (value instanceof java.sql.Timestamp) {
-                // java.sql.Timestamp 转换为数据库时区的 LocalDateTime，然后转换为 java.sql.Timestamp
+                // java.sql.Timestamp 需要进行时区转换
                 java.sql.Timestamp timestamp = (java.sql.Timestamp) value;
                 java.time.LocalDateTime localDateTime = timestamp.toLocalDateTime();
-                java.time.LocalDateTime convertedDateTime = localDateTime.atZone(this.timeZone).toLocalDateTime();
-                return java.sql.Timestamp.valueOf(convertedDateTime);
+                java.time.ZonedDateTime appTime = localDateTime.atZone(appZone);
+                java.time.ZonedDateTime dbTime = appTime.withZoneSameInstant(this.timeZone);
+                return java.sql.Timestamp.valueOf(dbTime.toLocalDateTime());
             }
+        } catch (Exception e) {
+            log.warn("{}日期时间转换失败，使用原始值: {}", LOG_PREFIX, e.getMessage());
         }
 
-        // 如果没有配置时区或不是日期时间类型，直接返回原值
-        // 对于已经是 java.sql.* 类型的值，直接返回
-        if (value instanceof java.sql.Date || value instanceof java.sql.Time || value instanceof java.sql.Timestamp) {
-            return value;
+        // 对于其他类型，直接返回原值
+        return value;
+    }
+    
+    /**
+     * 将 Java 8 时间类型转换为 java.sql 类型（无时区转换）
+     * 
+     * @param value 原始值
+     * @return 转换后的 java.sql 类型值
+     */
+    private Object convertToJavaSqlTypeNoTimezone(Object value) {
+        if (value == null) {
+            return null;
         }
-
-        // 对于 Java 8 时间 API 类型，转换为对应的 java.sql.* 类型
+        
         if (value instanceof java.time.LocalDateTime) {
             return java.sql.Timestamp.valueOf((java.time.LocalDateTime) value);
         } else if (value instanceof java.time.LocalDate) {
             return java.sql.Date.valueOf((java.time.LocalDate) value);
         } else if (value instanceof java.time.LocalTime) {
             return java.sql.Time.valueOf((java.time.LocalTime) value);
+        } else if (value instanceof java.time.ZonedDateTime) {
+            java.time.ZonedDateTime zonedDateTime = (java.time.ZonedDateTime) value;
+            return java.sql.Timestamp.valueOf(zonedDateTime.toLocalDateTime());
+        } else if (value instanceof java.time.OffsetDateTime) {
+            java.time.OffsetDateTime offsetDateTime = (java.time.OffsetDateTime) value;
+            return java.sql.Timestamp.valueOf(offsetDateTime.toLocalDateTime());
+        } else if (value instanceof java.time.Instant) {
+            return java.sql.Timestamp.from((java.time.Instant) value);
+        } else if (value instanceof java.util.Date) {
+            return new java.sql.Timestamp(((java.util.Date) value).getTime());
         }
-
-        // 对于其他类型，直接返回原值
+        
         return value;
     }
 
@@ -1007,46 +1040,45 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * @return 总数查询SQL
      */
     private String buildCountSql(String sql) {
-        // 移除SQL末尾的分号（如果有）
-        String cleanSql = sql.trim();
-        if (cleanSql.endsWith(";")) {
-            cleanSql = cleanSql.substring(0, cleanSql.length() - 1);
+        if (sql == null || sql.trim().isEmpty()) {
+            return "SELECT COUNT(1)";
         }
 
-        // 检查SQL是否包含ORDER BY子句（大小写不敏感），如果有则移除
+        String cleanSql = sql.trim();
+        if (cleanSql.endsWith(";")) {
+            cleanSql = cleanSql.substring(0, cleanSql.length() - 1).trim();
+        }
+
         Pattern orderByPattern = Pattern.compile("\\bORDER\\s+BY\\b", Pattern.CASE_INSENSITIVE);
         Matcher orderByMatcher = orderByPattern.matcher(cleanSql);
         if (orderByMatcher.find()) {
             cleanSql = cleanSql.substring(0, orderByMatcher.start()).trim();
         }
 
-        // 检查是否为SELECT查询（大小写不敏感）
         Pattern selectPattern = Pattern.compile("^\\s*SELECT\\b", Pattern.CASE_INSENSITIVE);
         if (!selectPattern.matcher(cleanSql).find()) {
             log.warn("{}非SELECT查询，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
             return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
         }
 
-        // 使用正则表达式查找第一个FROM关键字（大小写不敏感）
-        // 避免匹配查询条件中的FROM（如：where column like '%from%'）
+        if (isComplexQueryForCount(cleanSql)) {
+            log.debug("{}检测到复杂查询，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
+            return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
+        }
+
         Pattern fromPattern = Pattern.compile("\\bFROM\\b", Pattern.CASE_INSENSITIVE);
         Matcher fromMatcher = fromPattern.matcher(cleanSql);
 
-        // 查找第一个有效的FROM位置（在SELECT之后）
         int fromIndex = -1;
         while (fromMatcher.find()) {
             int currentFromIndex = fromMatcher.start();
-
-            // 检查这个FROM是否在SELECT之后
             Matcher selectMatcher = selectPattern.matcher(cleanSql);
 
             if (selectMatcher.find() && currentFromIndex > selectMatcher.end()) {
-                // 检查FROM前面是否有单引号或双引号（排除字符串中的FROM）
                 String beforeFrom = cleanSql.substring(0, currentFromIndex);
                 int singleQuoteCount = countOccurrences(beforeFrom, "'");
                 int doubleQuoteCount = countOccurrences(beforeFrom, "\"");
 
-                // 如果引号数量为偶数，说明FROM不在字符串中
                 if (singleQuoteCount % 2 == 0 && doubleQuoteCount % 2 == 0) {
                     fromIndex = currentFromIndex;
                     break;
@@ -1059,16 +1091,7 @@ public class SimpleJdbcHelper implements JdbcHelper {
             return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
         }
 
-        // 检查是否为复杂查询（包含子查询、JOIN等）
-        if (isComplexQueryForCount(cleanSql)) {
-            log.debug("{}检测到复杂查询，使用默认COUNT查询: {}", LOG_PREFIX, cleanSql);
-            return String.format("SELECT COUNT(1) FROM (%s) AS temp_count_table", cleanSql);
-        }
-
-        // 提取FROM之后的内容（保持原始大小写）
         String fromClause = cleanSql.substring(fromIndex);
-
-        // 构建COUNT查询：SELECT COUNT(1) + FROM之后的内容
         String countSql = "SELECT COUNT(1) " + fromClause;
 
         log.debug("{}优化COUNT查询: {} -> {}", LOG_PREFIX, cleanSql, countSql);
@@ -1080,7 +1103,10 @@ public class SimpleJdbcHelper implements JdbcHelper {
      * 使用大小写不敏感的正则表达式
      */
     private boolean isComplexQueryForCount(String sql) {
-        // 检查是否包含复杂结构（大小写不敏感）
+        if (sql == null || sql.isEmpty()) {
+            return true;
+        }
+
         Pattern complexPattern = Pattern.compile(
                 "\\b(JOIN|UNION|GROUP\\s+BY|DISTINCT|HAVING)\\b",
                 Pattern.CASE_INSENSITIVE
@@ -1088,15 +1114,13 @@ public class SimpleJdbcHelper implements JdbcHelper {
 
         boolean hasComplexStructure = complexPattern.matcher(sql).find();
 
-        // 检查是否包含子查询模式（多个SELECT）
         Pattern subqueryPattern = Pattern.compile(
                 "\\bSELECT\\b.*\\bSELECT\\b",
-                Pattern.CASE_INSENSITIVE
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL
         );
 
         boolean hasSubquery = subqueryPattern.matcher(sql).find();
 
-        // 检查是否包含括号内的SELECT（子查询）
         Pattern parenSelectPattern = Pattern.compile(
                 "\\(\\s*SELECT\\b",
                 Pattern.CASE_INSENSITIVE

@@ -180,28 +180,26 @@ public class ZoneIdDetector {
             return "SYSTEM";
         }
 
-        // 检查是否已经是有效的时区格式
-        if (isValidTimezoneFormat(timezone)) {
-            return timezone;
+        String trimmed = timezone.trim();
+        if (isValidTimezoneFormat(trimmed)) {
+            return trimmed;
         }
 
-        // 尝试常见的字符编码转换
         String[] encodings = {"UTF-8", "ISO-8859-1", "GBK", "GB2312", "Windows-1252"};
 
         for (String encoding : encodings) {
             try {
-                // 尝试将字符串从指定编码转换为UTF-8
-                String fixedTimezone = new String(timezone.getBytes(encoding), "UTF-8");
+                byte[] bytes = timezone.getBytes(encoding);
+                String fixedTimezone = new String(bytes, UTF_8);
                 if (isValidTimezoneFormat(fixedTimezone)) {
                     log.debug("成功修复时区编码: 从 {} 编码转换为有效时区: {}", encoding, fixedTimezone);
                     return fixedTimezone;
                 }
             } catch (Exception e) {
-                // 忽略编码转换失败，继续尝试其他编码
+                log.trace("编码 {} 转换失败", encoding);
             }
         }
 
-        // 如果所有编码转换都失败，尝试基于常见系统时区进行推断
         String inferredTimezone = inferSystemTimezone(timezone);
         if (inferredTimezone != null) {
             log.trace("基于乱码字符串推断时区: {} -> {}", timezone, inferredTimezone);
@@ -291,9 +289,16 @@ public class ZoneIdDetector {
      * @return 如果可能包含中文时区信息返回true
      */
     private boolean containsChineseTimezonePattern(byte[] bytes) {
-        // 检查是否包含常见的中文字符编码模式
-        // 这里可以添加更复杂的模式识别逻辑
-        return bytes.length >= 4; // 简化逻辑，实际应该更复杂
+        if (bytes == null || bytes.length < 2) {
+            return false;
+        }
+        
+        for (byte b : bytes) {
+            if (b < 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -405,24 +410,23 @@ public class ZoneIdDetector {
      * @return 解析成功的ZoneId对象，如果解析失败则返回系统默认时区
      */
     private ZoneId parseTimezone(String timezone) {
-        // 如果时区字符串不为空，则尝试解析时区
-        if (timezone != null && !timezone.trim().isEmpty()) {
-            String trimmedTimezone = timezone.trim();
-
-            // 特殊处理SYSTEM情况：当数据库返回SYSTEM时，使用系统默认时区
-            if ("SYSTEM".equalsIgnoreCase(trimmedTimezone)) {
-                log.debug("数据库时区设置为SYSTEM，使用系统默认时区: {}", ZoneId.systemDefault());
-                return null;
-            }
-
-            try {
-                return ZoneId.of(trimmedTimezone);
-            } catch (DateTimeException e) {
-                log.debug("无法解析时区字符串: {}, 使用系统默认时区", trimmedTimezone);
-            }
+        if (timezone == null || timezone.trim().isEmpty()) {
+            return null;
         }
-        // 返回系统默认时区
-        return null;
+
+        String trimmedTimezone = timezone.trim();
+
+        if ("SYSTEM".equalsIgnoreCase(trimmedTimezone)) {
+            log.debug("数据库时区设置为SYSTEM，使用系统默认时区: {}", ZoneId.systemDefault());
+            return null;
+        }
+
+        try {
+            return ZoneId.of(trimmedTimezone);
+        } catch (DateTimeException e) {
+            log.debug("无法解析时区字符串: {}, 使用系统默认时区", trimmedTimezone);
+            return null;
+        }
     }
 
     /**

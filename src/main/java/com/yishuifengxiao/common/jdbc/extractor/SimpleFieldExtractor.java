@@ -68,21 +68,17 @@ public class SimpleFieldExtractor implements FieldExtractor {
             return Collections.emptyList();
         }
 
-        List<FieldValue> fields;
-        synchronized (this) {
-            fields = this.extractFiled(t.getClass());
-        }
+        Class<?> clazz = t.getClass();
+        List<FieldValue> fieldDefinitions = extractFiled(clazz);
 
-        return fields.stream().map(field -> {
-            String fieldName = field.getField().getName();
+        return fieldDefinitions.stream().map(fieldDef -> {
+            String fieldName = fieldDef.getField().getName();
             try {
                 Object value = ClassUtil.extractValue(t, fieldName);
-                // 创建新的FieldValue实例，而不是修改原实例
-                return new FieldValue(field.getField(), field.isPrimary(), value);
+                return new FieldValue(fieldDef.getField(), fieldDef.isPrimary(), value);
             } catch (Exception e) {
-                log.warn("Failed to extract field: {}, error: {}", fieldName, e.getMessage(), e);
-                // 创建新的FieldValue实例，保留原始值
-                return new FieldValue(field.getField(), field.isPrimary(), field.getValue());
+                log.warn("Failed to extract field: {}, error: {}", fieldName, e.getMessage());
+                return new FieldValue(fieldDef.getField(), fieldDef.isPrimary(), fieldDef.getValue());
             }
         }).collect(Collectors.toList());
     }
@@ -117,7 +113,16 @@ public class SimpleFieldExtractor implements FieldExtractor {
         return FIELDS_MAP.computeIfAbsent(clazz.getName(), key -> {
             try {
                 List<Field> fields = ClassUtil.fields(clazz, true);
-                return fields.stream().filter(field -> !Modifier.isStatic(field.getModifiers())).filter(field -> !Modifier.isFinal(field.getModifiers())).filter(field -> !Modifier.isNative(field.getModifiers())).filter(field -> !Modifier.isAbstract(field.getModifiers())).filter(field -> !field.getType().isInterface()).filter(field -> !Modifier.isTransient(field.getModifiers())).filter(field -> field.getAnnotation(Transient.class) == null).map(field -> new FieldValue(field, FieldUtils.isPrimary(field))).collect(Collectors.toList());
+                return fields.stream()
+                        .filter(field -> !Modifier.isStatic(field.getModifiers()))
+                        .filter(field -> !Modifier.isFinal(field.getModifiers()))
+                        .filter(field -> !Modifier.isNative(field.getModifiers()))
+                        .filter(field -> !Modifier.isAbstract(field.getModifiers()))
+                        .filter(field -> !field.getType().isInterface())
+                        .filter(field -> !Modifier.isTransient(field.getModifiers()))
+                        .filter(field -> field.getAnnotation(Transient.class) == null)
+                        .map(field -> new FieldValue(field, FieldUtils.isPrimary(field)))
+                        .collect(Collectors.toList());
             } catch (Exception e) {
                 throw new RuntimeException("Failed to extract fields from class: " + clazz.getName(), e);
             }

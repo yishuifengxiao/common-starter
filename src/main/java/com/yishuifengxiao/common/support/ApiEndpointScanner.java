@@ -27,8 +27,13 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ApiEndpointScanner {
 
+    private static final Set<String> DEFAULT_HTTP_METHODS = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"
+    )));
+
     private final ApplicationContext applicationContext;
     private volatile List<ApiInfo> cachedApiInfoList = null;
+    private final Object cacheLock = new Object();
 
     /**
      * 构造一个API端点扫描器实例
@@ -54,47 +59,132 @@ public class ApiEndpointScanner {
             return cachedApiInfoList;
         }
 
-        final List<ApiInfo> apiInfoList = new ArrayList<>();
+        synchronized (cacheLock) {
+            if (cachedApiInfoList != null) {
+                return cachedApiInfoList;
+            }
+
+            List<ApiInfo> apiInfoList = doScanApiEndpoints();
+            List<ApiInfo> result = apiInfoList.stream()
+                    .sorted(Comparator.comparing(ApiInfo::getClassName))
+                    .collect(Collectors.toList());
+            cachedApiInfoList = result;
+            return result;
+        }
+    }
+
+    /**
+     * 执行实际的API端点扫描逻辑
+     *
+     * @return 扫描到的API信息列表
+     */
+    private List<ApiInfo> doScanApiEndpoints() {
+        List<ApiInfo> apiInfoList = new ArrayList<>();
 
         try {
             RequestMappingHandlerMapping mapping = applicationContext.getBean(RequestMappingHandlerMapping.class);
             Map<RequestMappingInfo, HandlerMethod> handlerMethods = mapping.getHandlerMethods();
-            handlerMethods.forEach((requestMappingInfo, handlerMethod) -> {
-                Class<?> controllerClass = handlerMethod.getBeanType();
-                Method method = handlerMethod.getMethod();
-                ApiInfo apiInfo = new ApiInfo();
-                apiInfo.setClassName(controllerClass.getName());
-                apiInfo.setMethodName(method.getName());
-                Set<String> paths = requestMappingInfo.getPatternValues().stream().collect(Collectors.toSet());
-                if (paths.isEmpty()) {
-                    paths = requestMappingInfo.getDirectPaths().stream().collect(Collectors.toSet());
+            
+            for (Map.Entry<RequestMappingInfo, HandlerMethod> entry : handlerMethods.entrySet()) {
+                RequestMappingInfo requestMappingInfo = entry.getKey();
+                HandlerMethod handlerMethod = entry.getValue();
+                
+                ApiInfo apiInfo = buildApiInfo(requestMappingInfo, handlerMethod);
+                if (apiInfo != null) {
+                    apiInfoList.add(apiInfo);
                 }
-                apiInfo.setPath(paths);
-                Set<String> httpMethods = requestMappingInfo.getMethodsCondition().getMethods().stream().map(Enum::name).collect(Collectors.toSet());
-                if (httpMethods.isEmpty()) {
-                    httpMethods = Set.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD");
-                }
-                apiInfo.setHttpMethods(httpMethods);
-                ApiModule apiModule = AnnotationUtils.findAnnotation(controllerClass, ApiModule.class);
-                if (apiModule != null) {
-                    apiInfo.setModuleName(apiModule.value());
-                    apiInfo.setModuleDescription(apiModule.description());
-                }
-                ApiMethod apiMethod = AnnotationUtils.findAnnotation(method, ApiMethod.class);
-                if (null != apiMethod) {
-                    apiInfo.setMethodPermission(apiMethod.permission());
-                    apiInfo.setMethodValue(apiMethod.value());
-                    apiInfo.setMethodDescription(apiMethod.description());
-                }
-                apiInfoList.add(apiInfo);
-            });
+            }
 
         } catch (Exception e) {
             log.error("扫描API端点时发生错误", e);
         }
-        List<ApiInfo> result = apiInfoList.stream().sorted(Comparator.comparing(ApiInfo::getClassName)).collect(Collectors.toList());
-        cachedApiInfoList = result;
-        return result;
+        
+        return apiInfoList;
+    }
+
+    /**
+     * 构建单个API信息对象
+     *
+     * @param requestMappingInfo 请求映射信息
+     * @param handlerMethod      处理器方法
+     * @return API信息对象，如果构建失败则返回null
+     */
+    private ApiInfo buildApiInfo(RequestMappingInfo requestMappingInfo, HandlerMethod handlerMethod) {
+        try {
+            Class<?> controllerClass = handlerMethod.getBeanType();
+            Method method = handlerMethod.getMethod();
+            
+            if (method == null) {
+                return null;
+            }
+
+            ApiInfo apiInfo = new ApiInfo();
+            apiInfo.setClassName(controllerClass.getName());
+            apiInfo.setMethodName(method.getName());
+
+            // 设置路径
+            Set<String> paths = extractPaths(requestMappingInfo);
+            apiInfo.setPath(paths);
+
+            // 设置HTTP方法
+            Set<String> httpMethods = extractHttpMethods(requestMappingInfo);
+            apiInfo.setHttpMethods(httpMethods);
+
+            // 设置模块注解信息
+            ApiModule apiModule = AnnotationUtils.findAnnotation(controllerClass, ApiModule.class);
+            if (apiModule != null) {
+                apiInfo.setModuleName(apiModule.value());
+                apiInfo.setModuleDescription(apiModule.description());
+            }
+
+            // 设置方法注解信息
+            ApiMethod apiMethod = AnnotationUtils.findAnnotation(method, ApiMethod.class);
+            if (apiMethod != null) {
+                apiInfo.setMethodPermission(apiMethod.permission());
+                apiInfo.setMethodValue(apiMethod.value());
+                apiInfo.setMethodDescription(apiMethod.description());
+            }
+
+            return apiInfo;
+        } catch (Exception e) {
+            log.warn("构建API信息时发生错误，跳过该端点", e);
+            return null;
+        }
+    }
+
+    /**
+     * 提取请求路径
+     *
+     * @param requestMappingInfo 请求映射信息
+     * @return 路径集合
+     */
+    private Set<String> extractPaths(RequestMappingInfo requestMappingInfo) {
+        Set<String> paths = requestMappingInfo.getPatternValues();
+        if (paths == null || paths.isEmpty()) {
+            paths = requestMappingInfo.getDirectPaths();
+        }
+        if (paths == null) {
+            paths = Collections.emptySet();
+        }
+        return paths.stream().collect(Collectors.toSet());
+    }
+
+    /**
+     * 提取HTTP方法
+     *
+     * @param requestMappingInfo 请求映射信息
+     * @return HTTP方法集合
+     */
+    private Set<String> extractHttpMethods(RequestMappingInfo requestMappingInfo) {
+        Set<String> httpMethods = requestMappingInfo.getMethodsCondition().getMethods()
+                .stream()
+                .map(Enum::name)
+                .collect(Collectors.toSet());
+        
+        if (httpMethods.isEmpty()) {
+            return DEFAULT_HTTP_METHODS;
+        }
+        return httpMethods;
     }
 
 }

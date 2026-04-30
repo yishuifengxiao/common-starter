@@ -48,16 +48,17 @@ public class FieldUtils {
      * @return 如果是基本数据类型或其包装类则返回true，否则返回false
      */
     public static <T> boolean isBasicResult(Class<T> clazz) {
+        if (clazz == null) {
+            return false;
+        }
+        
         String name = clazz.getName();
-        // 检查是否为基本数据类型或常见的包装类
         return clazz.isPrimitive() ||
-                StringUtils.startsWithIgnoreCase(name, "java") ||
-                StringUtils.startsWithIgnoreCase(name, "javax") ||
-                StringUtils.startsWithIgnoreCase(name, "sun") ||
-                StringUtils.startsWithIgnoreCase(name, "com.sun.crypto.provider") ||
-                StringUtils.startsWithIgnoreCase(name, "com.sun.crypto.provider") ||
-                StringUtils.startsWithIgnoreCase(name, "jdk")
-                ;
+                name.startsWith("java.") ||
+                name.startsWith("javax.") ||
+                name.startsWith("sun.") ||
+                name.startsWith("com.sun.") ||
+                name.startsWith("jdk.");
     }
 
     public static void main(String[] args) {

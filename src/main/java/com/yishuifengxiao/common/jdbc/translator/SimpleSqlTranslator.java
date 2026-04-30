@@ -26,17 +26,19 @@ public class SimpleSqlTranslator implements SqlTranslator {
      * @return 插入数据的sql语句
      */
     public String insert(String table, List<FieldValue> fieldValues) {
+        if (table == null || table.trim().isEmpty()) {
+            throw new IllegalArgumentException("表名不能为空");
+        }
+        if (fieldValues == null || fieldValues.isEmpty()) {
+            throw new IllegalArgumentException("字段值列表不能为空");
+        }
 
-        // 过滤出需要插入的字段值
-        List<FieldValue> insertValues = fieldValues.stream().filter(fieldValue -> fieldValue != null)
-                // 排除主键自增的情况：如果主键字段值为null或空，则认为是自增主键，不插入
+        List<FieldValue> insertValues = fieldValues.stream()
+                .filter(fieldValue -> fieldValue != null)
                 .filter(fieldValue -> {
                     if (fieldValue.isPrimary()) {
-                        // 主键字段：如果值为null或空，则认为是自增主键，不插入
-                        // 如果主键字段有值，则正常插入（适用于手动指定主键值的情况）
                         return fieldValue.isNotNullVal();
                     }
-                    // 非主键字段：正常插入
                     return true;
                 }).collect(Collectors.toList());
 
@@ -45,14 +47,17 @@ public class SimpleSqlTranslator implements SqlTranslator {
         }
 
         StringBuilder sql = new StringBuilder("INSERT INTO ");
-        sql.append("`").append(table).append("` (`");
+        sql.append("`").append(escapeTableName(table)).append("` (`");
 
-        // 构建字段名部分
-        String fieldNames = insertValues.stream().map(FieldValue::getColumnName).collect(Collectors.joining("`,`"));
+        String fieldNames = insertValues.stream()
+                .map(FieldValue::getColumnName)
+                .map(this::escapeColumnName)
+                .collect(Collectors.joining("`,`"));
         sql.append(fieldNames).append("`) VALUES (");
 
-        // 构建占位符部分
-        String placeholders = insertValues.stream().map(fieldValue -> "?").collect(Collectors.joining(", "));
+        String placeholders = insertValues.stream()
+                .map(fieldValue -> "?")
+                .collect(Collectors.joining(", "));
         sql.append(placeholders).append(")");
 
         return sql.toString();
@@ -68,21 +73,31 @@ public class SimpleSqlTranslator implements SqlTranslator {
      * @return 更新数据的sql
      */
     public String updateByPrimaryKey(String table, FieldValue primaryKey, List<FieldValue> fieldValues) {
+        if (table == null || table.trim().isEmpty()) {
+            throw new IllegalArgumentException("表名不能为空");
+        }
+        if (primaryKey == null) {
+            throw new IllegalArgumentException("主键不能为空");
+        }
 
-        List<FieldValue> nonNullValues = fieldValues.stream().filter(fieldValue -> fieldValue != null)
-                // 排除主键字段
-                .filter(fieldValue -> !fieldValue.isPrimary()).collect(Collectors.toList());
+        List<FieldValue> nonNullValues = fieldValues.stream()
+                .filter(fieldValue -> fieldValue != null)
+                .filter(fieldValue -> !fieldValue.isPrimary())
+                .collect(Collectors.toList());
 
+        if (nonNullValues.isEmpty()) {
+            throw new IllegalArgumentException("至少需要一个非主键字段用于更新");
+        }
 
         StringBuilder sql = new StringBuilder("UPDATE ");
-        sql.append("`").append(table).append("` SET ");
+        sql.append("`").append(escapeTableName(table)).append("` SET ");
 
-        // 构建SET部分
-        String setClause = nonNullValues.stream().map(fieldValue -> "`" + fieldValue.getColumnName() + "` = ?").collect(Collectors.joining(", "));
+        String setClause = nonNullValues.stream()
+                .map(fieldValue -> "`" + escapeColumnName(fieldValue.getColumnName()) + "` = ?")
+                .collect(Collectors.joining(", "));
         sql.append(setClause);
 
-        // 构建WHERE条件
-        sql.append(" WHERE ").append("`" + primaryKey.getColumnName() + "` = ?");
+        sql.append(" WHERE ").append("`").append(escapeColumnName(primaryKey.getColumnName())).append("` = ?");
 
         return sql.toString();
     }
@@ -105,18 +120,45 @@ public class SimpleSqlTranslator implements SqlTranslator {
         }
 
         StringBuilder sql = new StringBuilder("DELETE FROM ");
-        sql.append("`").append(table).append("` WHERE ").append("`" + primaryKey + "`");
+        sql.append("`").append(escapeTableName(table)).append("` WHERE ")
+           .append("`").append(escapeColumnName(primaryKey)).append("`");
 
         if (values.size() == 1) {
-            // 单个值使用等值匹配
             sql.append(" = ?");
         } else {
-            // 多个值使用IN匹配
-            String placeholders = values.stream().map(value -> "?").collect(Collectors.joining(", "));
+            String placeholders = values.stream()
+                    .map(value -> "?")
+                    .collect(Collectors.joining(", "));
             sql.append(" IN (").append(placeholders).append(")");
         }
 
         return sql.toString();
+    }
+
+    /**
+     * 转义表名，防止SQL注入
+     *
+     * @param tableName 原始表名
+     * @return 转义后的表名
+     */
+    private String escapeTableName(String tableName) {
+        if (tableName == null) {
+            return "";
+        }
+        return tableName.replaceAll("[^a-zA-Z0-9_\\-\\.]", "");
+    }
+
+    /**
+     * 转义列名，防止SQL注入
+     *
+     * @param columnName 原始列名
+     * @return 转义后的列名
+     */
+    private String escapeColumnName(String columnName) {
+        if (columnName == null) {
+            return "";
+        }
+        return columnName.replaceAll("[^a-zA-Z0-9_\\-]", "");
     }
 
     /**

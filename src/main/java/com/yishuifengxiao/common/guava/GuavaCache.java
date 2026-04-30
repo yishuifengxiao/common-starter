@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
 
 /**
@@ -14,7 +13,7 @@ import java.util.function.Supplier;
  * 基于guva实现的定时缓存
  * </p>
  * <p>
- * 该缓存最大能容纳1000组数据，在达到最大数据容量之后，加入某组数据超过10h没有被使用过，该数据会被释放掉，不再被存储
+ * 该缓存最大能容纳1000组数据，在达到最大数据容量之后，加入某组数据超过24h没有被使用过，该数据会被释放掉，不再被存储
  * </p>
  *
  * @author yishui
@@ -23,39 +22,36 @@ import java.util.function.Supplier;
  */
 public class GuavaCache {
 
-    private final static ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
     private static final Cache<String, Object> GUAVA_CACHE =
             CacheBuilder.newBuilder().maximumSize(1000).expireAfterAccess(24, TimeUnit.HOURS).build();
 
 
     /**
      * <p>从缓存中根据key获取一个指定数据</p>
-     * <p>当缓存中不存在该key对应的值是否则调用Supplier函数获取结果，并将结果放入到缓存中，然后输出该结果</p>
+     * <p>当缓存中不存在key对应的值是否则调用Supplier函数获取结果，并将结果放入到缓存中，然后输出该结果</p>
      *
      * @param key      缓存的key
      * @param supplier 若缓存的key对应的数据不存在，则调用此函数获取结果并输出
      * @param <V>      数据类型
      * @return 获取的结果
      */
+    @SuppressWarnings("unchecked")
     public static <V> V get(String key, Supplier<V> supplier) {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-        Object val = get(key);
+        Object val = GUAVA_CACHE.getIfPresent(key.trim());
         if (null != val) {
             return (V) val;
         }
         if (null == supplier) {
             return null;
         }
-        if (val == null) {
-            val = supplier.get();
-            if (null != val) {
-                put(key, val);
-            }
+        V result = supplier.get();
+        if (null != result) {
+            GUAVA_CACHE.put(key.trim(), result);
         }
-        return (V) val;
+        return result;
     }
 
     /**
@@ -81,7 +77,7 @@ public class GuavaCache {
         if (null == value) {
             return;
         }
-        put(Thread.currentThread().getId() + value.getClass().getName(), value);
+        put(Thread.currentThread().getId() + "_" + value.getClass().getName(), value);
     }
 
     /**
@@ -94,14 +90,7 @@ public class GuavaCache {
         if (StringUtils.isBlank(key) || null == value) {
             return;
         }
-
-        try {
-            lock.writeLock().lock();
-            GUAVA_CACHE.put(key.trim(), value);
-        } finally {
-            lock.writeLock().unlock();
-        }
-
+        GUAVA_CACHE.put(key.trim(), value);
     }
 
     /**
@@ -114,14 +103,7 @@ public class GuavaCache {
         if (StringUtils.isBlank(key)) {
             return null;
         }
-
-        try {
-            lock.readLock().lock();
-            return GUAVA_CACHE.getIfPresent(key.trim());
-        } finally {
-            lock.readLock().unlock();
-        }
-
+        return GUAVA_CACHE.getIfPresent(key.trim());
     }
 
     /**
@@ -131,7 +113,7 @@ public class GuavaCache {
      */
     @SuppressWarnings("unchecked")
     public static <T> T currentGet(Class<T> clazz) {
-        return (T) get(Thread.currentThread().getId() + clazz.getName());
+        return (T) get(Thread.currentThread().getId() + "_" + clazz.getName());
     }
 
 
@@ -145,12 +127,14 @@ public class GuavaCache {
      */
     @SuppressWarnings("unchecked")
     public static <T> T get(String key, Class<T> clazz) {
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
         try {
             return (T) get(key.trim());
         } catch (Exception e) {
+            return null;
         }
-        return null;
-
     }
 
     /**
@@ -176,20 +160,21 @@ public class GuavaCache {
      * @param <T>   数据的类型
      * @return 获取到的存储数据
      */
+    @SuppressWarnings("unchecked")
     public static <T> T getAndRemove(String key, Class<T> clazz) {
         if (StringUtils.isBlank(key)) {
             return null;
         }
+        String trimmedKey = key.trim();
         try {
-            T value = get(key.trim(), clazz);
+            T value = (T) get(trimmedKey);
             if (null != value) {
-                remove(key.trim());
+                remove(trimmedKey);
             }
             return value;
         } catch (Exception e) {
+            return null;
         }
-        return null;
-
     }
 
     /**
@@ -215,10 +200,13 @@ public class GuavaCache {
      * @return 获取到的存储数据
      */
     public static Object getAndRemove(String key) {
-
-        Object value = get(key);
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+        String trimmedKey = key.trim();
+        Object value = get(trimmedKey);
         if (null != value) {
-            remove(key);
+            remove(trimmedKey);
         }
         return value;
     }
@@ -229,8 +217,7 @@ public class GuavaCache {
      * @return 获取到的存储数据
      */
     public static <T> T currentAndRemove(Class<T> clazz) {
-
-        return getAndRemove(Thread.currentThread().getId() + clazz.getName(), clazz);
+        return getAndRemove(Thread.currentThread().getId() + "_" + clazz.getName(), clazz);
     }
 
     /**
@@ -242,13 +229,7 @@ public class GuavaCache {
         if (StringUtils.isBlank(key)) {
             return;
         }
-        try {
-            lock.writeLock().lock();
-            GUAVA_CACHE.invalidate(key.trim());
-        } finally {
-            lock.writeLock().unlock();
-        }
-
+        GUAVA_CACHE.invalidate(key.trim());
     }
 
     /**
@@ -271,13 +252,7 @@ public class GuavaCache {
      * @return 所有存储的数据的key
      */
     public static Set<String> keys() {
-        try {
-            lock.readLock().lock();
-            return GUAVA_CACHE.asMap().keySet();
-        } finally {
-            lock.readLock().unlock();
-        }
-
+        return GUAVA_CACHE.asMap().keySet();
     }
 
     /**
@@ -290,25 +265,14 @@ public class GuavaCache {
         if (StringUtils.isBlank(key)) {
             return false;
         }
-        try {
-            lock.readLock().lock();
-            return GUAVA_CACHE.asMap().containsKey(key);
-        } finally {
-            lock.readLock().unlock();
-        }
+        return GUAVA_CACHE.getIfPresent(key.trim()) != null;
     }
 
     /**
      * 清空所有存储的数据
      */
     public static void clear() {
-
-        try {
-            lock.writeLock().lock();
-            GUAVA_CACHE.cleanUp();
-        } finally {
-            lock.writeLock().unlock();
-        }
+        GUAVA_CACHE.invalidateAll();
     }
 
 }
