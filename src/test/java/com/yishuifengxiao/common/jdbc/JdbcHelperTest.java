@@ -95,50 +95,50 @@ public class JdbcHelperTest {
 
     @Test
     public void test_findAll_like_mode() {
-        List<AutoTable> primaryKey = jdbcHelper.findAll(autoTable, true);
+        List<AutoTable> primaryKey = jdbcHelper.find(autoTable, true);
         log.info("查询结果为：{}", primaryKey);
     }
 
     @Test
     public void test_findAll_not_like_mode() {
-        List<AutoTable> primaryKey = jdbcHelper.findAll(autoTable, false);
+        List<AutoTable> primaryKey = jdbcHelper.find(autoTable, false);
         log.info("查询结果为：{}", primaryKey);
     }
 
     @Test
     public void test_findAll_like_mode_01() {
-        List<AutoTable> primaryKey = jdbcHelper.findAll(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), true);
+        List<AutoTable> primaryKey = jdbcHelper.find(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), true);
         log.info("查询结果为：{}", primaryKey);
     }
 
     @Test
     public void test_findAll_not_like_mode_01() {
-        List<AutoTable> primaryKey = jdbcHelper.findAll(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), false);
+        List<AutoTable> primaryKey = jdbcHelper.find(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), false);
         log.info("查询结果为：{}", primaryKey);
     }
 
 
     @Test
     public void test_countAll_like_mode() {
-        Long counted = jdbcHelper.countAll(autoTable, true);
+        Long counted = jdbcHelper.count(autoTable, true);
         log.info("查询结果为：{}", counted);
     }
 
     @Test
     public void test_countAll_not_like_mode() {
-        Long counted = jdbcHelper.countAll(autoTable, false);
+        Long counted = jdbcHelper.count(autoTable, false);
         log.info("查询结果为：{}", counted);
     }
 
     @Test
     public void test_countAll_like_mode_01() {
-        Long counted = jdbcHelper.countAll(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), true);
+        Long counted = jdbcHelper.count(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), true);
         log.info("查询结果为：{}", counted);
     }
 
     @Test
     public void test_countAll_not_like_mode_01() {
-        Long counted = jdbcHelper.countAll(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), false);
+        Long counted = jdbcHelper.count(new AutoTable().setName(autoTable.getName()).setAge(autoTable.getAge()), false);
         log.info("查询结果为：{}", counted);
     }
 
@@ -184,7 +184,7 @@ public class JdbcHelperTest {
         AutoTable autoTable = new AutoTable();
         autoTable.setId(1L);
         autoTable.setName("测试更新");
-        int updated = jdbcHelper.updateByPrimaryKey(autoTable);
+        int updated = jdbcHelper.updateByPrimaryKey(autoTable).getAffectedRows();
         log.info("更新结果为：{}", updated);
     }
 
@@ -192,14 +192,14 @@ public class JdbcHelperTest {
     public void test_updateByPrimaryKeySelective() {
         autoTable.setId(1L);
         autoTable.setName("测试更新");
-        int updated = jdbcHelper.updateByPrimaryKeySelective(autoTable);
+        int updated = jdbcHelper.updateByPrimaryKeySelective(autoTable).getAffectedRows();
         log.info("更新结果为：{}", updated);
     }
 
     @Ignore
     @Test
     public void test_deleteByPrimaryKey() {
-        int deleted = jdbcHelper.deleteByPrimaryKey(AutoTable.class, 1);
+        int deleted = jdbcHelper.deleteByPrimaryKey(AutoTable.class, 1).getAffectedRows();
         log.info("删除结果为：{}", deleted);
     }
 
@@ -208,14 +208,14 @@ public class JdbcHelperTest {
     public void test_deleteByPrimaryKey_batch() {
         jdbcHelper.insert(new AutoTable().setId(2L).setName("测试删除2"));
         jdbcHelper.insert(new AutoTable().setId(3L).setName("测试删除3"));
-        int deleted = jdbcHelper.deleteByPrimaryKey(AutoTable.class, 2, 3);
+        int deleted = jdbcHelper.deleteByPrimaryKey(AutoTable.class, 2, 3).getAffectedRows();
         log.info("删除结果为：{}", deleted);
     }
 
     @Test
     public void test_saveAll() {
-        jdbcHelper.saveAll(Arrays.asList(new AutoTable().setId(2L).setName("测试批量保存2"),
-                new AutoTable().setId(3L).setName("测试批量保存3")));
+        jdbcHelper.saveAll(Arrays.asList(new AutoTable().setName("测试批量保存2"),
+                new AutoTable().setName("测试批量保存3")));
     }
 
     @Configuration

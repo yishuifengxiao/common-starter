@@ -82,7 +82,7 @@ public class JdbcHelper02Test {
 
     @Test
     public void test_findAll_01() {
-        List<AutoTable> list = jdbcHelper.findAll(new AutoTable().setName("测试"), true, JdbcHelper.Order.desc("id"), JdbcHelper.Order.asc("create_datetime"));
+        List<AutoTable> list = jdbcHelper.find(new AutoTable().setName("测试"), true, JdbcHelper.Order.desc("id"), JdbcHelper.Order.asc("create_datetime"));
         System.out.println(list);
     }
 

@@ -1,7 +1,6 @@
 package com.yishuifengxiao.common.jdbc;
 
 import com.yishuifengxiao.common.tool.entity.Page;
-import com.yishuifengxiao.common.tool.entity.Slice;
 import com.yishuifengxiao.common.tool.jdbc.JdbcHelper;
 import com.yishuifengxiao.demo.entity.AutoTable;
 import lombok.extern.slf4j.Slf4j;
@@ -69,12 +68,6 @@ public class JdbcHelper01Test {
 
     }
 
-    @Test
-    public void test_find_01() {
-        String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
-        List<AutoTable> list = jdbcHelper.find(AutoTable.class, sql, new AutoTable().setId(1L).setName("测试"));
-        System.out.println(list);
-    }
 
     @Test
     public void test_find_02() {
@@ -86,7 +79,7 @@ public class JdbcHelper01Test {
     @Test
     public void test_findPage_01() {
         String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
-        Page<AutoTable> page = jdbcHelper.find(AutoTable.class, Slice.of(10, 1), sql, Map.of("id", 1L, "name", "测试"));
+        Page<AutoTable> page = jdbcHelper.findPage(AutoTable.class, Page.of(10, 1), sql, Map.of("id", 1L, "name", "测试"));
         System.out.println(page);
     }
 
