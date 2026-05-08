@@ -1,6 +1,6 @@
 package com.yishuifengxiao.common.jdbc;
 
-import com.yishuifengxiao.common.jdbc.entity.Order;
+import com.yishuifengxiao.common.tool.jdbc.JdbcHelper;
 import com.yishuifengxiao.demo.entity.AutoTable;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -76,13 +76,13 @@ public class JdbcHelper02Test {
 
     @Test
     public void test_findOne_01() {
-        AutoTable table = jdbcHelper.findOne(new AutoTable().setName("测试"), true, Order.desc("id"), Order.asc("create_datetime"));
+        AutoTable table = jdbcHelper.findOne(new AutoTable().setName("测试"), true, JdbcHelper.Order.desc("id"), JdbcHelper.Order.asc("create_datetime"));
         System.out.println(table);
     }
 
     @Test
     public void test_findAll_01() {
-        List<AutoTable> list = jdbcHelper.findAll(new AutoTable().setName("测试"), true, Order.desc("id"), Order.asc("create_datetime"));
+        List<AutoTable> list = jdbcHelper.findAll(new AutoTable().setName("测试"), true, JdbcHelper.Order.desc("id"), JdbcHelper.Order.asc("create_datetime"));
         System.out.println(list);
     }
 
@@ -107,7 +107,7 @@ public class JdbcHelper02Test {
 
         @Bean
         public JdbcHelper jdbcHelper(JdbcTemplate jdbcTemplate) {
-            return new SimpleJdbcHelper(jdbcTemplate);
+            return new JdbcHelper(jdbcTemplate);
         }
     }
 }

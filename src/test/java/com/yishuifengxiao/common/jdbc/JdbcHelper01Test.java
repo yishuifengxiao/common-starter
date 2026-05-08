@@ -2,6 +2,7 @@ package com.yishuifengxiao.common.jdbc;
 
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.Slice;
+import com.yishuifengxiao.common.tool.jdbc.JdbcHelper;
 import com.yishuifengxiao.demo.entity.AutoTable;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -89,25 +90,7 @@ public class JdbcHelper01Test {
         System.out.println(page);
     }
 
-    @Test
-    public void test_find_001() {
-        List<AutoTable> list = jdbcHelper.find(AutoTable.class, params -> {
-            String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
-            params.putAll(Map.of("id", 1L, "name", "测试"));
-            return sql;
-        });
-        System.out.println(list);
-    }
 
-    @Test
-    public void test_find_002() {
-        Page<AutoTable> page = jdbcHelper.find(AutoTable.class, Slice.of(10, 1), params -> {
-            String sql = "SELECT * FROM auto_table WHERE id = :id and name = :name";
-            params.putAll(Map.of("id", 1L, "name", "测试"));
-            return sql;
-        });
-        System.out.println(page);
-    }
 
 
     @Configuration
@@ -130,7 +113,7 @@ public class JdbcHelper01Test {
 
         @Bean
         public JdbcHelper jdbcHelper(JdbcTemplate jdbcTemplate) {
-            return new SimpleJdbcHelper(jdbcTemplate);
+            return new JdbcHelper(jdbcTemplate);
         }
     }
 }

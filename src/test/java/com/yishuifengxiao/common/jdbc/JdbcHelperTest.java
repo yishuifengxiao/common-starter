@@ -2,6 +2,7 @@ package com.yishuifengxiao.common.jdbc;
 
 import com.yishuifengxiao.common.tool.entity.Page;
 import com.yishuifengxiao.common.tool.entity.Slice;
+import com.yishuifengxiao.common.tool.jdbc.JdbcHelper;
 import com.yishuifengxiao.demo.entity.AutoTable;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -237,7 +238,7 @@ public class JdbcHelperTest {
 
         @Bean
         public JdbcHelper jdbcHelper(JdbcTemplate jdbcTemplate) {
-            return new SimpleJdbcHelper(jdbcTemplate);
+            return new JdbcHelper(jdbcTemplate);
         }
     }
 }
