@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 
@@ -64,15 +65,15 @@ public class GuavaAutoConfiguration {
      * 注入一个guava异步消息总线
      * </p>
      *
-     * @param executor 自定义线程池
+     * @param executors 自定义线程池
      * @return guava异步消息总线
      */
     @Bean
     @ConditionalOnMissingBean({EventBus.class})
     @ConditionalOnBean({Executor.class})
-    public EventBus asyncEventBus(Executor executor) {
+    public EventBus asyncEventBus(List<Executor> executors) {
 
-        return new AsyncEventBus(executor);
+        return new AsyncEventBus(executors.get(0));
     }
 
     @Bean("globalEventPublisher")
