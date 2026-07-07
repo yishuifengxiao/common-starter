@@ -124,7 +124,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         }
         code = null == code ? HttpStatus.INTERNAL_SERVER_ERROR.value() : code;
         Response<Object> response = new Response<>(code, null == e ? "" : e.getMessage(),
-                context).setId(ssid);
+                context).setRequestId(ssid);
         if (log.isDebugEnabled()) {
             log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " + "intercepted custom " + "exception is {}", ssid, uri, e);
         }
@@ -151,7 +151,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
             result = createResponse(ssid, uri, e);
         }
         if (null != result && result instanceof Response<?>) {
-            ((Response) result).setId(ssid);
+            ((Response) result).setRequestId(ssid);
         }
 
         return result;
