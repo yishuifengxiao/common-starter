@@ -282,13 +282,13 @@ public class WebEnhanceAutoConfiguration {
                 if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
                     Response<Object> result = body instanceof Response ? (Response) body :
-                            Response.suc().data(body);
-                    result.setId(ssid);
+                            Response.suc().setData(body);
+                    result.setRequestId(ssid);
                     resp = result;
                 } else {
                     if (null != body && body instanceof Response) {
                         Response result = (Response) body;
-                        result.setId(ssid);
+                        result.setRequestId(ssid);
                         resp = result;
                     }
                 }
