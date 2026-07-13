@@ -99,20 +99,31 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         };
     }
 
+
     /**
-     * 500 - 自定义异常
+     * 捕获自定义业务异常并统一封装为标准的JSON响应
+     * <p>
+     * 支持 {@link CustomException} 和 {@link UncheckedException} 两种自定义异常类型，
+     * 提取异常中的错误码和上下文信息，构建统一的 {@link Response} 响应体返回给调用方。
+     * 同时将响应的 Content-Type 强制设置为 JSON 格式，避免因原始请求的 Content-Type 不匹配
+     * （如 audio/mpeg）而导致响应序列化失败。
+     * </p>
      *
-     * @param request HttpServletRequest
-     * @param e       希望捕获的异常
-     * @return 发生异常捕获之后的响应
+     * @param request  当前HTTP请求对象，用于获取请求URI等信息
+     * @param response 当前HTTP响应对象，用于重置响应内容类型
+     * @param e        被捕获的异常实例，类型为 {@link CustomException} 或 {@link UncheckedException}
+     * @return 封装了错误码、错误信息和上下文数据的 {@link Response} 响应对象
      */
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler({CustomException.class, UncheckedException.class})
-    public Object catchCustomException(HttpServletRequest request, Exception e) {
+    public Object catchCustomException(HttpServletRequest request, HttpServletResponse response, Exception e) {
+        // 强制重置响应内容类型为JSON，防止原始请求的Content-Type（如audio/mpeg）导致响应体序列化失败
+        response.setContentType("application/json;charset=UTF-8");
         String ssid = TraceContext.get();
         String uri = request.getRequestURI();
         Object code = null;
         Object context = null;
+        // 根据异常的具体类型提取对应的错误码和上下文信息
         if (e instanceof UncheckedException) {
             UncheckedException ex = (UncheckedException) e;
             code = Optional.ofNullable(ex).filter(Objects::nonNull).map(UncheckedException::getCode).orElse(null);
@@ -122,34 +133,49 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
             code = Optional.ofNullable(ex).filter(Objects::nonNull).map(CustomException::getCode).orElse(null);
             context = ex.getContext();
         }
+        // 若未提取到错误码，则默认使用500（Internal Server Error）
         code = null == code ? HttpStatus.INTERNAL_SERVER_ERROR.value() : code;
-        Response<Object> response = new Response<>(code, null == e ? "" : e.getMessage(),
+        // 构建统一的响应对象，包含错误码、异常消息、上下文数据和链路追踪ID
+        Response<Object> result = new Response<>(code, null == e ? "" : e.getMessage(),
                 context).setRequestId(ssid);
         if (log.isDebugEnabled()) {
             log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " + "intercepted custom " + "exception is {}", ssid, uri, e);
         }
 
-        return response;
+        return result;
     }
 
     /**
-     * 500 - Internal Server Error
+     * 全局兜底异常处理器，捕获所有未被上层处理的运行时异常、受检异常及其他 Throwable
+     * <p>
+     * 处理流程：
+     * 1. 强制重置响应 Content-Type 为 JSON，避免因原始请求媒体类型不匹配导致响应序列化失败；
+     * 2. 优先委托 {@link ErrorHelper} 进行自定义异常信息提取；
+     * 3. 若 ErrorHelper 未处理，则回退到内置的 {@link #createResponse} 方法按异常类型生成标准化响应；
+     * 4. 为最终响应对象注入链路追踪ID，便于问题排查。
+     * </p>
      *
-     * @param request HttpServletRequest
-     * @param e       希望捕获的异常
-     * @return 发生异常捕获之后的响应
+     * @param request  当前HTTP请求对象，用于获取请求URI及委托给 ErrorHelper 提取异常详情
+     * @param response 当前HTTP响应对象，用于重置响应内容类型
+     * @param e        被捕获的异常实例，涵盖 RuntimeException、Exception 及 Throwable
+     * @return 封装了错误信息的响应对象，通常为 {@link Response} 类型；若 ErrorHelper 返回了自定义结果则直接透传
      */
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler({RuntimeException.class, Exception.class, Throwable.class})
     public Object catchThrowable(HttpServletRequest request, HttpServletResponse response,
                                  Throwable e) {
+        // 强制重置响应内容类型为JSON，防止原始请求的Content-Type（如audio/mpeg）导致响应体序列化失败
+        response.setContentType("application/json;charset=UTF-8");
         String ssid = TraceContext.get();
         String uri = request.getRequestURI();
+        // 优先尝试通过 ErrorHelper 自定义提取异常信息，支持业务方扩展个性化的错误处理逻辑
         Object result = null == this.errorHelper ? null : this.errorHelper.extract(request,
                 response, e);
+        // ErrorHelper 未处理时，回退到内置逻辑根据异常类型生成标准化的错误响应
         if (null == result) {
             result = createResponse(ssid, uri, e);
         }
+        // 为响应对象注入链路追踪ID，用于分布式链路追踪和问题排查
         if (null != result && result instanceof Response<?>) {
             ((Response) result).setRequestId(ssid);
         }

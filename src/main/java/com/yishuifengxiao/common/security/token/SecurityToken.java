@@ -12,7 +12,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
-import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -31,7 +30,6 @@ import java.util.Objects;
  * @since 1.0.0
  */
 
-@Schema(name = "自定义访问令牌")
 public class SecurityToken extends AbstractAuthenticationToken implements Serializable {
 
     /**
@@ -49,25 +47,21 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * <p>token的值，不区分大小写</p>
      * <p>一般值的内容为 username:deviceId:issueAt的DES加密值</p>
      */
-    @Schema(name = "token的值")
     private final String value;
 
     /**
      * 用户名
      */
-    @Schema(name = "用户名")
     private Object principal;
 
     /**
      * 设备id
      */
-    @Schema(name = "设备id")
     private String deviceId;
 
     /**
      * token的首次生成时间
      */
-    @Schema(name = "token的首次生成时间")
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -76,7 +70,6 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     /**
      * token的过期时间点
      */
-    @Schema(name = "token的过期时间点")
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)

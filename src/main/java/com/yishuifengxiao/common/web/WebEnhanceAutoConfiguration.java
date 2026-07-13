@@ -278,19 +278,21 @@ public class WebEnhanceAutoConfiguration {
             try {
                 if (body instanceof String) {
                     return body;
-                }
-                if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
+                } else if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
                     //开启全局响应数据格式统一
                     Response<Object> result = body instanceof Response ? (Response) body :
                             Response.suc().setData(body);
                     result.setRequestId(ssid);
                     resp = result;
-                } else {
-                    if (null != body && body instanceof Response) {
-                        Response result = (Response) body;
-                        result.setRequestId(ssid);
-                        resp = result;
-                    }
+                } else if (selectedContentType != null &&//
+                        (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType) ||//
+                                selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON_UTF8) ||//
+                                selectedContentType.getSubtype().toLowerCase().contains("json"))) //
+                {
+                    // 只对 JSON 类型的响应进行统一包装，避免对音频、图片等二进制类型进行包装
+                    Response<Object> result = Response.suc().setData(body);
+                    result.setRequestId(ssid);
+                    resp = result;
                 }
 
             } catch (Exception e) {

@@ -32,7 +32,7 @@ import java.lang.annotation.*;
  *       swagger:
  *           enable: true
  * </pre>
- *
+ * <p>
  * 分项开关说明：
  * - 如果分项开关被设置（非默认值），则优先使用分项开关设置值
  * - 如果分项开关未设置（使用默认值），则使用value属性的值
@@ -147,12 +147,5 @@ public @interface EnableAllExtensions {
      */
     boolean redis() default true;
 
-    /**
-     * Swagger功能开关
-     * 默认值-1表示未设置，使用value属性值
-     * 设置为true或false时，优先使用此设置
-     *
-     * @return Swagger功能开关
-     */
-    boolean swagger() default true;
+ 
 }

@@ -106,8 +106,6 @@ public class AllExtensionsAutoConfiguration {
         // 设置redis功能
         setPropertyWithOverride(properties, "yishuifengxiao.redis.enable", mainSwitch, annotation.redis());
 
-        // 设置swagger功能
-        setPropertyWithOverride(properties, "yishuifengxiao.swagger.enable", mainSwitch, annotation.swagger());
 
         // 批量设置属性
         PropertyHelper.setPropertiesIfAbsent(environment, properties);
