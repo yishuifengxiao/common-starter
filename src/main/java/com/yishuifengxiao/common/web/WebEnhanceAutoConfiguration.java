@@ -5,57 +5,32 @@ package com.yishuifengxiao.common.web;
 
 import ch.qos.logback.classic.Level;
 import com.yishuifengxiao.common.support.TraceContext;
-import com.yishuifengxiao.common.tool.entity.Response;
-import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.IdWorker;
 import com.yishuifengxiao.common.tool.utils.OsUtils;
-import com.yishuifengxiao.common.tool.validate.BeanValidator;
 import com.yishuifengxiao.common.utils.HttpUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServerHttpResponse;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.DispatcherServlet;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
@@ -77,6 +52,20 @@ public class WebEnhanceAutoConfiguration {
 
     @Autowired
     private WebEnhanceProperties webEnhanceProperties;
+    @Autowired(required = false)
+    private Validator validator;
+
+    /**
+     * 创建并配置参数验证切面(ParamValidationAspect)的Bean
+     * 该切面用于处理方法参数的验证逻辑
+     *
+     * @return 配置好的ParamValidationAspect实例
+     */
+    @Bean
+    public ParamValidationAspect paramValidationAspect() {
+        // 使用validator和webEnhanceProperties创建参数验证切面实例
+        return new ParamValidationAspect(validator, webEnhanceProperties);
+    }
 
     /**
      * 注入一个跨域支持过滤器
@@ -116,192 +105,6 @@ public class WebEnhanceAutoConfiguration {
         registration.setUrlPatterns(Arrays.asList("/*"));
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 1000);
         return registration;
-    }
-
-
-    /**
-     * 全局参数校验功能自动配置
-     *
-     * @author yishui
-     * @version 1.0.0
-     * @since 1.0.0
-     */
-    @Configuration(proxyBeanMethods = false)
-    @Aspect
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web.aop", name = {"enable"}, havingValue =
-            "true", matchIfMissing = true)
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    public static class ValidAutoConfiguration {
-
-        @Pointcut("@within(org.springframework.stereotype.Controller) || @within(org" +
-                ".springframework.web.bind.annotation.RestController)")
-        public void controllerClass() {
-        }
-
-        @Pointcut("execution(public * *(..))")
-        public void publicMethod() {
-        }
-
-        @Pointcut("execution(public * *(.., @org.springframework.validation.annotation.Validated "
-                + "(*), ..))")
-        public void validatedParam() {
-        }
-
-        @Pointcut("execution(public * *(.., @jakarta.validation.Valid (*), ..))")
-        public void validParam() {
-        }
-
-        @Pointcut("args(.., org.springframework.validation.BindingResult))")
-        public void argsBindingResult() {
-        }
-
-        /**
-         * 拦截被@Controller或@RestController注解的类中修饰符为public的方法，
-         * 且方法包含被@Validated修饰的参数或者方法包含BindingResult参数
-         *
-         * @param joinPoint ProceedingJoinPoint
-         * @return 请求响应结果
-         * @throws Throwable 处理时发生异常
-         */
-        @Around("controllerClass() && publicMethod() && ( validatedParam() || validParam() || " +
-                "argsBindingResult() )")
-        public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-            // 获取所有的请求参数
-            Object[] args = joinPoint.getArgs();
-            if (null == args || args.length == 0) {
-                return joinPoint.proceed();
-            }
-            // 判断系统中是否使用了 BindingResult 进行接收
-            BindingResult errors =
-                    (BindingResult) Arrays.asList(args).stream().filter(arg -> arg instanceof BindingResult).findFirst().orElse(null);
-            if (null != errors) {
-                // 已使用 BindingResult 收集
-                if (errors.hasErrors()) {
-                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST,
-                            errors.getFieldErrors().get(0).getDefaultMessage());
-                }
-            } else {
-                // 未使用 BindingResult 收集
-                MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
-                Method method = methodSignature.getMethod();
-                // 遍历方法的参数
-                Parameter[] parameters = method.getParameters();
-                for (int i = 0; i < parameters.length; i++) {
-                    Parameter parameter = parameters[i];
-
-                    Valid valid = AnnotationUtils.findAnnotation(parameter, Valid.class);
-                    if (null != valid) {
-                        // 参数被@Valid注解修饰
-                        String msg = BeanValidator.validateResult(args[i]);
-                        if (null != msg) {
-                            throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
-                        }
-                        break;
-                    } else {
-                        Validated validated = AnnotationUtils.findAnnotation(parameter,
-                                Validated.class);
-                        if (null != validated) {
-                            // 获取参数上的@Validated注解的值
-                            Class<?>[] validatedGroups = validated.value();
-                            if (null != validatedGroups && validatedGroups.length > 0) {
-                                // 进行校验的逻辑...
-                                for (Class<?> validatedGroup : validatedGroups) {
-                                    String msg = BeanValidator.validateResult(args[i],
-                                            validatedGroup);
-                                    if (null != msg) {
-                                        throw new UncheckedException(Response.Const.CODE_BAD_REQUEST, msg);
-                                    }
-                                }
-                            } else {
-                                String msg = BeanValidator.validateResult(args[i]);
-                                if (null != msg) {
-                                    throw new UncheckedException(Response.Const.CODE_BAD_REQUEST,
-                                            msg);
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-
-            }
-
-
-            return joinPoint.proceed();
-
-        }
-    }
-
-    @SuppressWarnings("rawtypes")
-    @ControllerAdvice
-    @Configuration(proxyBeanMethods = false)
-    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    @ConditionalOnClass(DispatcherServlet.class)
-    @ConditionalOnProperty(prefix = "yishuifengxiao.web.response", name = {"enable"},
-            havingValue = "true")
-    class WebResponseBodyAutoConfiguration implements ResponseBodyAdvice {
-
-
-        @Override
-        public boolean supports(MethodParameter returnType, Class converterType) {
-            // 新增对 SkipResponseWrapper 注解的判断
-            // 检查方法上是否有该注解
-            if (returnType.hasMethodAnnotation(SkipResponseWrapper.class)) {
-                return false;
-            }
-
-            // 检查类上是否有该注解
-            if (returnType.getDeclaringClass().isAnnotationPresent(SkipResponseWrapper.class)) {
-                return false;
-            }
-            String className = returnType.getDeclaringClass().getName();
-            boolean hasMethodAnnotation = returnType.hasMethodAnnotation(ResponseBody.class);
-            boolean assignableFrom =
-                    AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
-            boolean match =
-                    null != returnType.getDeclaringClass().getDeclaredAnnotation(RestController.class);
-            boolean anyMatch =
-                    webEnhanceProperties.getResponse().getExcludes().stream().anyMatch(v -> StringUtils.equalsIgnoreCase(v, className));
-            if (anyMatch) {
-                return false;
-            }
-
-            return assignableFrom || hasMethodAnnotation || match;
-        }
-
-        @Override
-        public Object beforeBodyWrite(Object body, MethodParameter returnType,
-                                      MediaType selectedContentType, Class selectedConverterType,
-                                      ServerHttpRequest request, ServerHttpResponse response) {
-            Object resp = body;
-            String ssid = TraceContext.get();
-            try {
-                if (body instanceof String) {
-                    return body;
-                } else if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType)) {
-                    //开启全局响应数据格式统一
-                    Response<Object> result = body instanceof Response ? (Response) body :
-                            Response.suc().setData(body);
-                    result.setRequestId(ssid);
-                    resp = result;
-                } else if (selectedContentType != null &&//
-                        (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(selectedContentType) ||//
-                                selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON_UTF8) ||//
-                                selectedContentType.getSubtype().toLowerCase().contains("json"))) //
-                {
-                    // 只对 JSON 类型的响应进行统一包装，避免对音频、图片等二进制类型进行包装
-                    Response<Object> result = Response.suc().setData(body);
-                    result.setRequestId(ssid);
-                    resp = result;
-                }
-
-            } catch (Exception e) {
-                log.debug("【yishuifengxiao-common-spring-boot-starter】:There was a problem " +
-                        "obtaining the request " + "tracking id {}", e);
-            }
-
-            return resp;
-        }
     }
 
 
@@ -369,7 +172,7 @@ public class WebEnhanceAutoConfiguration {
                 if (StringUtils.isBlank(val)) {
                     return null;
                 }
-                String[] tokens = StringUtils.splitByWholeSeparator(text, OsUtils.COLON);
+                String[] tokens = StringUtils.splitByWholeSeparator(val, OsUtils.COLON);
                 if (null == tokens || tokens.length != 2) {
                     return null;
                 }
@@ -382,6 +185,9 @@ public class WebEnhanceAutoConfiguration {
                 }
                 return new String[]{tokens[0], level.levelStr};
             } catch (Exception e) {
+                if (log.isDebugEnabled()) {
+                    log.debug("【yishuifengxiao-common-spring-boot-starter】: 动态日志级别解析失败 {}", e.getMessage());
+                }
             }
             return null;
 

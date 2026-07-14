@@ -8,8 +8,6 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Priority;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
@@ -44,7 +42,6 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -117,29 +114,27 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     @ResponseStatus(HttpStatus.OK)
     @ExceptionHandler({CustomException.class, UncheckedException.class})
     public Object catchCustomException(HttpServletRequest request, HttpServletResponse response, Exception e) {
-        // 强制重置响应内容类型为JSON，防止原始请求的Content-Type（如audio/mpeg）导致响应体序列化失败
-        response.setContentType("application/json;charset=UTF-8");
+        setJsonContentType(response);
         String ssid = TraceContext.get();
         String uri = request.getRequestURI();
         Object code = null;
         Object context = null;
         // 根据异常的具体类型提取对应的错误码和上下文信息
-        if (e instanceof UncheckedException) {
-            UncheckedException ex = (UncheckedException) e;
-            code = Optional.ofNullable(ex).filter(Objects::nonNull).map(UncheckedException::getCode).orElse(null);
+        if (e instanceof UncheckedException ex) {
+            code = ex.getCode();
             context = ex.getContext();
-        } else if (e instanceof CustomException) {
-            CustomException ex = (CustomException) e;
-            code = Optional.ofNullable(ex).filter(Objects::nonNull).map(CustomException::getCode).orElse(null);
+        } else if (e instanceof CustomException ex) {
+            code = ex.getCode();
             context = ex.getContext();
         }
         // 若未提取到错误码，则默认使用500（Internal Server Error）
         code = null == code ? HttpStatus.INTERNAL_SERVER_ERROR.value() : code;
         // 构建统一的响应对象，包含错误码、异常消息、上下文数据和链路追踪ID
-        Response<Object> result = new Response<>(code, null == e ? "" : e.getMessage(),
+        Response<Object> result = new Response<>(code, e.getMessage(),
                 context).setRequestId(ssid);
         if (log.isDebugEnabled()) {
-            log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " + "intercepted custom " + "exception is {}", ssid, uri, e);
+            log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " +
+                    "intercepted custom " + "exception is {}", ssid, uri, e);
         }
 
         return result;
@@ -164,8 +159,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     @ExceptionHandler({RuntimeException.class, Exception.class, Throwable.class})
     public Object catchThrowable(HttpServletRequest request, HttpServletResponse response,
                                  Throwable e) {
-        // 强制重置响应内容类型为JSON，防止原始请求的Content-Type（如audio/mpeg）导致响应体序列化失败
-        response.setContentType("application/json;charset=UTF-8");
+        setJsonContentType(response);
         String ssid = TraceContext.get();
         String uri = request.getRequestURI();
         // 优先尝试通过 ErrorHelper 自定义提取异常信息，支持业务方扩展个性化的错误处理逻辑
@@ -194,11 +188,11 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
      */
     private Response<Object> createResponse(String ssid, String uri, Throwable e) {
         //@formatter:off
-        if (e instanceof MethodArgumentNotValidException ex && null !=ex.getBindingResult()) {
+        if (e instanceof MethodArgumentNotValidException ex && null != ex.getBindingResult()) {
             BindingResult bindingResult = ex.getBindingResult();
             String msg =
                     Optional.ofNullable(bindingResult).filter(Errors::hasErrors)
-                            .map(errors -> errors.getFieldErrors().stream()
+                            .map(bindingErrors -> bindingErrors.getFieldErrors().stream()
                                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                                     .filter(StringUtils::isNotBlank).findFirst().orElse(null))
                             .orElse("报文格式不符合要求");
@@ -207,43 +201,37 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
                         "intercepted " + "MethodArgumentNotValidException exception is {}", ssid, uri, e);
             }
             return new Response<>(HttpStatus.BAD_REQUEST.value(), msg);
-        }else {
-            if (log.isInfoEnabled()) {
-                log.info("【Global exception interception】 traceId={} " + "request= {} request failed," + " The " +
-                        "intercepted " + "unknown exception is {}", ssid, uri, e);
-            }
-            String errorMsg = e == null ? null :
-                    Optional.ofNullable(errors.get(e.getClass().getName())).orElse(errors.get(e.getClass().getSimpleName()));
-            if (StringUtils.isNotBlank(errorMsg)) {
-                return Response.error(errorMsg);
-            } else  if (e instanceof HttpMessageNotReadableException) {
-                return new Response<>(HttpStatus.BAD_REQUEST.value(), "报文解析失败");
-            }else if (e instanceof MissingServletRequestParameterException) {
-                return new Response<>(HttpStatus.BAD_REQUEST.value(), "请求报文有误");
-            } else if (e instanceof MethodArgumentTypeMismatchException) {
-                return new Response<>(HttpStatus.BAD_REQUEST.value(), "请求报文有误");
-            } else if (e instanceof ConstraintViolationException) {
-                return new Response<>(HttpStatus.BAD_REQUEST.value(), "非法报文");
-            } else if (e instanceof ValidationException) {
-                return new Response<>(HttpStatus.BAD_REQUEST.value(), "非法报文");
-            } else if (e instanceof HttpRequestMethodNotSupportedException) {
-                return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前请求方法");
-            } else if (e instanceof HttpMediaTypeNotSupportedException) {
-                return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前媒体类型");
-            } else if (e instanceof NullPointerException) {
-                if (log.isWarnEnabled()) {
-                    log.warn("[NPE] 请求出现NPE ,错误原因为 {}", e);
-                }
-                return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
-            } else if (e instanceof IllegalArgumentException) {
-                return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "参数不符合要求");
-            }
-            else if (e instanceof IOException) {
-                return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
-            } else if (e instanceof NoResourceFoundException) {
-                return new Response<>(HttpStatus.NOT_FOUND.value(), "目标资源不存在");
-            }
+        }
 
+        if (log.isInfoEnabled()) {
+            log.info("【Global exception interception】 traceId={} " + "request= {} request failed," + " The " +
+                    "intercepted " + "unknown exception is {}", ssid, uri, e);
+        }
+        String errorMsg = Optional.ofNullable(errors.get(e.getClass().getName()))
+                .orElse(errors.get(e.getClass().getSimpleName()));
+        if (StringUtils.isNotBlank(errorMsg)) {
+            return Response.error(errorMsg);
+        } else if (e instanceof HttpMessageNotReadableException) {
+            return new Response<>(HttpStatus.BAD_REQUEST.value(), "报文解析失败");
+        } else if (e instanceof MissingServletRequestParameterException) {
+            return new Response<>(HttpStatus.BAD_REQUEST.value(), "请求报文有误");
+        } else if (e instanceof MethodArgumentTypeMismatchException) {
+            return new Response<>(HttpStatus.BAD_REQUEST.value(), "请求报文有误");
+        } else if (e instanceof HttpRequestMethodNotSupportedException) {
+            return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前请求方法");
+        } else if (e instanceof HttpMediaTypeNotSupportedException) {
+            return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前媒体类型");
+        } else if (e instanceof NullPointerException) {
+            if (log.isWarnEnabled()) {
+                log.warn("[NPE] 请求出现NPE ,错误原因为 {}", e);
+            }
+            return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
+        } else if (e instanceof IllegalArgumentException) {
+            return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "参数不符合要求");
+        } else if (e instanceof IOException) {
+            return new Response<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "请求处理失败");
+        } else if (e instanceof NoResourceFoundException) {
+            return new Response<>(HttpStatus.NOT_FOUND.value(), "目标资源不存在");
         }
 
         //@formatter:on
@@ -253,19 +241,19 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        errors.put("InsufficientAuthenticationException".trim(), "请求需要认证");
-        errors.put("UsernameNotFoundException".trim(), "用户名不存在");
-        errors.put("InvalidTokenException".trim(), "无效的访问令牌");
-        errors.put("BadClientCredentialsException".trim(), "密码错误");
-        errors.put("InvalidGrantException".trim(), "授权模方式无效");
-        errors.put("InvalidClientException".trim(), "不存在对应的终端");
-        errors.put("RedirectMismatchException".trim(), "请配置回调地址");
-        errors.put("UnauthorizedClientException".trim(), "未获得本资源的访问授权");
+        errors.put("InsufficientAuthenticationException", "请求需要认证");
+        errors.put("UsernameNotFoundException", "用户名不存在");
+        errors.put("InvalidTokenException", "无效的访问令牌");
+        errors.put("BadClientCredentialsException", "密码错误");
+        errors.put("InvalidGrantException", "授权模方式无效");
+        errors.put("InvalidClientException", "不存在对应的终端");
+        errors.put("RedirectMismatchException", "请配置回调地址");
+        errors.put("UnauthorizedClientException", "未获得本资源的访问授权");
 
-        errors.put("ConstraintViolationException".trim(), "已经存在相似的数据," + "不能重复添加");
-        errors.put("DataIntegrityViolationException".trim(), "已经存在相似的数据," + "不能重复添加");
-        errors.put("DuplicateKeyException".trim(), "已经存在相似的数据,不能重复添加");
-        errors.put("AuthenticationCredentialsNotFoundException".toLowerCase(), "您还未登录,请先登录");
+        errors.put("ConstraintViolationException", "已经存在相似的数据,不能重复添加");
+        errors.put("DataIntegrityViolationException", "已经存在相似的数据,不能重复添加");
+        errors.put("DuplicateKeyException", "已经存在相似的数据,不能重复添加");
+        errors.put("AuthenticationCredentialsNotFoundException", "您还未登录,请先登录");
         // 配置简称名字匹配的提示信息
         if (null != webProperties.getError() && null != webProperties.getError().getMap()) {
             webProperties.getError().getMap().forEach((k, v) -> {
@@ -281,4 +269,12 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
 
         log.trace("【yishuifengxiao-common-spring-boot-starter】: 开启 <全局异常拦截> 相关的配置");
     }
+
+    /**
+     * 强制重置响应内容类型为JSON，防止原始请求的Content-Type导致响应序列化失败
+     */
+    private void setJsonContentType(HttpServletResponse response) {
+        response.setContentType("application/json;charset=UTF-8");
+    }
+
 }

@@ -1,0 +1,290 @@
+package com.yishuifengxiao.common.web;
+
+
+import com.yishuifengxiao.common.support.TraceContext;
+import com.yishuifengxiao.common.tool.entity.Response;
+import com.yishuifengxiao.common.tool.exception.UncheckedException;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Valid;
+import jakarta.validation.Validator;
+import jakarta.validation.groups.Default;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.http.MediaType;
+import org.springframework.util.ClassUtils;
+import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+/**
+ * 参数验证切面类
+ * 用于处理带有特定注解的Controller方法的参数验证和返回值包装
+ */
+@Aspect
+@Slf4j
+@RequiredArgsConstructor
+public class ParamValidationAspect {
+
+    // 校验器实例
+    private final Validator validator;
+    // Web增强配置属性
+    private final WebEnhanceProperties webEnhanceProperties;
+
+    /**
+     * 公共方法切入点：匹配任意映射注解
+     */
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) || " +//
+            "@annotation(org.springframework.web.bind.annotation.GetMapping) || " + //
+            "@annotation(org.springframework.web.bind.annotation.PostMapping) || " +//
+            "@annotation(org.springframework.web.bind.annotation.PutMapping) || " + //
+            "@annotation(org.springframework.web.bind.annotation.DeleteMapping) || " +//
+            "@annotation(org.springframework.web.bind.annotation.PatchMapping)")//
+    public void mappingMethods() {
+    }
+
+    /**
+     * 条件1：类标注 @RestController，方法标注任意映射注解
+     */
+    @Pointcut("@within(org.springframework.web.bind.annotation.RestController) && mappingMethods()")
+    public void restControllerMethods() {
+    }
+
+    /**
+     * 条件2：类标注 @Controller，方法标注映射注解且方法必须有 @ResponseBody
+     */
+    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "mappingMethods() && " + "@annotation(org.springframework.web.bind.annotation.ResponseBody)")
+    public void controllerWithMethodResponseBody() {
+    }
+
+    /**
+     * 条件3：类同时标注 @Controller 和 @ResponseBody，方法标注任意映射注解
+     */
+    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "@within(org.springframework.web.bind.annotation.ResponseBody) && " + "mappingMethods()")
+    public void responseBodyClassMethods() {
+    }
+
+    /**
+     * 组合切入点：匹配以上三种情况的并集
+     */
+    @Pointcut("restControllerMethods() || controllerWithMethodResponseBody() || responseBodyClassMethods()")
+    public void controllerMethods() {
+    }
+
+    /**
+     * 环绕通知：在控制器方法执行前后进行参数验证和返回值处理
+     *
+     * @param joinPoint 连接点，可以获取方法参数等信息
+     * @return 方法执行结果或包装后的结果
+     * @throws Throwable 方法执行过程中可能抛出的异常
+     */
+    @Around("controllerMethods()")
+    public Object validateAndWrap(ProceedingJoinPoint joinPoint) throws Throwable {
+        // 获取方法参数
+        Object[] args = joinPoint.getArgs();
+        // 获取方法签名
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        // 获取目标类
+        Class<?> targetClass = AopProxyUtils.ultimateTargetClass(joinPoint.getTarget());
+        // 获取方法
+        Method method = ClassUtils.getMostSpecificMethod(signature.getMethod(), targetClass);
+        // 获取方法参数列表
+        Parameter[] parameters = method.getParameters();
+
+        // ----------------- 1. 参数校验 -----------------
+        // 如果没有参数，直接执行方法
+        if (args.length == 0) {
+            return proceedAndWrap(joinPoint, method, targetClass);
+        }
+
+        BindingResult bindingResult = null;
+        List<ValidatedParam> validatedParams = null;
+
+        // 遍历参数进行处理
+        for (int i = 0; i < parameters.length; i++) {
+            Parameter param = parameters[i];
+            // 检查是否是BindingResult类型
+            if (BindingResult.class.isAssignableFrom(param.getType())) {
+                bindingResult = (BindingResult) args[i];
+                continue;
+            }
+            // 检查是否有@Valid或@Validated注解
+            if (param.isAnnotationPresent(Valid.class) || param.isAnnotationPresent(Validated.class)) {
+                if (validatedParams == null) {
+                    validatedParams = new ArrayList<>();
+                }
+                ValidatedParam vp = new ValidatedParam();
+                vp.value = args[i];
+                vp.groups = getValidationGroups(param);
+                validatedParams.add(vp);
+            }
+        }
+
+        // 处理BindingResult中的错误
+        if (bindingResult != null && bindingResult.hasErrors()) {
+            BindException bindException = new BindException(bindingResult);
+            String msg = Optional.ofNullable(bindingResult.getFieldError()).map(FieldError::getDefaultMessage).orElse("参数校验失败");
+            throw new UncheckedException(msg, bindException);
+        }
+
+        // 处理带有@Valid或@Validated注解的参数验证
+        if (validatedParams != null) {
+            for (ValidatedParam vp : validatedParams) {
+                Set<ConstraintViolation<Object>> violations;
+                if (vp.groups != null && vp.groups.length > 0) {
+                    violations = validator.validate(vp.value, vp.groups);
+                } else {
+                    violations = validator.validate(vp.value, Default.class);
+                }
+                if (!violations.isEmpty()) {
+                    ConstraintViolationException ex = new ConstraintViolationException(violations);
+                    String msg = violations.iterator().next().getMessage();
+                    throw new UncheckedException(msg, ex);
+                }
+            }
+        }
+
+        // ----------------- 2. 执行控制器方法 -----------------
+        return proceedAndWrap(joinPoint, method, targetClass);
+    }
+
+    /**
+     * 执行目标方法并处理返回值
+     *
+     * @param joinPoint   连接点
+     * @param method      目标方法
+     * @param targetClass 目标类
+     * @return 方法执行结果或包装后的结果
+     * @throws Throwable 方法执行过程中可能抛出的异常
+     */
+    private Object proceedAndWrap(ProceedingJoinPoint joinPoint, Method method, Class<?> targetClass) throws Throwable {
+        Object result = joinPoint.proceed();
+
+        if (!shouldWrapResponse(targetClass, method)) {
+            return result;
+        }
+
+        String ssid = TraceContext.get();
+
+        // ----------------- 3. void 返回值包装 -----------------
+        if (method.getReturnType() == void.class && result == null) {
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletResponse response = attributes.getResponse();
+                if (response != null && response.isCommitted()) {
+                    return null;
+                }
+            }
+            return Response.suc().setRequestId(ssid);
+        }
+
+        // ----------------- 4. 非 void 返回值包装 -----------------
+        if (result != null && !(result instanceof String) && !(result instanceof Response)) {
+            if (producesJson(method)) {
+                try {
+                    Response<Object> wrapped = Response.suc().setData(result);
+                    wrapped.setRequestId(ssid);
+                    return wrapped;
+                } catch (Exception e) {
+                    log.debug("【yishuifengxiao-common-spring-boot-starter】: 响应包装失败 {}", e.getMessage());
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 判断是否需要进行响应包装
+     *
+     * @param targetClass 目标类
+     * @param method      目标方法
+     * @return 是否需要包装
+     */
+    private boolean shouldWrapResponse(Class<?> targetClass, Method method) {
+        boolean enable = Optional.ofNullable(webEnhanceProperties).map(WebEnhanceProperties::getResponse).map(WebEnhanceProperties.ResponseProperties::getEnable).orElse(false);
+        if (!enable) {
+            return false;
+        }
+        if (targetClass.isAnnotationPresent(SkipResponseWrapper.class) || method.isAnnotationPresent(SkipResponseWrapper.class)) {
+            return false;
+        }
+        List<String> excludes = Optional.ofNullable(webEnhanceProperties).map(WebEnhanceProperties::getResponse).map(WebEnhanceProperties.ResponseProperties::getExcludes).orElse(null);
+        return !(excludes != null && excludes.contains(targetClass.getName()));
+    }
+
+    /**
+     * 判断Content-Type是否为JSON兼容类型
+     *
+     * @param contentType 内容类型字符串
+     * @return 是否为JSON兼容类型
+     */
+    private boolean isJsonCompatible(String contentType) {
+        try {
+            MediaType mediaType = MediaType.parseMediaType(contentType);
+            return MediaType.APPLICATION_JSON.isCompatibleWith(mediaType) || mediaType.getSubtype().toLowerCase().contains("json");
+        } catch (Exception e) {
+            return contentType.toLowerCase().contains("json");
+        }
+    }
+
+    /**
+     * 判断方法是否产出JSON类型响应
+     * <p>优先检查映射注解的 produces 属性；若未指定，默认视为JSON（Spring Boot 默认行为）</p>
+     *
+     * @param method 目标方法
+     * @return 是否产出JSON
+     */
+    private boolean producesJson(Method method) {
+        RequestMapping mapping = method.getAnnotation(RequestMapping.class);
+        if (mapping != null && mapping.produces().length > 0) {
+            for (String produces : mapping.produces()) {
+                if (isJsonCompatible(produces)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取验证分组
+     *
+     * @param parameter 方法参数
+     * @return 验证分组数组
+     */
+    private Class<?>[] getValidationGroups(Parameter parameter) {
+        Validated validated = parameter.getAnnotation(Validated.class);
+        if (validated != null && validated.value().length > 0) {
+            return validated.value();
+        }
+        return null;
+    }
+
+    /**
+     * 内部类：用于存储需要验证的参数信息
+     */
+    private static class ValidatedParam {
+        Object value;      // 参数值
+        Class<?>[] groups; // 验证分组
+    }
+}
