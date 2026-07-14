@@ -67,6 +67,12 @@ public class WebEnhanceAutoConfiguration {
         return new ParamValidationAspect(validator, webEnhanceProperties);
     }
 
+    @Bean
+    @ConditionalOnMissingBean(ResponseWrapAdvice.class)
+    public ResponseWrapAdvice responseWrapAdvice() {
+        return new ResponseWrapAdvice(webEnhanceProperties);
+    }
+
     /**
      * 注入一个跨域支持过滤器
      *
@@ -121,7 +127,7 @@ public class WebEnhanceAutoConfiguration {
     /**
      * 追踪过滤器
      */
-    class TracedFilter extends OncePerRequestFilter {
+    static class TracedFilter extends OncePerRequestFilter {
 
         private WebEnhanceProperties webEnhanceProperties;
 
@@ -202,7 +208,7 @@ public class WebEnhanceAutoConfiguration {
      * @version 1.0.0
      * @since 1.0.0
      */
-    class CustomCorsFilter extends OncePerRequestFilter {
+    static class CustomCorsFilter extends OncePerRequestFilter {
 
         private WebEnhanceProperties.CorsProperties corsProperties;
 

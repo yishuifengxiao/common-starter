@@ -20,7 +20,6 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.http.MediaType;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -183,14 +182,11 @@ public class ParamValidationAspect {
     private Object proceedAndWrap(ProceedingJoinPoint joinPoint, Method method, Class<?> targetClass) throws Throwable {
         Object result = joinPoint.proceed();
 
-        if (!shouldWrapResponse(targetClass, method)) {
-            return result;
-        }
-
-        String ssid = TraceContext.get();
-
         // ----------------- 3. void 返回值包装 -----------------
         if (method.getReturnType() == void.class && result == null) {
+            if (!shouldWrapResponse(targetClass, method)) {
+                return null;
+            }
             ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletResponse response = attributes.getResponse();
@@ -198,20 +194,8 @@ public class ParamValidationAspect {
                     return null;
                 }
             }
+            String ssid = TraceContext.get();
             return Response.suc().setRequestId(ssid);
-        }
-
-        // ----------------- 4. 非 void 返回值包装 -----------------
-        if (result != null && !(result instanceof String) && !(result instanceof Response)) {
-            if (producesJson(method)) {
-                try {
-                    Response<Object> wrapped = Response.suc().setData(result);
-                    wrapped.setRequestId(ssid);
-                    return wrapped;
-                } catch (Exception e) {
-                    log.debug("【yishuifengxiao-common-spring-boot-starter】: 响应包装失败 {}", e.getMessage());
-                }
-            }
         }
 
         return result;
@@ -225,57 +209,16 @@ public class ParamValidationAspect {
      * @return 是否需要包装
      */
     private boolean shouldWrapResponse(Class<?> targetClass, Method method) {
-        boolean enable = Optional.ofNullable(webEnhanceProperties).map(WebEnhanceProperties::getResponse).map(WebEnhanceProperties.ResponseProperties::getEnable).orElse(false);
-        if (!enable) {
+        if (webEnhanceProperties == null || webEnhanceProperties.getResponse() == null
+                || !Boolean.TRUE.equals(webEnhanceProperties.getResponse().getEnable())) {
             return false;
         }
         if (AnnotatedElementUtils.findMergedAnnotation(targetClass, SkipResponseWrapper.class) != null ||
                 AnnotatedElementUtils.findMergedAnnotation(method, SkipResponseWrapper.class) != null) {
             return false;
         }
-        List<String> excludes = Optional.ofNullable(webEnhanceProperties).map(WebEnhanceProperties::getResponse).map(WebEnhanceProperties.ResponseProperties::getExcludes).orElse(null);
+        List<String> excludes = webEnhanceProperties.getResponse().getExcludes();
         return !(excludes != null && excludes.contains(targetClass.getName()));
-    }
-
-    /**
-     * 判断Content-Type是否为JSON兼容类型
-     *
-     * @param contentType 内容类型字符串
-     * @return 是否为JSON兼容类型
-     */
-    private boolean isJsonCompatible(String contentType) {
-        if (contentType == null || contentType.trim().isEmpty()) {
-            return false;
-        }
-        try {
-            MediaType mediaType = MediaType.parseMediaType(contentType);
-            return MediaType.APPLICATION_JSON.isCompatibleWith(mediaType) || mediaType.getSubtype().toLowerCase().contains("json");
-        } catch (Exception e) {
-            return contentType.toLowerCase().contains("json");
-        }
-    }
-
-    /**
-     * 判断方法是否产出JSON类型响应
-     * <p>优先检查映射注解的 produces 属性；若未指定，默认视为JSON（Spring Boot 默认行为）</p>
-     *
-     * @param method 目标方法
-     * @return 是否产出JSON
-     */
-    private boolean producesJson(Method method) {
-        RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class);
-        if (mapping != null) {
-            String[] produces = mapping.produces();
-            if (produces.length > 0) {
-                for (String produce : produces) {
-                    if (isJsonCompatible(produce)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }
-        return true;
     }
 
     /**
