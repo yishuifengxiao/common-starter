@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Valid;
+import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +19,14 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.framework.AopProxyUtils;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.MediaType;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -148,11 +150,14 @@ public class ParamValidationAspect {
         // 处理带有@Valid或@Validated注解的参数验证
         if (validatedParams != null) {
             for (ValidatedParam vp : validatedParams) {
+                if (vp.value == null) {
+                    continue;
+                }
                 Set<ConstraintViolation<Object>> violations;
                 if (vp.groups != null && vp.groups.length > 0) {
-                    violations = validator.validate(vp.value, vp.groups);
+                    violations = getValidator().validate(vp.value, vp.groups);
                 } else {
-                    violations = validator.validate(vp.value, Default.class);
+                    violations = getValidator().validate(vp.value, Default.class);
                 }
                 if (!violations.isEmpty()) {
                     ConstraintViolationException ex = new ConstraintViolationException(violations);
@@ -224,7 +229,8 @@ public class ParamValidationAspect {
         if (!enable) {
             return false;
         }
-        if (targetClass.isAnnotationPresent(SkipResponseWrapper.class) || method.isAnnotationPresent(SkipResponseWrapper.class)) {
+        if (AnnotatedElementUtils.findMergedAnnotation(targetClass, SkipResponseWrapper.class) != null ||
+                AnnotatedElementUtils.findMergedAnnotation(method, SkipResponseWrapper.class) != null) {
             return false;
         }
         List<String> excludes = Optional.ofNullable(webEnhanceProperties).map(WebEnhanceProperties::getResponse).map(WebEnhanceProperties.ResponseProperties::getExcludes).orElse(null);
@@ -238,6 +244,9 @@ public class ParamValidationAspect {
      * @return 是否为JSON兼容类型
      */
     private boolean isJsonCompatible(String contentType) {
+        if (contentType == null || contentType.trim().isEmpty()) {
+            return false;
+        }
         try {
             MediaType mediaType = MediaType.parseMediaType(contentType);
             return MediaType.APPLICATION_JSON.isCompatibleWith(mediaType) || mediaType.getSubtype().toLowerCase().contains("json");
@@ -254,14 +263,17 @@ public class ParamValidationAspect {
      * @return 是否产出JSON
      */
     private boolean producesJson(Method method) {
-        RequestMapping mapping = method.getAnnotation(RequestMapping.class);
-        if (mapping != null && mapping.produces().length > 0) {
-            for (String produces : mapping.produces()) {
-                if (isJsonCompatible(produces)) {
-                    return true;
+        RequestMapping mapping = AnnotatedElementUtils.getMergedAnnotation(method, RequestMapping.class);
+        if (mapping != null) {
+            String[] produces = mapping.produces();
+            if (produces.length > 0) {
+                for (String produce : produces) {
+                    if (isJsonCompatible(produce)) {
+                        return true;
+                    }
                 }
+                return false;
             }
-            return false;
         }
         return true;
     }
@@ -278,6 +290,16 @@ public class ParamValidationAspect {
             return validated.value();
         }
         return null;
+    }
+
+    /**
+     * 获取校验器实例
+     * <p>优先使用注入的 Validator，若为 null 则使用默认 ValidatorFactory 创建</p>
+     *
+     * @return 校验器实例
+     */
+    private Validator getValidator() {
+        return validator != null ? validator : Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     /**

@@ -186,7 +186,7 @@ public class WebEnhanceProperties {
         /**
          * 是否开启响应增强功能配置，默认为开启
          */
-        private Boolean enable = false;
+        private Boolean enable = true;
 
         /**
          * 不进行响应增加的接口对应的class的全量名

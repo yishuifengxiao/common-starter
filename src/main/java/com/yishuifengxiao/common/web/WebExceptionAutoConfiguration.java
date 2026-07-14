@@ -81,6 +81,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
     public BasicErrorController basicErrorController(@Autowired(required = false) ErrorAttributes errorAttributes, @Autowired(required = false) ErrorProperties errorProperties) {
+        errorAttributes = null == errorAttributes ? new org.springframework.boot.web.servlet.error.DefaultErrorAttributes() : errorAttributes;
         errorProperties = null == errorProperties ? new ErrorProperties() : errorProperties;
         return new BasicErrorController(errorAttributes, errorProperties) {
             @Override
@@ -130,7 +131,8 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         // 若未提取到错误码，则默认使用500（Internal Server Error）
         code = null == code ? HttpStatus.INTERNAL_SERVER_ERROR.value() : code;
         // 构建统一的响应对象，包含错误码、异常消息、上下文数据和链路追踪ID
-        Response<Object> result = new Response<>(code, e.getMessage(),
+        String message = StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "请求处理失败";
+        Response<Object> result = new Response<>(code, message,
                 context).setRequestId(ssid);
         if (log.isDebugEnabled()) {
             log.debug("【Global exception interception】" + "traceId={} request {} " + "request " + "failed, The " +
@@ -220,7 +222,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
         } else if (e instanceof HttpRequestMethodNotSupportedException) {
             return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前请求方法");
         } else if (e instanceof HttpMediaTypeNotSupportedException) {
-            return new Response<>(HttpStatus.METHOD_NOT_ALLOWED.value(), "不支持当前媒体类型");
+            return new Response<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE.value(), "不支持当前媒体类型");
         } else if (e instanceof NullPointerException) {
             if (log.isWarnEnabled()) {
                 log.warn("[NPE] 请求出现NPE ,错误原因为 {}", e);
