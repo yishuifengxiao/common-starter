@@ -1,15 +1,12 @@
 package com.yishuifengxiao.common.web;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Valid;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
+import jakarta.validation.*;
 import jakarta.validation.groups.Default;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +17,16 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.http.MediaType;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -44,11 +42,12 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 public class ParamValidationAspect {
-
+    private final static ObjectMapper defaultObjectMapper = new ObjectMapper();
     // 校验器实例
     private final Validator validator;
     // Web增强配置属性
     private final WebEnhanceProperties webEnhanceProperties;
+    private final ObjectMapper objectMapper;
 
     /**
      * 公共方法切入点：匹配任意映射注解
@@ -72,14 +71,16 @@ public class ParamValidationAspect {
     /**
      * 条件2：类标注 @Controller，方法标注映射注解且方法必须有 @ResponseBody
      */
-    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "mappingMethods() && " + "@annotation(org.springframework.web.bind.annotation.ResponseBody)")
+    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "mappingMethods() && " + "@annotation(org" +
+            ".springframework.web.bind.annotation.ResponseBody)")
     public void controllerWithMethodResponseBody() {
     }
 
     /**
      * 条件3：类同时标注 @Controller 和 @ResponseBody，方法标注任意映射注解
      */
-    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "@within(org.springframework.web.bind.annotation.ResponseBody) && " + "mappingMethods()")
+    @Pointcut("@within(org.springframework.stereotype.Controller) && " + "@within(org.springframework.web.bind" +
+            ".annotation.ResponseBody) && " + "mappingMethods()")
     public void responseBodyClassMethods() {
     }
 
@@ -142,7 +143,9 @@ public class ParamValidationAspect {
         // 处理BindingResult中的错误
         if (bindingResult != null && bindingResult.hasErrors()) {
             BindException bindException = new BindException(bindingResult);
-            String msg = Optional.ofNullable(bindingResult.getFieldError()).map(FieldError::getDefaultMessage).orElse("参数校验失败");
+            String msg =
+                    Optional.ofNullable(bindingResult.getFieldError()).map(FieldError::getDefaultMessage).orElse(
+                            "参数校验失败");
             throw new UncheckedException(msg, bindException);
         }
 
@@ -187,11 +190,32 @@ public class ParamValidationAspect {
             if (!shouldWrapResponse(targetClass, method)) {
                 return null;
             }
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes attributes =
+                    (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attributes != null) {
                 HttpServletResponse response = attributes.getResponse();
-                if (response != null && response.isCommitted()) {
+                if (response == null || response.isCommitted()) {
+                    // 响应已提交，避免重复写入
                     return null;
+                } else {
+                    try {
+                        // 构造统一响应（data 设为 null）
+                        Response<Object> resp = Response.suc().setData(null);
+                        String requestId = TraceContext.get();
+                        resp.setRequestId(requestId);
+
+                        // 设置响应头
+                        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                        response.setStatus(HttpServletResponse.SC_OK);
+
+                        // 写出 JSON
+                        PrintWriter writer = response.getWriter();
+                        getObjectMapper().writeValue(writer, resp);
+                        writer.flush();
+                    } catch (Exception e) {
+                        log.error("Failed to write void response for class {} method: {}", targetClass.getName(),
+                                method.getName(), e);
+                    }
                 }
             }
             String ssid = TraceContext.get();
@@ -243,6 +267,17 @@ public class ParamValidationAspect {
      */
     private Validator getValidator() {
         return validator != null ? validator : Validation.buildDefaultValidatorFactory().getValidator();
+    }
+
+
+    /**
+     * 获取ObjectMapper实例的方法
+     * 如果objectMapper不为null，则返回objectMapper；否则返回defaultObjectMapper
+     *
+     * @return 返回ObjectMapper实例，可能是自定义的objectMapper或默认的defaultObjectMapper
+     */
+    private ObjectMapper getObjectMapper() {
+        return objectMapper != null ? objectMapper : defaultObjectMapper;
     }
 
     /**

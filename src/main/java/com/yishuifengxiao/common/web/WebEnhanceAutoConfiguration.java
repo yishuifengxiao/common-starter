@@ -4,6 +4,7 @@
 package com.yishuifengxiao.common.web;
 
 import ch.qos.logback.classic.Level;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.log.LogLevelUtil;
 import com.yishuifengxiao.common.tool.random.IdWorker;
@@ -54,6 +55,8 @@ public class WebEnhanceAutoConfiguration {
     private WebEnhanceProperties webEnhanceProperties;
     @Autowired(required = false)
     private Validator validator;
+    @Autowired(required = false)
+    private ObjectMapper objectMapper;
 
     /**
      * 创建并配置参数验证切面(ParamValidationAspect)的Bean
@@ -64,7 +67,7 @@ public class WebEnhanceAutoConfiguration {
     @Bean
     public ParamValidationAspect paramValidationAspect() {
         // 使用validator和webEnhanceProperties创建参数验证切面实例
-        return new ParamValidationAspect(validator, webEnhanceProperties);
+        return new ParamValidationAspect(validator, webEnhanceProperties,objectMapper);
     }
 
     @Bean
@@ -174,7 +177,8 @@ public class WebEnhanceAutoConfiguration {
             }
             try {
                 String val =
-                        new String(Base64.getDecoder().decode(text.getBytes(StandardCharsets.UTF_8)), StandardCharsets.UTF_8);
+                        new String(Base64.getDecoder().decode(text.getBytes(StandardCharsets.UTF_8)),
+                                StandardCharsets.UTF_8);
                 if (StringUtils.isBlank(val)) {
                     return null;
                 }
