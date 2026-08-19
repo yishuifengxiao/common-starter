@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.eunm.CodeType;
+import com.yishuifengxiao.common.code.enums.CodeType;
 import com.yishuifengxiao.common.code.generator.CodeGenerator;
 import com.yishuifengxiao.common.code.holder.CodeHolder;
 import com.yishuifengxiao.common.code.sender.CodeSender;

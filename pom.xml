@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.yishuifengxiao.common</groupId>
     <artifactId>common-spring-boot-starter</artifactId>
-    <version>8.4.1</version>
+    <version>9.0.0</version>
     <packaging>jar</packaging>
     <name>common-spring-boot-starter</name>
     <url>http://www.yishuifengxiao.com</url>
@@ -35,17 +35,16 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.16</version>
+        <version>4.1.0</version>
     </parent>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <build.finalName>common-spring-boot-starter</build.finalName>
-        <yishuifengxiao.tool.version>8.6.1</yishuifengxiao.tool.version>
+        <yishuifengxiao.tool.version>9.0.1</yishuifengxiao.tool.version>
         <maven.source.version>17</maven.source.version>
         <maven.target.version>17</maven.target.version>
         <swagger.version>4.5.0</swagger.version>
         <guava.version>33.5.0-jre</guava.version>
-        <oauth2-authorization-server.version>1.2.1</oauth2-authorization-server.version>
         <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
@@ -83,10 +82,31 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
-        <!-- web -->
+        <!-- web (Spring Boot 4.x renamed to webmvc) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- Spring Boot 4.x modular auto-configurations -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-webmvc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jdbc</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-security</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-data-redis</artifactId>
             <optional>true</optional>
         </dependency>
         <!-- web -->
@@ -94,10 +114,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.boot</groupId>-->
+<!--            <artifactId>spring-boot-starter-aop</artifactId>-->
+<!--        </dependency>-->
         <!-- 辅助依赖 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -147,8 +167,23 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-oauth2-authorization-server</artifactId>
-            <version>${oauth2-authorization-server.version}</version>
             <optional>true</optional>
+            <exclusions>
+                <!-- Spring Boot 4.x BOM 应当托管 Spring Authorization Server 3.x（Jackson3 兼容版）
+                     对 BOM 未托管到 3.x 的场景兜底，强制阻断 Jackson 2.x 的 databind/core 传递 -->
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

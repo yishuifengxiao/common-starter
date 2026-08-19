@@ -9,7 +9,7 @@ import com.yishuifengxiao.common.security.support.SecurityHolder;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.builder.TokenBuilder;
 import com.yishuifengxiao.common.security.token.extractor.SecurityTokenResolver;
-import com.yishuifengxiao.common.security.utils.SimepleUserDetailsChecker;
+import com.yishuifengxiao.common.security.utils.SimpleUserDetailsChecker;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -217,7 +217,7 @@ public class SecurityTokenGlobalValidateFilter implements SecurityRequestFilter,
         this.userDetailsService = userDetailsService;
         this.securityTokenResolver = securityTokenResolver;
         this.tokenBuilder = tokenBuilder;
-        this.userDetailsChecker = new SimepleUserDetailsChecker(securityPropertyResource);
+        this.userDetailsChecker = new SimpleUserDetailsChecker(securityPropertyResource);
     }
 
 }

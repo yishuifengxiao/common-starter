@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.security.httpsecurity.filter;
 
 import com.yishuifengxiao.common.code.CodeProducer;
-import com.yishuifengxiao.common.code.eunm.CodeType;
+import com.yishuifengxiao.common.code.enums.CodeType;
 import com.yishuifengxiao.common.security.httpsecurity.SecurityRequestFilter;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.support.SecurityHandler;

@@ -15,9 +15,9 @@ public class SimpleOAuth2TokenGenerator implements OAuth2TokenGenerator<OAuth2To
 
     public SimpleOAuth2TokenGenerator(JwtEncoder jwtEncoder) {
         JwtGenerator jwtGenerator = new JwtGenerator(jwtEncoder);
-        jwtGenerator.setJwtCustomizer(new JwtTokeCustomizer());
+        jwtGenerator.setJwtCustomizer(new JwtTokenCustomizer());
         OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
-        accessTokenGenerator.setAccessTokenCustomizer(new OAuth2AccessTokeCustomizer());
+        accessTokenGenerator.setAccessTokenCustomizer(new OAuth2AccessTokenCustomizer());
         OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
         this.delegatingOAuth2TokenGenerator = new DelegatingOAuth2TokenGenerator(
                 jwtGenerator, accessTokenGenerator, refreshTokenGenerator);

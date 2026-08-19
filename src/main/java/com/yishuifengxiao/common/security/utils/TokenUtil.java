@@ -354,7 +354,7 @@ public class TokenUtil {
         TokenUtil.userDetailsService = userDetailsService;
         TokenUtil.tokenBuilder = tokenBuilder;
         TokenUtil.securityValueExtractor = securityValueExtractor;
-        TokenUtil.userDetailsChecker = new SimepleUserDetailsChecker(securityPropertyResource);
+        TokenUtil.userDetailsChecker = new SimpleUserDetailsChecker(securityPropertyResource);
 
     }
 

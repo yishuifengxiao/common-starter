@@ -176,7 +176,7 @@ public class WebEnhanceProperties {
 
         //@formatter:off
         private final static List<String> list = Arrays.asList(
-                "org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController",
+                "org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController",
                 "springfox.documentation.swagger.web.ApiResourceController",
                 "springfox.documentation.swagger2.web.Swagger2ControllerWebMvc",
                 "org.springdoc.webmvc.ui.SwaggerConfigResource",

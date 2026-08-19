@@ -105,8 +105,7 @@ public class SimpleRegisteredClientRepository implements RegisteredClientReposit
                         AuthorizationGrantType.AUTHORIZATION_CODE,
                         AuthorizationGrantType.REFRESH_TOKEN,
                         AuthorizationGrantType.CLIENT_CREDENTIALS,
-                        AuthorizationGrantType.JWT_BEARER,
-                        AuthorizationGrantType.PASSWORD
+                        AuthorizationGrantType.JWT_BEARER
                         )))
                 .redirectUri("http://127.0.0.1:8080/login/oauth2/code/messaging-client-oidc")
                 .redirectUri("http://www.yishuifengxiao.com")

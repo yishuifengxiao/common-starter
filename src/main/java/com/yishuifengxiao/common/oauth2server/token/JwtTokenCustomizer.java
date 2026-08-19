@@ -13,7 +13,7 @@ import org.springframework.security.oauth2.server.authorization.token.OAuth2Toke
  * @date 2024/1/7 21:40
  * @since 1.0.0
  */
-public class JwtTokeCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
+public class JwtTokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
 
     @Override
     public void customize(JwtEncodingContext context) {

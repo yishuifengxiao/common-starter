@@ -16,11 +16,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -96,13 +97,8 @@ public class ResourceHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanc
                         if (null != provider && null != provider.requestMatcher()) {
                             authorizeHttpRequests.requestMatchers(provider.requestMatcher()).access(new AuthorizationManager<>() {
                                 @Override
-                                public void verify(Supplier<Authentication> authentication,
-                                                   RequestAuthorizationContext object) {
-                                    AuthorizationManager.super.verify(authentication, object);
-                                }
-
-                                @Override
-                                public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+                                public AuthorizationResult authorize(Supplier<? extends Authentication> authentication,
+                                                                       RequestAuthorizationContext object) {
                                     Boolean value = authorizationDecision(resources, object,
                                             authentication);
                                     if (null != value) {
@@ -117,17 +113,11 @@ public class ResourceHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanc
                 } else {
                     if (null != resources && !resources.isEmpty()) {
                         List<RequestMatcher> matchers =
-                                resources.stream().map(v -> new AntPathRequestMatcher(v.getUri(),
-                                        v.getRequestMethod().name())).collect(Collectors.toList());
+                                resources.stream().map(v -> PathPatternRequestMatcher.pathPattern(HttpMethod.valueOf(v.getRequestMethod().name()),
+                                        v.getUri())).collect(Collectors.toList());
                         authorizeHttpRequests.requestMatchers(new OrRequestMatcher(matchers)).access(new AuthorizationManager<>() {
                             @Override
-                            public void verify(Supplier<Authentication> authentication,
-                                               RequestAuthorizationContext object) {
-                                AuthorizationManager.super.verify(authentication, object);
-                            }
-
-                            @Override
-                            public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+                            public AuthorizationResult authorize(Supplier<? extends Authentication> authentication, RequestAuthorizationContext object) {
                                 Boolean value = authorizationDecision(resources,
                                         object, authentication);
                                 if (value != null) {
@@ -155,13 +145,13 @@ public class ResourceHttpSecurityEnhanceCustomizer implements HttpSecurityEnhanc
 
     private static Boolean authorizationDecision(List<ResourceHelper.UrlResource> resources,
                                                  RequestAuthorizationContext context,
-                                                 Supplier<Authentication> authentication) {
+                                                 Supplier<? extends Authentication> authentication) {
         if (null == resources || resources.isEmpty()) {
             return null;
         }
         ResourceHelper.UrlResource resource =
-                resources.parallelStream().filter(v -> new AntPathRequestMatcher(v.getUri(),
-                        v.getRequestMethod().name()).matches(context.getRequest())).findFirst().orElse(null);
+                resources.parallelStream().filter(v -> PathPatternRequestMatcher.pathPattern(HttpMethod.valueOf(v.getRequestMethod().name()),
+                        v.getUri()).matches(context.getRequest())).findFirst().orElse(null);
         if (null != resource) {
             DefaultHttpSecurityExpressionHandler defaultHttpSecurityExpressionHandler =
                     new DefaultHttpSecurityExpressionHandler();

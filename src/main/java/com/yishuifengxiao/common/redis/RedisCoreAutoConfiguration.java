@@ -3,10 +3,10 @@ package com.yishuifengxiao.common.redis;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import com.yishuifengxiao.common.code.CodeAutoConfiguration;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +37,7 @@ import org.springframework.data.redis.serializer.*;
 @Slf4j
 @Configuration
 @ConditionalOnClass(RedisOperations.class)
-@AutoConfigureBefore(value = { CodeAutoConfiguration.class, RedisAutoConfiguration.class })
+@AutoConfigureBefore(value = { CodeAutoConfiguration.class, DataRedisAutoConfiguration.class })
 @EnableConfigurationProperties(RedisProperties.class)
 @ConditionalOnProperty(prefix = "yishuifengxiao.redis", name = {
 		"enable" }, havingValue = "true", matchIfMissing = true)
@@ -51,31 +51,28 @@ public class RedisCoreAutoConfiguration {
 	 * 
 	 * @return Redis序列化器
 	 */
-	@SuppressWarnings("deprecation")
 	@Bean("redisValueSerializer")
 	@ConditionalOnMissingBean(name = "redisValueSerializer")
 	public RedisSerializer<Object> redisValueSerializer() {
 
-		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-		// 反序列化时候遇到不匹配的属性并不抛出异常
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		// 序列化时候遇到空对象不抛出异常
-		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		// 反序列化的时候如果是无效子类型,不抛出异常
-		objectMapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
-		// 不使用默认的dateTime进行序列化,
-		objectMapper.configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false);
-		// 使用JSR310提供的序列化类,里面包含了大量的JDK8时间序列化类
-		objectMapper.registerModule(new JavaTimeModule());
-		// 启用反序列化所需的类型信息,在属性中添加@class
-//		objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL,
-//				com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY);
-		objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-		// 配置null值的序列化器
-//		GenericJackson2JsonRedisSerializer.registerNullValueSerializer(objectMapper, null);
+		ObjectMapper objectMapper = JsonMapper.builder()
+				// 设置可见性（Jackson3 用 changeDefaultVisibility）
+				.changeDefaultVisibility(vc -> vc.withVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY))
+				// 反序列化时候遇到不匹配的属性并不抛出异常
+				.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+				// 序列化时候遇到空对象不抛出异常
+				.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+				// 反序列化的时候如果是无效子类型,不抛出异常
+				.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+				// 自动发现并注册所有通过ServiceLoader可见的Jackson模块（包括JSR310等）
+				.findAndAddModules()
+				// 启用反序列化所需的类型信息,在属性中添加@class（Jackson3 用 builder.activateDefaultTyping，Permit-all validator 模拟 LaissezFaire）
+				.activateDefaultTyping(tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator.builder()
+								.allowIfBaseType(Object.class).build(),
+						tools.jackson.databind.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+				.build();
 
-		return new GenericJackson2JsonRedisSerializer(objectMapper);
+		return new GenericJacksonJsonRedisSerializer(objectMapper);
 	}
 
 	/**

@@ -17,10 +17,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.SearchStrategy;
 import org.springframework.boot.autoconfigure.web.ErrorProperties;
-import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
-import org.springframework.boot.web.servlet.error.ErrorAttributes;
-import org.springframework.boot.web.servlet.error.ErrorController;
+import org.springframework.boot.webmvc.autoconfigure.error.BasicErrorController;
+import org.springframework.boot.webmvc.autoconfigure.error.ErrorMvcAutoConfiguration;
+import org.springframework.boot.webmvc.error.ErrorAttributes;
+import org.springframework.boot.webmvc.error.ErrorController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -81,7 +81,7 @@ public class WebExceptionAutoConfiguration implements InitializingBean {
     @Bean
     @ConditionalOnMissingBean(value = ErrorController.class, search = SearchStrategy.CURRENT)
     public BasicErrorController basicErrorController(@Autowired(required = false) ErrorAttributes errorAttributes, @Autowired(required = false) ErrorProperties errorProperties) {
-        errorAttributes = null == errorAttributes ? new org.springframework.boot.web.servlet.error.DefaultErrorAttributes() : errorAttributes;
+        errorAttributes = null == errorAttributes ? new org.springframework.boot.webmvc.error.DefaultErrorAttributes() : errorAttributes;
         errorProperties = null == errorProperties ? new ErrorProperties() : errorProperties;
         return new BasicErrorController(errorAttributes, errorProperties) {
             @Override

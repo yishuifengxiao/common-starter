@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.security.support.impl;
 import com.yishuifengxiao.common.security.SecurityPropertyResource;
 import com.yishuifengxiao.common.security.constant.SecurityConstant;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
-import com.yishuifengxiao.common.security.exception.ExpireTokenException;
+import com.yishuifengxiao.common.security.exception.ExpiredTokenException;
 import com.yishuifengxiao.common.security.exception.IllegalTokenException;
 import com.yishuifengxiao.common.security.exception.InvalidTokenException;
 import com.yishuifengxiao.common.security.support.SecurityEvent;
@@ -235,7 +235,7 @@ public class BaseSecurityHandler implements SecurityHandler {
                 SecurityContextHolder.getContext().getAuthentication(), exception));
 
         if (isJsonRequest(request, response)) {
-            if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpireTokenException) {
+            if (exception instanceof InvalidTokenException || exception instanceof IllegalTokenException || exception instanceof ExpiredTokenException) {
                 sendJson(request, response, Strategy.ACCESS_DENIED,
                         Response.of(securityPropertyResource.security().getMsg().getInvalidTokenValueCode(),
                                 securityPropertyResource.security().getMsg().getTokenIsNull(),

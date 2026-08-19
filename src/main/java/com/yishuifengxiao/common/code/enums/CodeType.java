@@ -1,7 +1,7 @@
 /**
  *
  */
-package com.yishuifengxiao.common.code.eunm;
+package com.yishuifengxiao.common.code.enums;
 
 import org.springframework.util.Assert;
 

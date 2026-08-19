@@ -9,7 +9,7 @@ import com.yishuifengxiao.common.security.utils.PermitAllRequestMatcher;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -108,7 +108,7 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
                 // 登陆页面的URL
                 securityProperties.getLoginPage()));
 
-        List<RequestMatcher> matchers = urls.stream().filter(StringUtils::isNotBlank).map(AntPathRequestMatcher::new).collect(Collectors.toList());
+        List<RequestMatcher> matchers = urls.stream().filter(StringUtils::isNotBlank).map(PathPatternRequestMatcher::pathPattern).collect(Collectors.toList());
 
         return new OrRequestMatcher(matchers);
     }
@@ -118,7 +118,7 @@ public class SimpleSecurityPropertyResource implements SecurityPropertyResource 
         List<RequestMatcher> requestMatchers = new ArrayList<>();
         requestMatchers.add(this.permitAll());
         requestMatchers.add(this.anonymous());
-        this.getUrls(this.securityProperties.getToken().getGlobalVerificationExcludeUrls()).stream().map(AntPathRequestMatcher::new).forEach(requestMatchers::add);
+        this.getUrls(this.securityProperties.getToken().getGlobalVerificationExcludeUrls()).stream().map(PathPatternRequestMatcher::pathPattern).forEach(requestMatchers::add);
         return new OrRequestMatcher(requestMatchers);
     }
 

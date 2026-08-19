@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.server.authorization.OAuth2Authorizat
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -52,7 +52,7 @@ public class Oauth2SecurityGlobalEnhanceFilter extends OncePerRequestFilter {
         this.oauth2Properties = oauth2Properties;
         this.registeredClientRepository = registeredClientRepository;
         this.authorizationConsentService = authorizationConsentService;
-        this.authorizationEnhanceEndpointMatcher = new AntPathRequestMatcher(oauth2Properties.getConsentInfoPath());
+        this.authorizationEnhanceEndpointMatcher = PathPatternRequestMatcher.pathPattern(oauth2Properties.getConsentInfoPath());
         this.authorizationServerSettings = authorizationServerSettings;
     }
 

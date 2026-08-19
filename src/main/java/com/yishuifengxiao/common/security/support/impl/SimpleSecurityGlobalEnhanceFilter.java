@@ -14,7 +14,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -125,6 +125,6 @@ public class SimpleSecurityGlobalEnhanceFilter extends AbstractSecurityGlobalEnh
 
     public SimpleSecurityGlobalEnhanceFilter(SecurityPropertyResource securityPropertyResource) {
         this.securityPropertyResource = securityPropertyResource;
-        this.requestMatcher = new AntPathRequestMatcher(DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI, HttpMethod.GET.name());
+        this.requestMatcher = PathPatternRequestMatcher.pathPattern(HttpMethod.GET, DEFAULT_SECURITY_AUTHORIZATION_SERVER_METADATA_ENDPOINT_URI);
     }
 }
