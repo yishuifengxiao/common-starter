@@ -6,7 +6,7 @@ package com.yishuifengxiao.common.code;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import com.yishuifengxiao.common.code.entity.ValidateCode;
-import com.yishuifengxiao.common.code.eunm.CodeType;
+import com.yishuifengxiao.common.code.enums.CodeType;
 import com.yishuifengxiao.common.tool.exception.CustomException ;
 
 /**

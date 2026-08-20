@@ -9,7 +9,7 @@ import org.springframework.security.access.AccessDeniedException;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class ExpireTokenException extends AccessDeniedException {
+public class ExpiredTokenException extends AccessDeniedException {
 
     /**
 	 * 
@@ -17,16 +17,16 @@ public class ExpireTokenException extends AccessDeniedException {
 	private static final long serialVersionUID = -3678260187783988310L;
 	private int code;
 
-    public ExpireTokenException(String msg) {
+    public ExpiredTokenException(String msg) {
         super(msg);
     }
 
-    public ExpireTokenException(int code, String msg) {
+    public ExpiredTokenException(int code, String msg) {
         super(msg);
         this.code = code;
     }
 
-    public ExpireTokenException(int code, String msg, Throwable cause) {
+    public ExpiredTokenException(int code, String msg, Throwable cause) {
         super(msg, cause);
         this.code = code;
     }

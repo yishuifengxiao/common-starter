@@ -141,7 +141,7 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	}
 
 	private HTTPResponse adaptToCustomResponse(ResponseEntity<String> responseEntity) {
-		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCodeValue());
+		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCode().value());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.getHeaders().getContentType().toString());
 		response.setContent(responseEntity.getBody());
 
@@ -185,7 +185,7 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 	@SuppressWarnings("deprecation")
 	private HttpHeaders requestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
-		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
+		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 		return headers;
 	}
 
@@ -202,8 +202,12 @@ public class CustomOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 			return false;
 		}
 
-		@Override
 		public void handleError(ClientHttpResponse response) throws IOException {
+			throw new IOException("验证token有效性时出现问题");
+		}
+
+		@Override
+		public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
 			throw new IOException("验证token有效性时出现问题");
 		}
 	}

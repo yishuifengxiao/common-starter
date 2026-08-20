@@ -18,9 +18,9 @@
 package com.yishuifengxiao.common.support;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.DefaultPropertiesPropertySource;
+import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.env.EnvironmentPostProcessor;
+import org.springframework.boot.env.DefaultPropertiesPropertySource;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.ClassUtils;
 
@@ -51,7 +51,7 @@ public class SpringEnvironmentPostProcessor implements EnvironmentPostProcessor 
     /**
      * 当前策略枚举类全路径
      */
-    final static String MATCHING_CLASS_NAME = "org.springframework.boot.autoconfigure.web.servlet"
+    final static String MATCHING_CLASS_NAME = "org.springframework.boot.webmvc.autoconfigure"
             + ".WebMvcProperties.MatchingStrategy";
 
 

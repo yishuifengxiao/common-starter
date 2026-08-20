@@ -36,7 +36,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken implemen
      * @param mobile 手机号
      */
     public SmsAuthenticationToken(String mobile) {
-        super(null);
+        super(java.util.Collections.emptyList());
         this.mobile = mobile;
         setAuthenticated(false);
     }

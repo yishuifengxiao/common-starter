@@ -16,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * @since 1.0.0
  */
 @Slf4j
-public class CustomeUserDetailsServiceImpl implements UserDetailsService {
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
     private PasswordEncoder passwordEncoder;
 
@@ -38,7 +38,7 @@ public class CustomeUserDetailsServiceImpl implements UserDetailsService {
                 AuthorityUtils.commaSeparatedStringToAuthorityList("admin,ROLE_USER")).setCurrentUser(new Object());
     }
 
-    public CustomeUserDetailsServiceImpl(PasswordEncoder passwordEncoder) {
+    public CustomUserDetailsServiceImpl(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
     }
 

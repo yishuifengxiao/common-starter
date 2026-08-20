@@ -3,7 +3,7 @@ package com.yishuifengxiao.common.security.utils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -34,7 +34,7 @@ public class PermitAllRequestMatcher implements RequestMatcher {
         suffixes = null == suffixes ? Collections.emptyList() : suffixes.stream().filter(StringUtils::isNotBlank).distinct().collect(Collectors.toList());
 
         List<RequestMatcher> requestMatchers = new ArrayList<>();
-        patterns.stream().map(AntPathRequestMatcher::new).forEach(requestMatchers::add);
+        patterns.stream().map(PathPatternRequestMatcher::pathPattern).forEach(requestMatchers::add);
 
         if (!suffixes.isEmpty()) {
             requestMatchers.add(httpServletRequest -> {

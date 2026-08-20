@@ -3,21 +3,21 @@ package com.yishuifengxiao.common.oauth2server.authorization;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JacksonModule;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.SerializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.Nullable;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.jackson.SecurityJacksonModules;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2RefreshToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.*;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
-import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2AuthorizationServerJackson2Module;
+import org.springframework.security.oauth2.server.authorization.jackson.OAuth2AuthorizationServerJacksonModule;
 import org.springframework.util.Assert;
 
 import java.util.LinkedHashMap;
@@ -39,35 +39,32 @@ public class RedisOAuth2AuthorizationService implements OAuth2AuthorizationServi
 
     private RegisteredClientRepository registeredClientRepository;
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper;
 
     static {
-
-        objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
-        // 反序列化时候遇到不匹配的属性并不抛出异常
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        // 序列化时候遇到空对象不抛出异常
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        // 反序列化的时候如果是无效子类型,不抛出异常
-        objectMapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
-        // 不使用默认的dateTime进行序列化,
-        objectMapper.configure(SerializationFeature.WRITE_DATE_KEYS_AS_TIMESTAMPS, false);
-        // 使用JSR310提供的序列化类,里面包含了大量的JDK8时间序列化类
-        objectMapper.registerModule(new JavaTimeModule());
-        // 启用反序列化所需的类型信息,在属性中添加@class
-//		objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL,
-//				com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY);
-        objectMapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
         ClassLoader classLoader = JdbcOAuth2AuthorizationService.class.getClassLoader();
-        List<Module> securityModules = SecurityJackson2Modules.getModules(classLoader);
-        objectMapper.registerModules(securityModules);
-        objectMapper.registerModule(new OAuth2AuthorizationServerJackson2Module());
-        //  Spring Security为持久化Spring Security相关的类提供了Jackson支持。
-        //  这可以提高在使用分布式会话（会话复制、Spring Session等）时序列化Spring Security相关类的性能。
-        // https://springdoc.cn/spring-security/servlet/integrations/jackson.html
-        ClassLoader loader = OAuth2AuthorizationService.class.getClassLoader();
-        List<com.fasterxml.jackson.databind.Module> modules = SecurityJackson2Modules.getModules(loader);
-        objectMapper.registerModules(modules);
+        List<JacksonModule> securityModules = SecurityJacksonModules.getModules(classLoader);
+        //  Spring Security 为持久化 Spring Security 相关的类提供了 Jackson 支持
+        //  Jackson3 全部配置在 Builder 阶段完成：Modules + DefaultTyping + Visibility
+        objectMapper = JsonMapper.builder()
+                // 设置可见性（Jackson3 用 changeDefaultVisibility）
+                .changeDefaultVisibility(vc -> vc.withVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY))
+                // 反序列化时候遇到不匹配的属性并不抛出异常
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                // 序列化时候遇到空对象不抛出异常
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                // 反序列化的时候如果是无效子类型,不抛出异常
+                .configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false)
+                // 自动发现并注册所有通过ServiceLoader可见的Jackson模块（包括JSR310等）
+                .findAndAddModules()
+                // 注册 Spring Security 相关模块（Jackson3 版本的 JacksonModule）
+                .addModules(securityModules)
+                .addModule(new OAuth2AuthorizationServerJacksonModule())
+                // 启用反序列化所需的类型信息,在属性中添加@class（Jackson3 builder 阶段 activateDefaultTyping，Permit-all validator）
+                .activateDefaultTyping(tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator.builder()
+                                .allowIfBaseType(Object.class).build(),
+                        tools.jackson.databind.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
     }
 
 

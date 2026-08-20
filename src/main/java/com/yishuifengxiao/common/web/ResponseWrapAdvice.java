@@ -10,7 +10,6 @@ import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -64,7 +63,8 @@ public class ResponseWrapAdvice implements ResponseBodyAdvice<Object> {
             }
         }
 
-        return AbstractJackson2HttpMessageConverter.class.isAssignableFrom(converterType);
+        // 不再绑定具体 JSON 实现类名；统一按 MediaType 在 beforeBodyWrite 中筛选，兼容任何 JSON 消息转换器
+        return true;
     }
 
     @Override
@@ -85,7 +85,8 @@ public class ResponseWrapAdvice implements ResponseBodyAdvice<Object> {
             return null;
         }
 
-        if (!AbstractJackson2HttpMessageConverter.class.isAssignableFrom(selectedConverterType)) {
+        // 只处理 JSON 内容
+        if (selectedContentType == null || !selectedContentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
             return body;
         }
 

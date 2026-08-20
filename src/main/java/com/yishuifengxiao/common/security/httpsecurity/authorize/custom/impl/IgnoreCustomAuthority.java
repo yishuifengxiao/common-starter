@@ -42,7 +42,7 @@ public class IgnoreCustomAuthority implements CustomResourceConfigurator {
 
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+    public AuthorizationDecision check(Supplier<? extends Authentication> authentication, RequestAuthorizationContext object) {
         boolean isMatch = false;
         matcher.setCaseSensitive(false);
         log.debug("【授权管理】所有需要忽视的目录为 {}", urls);

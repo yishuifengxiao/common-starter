@@ -6,7 +6,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.Assert;
 
 
@@ -35,7 +35,7 @@ public class SmsAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 
     public SmsAuthenticationFilter(String url) {
-        super(new AntPathRequestMatcher(url, "POST"));
+        super(PathPatternRequestMatcher.pathPattern(url));
     }
 
 

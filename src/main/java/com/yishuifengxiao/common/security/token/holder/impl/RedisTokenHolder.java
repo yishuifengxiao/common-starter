@@ -1,19 +1,12 @@
 package com.yishuifengxiao.common.security.token.holder.impl;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.token.SecurityToken;
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
-import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.exception.CustomException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.BoundValueOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.jackson2.CoreJackson2Module;
-import org.springframework.security.web.jackson2.WebJackson2Module;
-import org.springframework.security.web.jackson2.WebServletJackson2Module;
-import org.springframework.security.web.server.jackson2.WebServerJackson2Module;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -44,26 +37,6 @@ public class RedisTokenHolder implements TokenHolder {
 
     private RedisTemplate<String, Object> redisTemplate;
 
-    private final static ObjectMapper mapper = JsonUtil.mapper();
-
-    static {
-        try {
-            // 启用反序列化所需的类型信息,在属性中添加@class
-            mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL,
-                    JsonTypeInfo.As.PROPERTY);
-            mapper.registerModule(new CoreJackson2Module());
-            mapper.registerModule(new WebJackson2Module());
-            mapper.registerModule(new WebServletJackson2Module());
-            mapper.registerModule(new WebServerJackson2Module());
-            ClassLoader loader = RedisTokenHolder.class.getClassLoader();
-//            List<com.fasterxml.jackson.databind.Module> modules =
-//                    SecurityJackson2Modules.getModules(loader);
-//            mapper.registerModules(modules);
-        } catch (Exception e) {
-        }
-
-
-    }
 
     /**
      * <p>

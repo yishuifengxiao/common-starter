@@ -5,10 +5,6 @@ package com.yishuifengxiao.common.security.token;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
 import com.yishuifengxiao.common.tool.codec.Md5;
 import com.yishuifengxiao.common.tool.random.IdWorker;
@@ -63,16 +59,12 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
      * token的首次生成时间
      */
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime issueAt;
 
     /**
      * token的过期时间点
      */
     @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @JsonSerialize(using = LocalDateTimeSerializer.class)
     private LocalDateTime expireAt;
 
 
@@ -198,7 +190,7 @@ public class SecurityToken extends AbstractAuthenticationToken implements Serial
     }
 
     private SecurityToken() {
-        super(null);
+        super(java.util.Collections.emptyList());
         this.value = null;
     }
 

@@ -1,7 +1,7 @@
 package com.yishuifengxiao.common.utils;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.security.constant.TokenConstant;
+import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import com.yishuifengxiao.common.tool.collections.CollUtil;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
 import com.yishuifengxiao.common.tool.io.CloseUtil;
@@ -44,8 +44,6 @@ public class HttpUtils {
                     "-IP", "HTTP_X_FORWARDED_FOR", "HTTP_X_FORWARDED", "HTTP_X_CLUSTER_CLIENT_IP", "HTTP_CLIENT_IP",
             "HTTP_FORWARDED_FOR", "HTTP_FORWARDED", "HTTP_VIA", "REMOTE_ADDR", "X-Real-IP").collect(Collectors.toList());
 
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     /**
      * json请求标志
@@ -107,7 +105,7 @@ public class HttpUtils {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         try {
-            response.getWriter().write(MAPPER.writeValueAsString(data));
+            response.getWriter().write(JsonUtil.toJSONString(data));
             response.getWriter().flush();
             response.getWriter().close();
         } catch (Exception e) {

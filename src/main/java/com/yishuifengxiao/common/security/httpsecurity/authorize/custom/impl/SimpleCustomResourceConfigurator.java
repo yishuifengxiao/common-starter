@@ -23,7 +23,7 @@ public class SimpleCustomResourceConfigurator implements CustomResourceConfigura
 
 
     @Override
-    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+    public AuthorizationDecision check(Supplier<? extends Authentication> authentication, RequestAuthorizationContext object) {
         HttpServletRequest request = object.getRequest();
         Authentication auth = authentication.get();
         log.debug("【自定义授权】自定义授权的路径为 {}，认证信息为 {}  ", request.getRequestURI(), auth);

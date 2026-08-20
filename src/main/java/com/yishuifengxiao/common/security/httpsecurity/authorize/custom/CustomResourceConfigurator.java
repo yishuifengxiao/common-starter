@@ -49,7 +49,7 @@ public interface CustomResourceConfigurator {
      * @return an {@link AuthorizationDecision} or null if no decision could be made
      */
     @Nullable
-    AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object);
+    AuthorizationDecision check(Supplier<? extends Authentication> authentication, RequestAuthorizationContext object);
 
     /**
      * SimpleSecurityGlobalEnhanceFilter strategy to match an HttpServletRequest.

@@ -14,7 +14,7 @@ import com.yishuifengxiao.common.security.token.extractor.SecurityValueExtractor
 import com.yishuifengxiao.common.security.token.holder.TokenHolder;
 import com.yishuifengxiao.common.security.token.holder.impl.InMemoryTokenHolder;
 import com.yishuifengxiao.common.security.user.encoder.SimplePasswordEncoder;
-import com.yishuifengxiao.common.security.user.userdetails.CustomeUserDetailsServiceImpl;
+import com.yishuifengxiao.common.security.user.userdetails.CustomUserDetailsServiceImpl;
 import com.yishuifengxiao.common.security.utils.TokenUtil;
 import com.yishuifengxiao.common.security.websecurity.WebSecurityEnhanceCustomizer;
 import jakarta.annotation.PostConstruct;
@@ -93,7 +93,7 @@ public class SecurityEnhanceAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean({UserDetailsService.class})
     public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        return new CustomeUserDetailsServiceImpl(passwordEncoder);
+        return new CustomUserDetailsServiceImpl(passwordEncoder);
     }
 
 
@@ -109,9 +109,8 @@ public class SecurityEnhanceAutoConfiguration {
     public DaoAuthenticationProvider daoAuthenticationProvider(PasswordEncoder passwordEncoder,
                                                                UserDetailsService userDetailsService) {
         //Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setHideUserNotFoundExceptions(false);
-        provider.setUserDetailsService(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder);
         provider.setPostAuthenticationChecks(new AccountStatusUserDetailsChecker());
         return provider;

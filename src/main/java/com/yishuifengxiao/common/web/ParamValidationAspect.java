@@ -1,10 +1,10 @@
 package com.yishuifengxiao.common.web;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yishuifengxiao.common.support.TraceContext;
 import com.yishuifengxiao.common.tool.entity.Response;
 import com.yishuifengxiao.common.tool.exception.UncheckedException;
+import com.yishuifengxiao.common.tool.bean.JsonUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.*;
 import jakarta.validation.groups.Default;
@@ -40,14 +40,16 @@ import java.util.Set;
  */
 @Aspect
 @Slf4j
-@RequiredArgsConstructor
 public class ParamValidationAspect {
-    private final static ObjectMapper defaultObjectMapper = new ObjectMapper();
     // 校验器实例
     private final Validator validator;
     // Web增强配置属性
     private final WebEnhanceProperties webEnhanceProperties;
-    private final ObjectMapper objectMapper;
+
+    public ParamValidationAspect(Validator validator, WebEnhanceProperties webEnhanceProperties) {
+        this.validator = validator;
+        this.webEnhanceProperties = webEnhanceProperties;
+    }
 
     /**
      * 公共方法切入点：匹配任意映射注解
@@ -205,12 +207,12 @@ public class ParamValidationAspect {
                         resp.setRequestId(requestId);
 
                         // 设置响应头
-                        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                         response.setStatus(HttpServletResponse.SC_OK);
 
                         // 写出 JSON
                         PrintWriter writer = response.getWriter();
-                        getObjectMapper().writeValue(writer, resp);
+                        writer.write(JsonUtil.toJSONString(resp));
                         writer.flush();
                     } catch (Exception e) {
                         log.error("Failed to write void response for class {} method: {}", targetClass.getName(),
@@ -269,16 +271,6 @@ public class ParamValidationAspect {
         return validator != null ? validator : Validation.buildDefaultValidatorFactory().getValidator();
     }
 
-
-    /**
-     * 获取ObjectMapper实例的方法
-     * 如果objectMapper不为null，则返回objectMapper；否则返回defaultObjectMapper
-     *
-     * @return 返回ObjectMapper实例，可能是自定义的objectMapper或默认的defaultObjectMapper
-     */
-    private ObjectMapper getObjectMapper() {
-        return objectMapper != null ? objectMapper : defaultObjectMapper;
-    }
 
     /**
      * 内部类：用于存储需要验证的参数信息

@@ -1,7 +1,6 @@
 package com.yishuifengxiao.common.security.token.authentication;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
@@ -14,7 +13,7 @@ import java.util.Objects;
  */
 public class SimpleAuthority implements GrantedAuthority, Serializable {
 
-    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+    private static final long serialVersionUID = 620L;
 
     private final String role;
 

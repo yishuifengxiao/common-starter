@@ -1,6 +1,5 @@
 package com.yishuifengxiao.common.support;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -90,7 +89,6 @@ public class ResourceHelper {
 
         private String methodName;
 
-        @JsonIgnore
         private transient Method method;
 
         private String preAuthorize;

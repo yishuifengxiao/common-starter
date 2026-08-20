@@ -21,7 +21,7 @@ import org.springframework.security.core.userdetails.UserDetailsChecker;
  * @since 1.0.0
  */
 @Slf4j
-public class SimepleUserDetailsChecker implements UserDetailsChecker, MessageSourceAware {
+public class SimpleUserDetailsChecker implements UserDetailsChecker, MessageSourceAware {
 
     protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
@@ -61,10 +61,10 @@ public class SimepleUserDetailsChecker implements UserDetailsChecker, MessageSou
         }
     }
 
-    public SimepleUserDetailsChecker() {
+    public SimpleUserDetailsChecker() {
     }
 
-    public SimepleUserDetailsChecker(SecurityPropertyResource securityPropertyResource) {
+    public SimpleUserDetailsChecker(SecurityPropertyResource securityPropertyResource) {
         this.securityPropertyResource = securityPropertyResource;
     }
 
@@ -76,5 +76,3 @@ public class SimepleUserDetailsChecker implements UserDetailsChecker, MessageSou
         this.securityPropertyResource = securityPropertyResource;
     }
 }
-
-
