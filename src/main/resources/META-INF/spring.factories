@@ -14,5 +14,9 @@ com.yishuifengxiao.common.AllExtensionsAutoConfiguration
 
 
 # Environment Post Processors
+# Spring Boot 4.0+ 新接口（org.springframework.boot 父包，不再是 env 子包）—— SB 4.1 扫描器只会识别这个 key
+org.springframework.boot.EnvironmentPostProcessor=\
+com.yishuifengxiao.common.support.SpringEnvironmentPostProcessor
+# 为兼容 Spring Boot 3.x（仍使用旧 FQCN 作为扫描 key）保留旧条目
 org.springframework.boot.env.EnvironmentPostProcessor=\
 com.yishuifengxiao.common.support.SpringEnvironmentPostProcessor
